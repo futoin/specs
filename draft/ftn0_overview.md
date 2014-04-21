@@ -1,6 +1,8 @@
 <pre>
 FTN0: Overview
 Version: 0.DV
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
 </pre>
 
 

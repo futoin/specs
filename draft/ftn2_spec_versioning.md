@@ -1,6 +1,8 @@
 <pre>
 FTN2: FutoIn Specification Versioning
-Version: 1.DV
+Version: 0.DV
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
 </pre>
 
 
