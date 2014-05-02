@@ -123,6 +123,10 @@ Using [JSON-SCHEMA][]:
                     "type" : "string",
                     "pattern" : "^(C|S)[0-9]+$",
                     "description" : "Optional request ID for multiplexing"
+                },
+                "sec" : {
+                    "type" : "object",
+                    "description" : "Security-defined extension"
                 }
             }
         }
@@ -169,6 +173,10 @@ Using [JSON-SCHEMA][]:
                     "type" : "string",
                     "pattern" : "^(C|S)[0-9]+$",
                     "description" : "Optional request ID for multiplexing"
+                },
+                "sec" : {
+                    "type" : "object",
+                    "description" : "Security-defined extension"
                 }
             }
         }
