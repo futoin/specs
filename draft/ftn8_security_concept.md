@@ -75,10 +75,20 @@ AuthService always acts as MasterService.
 ** A derived key must be generated
 ** Derived can be re-used at any peer discretion based on Severity vs. Performance considerations.
 *** There must be a limit imposed for total count of derived key reuse on each side
-* So, each message must contain shared secret ID, derived key ID and actual encrypted data/hmac
-** Shared secret ID is overflowing monotonically incrementing hexdigit value in range 00-FF
-** Derived key ID has similar behavior in range 000000-FFFFFF
+* So, each message must contain shared secret ID, derived key parameter and actual encrypted data/hmac
+** Shared secret ID is overflowing monotonically incrementing hexdigit value
+** Derived key parameter has similar behavior
 * Key management policy is out of scope of this specification so far
+
+### 2.2.3. Unregistration from MasterService
+
+Under some communication patterns, a persistent shared secret exchange is not required.
+It must be possible to unregister from MasterService.
+
+* Service sends unregistration request to MasterService with HMAC
+* MasterService verifies HMAC
+* MasterService "forgets" Service
+* Service can register again later
 
 
 ## 2.3. Stateful user authentication
@@ -86,7 +96,7 @@ AuthService always acts as MasterService.
 This is default method to be used for most cases.
 
 * Service redirects Client to AuthService with special parameters, identifying
-    1) requesting Service and 2) required security level
+    1) requesting Service (deduced from HMAC key ID) and 2) required security level
     3) random token associated with Client (must not be sensitive information)
     4) hmac signature made with Shared Secret.
 ** The data sent as regular FutoIn request message, encoded in JSON+Base64 and appended to AuthService URL
@@ -95,8 +105,9 @@ This is default method to be used for most cases.
 ** There must be a limit of sessions per Service
 * AuthService redirects Client to Service with payload:
 ** Payload is also regular FutoIn request message, encoded in JSON+Base64 and appended to Service callback URL
-** Client session ID is encrypted with shared secret, the same as used for message HMAC
+** Client session ID is encrypted with shared secret, **the same as used for HMAC**
 ** Client token provided by Service
+** AuthService specified Time-To-Live (Service must re-validate Client session)
 * Service
 ** Verifies HMAC
 ** Verifies if original random Client token matches current token
@@ -147,7 +158,7 @@ Client password is stored in hash with salt.
 ### 2.5.2. Auth by Challenge-Response Authentication
 
 * Client requests session auth random token and salt from Service/AuthService
-* Service generates random token, stores in session and sends to Client
+* Service generates random token, stores in session and sends it with salt to Client
 * Client hashes its password with salt
 * Client generates HMAC of random token using hash above
 ** Potential vulnerability as hash can be deduces, followed by password being exposed
@@ -209,16 +220,16 @@ Service must re-send Client for authentication, if more fields need to be approv
 
 ### 2.8.1. List of standard field identifiers
 
-* FirstName
-* FullName
-* DateOfBirth
-* TimeOfBirth
+* FirstName - a short name to be used in greetings, etc.
+* FullName - full name to be used in official documents, implies access to FirstName
+* DateOfBirth - ISO "YYYY-MM-DD" format
+* TimeOfBirth - ISO "HH:mm:ss" format, can be truncated to minutes
 * ContactEmail
-* ContactPhone
+* ContactPhone - full international number, starting with "+"
 * HomeAddress
 * WorkAddress
-* Citizenship
-* GovernmentRegID
+* Citizenship - list of countries of citizenship names
+* GovernmentRegID - list of objects with country name, ID type and ID value fields ({country,idtype,value})
 * AvatarURL
 
 
@@ -244,16 +255,251 @@ be forwarded to another AuthService.
 
 ## 3.1. MasterService provider
 
+`Iface{`
+
+        {
+            "iface" : "futoin.master.provider",
+            "version" : "0.DV",
+            "funcs" : {
+                "register" : {
+                    "params" : {
+                        "callback" :  {
+                            "type" : "string",
+                            "desc" : "Consumer callback URL, implementing futoin.master.consumer interface"
+                        },
+                        "secret" : {
+                            "type" : "string",
+                            "Initial shared secret",
+                        },
+                    },
+                    "result" : {
+                        "ok" : {
+                            "type" : "boolean",
+                            "desc" : "Always true, if no exception"
+                        }
+                    },
+                    "throws" : [
+                        "AlreadyRegistered",
+                        "InvalidCallback",
+                        "InvalidSecret",
+                        "KeyRotationFailure"
+                    ]
+                },
+                "unRegister" : {
+                    "params" : {
+                        "callback" :  {
+                            "type" : "string",
+                            "desc" : "Original value from registration request"
+                        }
+                    },
+                    "result" : {
+                        "ok" : {
+                            "type" : "boolean",
+                            "desc" : "Always true, if no exception"
+                        }
+                    },
+                    "throws" : [
+                        "UnknownCallback"
+                    ]
+                }
+            },
+            "requires" : [
+                "AllowAnonymous",
+                "SecureChannel"
+            ],
+            "desc" : "MasterService Provider interface"
+        }
+
+`}Iface`
+
+
 ## 3.2. MasterService consumer
 
-## 3.3. AuthService provider
+`Iface{`
 
-## 3.4. AuthService consumer
+        {
+            "iface" : "futoin.master.consumer",
+            "version" : "0.DV",
+            "funcs" : {
+                "newSharedKey" : {
+                    "params" : {
+                        "key_id" :  {
+                            "type" : "string",
+                            "desc" : "Shared secret ID"
+                        },
+                        "enc_key" : {
+                            "type" : "string",
+                            "desc" : "Key, encrypted with the same key as used for HMAC",
+                        },
+                    },
+                    "result" : {
+                        "ok" : {
+                            "type" : "boolean",
+                            "desc" : "Always true, if no exception"
+                        }
+                    }
+                }
+            },
+            "requires" : [
+                "SecureChannel"
+            ],
+            "desc" : "MasterService Provider interface"
+        }
+
+`}Iface`
+
+## 3.3. AuthService backend provider (Service interface)
+
+`Iface{`
+
+        {
+            "iface" : "futoin.auth.backend",
+            "version" : "0.DV",
+            "funcs" : {
+                "getClientInfo" : {
+                    "params" : {
+                        "session" : {
+                            "type" : "string",
+                            "desc" : "Session token from futoin.auth.consumer.complete.ssn"
+                        }
+                    },
+                    "result" : {
+                        "info" : {
+                            "type" : "map",
+                            "desc" : "Map of Private Info fields, allowed by Client to be sent"
+                        }
+                    },
+                    "throws" : {
+                        "InvalidSessionID"
+                    }
+                },
+                "validate" : {
+                    "params" : {
+                        "session" : {
+                            "type" : "string",
+                            "desc" : "Session token from futoin.auth.consumer.complete.essn"
+                        }
+                    },
+                    "result" : {
+                        "constraints" : {
+                            "type" : "array",
+                            "desc" : "Array of object sets of constraints"
+                        }
+                    },
+                    "throws" : {
+                        "InvalidSessionID"
+                    }
+                },
+            },
+            "requires" : [
+                "SecureChannel"
+            ],
+            "desc" : "AuthService Backend Provider interface"
+        }
+
+`}Iface`
+
+## 3.4. AuthService frontend provider (Client interface)
+
+`Iface{`
+
+        {
+            "iface" : "futoin.auth.frontend",
+            "version" : "0.DV",
+            "funcs" : {
+                "signIn" : {
+                    "params" : {
+                        "lvl" : {
+                            "type" : "string",
+                            "desc" : "Required Security Level",
+                        },
+                        "pf" : {
+                            "type" : "array",
+                            "desc" : "List of private field access to request"
+                        },
+                        "tkn" : {
+                            "type" : "string",
+                            "desc" : "Requesting Service provided client token"
+                        }
+                    },
+                    "desc" : "Special handling. Service and its callback must be determined from sec.ki parameter. Client is 'transport'",
+                },
+                "authBySecret" : {
+                    "params" : {
+                        "client_id" : {
+                            "type" : "string",
+                            "desc" : "Unique Client ID"
+                        },
+                        "secret" : {
+                            "type" : "string",
+                            "desc" : "Client secret"
+                        }
+                    },
+                    "result" : {
+                        "ok" : {
+                            "type" : "boolean",
+                            "desc" : "Always true, if no exception"
+                        }
+                    },
+                    "throws" : {
+                        "InvalidClientID",
+                        "InvalidSecret",
+                        "Blocked"
+                    },
+                    "desc" : "Authorize by ID/secret pair. Can be called by Service, if allowed"
+                },
+                "completeSignIn" : {
+                    "result" : {
+                        "redirect" : {
+                            "type" : "string",
+                            "desc" : "Redirect URL to return to requesting Service"
+                        }
+                    }
+                }
+            },
+            "requires" : [
+                "AllowAnonymous",
+                "SecureChannel"
+            ],
+            "desc" : "AuthService Backend Provider interface"
+        }
+
+`}Iface`
+
+## 3.5. AuthConsumer
+
+`Iface{`
+
+        {
+            "iface" : "futoin.auth.consumer",
+            "version" : "0.DV",
+            "funcs" : {
+                "complete" : {
+                    "params" : {
+                        "essn" : {
+                            "type" : "string",
+                            "desc" : "Encrypted session token ID"
+                        },
+                        "ttl" : {
+                            "type" : "string",
+                            "desc" : "Time-to-Live for Client session"
+                        }
+                    }
+                }
+            },
+            "requires" : [
+                "AllowAnonymous"
+            ],
+            "desc" : "AuthService Backend Provider interface"
+        }
+
+`}Iface`
+
 
 
 # 4. Defense system integration
 
-Security is common responsibility. Ever node of the system must be a defense barrier for
+Security is common responsibility. Every node of the system must be a defense barrier for
 both attacks and simple misconfiguration.
 
 Typically, more farther node from actual attacker should have a little higher failure rate
@@ -266,6 +512,9 @@ is triggered on another host.
 *Note: all hit or approaching limits must be reported to administration for actions to be 
 taken*
 
+**Any error, which never happens by race condition, mistake, etc. must immediately trigger
+defense system action** Example: session token validation by other Service.
+
 # 4.1. Possible limit types
 
 * Limit per period from the same client and/or host and/or network
@@ -275,29 +524,47 @@ taken*
 ** Limit can be risen and lowered dynamically (e.g. AuthService rices limits per Services
     based on number of active users)
 
+    
 
 # 5. Detailed encryption and authentication requirements
 
 SHA-3 was desired as a start, but SHA-2 is more widespread at the moment.
-So, SHA-256 is to be used until SHA3-256 is penetrated into most technologies.
+So, SHA-2 is to be used until SHA-3 is penetrated into most technologies.
 
-* All shared and derived keys are 256-bit in length
+SHA-384, SHA-512 or its truncated version SHA-512/224, SHA-512/256 is to be used
+at the moment. Dependant peer must deduce actual hash function based on
+hash length.
+
+AES-256 is to be used as encryption cipher. Therefore minimal shared secret
+length is 256-bit. Longer keys should be truncated.
+
+
+* MasterService is responsible for choosing the right key and hash lengths
+* Later, it can be extended with other length types
 * All raw binary strings must be encoded in Base64 according to [base64][]
 * JSON sent as GET path and/or parameter is also encoded in Base64
+* There must be blacklist rules for forbidden keys (derived from respective hash/cipher function considerations)
+** Shared secret must be re-generated
+** Derived key must be skipped
+* Key ID must be unique per each MasterService and normally used to determine Service
 
 # 5.1. Message "sec" field sub-schema for HMAC
 
 `Schema(futoin-sec-hmac){`
 
         {
-            "title" : "FutoIn 'sec' HMAC",
+            "title" : "FutoIn 'sec' field - HMAC",
             "type" : "object",
             "additionalProperties" : false,
             "required" : [ "ksn", "hmac" ],
             "properties" : {
-                "ksn" : {
+                "ki" : {
                     "type" : "string",
-                    "description" : "1 character - version (always 0), 2-3 - secret key ID, 4-9 - derived key ID"
+                    "description" : "Base shared secret ID"
+                },
+                "di" : {
+                    "type" : "string",
+                    "description" : "Derived key sequence ID"
                 },
                 "hmac" : {
                     "type" : "string",
@@ -310,10 +577,10 @@ So, SHA-256 is to be used until SHA3-256 is penetrated into most technologies.
 
 # 5.2. Message "sec" field sub-schema for Stateless authentication
 
-`Schema(futoin-sec-auth){`
+`Schema(futoin-sec-credentials){`
 
         {
-            "title" : "FutoIn 'sec' auth",
+            "title" : "FutoIn 'sec' field - Credentials",
             "type" : "object",
             "additionalProperties" : false,
             "required" : [ "user" ],
@@ -330,6 +597,15 @@ So, SHA-256 is to be used until SHA3-256 is penetrated into most technologies.
         }
 
 `}Schema`
+
+
+
+# 6. Examples
+
+## 6.1. Typical web case
+
+## 6.2. Clear-text credentials in automation case
+
 
 
 [hmac]: http://en.wikipedia.org/wiki/Hash-based_message_authentication_code "HMAC"

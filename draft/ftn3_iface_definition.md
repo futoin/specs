@@ -331,6 +331,7 @@ Using [JSON-SCHEMA][]:
                                 },
                                 "throws" : {
                                     "type" : "array",
+                                    "uniqueItems": true,
                                     "description" : "List of associative error names, which can be triggered by function execution"
                                 }
                             },
@@ -344,6 +345,15 @@ Using [JSON-SCHEMA][]:
                 "inherit" : {
                     "type" : "string",
                     "description" : "Name of interface identifier to be inherited"
+                },
+                "requires" : {
+                    "type" : "array",
+                    "description" : "List of conditions for interface operation",
+                    "items" : {
+                        "type" : "string",
+                        "pattern" : "^AllowAnonymous|SecureChannel|[a-zA-Z0-9]+$",
+                    },
+                    "uniqueItems": true
                 }
             }
         }
@@ -423,6 +433,23 @@ Inheritance is limited to:
 ** Invoker must ignore additional result values, if function is called through parent interface
 
 *Note: multiple interface inheritance is not supported at the moment*
+
+## 2.4. Interface operation requirements
+
+Some interfaces must be restricted to certain conditions. This can be defined on interface level
+through "requires" attribute.
+
+Standard requirement type:
+
+* AllowAnonymous - interface can be called Client Authentication information
+* SecureChannel - message exchange must be done through secure channel as it contains
+    not encrypted sensitive information. Channel security control is Service
+    implementation responsibility
+
+
+For safety reasons, inheriting interface must re-define all "requires" items from
+inherited interface.
+    
 
 
 [json]: http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "JSON"
