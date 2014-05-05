@@ -290,10 +290,178 @@ For security reasons, only authentication requests from pre-approved Service lis
 be forwarded to another AuthService.
 
 
+# 3. Defense system integration
 
-# 3. Interface definitions
+Security is common responsibility. Every node of the system must be a defense barrier for
+both attacks and simple misconfiguration.
 
-## 3.1. MasterService provider
+Typically, more farther node from actual attacker should have a little higher failure rate
+limit to avoid a closer node being banned, leading to Denial of Service of specific 
+functionality.
+
+Each service must detect attacking Clients/Services and deny access before security limit
+is triggered on another host.
+
+*Note: all hit or approaching limits must be reported to administration for actions to be 
+taken*
+
+**Any error, which never happens by race condition, mistake, etc. must immediately trigger
+defense system action** Example: session token validation by other Service.
+
+## 3.1. Possible limit types
+
+* Limit per period from the same client and/or host and/or network
+** Request count
+** Security failures
+* Dynamic limits
+** Limit can be risen and lowered dynamically (e.g. AuthService rices limits per Services
+    based on number of active users)
+
+    
+
+# 4. Detailed encryption and authentication requirements
+
+SHA-3 was desired as a start, but SHA-2 is more widespread at the moment.
+So, SHA-2 is to be used until SHA-3 is penetrated into most technologies.
+
+SHA-384, SHA-512 or its truncated version SHA-512/224, SHA-512/256 is to be used
+at the moment. Dependant peer must deduce actual hash function based on
+hash length.
+
+AES-256 is to be used as encryption cipher. Therefore minimal shared secret
+length is 256-bit. Longer keys should be truncated.
+
+
+* MasterService is responsible for choosing the right key and hash lengths
+* Later, it can be extended with other length types
+* All raw binary strings must be encoded in Base64 according to [base64][]
+* JSON sent as GET path and/or parameter is also encoded in Base64
+* There must be blacklist rules for forbidden keys (derived from respective hash/cipher function considerations)
+** Shared secret must be re-generated
+** Derived key must be skipped
+* Key ID must be unique per each MasterService and normally used to determine Service
+
+## 4.1. Message "sec" field sub-schema for HMAC
+
+`Schema(futoin-sec-hmac){`
+
+        {
+            "title" : "FutoIn 'sec' field - HMAC",
+            "type" : "object",
+            "additionalProperties" : false,
+            "required" : [ "ksn", "hmac" ],
+            "properties" : {
+                "ki" : {
+                    "type" : "string",
+                    "description" : "Base shared secret ID"
+                },
+                "di" : {
+                    "type" : "string",
+                    "description" : "Derived key sequence ID"
+                },
+                "hmac" : {
+                    "type" : "string",
+                    "description" : "Base64 encoded HMAC"
+                },
+            }
+        }
+
+`}Schema`
+
+## 4.2. Message "sec" field sub-schema for Stateless authentication
+
+`Schema(futoin-sec-credentials){`
+
+        {
+            "title" : "FutoIn 'sec' field - Credentials",
+            "type" : "object",
+            "additionalProperties" : false,
+            "required" : [ "user" ],
+            "properties" : {
+                "user" : {
+                    "type" : "string",
+                    "description" : "Unique user identification"
+                },
+                "secret" : {
+                    "type" : "string",
+                    "description" : "Optional. Any type of secret, typically password"
+                },
+            }
+        }
+
+`}Schema`
+
+
+
+# 5. Access Control Service
+
+In many cases, there is a fixed number of object types, like users, posts, files, etc.
+And there is a variable size of objects per type, many users, posts and files. Every
+object can have Create/Read/Update/Delete action.
+
+We can see a hierarchy here: Service -> Object Types -> Individual Objects -> Individual Object Action.
+
+Another type of hierarchy can be: Service -> Interface -> Function.
+
+In all cases it is possible to unify access control system to operate on neutral
+tree-like structure of identifiers. On low level, Client access is controlled on specific
+end-object+action. The details of how access is granted (e.g. roles, individual permissions, ownership, etc.)
+are AccessControlService implementation details.
+
+It is assumed that all AccessControlService
+
+Doing an API call for every action may produce a significant overhead. It is important to design
+effective caching mechanism with stable invalidation for security reasons.
+
+## 5.1. Access Control descriptor
+
+There must be a common notation to identify object of checked control. In API, the access notation is
+an ordered array, where the first item is the top most in scope.
+
+Descriptor scope is specific to context. In Service context, scope is service. In Access Control Service,
+the scope is a common set of all Services registered to the system (meaning the first element is Service identifier).
+
+Example: ["root_node", "object_type", "action"]
+
+In some cases, wildcard is desired for some items. Example: grant update access to all users.
+Wildcard is marked as null value in place of item in the descriptor array.
+
+Example: ["root_node", null, "action"]
+
+For human readable purpose, the same descriptor can be written in string form, each item being separated by
+dot "." and wildcard null being replaced by star "*".
+
+Example: "root.object_type.action", "root.*.action"
+
+## 5.2. Access Control check
+
+* Client performs a request to Service
+* Service calls AccessControlService providing client ID and access descriptor
+* AccessControlService checks access implementation-dependent way
+* If access is not granted, AccessControlService returns "Forbidden" exception
+* AccessControlService returns
+** matched access control descriptor (access can be granted by parent item)
+** cache Time-to-Live
+** required auth security level
+* Service caches response by descriptor to optimize checks next time
+* Service checks if current auth security level satisfy requirements
+* Service continues request processing
+
+## 5.3. Example
+
+        Client                     Service                      AccessControlService
+           |                          |                              |
+           |-------- request -------> |                              |
+           |                          |--------- checkAccess ------> |
+           |                          | <-- validation constraints --|
+           | <------ response --------|                              |
+           |                          |                              |           
+
+           
+
+# 6. Interface definitions
+
+## 6.1. MasterService provider
 
 `Iface{`
 
@@ -311,6 +479,14 @@ be forwarded to another AuthService.
                             "type" : "string",
                             "Initial shared secret",
                         },
+                        "swver" : {
+                            "type" : "string",
+                            "desc" : "Software of Service and its version"
+                        },
+                        "purpose" : {
+                            "type" : "string",
+                            "desc" : "Purpose/Description for the Service"
+                        }
                     },
                     "result" : {
                         "ok" : {
@@ -353,7 +529,7 @@ be forwarded to another AuthService.
 `}Iface`
 
 
-## 3.2. MasterService consumer
+## 6.2. MasterService consumer
 
 `Iface{`
 
@@ -388,7 +564,7 @@ be forwarded to another AuthService.
 
 `}Iface`
 
-## 3.3. AuthService backend provider (Service interface)
+## 6.3. AuthService backend provider (Service interface)
 
 `Iface{`
 
@@ -464,7 +640,7 @@ be forwarded to another AuthService.
 
 `}Iface`
 
-## 3.4. AuthService frontend provider (Client interface)
+## 6.4. AuthService frontend provider (Client interface)
 
 `Iface{`
 
@@ -539,7 +715,7 @@ be forwarded to another AuthService.
 
 `}Iface`
 
-## 3.5. AuthConsumer
+## 6.5. AuthConsumer (Service interface)
 
 `Iface{`
 
@@ -558,6 +734,21 @@ be forwarded to another AuthService.
                             "desc" : "Time-to-Live for Client session"
                         }
                     }
+                },
+                "invalidate" : {
+                    "params" : {
+                        "session" : {
+                            "type" : "string",
+                            "desc" : "Session token from futoin.auth.consumer.complete.essn"
+                        }
+                    },
+                    "result" : {
+                        "ok" : {
+                            "type" : "boolean",
+                            "desc" : "Always true, if no exception"
+                        }
+                    },
+                    "desc" : "Invalidate session and force re-check on next user activity or earlier"
                 }
             },
             "requires" : [
@@ -568,116 +759,6 @@ be forwarded to another AuthService.
 
 `}Iface`
 
-
-
-# 4. Defense system integration
-
-Security is common responsibility. Every node of the system must be a defense barrier for
-both attacks and simple misconfiguration.
-
-Typically, more farther node from actual attacker should have a little higher failure rate
-limit to avoid a closer node being banned, leading to Denial of Service of specific 
-functionality.
-
-Each service must detect attacking Clients/Services and deny access before security limit
-is triggered on another host.
-
-*Note: all hit or approaching limits must be reported to administration for actions to be 
-taken*
-
-**Any error, which never happens by race condition, mistake, etc. must immediately trigger
-defense system action** Example: session token validation by other Service.
-
-# 4.1. Possible limit types
-
-* Limit per period from the same client and/or host and/or network
-** Request count
-** Security failures
-* Dynamic limits
-** Limit can be risen and lowered dynamically (e.g. AuthService rices limits per Services
-    based on number of active users)
-
-    
-
-# 5. Detailed encryption and authentication requirements
-
-SHA-3 was desired as a start, but SHA-2 is more widespread at the moment.
-So, SHA-2 is to be used until SHA-3 is penetrated into most technologies.
-
-SHA-384, SHA-512 or its truncated version SHA-512/224, SHA-512/256 is to be used
-at the moment. Dependant peer must deduce actual hash function based on
-hash length.
-
-AES-256 is to be used as encryption cipher. Therefore minimal shared secret
-length is 256-bit. Longer keys should be truncated.
-
-
-* MasterService is responsible for choosing the right key and hash lengths
-* Later, it can be extended with other length types
-* All raw binary strings must be encoded in Base64 according to [base64][]
-* JSON sent as GET path and/or parameter is also encoded in Base64
-* There must be blacklist rules for forbidden keys (derived from respective hash/cipher function considerations)
-** Shared secret must be re-generated
-** Derived key must be skipped
-* Key ID must be unique per each MasterService and normally used to determine Service
-
-# 5.1. Message "sec" field sub-schema for HMAC
-
-`Schema(futoin-sec-hmac){`
-
-        {
-            "title" : "FutoIn 'sec' field - HMAC",
-            "type" : "object",
-            "additionalProperties" : false,
-            "required" : [ "ksn", "hmac" ],
-            "properties" : {
-                "ki" : {
-                    "type" : "string",
-                    "description" : "Base shared secret ID"
-                },
-                "di" : {
-                    "type" : "string",
-                    "description" : "Derived key sequence ID"
-                },
-                "hmac" : {
-                    "type" : "string",
-                    "description" : "Base64 encoded HMAC"
-                },
-            }
-        }
-
-`}Schema`
-
-# 5.2. Message "sec" field sub-schema for Stateless authentication
-
-`Schema(futoin-sec-credentials){`
-
-        {
-            "title" : "FutoIn 'sec' field - Credentials",
-            "type" : "object",
-            "additionalProperties" : false,
-            "required" : [ "user" ],
-            "properties" : {
-                "user" : {
-                    "type" : "string",
-                    "description" : "Unique user identification"
-                },
-                "secret" : {
-                    "type" : "string",
-                    "description" : "Optional. Any type of secret, typically password"
-                },
-            }
-        }
-
-`}Schema`
-
-
-
-# 6. Examples
-
-## 6.1. Typical web case
-
-## 6.2. Clear-text credentials in automation case
 
 
 
