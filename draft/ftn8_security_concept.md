@@ -585,9 +585,9 @@ Example: "root.object_type.action", "root.*.action"
                             "desc" : "Map of Private Info fields, allowed by Client to be sent"
                         }
                     },
-                    "throws" : {
+                    "throws" : [
                         "InvalidSessionID"
-                    }
+                    ]
                 },
                 "validate" : {
                     "params" : {
@@ -602,9 +602,9 @@ Example: "root.object_type.action", "root.*.action"
                             "desc" : "Array of object sets of constraints"
                         }
                     },
-                    "throws" : {
+                    "throws" : [
                         "InvalidSessionID"
-                    }
+                    ]
                 },
                 "validateBySecret" : {
                     "params" : {
@@ -623,11 +623,11 @@ Example: "root.object_type.action", "root.*.action"
                             "desc" : "Array of object sets of constraints"
                         }
                     },
-                    "throws" : {
+                    "throws" : [
                         "InvalidClientID",
                         "InvalidSecret",
                         "Blocked"
-                    },
+                    ],
                     "desc" : "Authorize by ID/secret pair"
                 },
 
@@ -682,11 +682,11 @@ Example: "root.object_type.action", "root.*.action"
                             "desc" : "Always true, if no exception"
                         }
                     },
-                    "throws" : {
+                    "throws" : [
                         "InvalidClientID",
                         "InvalidSecret",
                         "Blocked"
-                    },
+                    ],
                     "desc" : "Authorize by ID/secret pair"
                 },
                 "completeSignIn" : {
@@ -737,9 +737,9 @@ Example: "root.object_type.action", "root.*.action"
                 },
                 "invalidate" : {
                     "params" : {
-                        "session" : {
+                        "essn" : {
                             "type" : "string",
-                            "desc" : "Session token from futoin.auth.consumer.complete.essn"
+                            "desc" : "Encrypted session token ID"
                         }
                     },
                     "result" : {
@@ -759,6 +759,130 @@ Example: "root.object_type.action", "root.*.action"
 
 `}Iface`
 
+## 6.6. AccessControl provider
+
+`Iface{`
+
+        {
+            "iface" : "futoin.acl.provider",
+            "version" : "0.DV",
+            "funcs" : {
+                "checkAccess" : {
+                    "params" : {
+                        "client_id" : {
+                            "type" : "string",
+                            "desc" : "Unique Client ID"
+                        },
+                        "acd" : {
+                            "type" : "string",
+                            "desc" : "Access control descriptor"
+                        }
+                    },
+                    "result" : {
+                        "acd" : {
+                            "type" : "string",
+                            "desc" : "Access control descriptor"
+                        },
+                        "ttl" : {
+                            "type" : "string",
+                            "desc" : "Time-to-Live for client descriptor cache"
+                        },
+                        "auth_level" : {
+                            "type" : "string",
+                            "desc" : "Required Security Level",
+                        },
+                    },
+                    "throws" : [
+                        "Forbidden"
+                    ],
+                    "desc" : "Check access to calling Service"
+                },
+                "grantAccess" : {
+                    "params" : {
+                        "client_id" : {
+                            "type" : "string",
+                            "desc" : "Unique Client ID"
+                        },
+                        "acd" : {
+                            "type" : "string",
+                            "desc" : "Access control descriptor"
+                        },
+                        "auth_level" : {
+                            "type" : "string",
+                            "desc" : "Required Security Level",
+                        }
+                    },
+                    "result" : {
+                        "ok" : {
+                            "type" : "boolean",
+                            "desc" : "Always true, if no exception"
+                        }
+                    },
+                    "desc" : "Invalidate session and force re-check on next user activity or earlier"
+                },
+                "registerDescriptors" : {
+                    "params" : {
+                        "acd_tree" : {
+                            "type" : "map",
+                            "desc" : "Access control descriptor tree"
+                        },
+                        "auth_level" : {
+                            "type" : "string",
+                            "desc" : "Required Security Level",
+                        }
+                    },
+                    "result" : {
+                        "ok" : {
+                            "type" : "boolean",
+                            "desc" : "Always true, if no exception"
+                        }
+                    },
+                    "desc" : "Register tree of access descriptors for specific auth level"
+                }
+            },
+            "requires" : [
+                "SecureChannel"
+            ],
+            "desc" : "AuthService Backend Provider interface"
+        }
+
+`}Iface`
+
+## 6.7. AccessControl consumer
+
+`Iface{`
+
+        {
+            "iface" : "futoin.acl.consumer",
+            "version" : "0.DV",
+            "funcs" : {
+                "invalidate" : {
+                    "params" : {
+                        "client_id" : {
+                            "type" : "string",
+                            "desc" : "Unique Client ID"
+                        },
+                        "acd" : {
+                            "type" : "string",
+                            "desc" : "Access control descriptor"
+                        }
+                    },
+                    "result" : {
+                        "ok" : {
+                            "type" : "boolean",
+                            "desc" : "Always true, if no exception"
+                        }
+                    },
+                    "desc" : "Invalidate cached Client's access control descriptor"
+                }
+            },
+            "requires" : [
+                "SecureChannel"
+            ],
+            "desc" : "AuthService Backend Provider interface"
+        }
+
+`}Iface`
 
 
 
