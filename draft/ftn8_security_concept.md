@@ -90,11 +90,26 @@ It must be possible to unregister from MasterService.
 * MasterService "forgets" Service
 * Service can register again later
 
+### 2.2.4. Example
+
+        Service                     MasterService
+           |                              |
+           |-------- register ----------> |
+           | <------- newSharedKey -------|
+                        ...
+           | <------- newSharedKey -------|
+                        ...
+           |                              |
+           |------- unRegister ---------> |
+           |                              |
+
+
 
 ## 2.3. Stateful user authentication
 
 This is default method to be used for most cases.
 
+* Client connects to Service
 * Service redirects Client to AuthService with special parameters, identifying
     1) requesting Service (deduced from HMAC key ID) and 2) required security level
     3) random token associated with Client (must not be sensitive information)
@@ -127,6 +142,20 @@ but it becomes really important for all modification type of requests.
 * ExceptionalOps - PrivilegedOps + access to very sensitive operations, like password change
 ** At Service discretion, should be one-time access with immediate downgrade to PrivilegedOps level
 
+### 2.3.2. Example
+
+        Client                     Service                      AuthService
+           |                          |                              |
+           |-------- Connect -------> |                              |
+           | <--- Redirect signIn ----|                              |
+           |------------------ signIn -----------------------------> |
+           | <----------------- Sign in page/form -------------------|
+           | [----------------- authBySecret---------------------->] |
+           |----------- completeSignIn or cancelSignIn ------------> |
+           |-------- complete ------> |                              |
+           |                          |---------- validate --------> |
+           |                          | <-- validation constraints --|
+           |                          |                              |           
 
 
 ## 2.4. Stateless user authentication
@@ -136,6 +165,17 @@ limited authorization capabilities as it is not always possible to establish
 secure credentials management and/or implement a statefull client.
 
 Credentials information is sent along-side API request.
+
+### 2.4.1. Example
+
+        Client                     Service                      AuthService
+           |                          |                              |
+           |------ API request -----> |                              |
+           |                          |---- validateBySecret ------> |
+           |                          | <-- validation constraints --|
+           | <---- API response ------|                              |
+           |                          |                              |           
+
 
 
 ## 2.5. User authentication methods
@@ -390,6 +430,31 @@ be forwarded to another AuthService.
                         "InvalidSessionID"
                     }
                 },
+                "validateBySecret" : {
+                    "params" : {
+                        "client_id" : {
+                            "type" : "string",
+                            "desc" : "Unique Client ID"
+                        },
+                        "secret" : {
+                            "type" : "string",
+                            "desc" : "Client secret"
+                        }
+                    },
+                    "result" : {
+                        "constraints" : {
+                            "type" : "array",
+                            "desc" : "Array of object sets of constraints"
+                        }
+                    },
+                    "throws" : {
+                        "InvalidClientID",
+                        "InvalidSecret",
+                        "Blocked"
+                    },
+                    "desc" : "Authorize by ID/secret pair"
+                },
+
             },
             "requires" : [
                 "SecureChannel"
@@ -446,9 +511,17 @@ be forwarded to another AuthService.
                         "InvalidSecret",
                         "Blocked"
                     },
-                    "desc" : "Authorize by ID/secret pair. Can be called by Service, if allowed"
+                    "desc" : "Authorize by ID/secret pair"
                 },
                 "completeSignIn" : {
+                    "result" : {
+                        "redirect" : {
+                            "type" : "string",
+                            "desc" : "Redirect URL to return to requesting Service"
+                        }
+                    }
+                },
+                "cancelSignIn" : {
                     "result" : {
                         "redirect" : {
                             "type" : "string",
