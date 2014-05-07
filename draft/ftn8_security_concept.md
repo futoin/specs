@@ -128,7 +128,7 @@ This is default method to be used for most cases.
 ** Verifies if original random Client token matches current token
 ** Session ID is decrypted
 ** Service gets session parameters and constraints from AuthService by Session ID
-** Service checks any provided constraints (X509 CN, public key, IP address, etc.)
+** Service checks any provided constraints (2.3.2)
 * Service continuous normal interaction with Client
 
 ### 2.3.1. Security Levels
@@ -142,7 +142,17 @@ but it becomes really important for all modification type of requests.
 * ExceptionalOps - PrivilegedOps + access to very sensitive operations, like password change
 ** At Service discretion, should be one-time access with immediate downgrade to PrivilegedOps level
 
-### 2.3.2. Example
+### 2.3.2. Validation Constraints
+
+* X509_CN - CN field of X509 client certificate, signed by pre-configured CA for Service
+* pubkey - RSA/DSA/or other public key in SSH format [ssh-pubkey][]
+* IPv4Address or IPv6Address - incoming address of the client in dotted/colon textual notation
+* UserAgent - Exact UserAgent string
+* Cookie - key=value wildcard cookie to be set (useful, if both AuthService and Service run under same second level domain)
+* SecureChannel - SSL/TLS, VPN or greater than or equal strength communication security is established
+
+
+### 2.3.3. Example
 
         Client                     Service                      AuthService
            |                          |                              |
@@ -886,6 +896,7 @@ Example: "root.object_type.action", "root.*.action"
 
 
 
-[hmac]: http://en.wikipedia.org/wiki/Hash-based_message_authentication_code "HMAC"
-[base64]: http://www.faqs.org/rfcs/rfc2045.html "RFC2045 section 6.8"
+[hmac]: http://www.ietf.org/rfc/rfc2104.txt "RFC2104 HMAC"
+[base64]: http://www.ietf.org/rfc/rfc2045.txt "RFC2045 section 6.8"
+[ssh-pubkey]: http://www.ietf.org/rfc/rfc4716.txt "RFC4716 The Secure Shell (SSH) Public Key File Format"
 
