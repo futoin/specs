@@ -372,7 +372,7 @@ length is 256-bit. Longer keys should be truncated.
                 "hmac" : {
                     "type" : "string",
                     "description" : "Base64 encoded HMAC"
-                },
+                }
             }
         }
 
@@ -395,7 +395,7 @@ length is 256-bit. Longer keys should be truncated.
                 "secret" : {
                     "type" : "string",
                     "description" : "Optional. Any type of secret, typically password"
-                },
+                }
             }
         }
 
@@ -487,7 +487,7 @@ Example: "root.object_type.action", "root.*.action"
                         },
                         "secret" : {
                             "type" : "string",
-                            "Initial shared secret",
+                            "desc" : "Initial shared secret"
                         },
                         "swver" : {
                             "type" : "string",
@@ -555,8 +555,8 @@ Example: "root.object_type.action", "root.*.action"
                         },
                         "enc_key" : {
                             "type" : "string",
-                            "desc" : "Key, encrypted with the same key as used for HMAC",
-                        },
+                            "desc" : "Key, encrypted with the same key as used for HMAC"
+                        }
                     },
                     "result" : {
                         "ok" : {
@@ -639,8 +639,7 @@ Example: "root.object_type.action", "root.*.action"
                         "Blocked"
                     ],
                     "desc" : "Authorize by ID/secret pair"
-                },
-
+                }
             },
             "requires" : [
                 "SecureChannel"
@@ -662,7 +661,7 @@ Example: "root.object_type.action", "root.*.action"
                     "params" : {
                         "lvl" : {
                             "type" : "string",
-                            "desc" : "Required Security Level",
+                            "desc" : "Required Security Level"
                         },
                         "pf" : {
                             "type" : "array",
@@ -673,7 +672,7 @@ Example: "root.object_type.action", "root.*.action"
                             "desc" : "Requesting Service provided client token"
                         }
                     },
-                    "desc" : "Special handling. Service and its callback must be determined from sec.ki parameter. Client is 'transport'",
+                    "desc" : "Special handling. Service and its callback must be determined from sec.ki parameter. Client is 'transport'"
                 },
                 "authBySecret" : {
                     "params" : {
@@ -799,8 +798,8 @@ Example: "root.object_type.action", "root.*.action"
                         },
                         "auth_level" : {
                             "type" : "string",
-                            "desc" : "Required Security Level",
-                        },
+                            "desc" : "Required Security Level"
+                        }
                     },
                     "throws" : [
                         "Forbidden"
@@ -819,7 +818,7 @@ Example: "root.object_type.action", "root.*.action"
                         },
                         "auth_level" : {
                             "type" : "string",
-                            "desc" : "Required Security Level",
+                            "desc" : "Required Security Level"
                         }
                     },
                     "result" : {
@@ -838,7 +837,7 @@ Example: "root.object_type.action", "root.*.action"
                         },
                         "auth_level" : {
                             "type" : "string",
-                            "desc" : "Required Security Level",
+                            "desc" : "Required Security Level"
                         }
                     },
                     "result" : {

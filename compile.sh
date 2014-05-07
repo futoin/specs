@@ -4,11 +4,7 @@ function compile(){
 	local src="$1"
 	
 	mkdir -p $src/meta
-
-	for f in $src/*.md;
-	do
-        ./tools/compilespec.py $f
-	done
+	./tools/compilespec.py $src/*.md
 }
 
 compile draft
