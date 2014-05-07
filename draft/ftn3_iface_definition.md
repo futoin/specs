@@ -130,7 +130,7 @@ Using [JSON-SCHEMA][]:
                 }
             }
         }
-        
+
 `}Schema`
 
 
@@ -351,7 +351,7 @@ Using [JSON-SCHEMA][]:
                     "description" : "List of conditions for interface operation",
                     "items" : {
                         "type" : "string",
-                        "pattern" : "^AllowAnonymous|SecureChannel|[a-zA-Z0-9]+$",
+                        "pattern" : "^AllowAnonymous|SecureChannel|[a-zA-Z0-9]+$"
                     },
                     "uniqueItems": true
                 }
