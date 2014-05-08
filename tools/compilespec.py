@@ -11,11 +11,12 @@ def die( msg ) :
     sys.stderr.write( msg )
     sys.exit( -1 )
 
-def compilespec( mdfile ) :
+def compilespec( spec_file ) :
     #---
-    spec_file = mdfile
-    html_file = spec_file.replace( '.md', '.html' )
-    meta_dir = os.path.join( os.path.dirname( spec_file ), 'meta' )
+    spec_dir = os.path.dirname( spec_file )
+    meta_dir = os.path.join( spec_dir, 'meta' )
+    preview_dir = os.path.join( spec_dir, 'preview' )
+    html_file = os.path.join( preview_dir, os.path.basename( spec_file ).replace( '.md', '.html' ) )
 
     #---
     spec_time = os.path.getmtime(spec_file)

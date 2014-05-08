@@ -3,7 +3,7 @@
 function compile(){
 	local src="$1"
 	
-	mkdir -p $src/meta
+	mkdir -p $src/{meta,preview}
 	./tools/compilespec.py $src/*.md
 }
 
