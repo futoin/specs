@@ -138,7 +138,7 @@ but it becomes really important for all modification type of requests.
 
 * Info - read-only access to private information
 * SafeOps - Info + access to operation, which should not seriously compromise the system
-* PrivilegedOps - SafeOps + access to operations, which may compromise the system
+* PrivilegedOps - SafeOps + access to operations, which may compromise the system. Requires SecureChannel
 * ExceptionalOps - PrivilegedOps + access to very sensitive operations, like password change
 ** At Service discretion, should be one-time access with immediate downgrade to PrivilegedOps level
 
@@ -350,6 +350,7 @@ length is 256-bit. Longer keys should be truncated.
 ** Shared secret must be re-generated
 ** Derived key must be skipped
 * Key ID must be unique per each MasterService and normally used to determine Service
+* Response should use the same Key ID and Sequence ID as in request
 
 ## 4.1. Message "sec" field sub-schema for HMAC
 

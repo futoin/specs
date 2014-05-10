@@ -6,7 +6,7 @@ Authors: Andrey Galkin
 </pre>
 
 
-# Version format
+# 1. Version format
 
 There are two version components MAJOR and MINOR, separated by point.
 
@@ -21,7 +21,7 @@ Example: 0.DV1, 1.DV1, 2.DV1, 2.DV2
 </pre>
 
 
-# Linear Versioning
+# 2. Linear Versioning
 
 FutoIn specification versioning is linear - no branching is allowed.
 
@@ -29,25 +29,25 @@ FutoIn specification versioning is linear - no branching is allowed.
 
 As exception, it is allowed to released new versions of previous MAJOR version until the first release of new MAJOR version
 
-## Initial Specification Design
+## 2.1. Initial Specification Design
 
 MAJOR is set to 0, minor is incremented with every draft
 
-## Initial Release
+## 2.2. Initial Release
 
 MAJOR is set to 1, MINOR - to 0.
 
-## Specification revise
+## 2.3. Specification revise
 
-### Backward compatible draft
+### 2.3.1. Backward compatible draft
 Existing specification is updated and versioned as draft (MAJOR.DVn).
 New version is released as released as "MAJOR.(MINOR+1)".
 
-### Draft with broken backward compatibility
+### 2.3.2. Draft with broken backward compatibility
 Broken backward compatibility is released as "(MAJOR+1).0"
 
 
-# Requirements for specification release
+# 3. Requirements for specification release
 
 1. Specification must be approved (see note below)
 2. At least one full [automatic] test suite must exist
@@ -55,7 +55,7 @@ Broken backward compatibility is released as "(MAJOR+1).0"
 
 Note: Review & Approval process is out of scope of this document.
 
-# Backward compatibility
+# 4. Backward compatibility
 
 "x.(n+1)" is guaranteed to be backward compatible with any "x.n". Specification bug fix is not subject for backward compatibility.
 <pre>
@@ -66,7 +66,7 @@ Example: 1.1 with 1.0, 1.2 with 1.1 and 1.0, etc.
 Typically, such releases are allowed only after deep revise process to drop deprecated features.
 
 
-# Specification deprecation
+# 5. Specification deprecation
 
 Whole specification can be marked deprecated, if its features are fully covered by another specification.
 The goal is to avoid alternative specs for the same area.
