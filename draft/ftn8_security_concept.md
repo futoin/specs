@@ -1,6 +1,6 @@
 <pre>
 FTN3: FutoIn Security Concept
-Version: 0.DV
+Version: 0.1
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -58,8 +58,8 @@ AuthService always acts as MasterService.
 * Service must be able to self-register against any MasterService it trusts (only one)
     providing Service callback URL and initial shared secret (true randomly generated)
 * MasterService must verify registration request through provided callback
-** MasterService must reject non-secure callback connection in open environment
-** Verification is performed through shared secret rotation
+    * MasterService must reject non-secure callback connection in open environment
+    * Verification is performed through shared secret rotation
 
 ### 2.2.2. Shared secret
 
@@ -68,16 +68,16 @@ AuthService always acts as MasterService.
     through insecure third party (e.g Client), requiring encryption or
     at least verification to prevent certain type of attacks
 * MasterService is responsible for shared secret rotation
-** Every shared secret must have a sequential ID
-** The previous shared secret must be active for transition period
+    * Every shared secret must have a sequential ID
+    * The previous shared secret must be active for transition period
     specified by MasterService and then discarded
 * Shared secret must not be used for any encryption directly
-** A derived key must be generated
-** Derived can be re-used at any peer discretion based on Severity vs. Performance considerations.
-*** There must be a limit imposed for total count of derived key reuse on each side
-* So, each message must contain shared secret ID, derived key parameter and actual encrypted data/hmac
-** Shared secret ID is overflowing monotonically incrementing hexdigit value
-** Derived key parameter has similar behavior
+    * A derived key must be generated
+    * Derived key can be re-used at any peer discretion based on Severity vs. Performance considerations.
+        * There must be a limit imposed for total count of derived key reuse on each side
+* So, each message must contain shared secret ID, derived key parameter and actual encrypted data/HMAC
+    * Shared secret ID is overflowing monotonically incrementing hexdigit value
+    * Derived key parameter has similar behavior
 * Key management policy is out of scope of this specification so far
 
 ### 2.2.3. Unregistration from MasterService
@@ -114,21 +114,21 @@ This is default method to be used for most cases.
     1) requesting Service (deduced from HMAC key ID) and 2) required security level
     3) random token associated with Client (must not be sensitive information)
     4) hmac signature made with Shared Secret.
-** The data sent as regular FutoIn request message, encoded in JSON+Base64 and appended to AuthService URL
+    * The data sent as regular FutoIn request message, encoded in JSON+Base64 and appended to AuthService URL
 * AuthService performs custom user authentication based on Service and required security level
 * AuthService stores Client session with random 256-bit ID
-** There must be a limit of sessions per Service
+    * There must be a limit of sessions per Service
 * AuthService redirects Client to Service with payload:
-** Payload is also regular FutoIn request message, encoded in JSON+Base64 and appended to Service callback URL
-** Client session ID is encrypted with shared secret, **the same as used for HMAC**
-** Client token provided by Service
-** AuthService specified Time-To-Live (Service must re-validate Client session)
+    * Payload is also regular FutoIn request message, encoded in JSON+Base64 and appended to Service callback URL
+    * Client session ID is encrypted with shared secret, **the same as used for HMAC**
+    * Client token provided by Service
+    * AuthService specified Time-To-Live (Service must re-validate Client session)
 * Service
-** Verifies HMAC
-** Verifies if original random Client token matches current token
-** Session ID is decrypted
-** Service gets session parameters and constraints from AuthService by Session ID
-** Service checks any provided constraints (2.3.2)
+    * Verifies HMAC
+    * Verifies if original random Client token matches current token
+    * Session ID is decrypted
+    * Service gets session parameters and constraints from AuthService by Session ID
+    * Service checks any provided constraints (2.3.2)
 * Service continuous normal interaction with Client
 
 ### 2.3.1. Security Levels
@@ -140,7 +140,7 @@ but it becomes really important for all modification type of requests.
 * SafeOps - Info + access to operation, which should not seriously compromise the system
 * PrivilegedOps - SafeOps + access to operations, which may compromise the system. Requires SecureChannel
 * ExceptionalOps - PrivilegedOps + access to very sensitive operations, like password change
-** At Service discretion, should be one-time access with immediate downgrade to PrivilegedOps level
+    * At Service discretion, should be one-time access with immediate downgrade to PrivilegedOps level
 
 ### 2.3.2. Validation Constraints
 
@@ -159,7 +159,7 @@ but it becomes really important for all modification type of requests.
            |-------- Connect -------> |                              |
            | <--- Redirect signIn ----|                              |
            |------------------ signIn -----------------------------> |
-           | <----------------- Sign in page/form -------------------|
+           | <------------------ SignIn page/form -------------------|
            | [----------------- authBySecret---------------------->] |
            |----------- completeSignIn or cancelSignIn ------------> |
            |-------- complete ------> |                              |
@@ -171,7 +171,7 @@ but it becomes really important for all modification type of requests.
 ## 2.4. Stateless user authentication
 
 This authentication method is designed for stateless API calls with
-limited authorization capabilities as it is not always possible to establish
+limited authorization capabilities as it is not always feasible to establish
 secure credentials management and/or implement a statefull client.
 
 Credentials information is sent along-side API request.
@@ -190,7 +190,7 @@ Credentials information is sent along-side API request.
 
 ## 2.5. User authentication methods
 
-*Note: Service or AuthService is determined based Stateless or Stateful
+*Note: Service or AuthService is determined based on Stateless or Stateful
 authentication type*
 
 Client password is stored in hash with salt.
@@ -202,7 +202,9 @@ Client password is stored in hash with salt.
 * Authentication successfully completes if hash matches stored password hash
 
 *Note 1: This mechanism is allowed ONLY for Stateless user authentication.*
+
 *Note 2: This mechanism is allowed only for SafeOps and lower security level*
+
 *Note 3: Password must be unique for every Service configured for Client*
 
 ### 2.5.2. Auth by Challenge-Response Authentication
@@ -211,7 +213,7 @@ Client password is stored in hash with salt.
 * Service generates random token, stores in session and sends it with salt to Client
 * Client hashes its password with salt
 * Client generates HMAC of random token using hash above
-** Potential vulnerability as hash can be deduces, followed by password being exposed
+    * Potential vulnerability as hash can be deduces, followed by password being exposed
 * Client sends HMAC to Service/AuthService for validation
 * Service/AuthService also generates HMAC based on stored password hash and random string
 * Authentication successfully completes if both HMACs match
@@ -240,7 +242,7 @@ Client password is stored in hash with salt.
 There must be one or more sets of authentication methods.
 In every set, there can be one or more authentication method.
 
-Authentication succeeds only if all methods pass of any set.
+Authentication succeeds only if all methods of any set pass.
 
 ## 2.7. HMAC generation
 
@@ -250,12 +252,12 @@ See [HMAC][] for details
 
 * Payload has a tree structure and coded in JSON or any alternative format
 * All keys and fields are feed to HMAC generator in text representation
-* HMAC security fields is skipped, if present (in case of request validation)
+* HMAC security field is skipped, if present (in case of request validation)
 * For each nested level, starting from the very root of tree-like payload structure:
-** Key-value pairs are processing in ascending order based on Unicode comparison rules
-** Key is feed into HMAC generator
-** If value is sub-tree, then recurse this algorithm
-** Otherwise, feed textual representation to HMAC generator
+    * Key-value pairs are processing in ascending order based on Unicode comparison rules
+    * Key is feed into HMAC generator
+    * If value is sub-tree, then recurse this algorithm
+    * Otherwise, feed textual representation to HMAC generator
 
 
 ## 2.8. Client information exposed from AuthService to Service
@@ -263,9 +265,9 @@ See [HMAC][] for details
 Service can inform AuthService which Client information fields must be
 approved by Client to be exposed to Service. Client authentication
 cannot succeed unless Client approves fields being exposed to specific Service.
-This functionality is available only Stateful authentication.
+This functionality is available only for Stateful authentication.
 
-*Note: AuthService must stored list of approved fields per Client-Service pair.
+*Note: AuthService must store list of approved fields per Client-Service pair.
 Service must re-send Client for authentication, if more fields need to be approved*
 
 ### 2.8.1. List of standard field identifiers
@@ -273,7 +275,7 @@ Service must re-send Client for authentication, if more fields need to be approv
 * FirstName - a short name to be used in greetings, etc.
 * FullName - full name to be used in official documents, implies access to FirstName
 * DateOfBirth - ISO "YYYY-MM-DD" format
-* TimeOfBirth - ISO "HH:mm:ss" format, can be truncated to minutes
+* TimeOfBirth - ISO "HH:mm:ss" format, can be truncated to minutes, implies access to DateOfBirth
 * ContactEmail
 * ContactPhone - full international number, starting with "+"
 * HomeAddress
@@ -286,8 +288,8 @@ Service must re-send Client for authentication, if more fields need to be approv
 ## 2.9. Client authentication invalidation event
 
 * AuthService must notify all Services if Client authentication configuration changes
-** On authentication set getting deleted
-** On password, X509 CN, public key and other authentication method parameter changes* 
+    * On authentication set getting deleted
+    * On password, X509 CN, public key and other authentication method parameter changes
 * Service must re-authenticate all active Client sessions on subsequent request or earlier
 
 
@@ -305,7 +307,7 @@ be forwarded to another AuthService.
 Security is common responsibility. Every node of the system must be a defense barrier for
 both attacks and simple misconfiguration.
 
-Typically, more farther node from actual attacker should have a little higher failure rate
+Typically, more farther node from actual attacker should have a dynamic failure rate
 limit to avoid a closer node being banned, leading to Denial of Service of specific 
 functionality.
 
@@ -321,10 +323,10 @@ defense system action** Example: session token validation by other Service.
 ## 3.1. Possible limit types
 
 * Limit per period from the same client and/or host and/or network
-** Request count
-** Security failures
+    * Request count
+    * Security failures
 * Dynamic limits
-** Limit can be risen and lowered dynamically (e.g. AuthService rices limits per Services
+    * Limit can be risen and lowered dynamically (e.g. AuthService rices limits per Services
     based on number of active users)
 
     
@@ -347,8 +349,8 @@ length is 256-bit. Longer keys should be truncated.
 * All raw binary strings must be encoded in Base64 according to [base64][]
 * JSON sent as GET path and/or parameter is also encoded in Base64
 * There must be blacklist rules for forbidden keys (derived from respective hash/cipher function considerations)
-** Shared secret must be re-generated
-** Derived key must be skipped
+    * Shared secret must be re-generated
+    * Derived key must be skipped
 * Key ID must be unique per each MasterService and normally used to determine Service
 * Response should use the same Key ID and Sequence ID as in request
 
@@ -417,9 +419,8 @@ Another type of hierarchy can be: Service -> Interface -> Function.
 In all cases it is possible to unify access control system to operate on neutral
 tree-like structure of identifiers. On low level, Client access is controlled on specific
 end-object+action. The details of how access is granted (e.g. roles, individual permissions, ownership, etc.)
-are AccessControlService implementation details.
-
-It is assumed that all AccessControlService
+are AccessControlService implementation details. However, access can be granted by parent node and/or
+access control tree mask, where some of parent nodes can be "any".
 
 Doing an API call for every action may produce a significant overhead. It is important to design
 effective caching mechanism with stable invalidation for security reasons.
@@ -429,20 +430,20 @@ effective caching mechanism with stable invalidation for security reasons.
 There must be a common notation to identify object of checked control. In API, the access notation is
 an ordered array, where the first item is the top most in scope.
 
-Descriptor scope is specific to context. In Service context, scope is service. In Access Control Service,
+Descriptor scope is specific to context. In Service context, scope is the Service. In Access Control Service,
 the scope is a common set of all Services registered to the system (meaning the first element is Service identifier).
 
-Example: ["root_node", "object_type", "action"]
+*Example: ["root_node", "object_type", "action"]*
 
 In some cases, wildcard is desired for some items. Example: grant update access to all users.
 Wildcard is marked as null value in place of item in the descriptor array.
 
-Example: ["root_node", null, "action"]
+*Example: ["root_node", null, "action"]*
 
 For human readable purpose, the same descriptor can be written in string form, each item being separated by
 dot "." and wildcard null being replaced by star "*".
 
-Example: "root.object_type.action", "root.*.action"
+*Example: "root.object_type.action", "root.*.action"*
 
 ## 5.2. Access Control check
 
@@ -451,9 +452,9 @@ Example: "root.object_type.action", "root.*.action"
 * AccessControlService checks access implementation-dependent way
 * If access is not granted, AccessControlService returns "Forbidden" exception
 * AccessControlService returns
-** matched access control descriptor (access can be granted by parent item)
-** cache Time-to-Live
-** required auth security level
+    * matched access control descriptor (access can be granted by parent item)
+    * cache Time-to-Live
+    * required auth security level
 * Service caches response by descriptor to optimize checks next time
 * Service checks if current auth security level satisfy requirements
 * Service continues request processing
@@ -478,7 +479,7 @@ Example: "root.object_type.action", "root.*.action"
 
         {
             "iface" : "futoin.master.provider",
-            "version" : "0.DV",
+            "version" : "0.1",
             "funcs" : {
                 "register" : {
                     "params" : {
@@ -546,7 +547,7 @@ Example: "root.object_type.action", "root.*.action"
 
         {
             "iface" : "futoin.master.consumer",
-            "version" : "0.DV",
+            "version" : "0.1",
             "funcs" : {
                 "newSharedKey" : {
                     "params" : {
@@ -581,7 +582,7 @@ Example: "root.object_type.action", "root.*.action"
 
         {
             "iface" : "futoin.auth.backend",
-            "version" : "0.DV",
+            "version" : "0.1",
             "funcs" : {
                 "getClientInfo" : {
                     "params" : {
@@ -656,7 +657,7 @@ Example: "root.object_type.action", "root.*.action"
 
         {
             "iface" : "futoin.auth.frontend",
-            "version" : "0.DV",
+            "version" : "0.1",
             "funcs" : {
                 "signIn" : {
                     "params" : {
@@ -731,7 +732,7 @@ Example: "root.object_type.action", "root.*.action"
 
         {
             "iface" : "futoin.auth.consumer",
-            "version" : "0.DV",
+            "version" : "0.1",
             "funcs" : {
                 "complete" : {
                     "params" : {
@@ -775,7 +776,7 @@ Example: "root.object_type.action", "root.*.action"
 
         {
             "iface" : "futoin.acl.provider",
-            "version" : "0.DV",
+            "version" : "0.1",
             "funcs" : {
                 "checkAccess" : {
                     "params" : {
@@ -864,7 +865,7 @@ Example: "root.object_type.action", "root.*.action"
 
         {
             "iface" : "futoin.acl.consumer",
-            "version" : "0.DV",
+            "version" : "0.1",
             "funcs" : {
                 "invalidate" : {
                     "params" : {

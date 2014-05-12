@@ -27,7 +27,7 @@ def compilespec( spec_file ) :
         html_time = 0
 
     if spec_time < html_time :
-        print( "Skipping " + spec_file + "\n" )
+        print( "- Skipping " + spec_file + "\n" )
         return
 
     #---
@@ -41,9 +41,34 @@ def compilespec( spec_file ) :
     parsing_schema = False
     schema_re = re.compile( '^`Schema\\(([a-z0-9\-_]+)\\){`$' )
     curr_line = 1
+    in_header = True
+    spec_ver = ''
 
     for l in input_file:
         try:
+            if in_header :
+                pair = l.split( ':', 2 )
+
+                if len( pair ) == 2 :
+                    tag, value = pair
+                    value = value.strip()
+
+                    if tag == 'Version' :
+                        spec_ver = value
+                    elif tag in ('Copyright','Authors') :
+                        pass
+                    elif re.match( 'FTN[0-9]+', l ) :
+                        pass
+                    else :
+                        die(str(curr_line) + " Unknown header field")
+
+                if l == '\n' :
+                    in_header = False
+
+                    if not spec_ver :
+                        die( str(curr_line) + " Missing spec Version" )
+                        
+            #---
             m = schema_re.match( l )
 
             if m is not None:
@@ -52,29 +77,32 @@ def compilespec( spec_file ) :
                     die( str(curr_line) + ': Unable to parse Schema in scope of another Schema or Iface\n' )
 
                 parsing_schema = m.group(1)
-                text.append('<div class="futoin-schema">')
-                text.append('<p>' + parsing_schema + '</p>')
+                text.append('<p class="futoin-schema">Schema: ' + parsing_schema + '</p>\n')
 
             elif l == '`}Schema`\n' :
                 schema = json.dumps( json.loads( ''.join( json_text ) ) )
 
-                with codecs.open( os.path.join( meta_dir, parsing_schema + '.schema.json' ),
+                schema_file = parsing_schema + '-' + spec_ver + '-schema.json'
+
+                with codecs.open( os.path.join( meta_dir, schema_file ),
                                 "w",
                                 encoding="utf-8",
                                 errors="xmlcharrefreplace"
                 ) as f:
                     f.write( schema )
 
+                schema_file_nover = os.path.join( meta_dir, parsing_schema + '-schema.json' )
+                os.unlink( schema_file_nover )
+                os.symlink( schema_file, schema_file_nover )
+
                 parsing_schema = False
                 json_text = []
-                text.append('</div>')
 
             elif l == '`Iface{`\n' :
                 if parsing_iface or parsing_schema :
                     die( str(curr_line) + ': Unable to parse Iface in scope of Schema or another Iface\n' )
 
                 parsing_iface = True
-                text.append('<div class="futoin-iface">')
 
             elif l == '`}Iface`\n' :
                 if not parsing_iface:
@@ -82,19 +110,24 @@ def compilespec( spec_file ) :
 
                 iface = json.loads( ''.join( json_text ) )
                 iface_name = iface['iface']
+                iface_ver = iface['version']
                 iface = json.dumps( iface )
 
-                with codecs.open( os.path.join( meta_dir, iface_name + '.iface.json' ),
+                iface_file = iface_name + '-' + iface_ver + '-iface.json'
+
+                with codecs.open( os.path.join( meta_dir, iface_file ),
                                 "w",
                                 encoding="utf-8",
                                 errors="xmlcharrefreplace"
                 ) as f:
                     f.write( iface )
 
+                iface_file_nover = os.path.join( meta_dir, iface_name + '-iface.json' )
+                os.unlink( iface_file_nover )
+                os.symlink( iface_file, iface_file_nover )
 
                 parsing_iface = False
                 json_text = []
-                text.append('</div>')
 
             else :
                 if parsing_iface or parsing_schema :
@@ -113,10 +146,24 @@ def compilespec( spec_file ) :
             die( "At line %s: Exception: %s\n" % ( curr_line, e )  )
 
     #---
-    output_file = codecs.open( html_file, "w",
+    html_ver_file = html_file.replace( '.html', '-' + spec_ver + '.html' )
+    
+    if False :
+        raw_file = codecs.open( html_file + '.raw', "w",
+                                encoding="utf-8",
+                                errors="xmlcharrefreplace"
+        )
+
+        raw_file.write( ''.join( text ) )
+        raw_file.close()
+
+    output_file = codecs.open( html_ver_file, "w",
                             encoding="utf-8",
                             errors="xmlcharrefreplace"
     )
+
+    os.unlink( html_file )
+    os.symlink( os.path.basename( html_ver_file ), html_file )
 
     output_file.write( '<html><head><title>' + os.path.basename( spec_file ) + '</title></head><body>' )
     output_file.write( markdown.markdown( ''.join( text ), output_format='html5' ) )

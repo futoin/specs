@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Invoker Concept
-Version: 0.DV
+Version: 0.1
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -43,9 +43,9 @@ Invoker implementation concept.
 
 Pre-defined interfaces names:
 
-* #resolver - end-point for runtime resolution
-* #auth - AuthService end-point
-* #defense - defense system end-point
+* "#resolver" - end-point for runtime resolution
+* "#auth" - AuthService end-point
+* "#defense" - defense system end-point
 
 # 1.2. Type and identifier safety
 
@@ -74,7 +74,9 @@ as request message is scheduled to be sent without waiting for reply.
 FutoIn implementations are allowed to optimize calls within single process in
 implementation-defined way, keeping the same behavior between remote and local calls.
 
-Local calls must never 
+Local calls must never execute if there are Invoker frames on stack. It means, Invoker
+function must return or Executor must run in a different thread. Yes, it may have performance
+issues.
 
 
 # 2. Invoker interfaces
@@ -83,7 +85,7 @@ Local calls must never
 
 1. register( name, iface, endpoint ) - register standard MasterService end-point
 2. registerPlain( name, iface, endpoint, credentials ) - register end-point with 'plain" credentials
-3. getIface( name ) / getIface<Spec.>( name ) - get end-point's native interface by name
+3. getIface( name ) / getIface<Spec\>( name ) - get end-point's native interface by name
 4. unregister( name ) - unregister any type of interface (should not be used, unless really needed)
 5. defense() - shortcut to getIface( "#defense" )
 
@@ -100,7 +102,17 @@ Example: "futoin.master.service", "futoin.master.service:1.0"*
 6. futoinFuncs() - get list of available functions
 7. futoinConstraints() - get list of interface constraints
 
+## 2.3. Derived Key accessing wrapper
 
+This interface is designed only if access to Derived Key is expected.
+
+1. Constructor( iface ) - wrap iface and act as proxy
+2. getDerivedKey()
+3. *() - any function, calls underlying iface function, ensuring the right derived key in use
+
+## 2.4. Derived Key
+
+See FTN6: Interface Executor Concept
 
 
 # 3. Language/Platform-specific notes

@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 0.DV
+Version: 0.1
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -58,8 +58,9 @@ Executor is responsible for:
 Executor should be tighly integrated with MasterService implementation, if supported.
 It is required almost for each request to validate and generate HMAC.
 
-Executor should also 
-           
+Executor should also integrate with AuthService consumer.
+
+
 ## 1.1. FutoIn interfaces
 
 Interfaces must get converted according to language/platform-specific
@@ -79,7 +80,7 @@ exceptions.
 1. Each FutoIn interfaces is represented as simple native
     interface type with only abstract methods for each
     FutoIn interface function
-2. Each abstract must return no value and take exactly one
+2. Each abstract method must return no value and take exactly one
     Request Info object as argument
 3. Method can assume that all request parameters can be
     accessed from request data

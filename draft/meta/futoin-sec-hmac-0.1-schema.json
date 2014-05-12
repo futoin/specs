@@ -1,0 +1,1 @@
+{"additionalProperties": false, "required": ["ksn", "hmac"], "type": "object", "properties": {"ki": {"type": "string", "description": "Base shared secret ID"}, "hmac": {"type": "string", "description": "Base64 encoded HMAC"}, "di": {"type": "string", "description": "Derived key sequence ID"}}, "title": "FutoIn 'sec' field - HMAC"}

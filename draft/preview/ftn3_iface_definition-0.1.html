@@ -1,0 +1,390 @@
+<html><head><title>ftn3_iface_definition.md</title></head><body><pre>
+FTN3: FutoIn Interface Definition
+Version: 0.1
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>1. Basic concept</h1>
+<h2>1.1. Peer-to-peer communication</h2>
+<p>There is invoker and executor side. Both can be implemented in scope of single
+process, different processes or different machines across network.</p>
+<p>Multi-peer communication is assumed to be a higher level concept on top of 
+current one.</p>
+<p>Object-oriented remote calls is also assumed to be a higher level concept.</p>
+<p>It assumed that there language- and/or software platform-specific
+standardized low-level API for connection establishing and calls coupled
+with optional standardized high-level binding/mapping of FutoIn interfaces
+to native features.</p>
+<p>All specifications and implementations assume to support loose coupling of
+each components, suitable for easy separation, replacement and unit testing.</p>
+<p>Each call has request and response messages with key-value pairs described below.
+If a call does not expect to return any result then no response message must be
+sent and/or expected to be received.
+<br>
+<em>Note: it means that call must return at least something to detect on invoker if the
+call is properly executed</em></p>
+<p>Low-level protocol for message exchange is out of scope of this specification.</p>
+<p>Possible examples of Peer-to-peer communication types:</p>
+<ul>
+<li>raw datagram like UNIX Socket, UDP or SCTP</li>
+<li>WebSockets</li>
+<li>HTTP with request in POST and response in body</li>
+<li>HTTP with request in GET path and parameters and response in</li>
+<li>HTTP with request in POST or GET and non-response payload in body (e.g. BLOB)</li>
+<li>HTTP CRUDL mapped to/from FutoIn interface</li>
+</ul>
+<h2>1.2. Function Call</h2>
+<p>There are three major parts: <strong>function identifier</strong>, <strong>parameters</strong>, <strong>result</strong> and
+<strong>exception</strong>.</p>
+<ul>
+<li><strong>function identifier</strong> - unique associative name of string type</li>
+<li><strong>parameters</strong> - key-value pairs<ul>
+<li>key - unique associative name of string type</li>
+<li>value - value of arbitrary type</li>
+</ul>
+</li>
+<li><strong>result</strong> - key-value pairs, similar to parameters</li>
+<li><strong>exception</strong> - associative name of first error occurred during function execution</li>
+</ul>
+<h2>1.3. Client-server/service multiplexing mode</h2>
+<p>Invoker is responsible to enable request message (and response therefore)
+multiplexing by adding special <em>request ID</em> field. Executor is responsible
+for adding the same field to related response message.</p>
+<p>Please note that Invoker and Client, Executor and Server side are NOT the same terms.
+Client is the peer which initiated peer-to-peer communication. Server is the peer 
+which accepts peer-to-peer communications.</p>
+<p>Client side request ID must be prefixed with "C".
+Server side request ID must be prefixed with "S".</p>
+<p>The rest of request ID should be integer value starting with 1 and incrementing with
+every subsequent request sent. However, it should be allowed to add other prefixes
+to this value.</p>
+<h2>1.4. Uni-directional call pattern</h2>
+<p>Invoker/Executor side is semantically defined and does not rely on Client/Server
+status of peer. There is no protocol-level support for that. Each side controls if
+it can act as Executor.</p>
+<p>It is suggested that Client side is always Invoker in uni-directional pattern.</p>
+<p>Both serial and multiplexing modes are allowed.</p>
+<h2>1.5. Bi-directional call pattern</h2>
+<p>Each side is both Invoker and Executor. Bi-directional pattern must always work
+in message multiplexing mode.</p>
+<h2>1.6. Request schema</h2>
+<p>Using <a href="http://tools.ietf.org/html/draft-fge-json-schema-validation-00" title="JSON-SCHEMA">JSON-SCHEMA</a>:</p>
+<p class="futoin-schema">Schema: futoin-request</p>
+
+<pre><code>    {
+        "title" : "FutoIn request schema",
+        "type" : "object",
+        "required" : [ "f", "p" ],
+        "additionalProperties" : false,
+        "properties" : {
+            "f" : {
+                "type" : "string",
+                "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)+:$",
+                "description" : "Unique interface identifier"
+            },
+            "p" : {
+                "type" : "object",
+                "additionalProperties" : false,
+                "patternProperties" : {
+                    "^[a-z][a-z0-9_]*$" : {}
+                },
+                "description" : "Parameters key-value pairs"
+            },
+            "rid" : {
+                "type" : "string",
+                "pattern" : "^(C|S)[0-9]+$",
+                "description" : "Optional request ID for multiplexing"
+            },
+            "sec" : {
+                "type" : "object",
+                "description" : "Security-defined extension"
+            }
+        }
+    }
+</code></pre>
+<p><em>Example:</em></p>
+<pre><code>    {
+        "f" : "futoin.event.reliableEvent",
+        "p" : {
+            "event" : "SomeEvent"
+        }
+    }
+</code></pre>
+<h2>1.7. Response schema</h2>
+<p>Using <a href="http://tools.ietf.org/html/draft-fge-json-schema-validation-00" title="JSON-SCHEMA">JSON-SCHEMA</a>:</p>
+<p class="futoin-schema">Schema: futoin-response</p>
+
+<pre><code>    {
+        "title" : "FutoIn response schema",
+        "type" : "object",
+        "additionalProperties" : false,
+        "minProperties" : 1,
+        "maxProperties" : 2,
+        "properties" : {
+            "r" : {
+                "type" : "object",
+                "additionalProperties" : false,
+                "patternProperties" : {
+                    "^[a-z][a-z0-9_]*$" : {}
+                },
+                "description" : "Result key-value pairs"
+            },
+            "e" : {
+                "type" : "string",
+                "description" : "Exception/error name"
+            },
+            "rid" : {
+                "type" : "string",
+                "pattern" : "^(C|S)[0-9]+$",
+                "description" : "Optional request ID for multiplexing"
+            },
+            "sec" : {
+                "type" : "object",
+                "description" : "Security-defined extension"
+            }
+        }
+    }
+</code></pre>
+<p><em>Example:</em></p>
+<pre><code>    {
+        "r" : {
+            "delivered" : true
+        }
+    }
+      or 
+    {
+        "e" : "NotImplemented"
+    }
+</code></pre>
+<h2>1.8. Parameter and result types</h2>
+<ul>
+<li>boolean - true of false</li>
+<li>integer - signed integer with 32-bit precision</li>
+<li>number - float value with 32-bit precision</li>
+<li>string - string of unlimited length</li>
+<li>map - key-value pairs (JSON object by fact). No ordering is guaranteed.<ul>
+<li>key - string</li>
+<li>value - any type defined in this section</li>
+</ul>
+</li>
+<li>array - ordered list of values<ul>
+<li>value - any type defined in this section</li>
+</ul>
+</li>
+</ul>
+<p><em>Note: <strong>null</strong> can be used only as placeholder in "default" values.</em></p>
+<h2>1.9. Errors and exceptions</h2>
+<p>Any functional call can result in expected and unexpected errors. This concept
+is similar to checked/unchecked exceptions in Java language.</p>
+<p>All expected exceptions/errors, which appear in standard flow must be enumerated
+in "throws" clause of function declaration in interface definitions (see below).</p>
+<p>Unexpected exceptions/errors are generated by execution environment/condition as
+reaction to error condition not related to logic implemented in given function. 
+Example: internal communication errors, hit of resource limits, crashes, etc.</p>
+<p>If possible, language/platform-specific bindings should enforce Invoker to check
+for all excepted errors.</p>
+<h3>1.9.1. Predefined unexpected errors</h3>
+<ul>
+<li><strong>ConnectError</strong> - connection error before request is sent.
+    <em>Must be generated on Invoker side</em>.</li>
+<li><strong>CommError</strong> - communication error at any stage after request is sent
+    and before response is received. <em>Must be generated on Invoker side</em>.</li>
+<li><strong>NotImplemented</strong> - in case interface function is not implemented on Executor side
+    <em>Must be generated on Executor side</em>.</li>
+<li><strong>Unauthorized</strong> - security policy on Executor side does not allow to
+    access interface or specific function.
+    <em>Must be generated on Executor side</em>.</li>
+<li><strong>InternalError</strong> - unexpected internal error on Executor side, including internal CommErrors.
+    <em>Must be generated on Executor side</em>.</li>
+<li><strong>InvokerError</strong> - unexpected internal error on Invoker side, not realted to CommErrors.
+    <em>Must be generated on Invoker side</em></li>
+</ul>
+<h1>2. Interface concept</h1>
+<p>Executor side functions identifiers are grouped into interfaces, which must be
+standardized as one of FutoIn specifications.</p>
+<p>Interfaces must be defined in machine-readable form using
+<a href="http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf" title="JSON">JSON</a>.
+There is existing neutral JSON Schema, but it is universal and therefore too
+loose for interface definition.</p>
+<h2>2.1. Interface definition schema</h2>
+<p>Using <a href="http://tools.ietf.org/html/draft-fge-json-schema-validation-00" title="JSON-SCHEMA">JSON-SCHEMA</a>:</p>
+<p class="futoin-schema">Schema: futoin-interface</p>
+
+<pre><code>    {
+        "title" : "FutoIn interface definition schema",
+        "type" : "object",
+        "required" : [ "iface", "version" ],
+        "additionalProperties" : false,
+        "properties" : {
+            "iface" : {
+                "type" : "string",
+                "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)+$",
+                "description" : "Unique interface identifier"
+            },
+            "version" : {
+                "type" : "string",
+                "pattern" : "^[0-9]+\\.(DV)?[0-9]+$",
+                "description" : "Version of given interface"
+            },
+            "funcs" : {
+                "type" : "object",
+                "description" : "Version of given interface",
+                "additionalProperties" : false,
+                "properties" : {
+                    "desc" : {
+                        "type" : "string"
+                    }
+                },
+                "patternProperties" : {
+                    "^[a-z][a-zA-Z0-9]*$" : {
+                        "type" : "object",
+                        "additionalProperties" : false,
+                        "properties" : {
+                            "params" : {
+                                "additionalProperties" : false,
+                                "patternProperties" : {
+                                    "^[a-z][a-z0-9_]*$" : {
+                                        "type" : "object",
+                                        "properties" : {
+                                            "type" :  {
+                                                "type" : "string",
+                                                "pattern" : "^boolean|integer|number|string|map|array$"
+                                            },
+                                            "default" : {
+                                                "type" : [ "boolean", "integer", "number", "string", "object", "array", "null" ]
+                                            },
+                                            "desc" : {
+                                                "type" : "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "description" : "List of allowed parameter key-value pairs"
+                            },
+                            "result" : {
+                                "additionalProperties" : false,
+                                "patternProperties" : {
+                                    "^[a-z][a-z0-9_]*$" : {
+                                        "type" : "object",
+                                        "properties" : {
+                                            "type" :  {
+                                                "type" : "string",
+                                                "pattern" : "^boolean|integer|number|string|map|array$"
+                                            },
+                                            "desc" : {
+                                                "type" : "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "description" : "List of allowed result key-value pairs"
+                            },
+                            "throws" : {
+                                "type" : "array",
+                                "uniqueItems": true,
+                                "description" : "List of associative error names, which can be triggered by function execution"
+                            }
+                        },
+                        "description" : "Interface Function definition"
+                    }
+                }
+            },
+            "desc" : {
+                "type" : "string"
+            },
+            "inherit" : {
+                "type" : "string",
+                "description" : "Name of interface identifier to be inherited"
+            },
+            "requires" : {
+                "type" : "array",
+                "description" : "List of conditions for interface operation",
+                "items" : {
+                    "type" : "string",
+                    "pattern" : "^AllowAnonymous|SecureChannel|[a-zA-Z0-9]+$"
+                },
+                "uniqueItems": true
+            }
+        }
+    }
+</code></pre>
+<p><em>Example:</em></p>
+<pre><code>    {
+        "iface" : "futoin.event.received",
+        "version" : "0.DV",
+        "funcs" : {
+            "onEvent" : {
+                "params" : {
+                    "event" : {
+                        "type" : "string",
+                        "desc" : "Event name"
+                    },
+                    "data" : {
+                        "default" : null,
+                        "desc" : "Arbitrary event data"
+                    }
+                },
+                "desc" : "Asynchronously send event"
+            },
+            "reliableEvent" : {
+                "params" : {
+                    "event" : {
+                        "type" : "string",
+                        "desc" : "Event name"
+                    },
+                    "data" : {
+                        "default" : null,
+                        "desc" : "Arbitrary event data"
+                    }
+                },
+                "result" : {
+                    "delivered" : {
+                        "type" : "boolean",
+                        "desc" : "Must be true, if completed normally"
+                    }
+                },
+                "desc" : "Synchronously send event"
+            }
+        }
+    }
+</code></pre>
+<h2>2.2. Naming convention</h2>
+<p>It is assumed that interface identifier (name) is unique and consists of several string tokens
+concatenated with dots ("."). Each token is small latin alpha-numeric sequence.
+Example: "futoin.event.receiver", "futoin.event.poll"</p>
+<p>Function names follow camelCase. Example: "someFunc", anotherFunc"</p>
+<p>Parameter and result value names follow small_caps_with_underscore pattern.
+Example: "some_param", "some_result_value"</p>
+<p><em>Note: "futoin" function prefix is reserved for internal purposes</em></p>
+<h2>2.3. Interface inheritance</h2>
+<p>In many cases, domain-specific interfaces have a large universal subset and only a few
+domain-specific additional functions and/or function parameters.</p>
+<p>Interface can inherit another interface. It should be possible to call any interface
+through its parent or any grandparent.</p>
+<p>Inheritance is limited to:</p>
+<ul>
+<li>Adding additional functions</li>
+<li>Adding additional parameters to existing function parameters<ul>
+<li>Executor must accept null/absent values for additional parameters</li>
+<li>All additional parameters must have default value</li>
+</ul>
+</li>
+<li>Adding additional result fields to existing result values<ul>
+<li>Invoker must ignore additional result values, if function is called through parent interface</li>
+</ul>
+</li>
+</ul>
+<p><em>Note: multiple interface inheritance is not supported at the moment</em></p>
+<h2>2.4. Interface operation requirements</h2>
+<p>Some interfaces must be restricted to certain conditions. This can be defined on interface level
+through "requires" attribute.</p>
+<p>Standard requirement type:</p>
+<ul>
+<li>AllowAnonymous - interface can be called Client Authentication information</li>
+<li>SecureChannel - message exchange must be done through secure channel as it contains
+    not encrypted sensitive information. Channel security control is Service
+    implementation responsibility</li>
+</ul>
+<p>For safety reasons, inheriting interface must re-define all "requires" items from
+inherited interface.</p></body></html>

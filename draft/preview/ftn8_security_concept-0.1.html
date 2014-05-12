@@ -1,0 +1,805 @@
+<html><head><title>ftn8_security_concept.md</title></head><body><pre>
+FTN3: FutoIn Security Concept
+Version: 0.1
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>Warning</h1>
+<p>This document is not actually a specification, but more an overview as it requires
+a LOT of polishing first.</p>
+<p><em>Unfortunately. At the moment of writing this specification, the author
+knows quite little about Security to judge the strength of proposed algorithms.
+Every single part of that requires deep analysis of experts.</em></p>
+<h1>1. Intro</h1>
+<p>Security concept is required to build a unified authentication and
+authorization model across security domains with separate control
+in open environment like internet.</p>
+<p>There is no global trusted party is allowed. Chain of trust must be
+fully distributed.</p>
+<h1>2. Functional description</h1>
+<h2>2.1. Security Contexts</h2>
+<p>There are three major security context types:</p>
+<ul>
+<li>Service - Both execution environment and executable code is 
+    under full control of the owner. This security context exists on
+    servers.</li>
+<li>Client - Execution environment is under control of owner, but
+    executable code is loaded from Service.</li>
+<li>Authentication Service (AuthService) - A special authentication service
+    trusted by Service or by Client or by both.</li>
+</ul>
+<p>Each Service and each Client must trust only one AuthService. If they 
+trust different AuthServices then it is responsibility of AuthService
+to establish communication to another AuthService. In such case,
+Client is called <em>foreign AuthService user</em> or simply <em>foreign user</em>.</p>
+<h2>2.2. Service to Service interaction (and Service to AuthService in particular)</h2>
+<p>This is generic mechanism to establish interaction between any two services, where
+one Service acts as shared secret MasterService.</p>
+<p>MasterService is always the Server peer in initial interaction.</p>
+<p>AuthService always acts as MasterService.</p>
+<h3>2.2.1. Establishing interaction</h3>
+<ul>
+<li>Service must be able to self-register against any MasterService it trusts (only one)
+    providing Service callback URL and initial shared secret (true randomly generated)</li>
+<li>MasterService must verify registration request through provided callback<ul>
+<li>MasterService must reject non-secure callback connection in open environment</li>
+<li>Verification is performed through shared secret rotation</li>
+</ul>
+</li>
+</ul>
+<h3>2.2.2. Shared secret</h3>
+<ul>
+<li>There must be a persistent shared secret between Service and MasterService</li>
+<li>Special considerations are required as some messages can be passed
+    through insecure third party (e.g Client), requiring encryption or
+    at least verification to prevent certain type of attacks</li>
+<li>MasterService is responsible for shared secret rotation<ul>
+<li>Every shared secret must have a sequential ID</li>
+<li>The previous shared secret must be active for transition period
+specified by MasterService and then discarded</li>
+</ul>
+</li>
+<li>Shared secret must not be used for any encryption directly<ul>
+<li>A derived key must be generated</li>
+<li>Derived key can be re-used at any peer discretion based on Severity vs. Performance considerations.<ul>
+<li>There must be a limit imposed for total count of derived key reuse on each side</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>So, each message must contain shared secret ID, derived key parameter and actual encrypted data/HMAC<ul>
+<li>Shared secret ID is overflowing monotonically incrementing hexdigit value</li>
+<li>Derived key parameter has similar behavior</li>
+</ul>
+</li>
+<li>Key management policy is out of scope of this specification so far</li>
+</ul>
+<h3>2.2.3. Unregistration from MasterService</h3>
+<p>Under some communication patterns, a persistent shared secret exchange is not required.
+It must be possible to unregister from MasterService.</p>
+<ul>
+<li>Service sends unregistration request to MasterService with HMAC</li>
+<li>MasterService verifies HMAC</li>
+<li>MasterService "forgets" Service</li>
+<li>Service can register again later</li>
+</ul>
+<h3>2.2.4. Example</h3>
+<pre><code>    Service                     MasterService
+       |                              |
+       |-------- register ----------&gt; |
+       | &lt;------- newSharedKey -------|
+                    ...
+       | &lt;------- newSharedKey -------|
+                    ...
+       |                              |
+       |------- unRegister ---------&gt; |
+       |                              |
+</code></pre>
+<h2>2.3. Stateful user authentication</h2>
+<p>This is default method to be used for most cases.</p>
+<ul>
+<li>Client connects to Service</li>
+<li>Service redirects Client to AuthService with special parameters, identifying
+    1) requesting Service (deduced from HMAC key ID) and 2) required security level
+    3) random token associated with Client (must not be sensitive information)
+    4) hmac signature made with Shared Secret.<ul>
+<li>The data sent as regular FutoIn request message, encoded in JSON+Base64 and appended to AuthService URL</li>
+</ul>
+</li>
+<li>AuthService performs custom user authentication based on Service and required security level</li>
+<li>AuthService stores Client session with random 256-bit ID<ul>
+<li>There must be a limit of sessions per Service</li>
+</ul>
+</li>
+<li>AuthService redirects Client to Service with payload:<ul>
+<li>Payload is also regular FutoIn request message, encoded in JSON+Base64 and appended to Service callback URL</li>
+<li>Client session ID is encrypted with shared secret, <strong>the same as used for HMAC</strong></li>
+<li>Client token provided by Service</li>
+<li>AuthService specified Time-To-Live (Service must re-validate Client session)</li>
+</ul>
+</li>
+<li>Service<ul>
+<li>Verifies HMAC</li>
+<li>Verifies if original random Client token matches current token</li>
+<li>Session ID is decrypted</li>
+<li>Service gets session parameters and constraints from AuthService by Session ID</li>
+<li>Service checks any provided constraints (2.3.2)</li>
+</ul>
+</li>
+<li>Service continuous normal interaction with Client</li>
+</ul>
+<h3>2.3.1. Security Levels</h3>
+<p>In some cases, Client may be allowed to get read-only information without deep verification,
+but it becomes really important for all modification type of requests.</p>
+<ul>
+<li>Info - read-only access to private information</li>
+<li>SafeOps - Info + access to operation, which should not seriously compromise the system</li>
+<li>PrivilegedOps - SafeOps + access to operations, which may compromise the system. Requires SecureChannel</li>
+<li>ExceptionalOps - PrivilegedOps + access to very sensitive operations, like password change<ul>
+<li>At Service discretion, should be one-time access with immediate downgrade to PrivilegedOps level</li>
+</ul>
+</li>
+</ul>
+<h3>2.3.2. Validation Constraints</h3>
+<ul>
+<li>X509_CN - CN field of X509 client certificate, signed by pre-configured CA for Service</li>
+<li>pubkey - RSA/DSA/or other public key in SSH format <a href="http://www.ietf.org/rfc/rfc4716.txt" title="RFC4716 The Secure Shell (SSH) Public Key File Format">ssh-pubkey</a></li>
+<li>IPv4Address or IPv6Address - incoming address of the client in dotted/colon textual notation</li>
+<li>UserAgent - Exact UserAgent string</li>
+<li>Cookie - key=value wildcard cookie to be set (useful, if both AuthService and Service run under same second level domain)</li>
+<li>SecureChannel - SSL/TLS, VPN or greater than or equal strength communication security is established</li>
+</ul>
+<h3>2.3.3. Example</h3>
+<pre><code>    Client                     Service                      AuthService
+       |                          |                              |
+       |-------- Connect -------&gt; |                              |
+       | &lt;--- Redirect signIn ----|                              |
+       |------------------ signIn -----------------------------&gt; |
+       | &lt;------------------ SignIn page/form -------------------|
+       | [----------------- authBySecret----------------------&gt;] |
+       |----------- completeSignIn or cancelSignIn ------------&gt; |
+       |-------- complete ------&gt; |                              |
+       |                          |---------- validate --------&gt; |
+       |                          | &lt;-- validation constraints --|
+       |                          |                              |
+</code></pre>
+<h2>2.4. Stateless user authentication</h2>
+<p>This authentication method is designed for stateless API calls with
+limited authorization capabilities as it is not always feasible to establish
+secure credentials management and/or implement a statefull client.</p>
+<p>Credentials information is sent along-side API request.</p>
+<h3>2.4.1. Example</h3>
+<pre><code>    Client                     Service                      AuthService
+       |                          |                              |
+       |------ API request -----&gt; |                              |
+       |                          |---- validateBySecret ------&gt; |
+       |                          | &lt;-- validation constraints --|
+       | &lt;---- API response ------|                              |
+       |                          |                              |
+</code></pre>
+<h2>2.5. User authentication methods</h2>
+<p><em>Note: Service or AuthService is determined based on Stateless or Stateful
+authentication type</em></p>
+<p>Client password is stored in hash with salt.</p>
+<h3>2.5.1. Auth by clear text credentials</h3>
+<ul>
+<li>Client credentials are sent in clear-text to Service/AuthService.</li>
+<li>AuthService hashes clear-text password with stored salt</li>
+<li>Authentication successfully completes if hash matches stored password hash</li>
+</ul>
+<p><em>Note 1: This mechanism is allowed ONLY for Stateless user authentication.</em></p>
+<p><em>Note 2: This mechanism is allowed only for SafeOps and lower security level</em></p>
+<p><em>Note 3: Password must be unique for every Service configured for Client</em></p>
+<h3>2.5.2. Auth by Challenge-Response Authentication</h3>
+<ul>
+<li>Client requests session auth random token and salt from Service/AuthService</li>
+<li>Service generates random token, stores in session and sends it with salt to Client</li>
+<li>Client hashes its password with salt</li>
+<li>Client generates HMAC of random token using hash above<ul>
+<li>Potential vulnerability as hash can be deduces, followed by password being exposed</li>
+</ul>
+</li>
+<li>Client sends HMAC to Service/AuthService for validation</li>
+<li>Service/AuthService also generates HMAC based on stored password hash and random string</li>
+<li>Authentication successfully completes if both HMACs match</li>
+</ul>
+<h3>2.5.3. Auth by X509 certificate through Service</h3>
+<ul>
+<li>Allowed Client's X509 CN fields are known to AuthService</li>
+<li>Service/AuthService requests X509 certificate from Client on transport level</li>
+<li>Client sends its X509 certificate</li>
+<li>Authentication successfully completes if X509 CN fields matches configured one</li>
+</ul>
+<h3>2.5.4. Auth by public key through Service</h3>
+<ul>
+<li>Allowed Client's public keys are known to AuthService</li>
+<li>Client sends public key on transport level to Service/AuthService</li>
+<li>Authentication successfully completes if public key matches any configured one</li>
+</ul>
+<h3>2.5.5. Auth by IPv4/IPv6 address</h3>
+<ul>
+<li>Allowed Client's IPv4/IPv6 addresses are known to AuthService</li>
+<li>Authentication successfully completes if IPv4/IPv6 matches any configured one</li>
+</ul>
+<h2>2.6. Multi-method user authentication</h2>
+<p>There must be one or more sets of authentication methods.
+In every set, there can be one or more authentication method.</p>
+<p>Authentication succeeds only if all methods of any set pass.</p>
+<h2>2.7. HMAC generation</h2>
+<p>See <a href="http://www.ietf.org/rfc/rfc2104.txt" title="RFC2104 HMAC">HMAC</a> for details</p>
+<h3>2.7.1 Rules of HMAC generation for payload</h3>
+<ul>
+<li>Payload has a tree structure and coded in JSON or any alternative format</li>
+<li>All keys and fields are feed to HMAC generator in text representation</li>
+<li>HMAC security field is skipped, if present (in case of request validation)</li>
+<li>For each nested level, starting from the very root of tree-like payload structure:<ul>
+<li>Key-value pairs are processing in ascending order based on Unicode comparison rules</li>
+<li>Key is feed into HMAC generator</li>
+<li>If value is sub-tree, then recurse this algorithm</li>
+<li>Otherwise, feed textual representation to HMAC generator</li>
+</ul>
+</li>
+</ul>
+<h2>2.8. Client information exposed from AuthService to Service</h2>
+<p>Service can inform AuthService which Client information fields must be
+approved by Client to be exposed to Service. Client authentication
+cannot succeed unless Client approves fields being exposed to specific Service.
+This functionality is available only for Stateful authentication.</p>
+<p><em>Note: AuthService must store list of approved fields per Client-Service pair.
+Service must re-send Client for authentication, if more fields need to be approved</em></p>
+<h3>2.8.1. List of standard field identifiers</h3>
+<ul>
+<li>FirstName - a short name to be used in greetings, etc.</li>
+<li>FullName - full name to be used in official documents, implies access to FirstName</li>
+<li>DateOfBirth - ISO "YYYY-MM-DD" format</li>
+<li>TimeOfBirth - ISO "HH:mm:ss" format, can be truncated to minutes, implies access to DateOfBirth</li>
+<li>ContactEmail</li>
+<li>ContactPhone - full international number, starting with "+"</li>
+<li>HomeAddress</li>
+<li>WorkAddress</li>
+<li>Citizenship - list of countries of citizenship names</li>
+<li>GovernmentRegID - list of objects with country name, ID type and ID value fields ({country,idtype,value})</li>
+<li>AvatarURL</li>
+</ul>
+<h2>2.9. Client authentication invalidation event</h2>
+<ul>
+<li>AuthService must notify all Services if Client authentication configuration changes<ul>
+<li>On authentication set getting deleted</li>
+<li>On password, X509 CN, public key and other authentication method parameter changes</li>
+</ul>
+</li>
+<li>Service must re-authenticate all active Client sessions on subsequent request or earlier</li>
+</ul>
+<h2>2.10. Foreign user authentication</h2>
+<p>If Client is foreign user then AuthService acts as Service to user "domestic" AuthService,
+performing all communication transparently to original Service and Client.</p>
+<p>For security reasons, only authentication requests from pre-approved Service list should
+be forwarded to another AuthService.</p>
+<h1>3. Defense system integration</h1>
+<p>Security is common responsibility. Every node of the system must be a defense barrier for
+both attacks and simple misconfiguration.</p>
+<p>Typically, more farther node from actual attacker should have a dynamic failure rate
+limit to avoid a closer node being banned, leading to Denial of Service of specific 
+functionality.</p>
+<p>Each service must detect attacking Clients/Services and deny access before security limit
+is triggered on another host.</p>
+<p><em>Note: all hit or approaching limits must be reported to administration for actions to be 
+taken</em></p>
+<p><strong>Any error, which never happens by race condition, mistake, etc. must immediately trigger
+defense system action</strong> Example: session token validation by other Service.</p>
+<h2>3.1. Possible limit types</h2>
+<ul>
+<li>Limit per period from the same client and/or host and/or network<ul>
+<li>Request count</li>
+<li>Security failures</li>
+</ul>
+</li>
+<li>Dynamic limits<ul>
+<li>Limit can be risen and lowered dynamically (e.g. AuthService rices limits per Services
+based on number of active users)</li>
+</ul>
+</li>
+</ul>
+<h1>4. Detailed encryption and authentication requirements</h1>
+<p>SHA-3 was desired as a start, but SHA-2 is more widespread at the moment.
+So, SHA-2 is to be used until SHA-3 is penetrated into most technologies.</p>
+<p>SHA-384, SHA-512 or its truncated version SHA-512/224, SHA-512/256 is to be used
+at the moment. Dependant peer must deduce actual hash function based on
+hash length.</p>
+<p>AES-256 is to be used as encryption cipher. Therefore minimal shared secret
+length is 256-bit. Longer keys should be truncated.</p>
+<ul>
+<li>MasterService is responsible for choosing the right key and hash lengths</li>
+<li>Later, it can be extended with other length types</li>
+<li>All raw binary strings must be encoded in Base64 according to <a href="http://www.ietf.org/rfc/rfc2045.txt" title="RFC2045 section 6.8">base64</a></li>
+<li>JSON sent as GET path and/or parameter is also encoded in Base64</li>
+<li>There must be blacklist rules for forbidden keys (derived from respective hash/cipher function considerations)<ul>
+<li>Shared secret must be re-generated</li>
+<li>Derived key must be skipped</li>
+</ul>
+</li>
+<li>Key ID must be unique per each MasterService and normally used to determine Service</li>
+<li>Response should use the same Key ID and Sequence ID as in request</li>
+</ul>
+<h2>4.1. Message "sec" field sub-schema for HMAC</h2>
+<p class="futoin-schema">Schema: futoin-sec-hmac</p>
+
+<pre><code>    {
+        "title" : "FutoIn 'sec' field - HMAC",
+        "type" : "object",
+        "additionalProperties" : false,
+        "required" : [ "ksn", "hmac" ],
+        "properties" : {
+            "ki" : {
+                "type" : "string",
+                "description" : "Base shared secret ID"
+            },
+            "di" : {
+                "type" : "string",
+                "description" : "Derived key sequence ID"
+            },
+            "hmac" : {
+                "type" : "string",
+                "description" : "Base64 encoded HMAC"
+            }
+        }
+    }
+</code></pre>
+<h2>4.2. Message "sec" field sub-schema for Stateless authentication</h2>
+<p class="futoin-schema">Schema: futoin-sec-credentials</p>
+
+<pre><code>    {
+        "title" : "FutoIn 'sec' field - Credentials",
+        "type" : "object",
+        "additionalProperties" : false,
+        "required" : [ "user" ],
+        "properties" : {
+            "user" : {
+                "type" : "string",
+                "description" : "Unique user identification"
+            },
+            "secret" : {
+                "type" : "string",
+                "description" : "Optional. Any type of secret, typically password"
+            }
+        }
+    }
+</code></pre>
+<h1>5. Access Control Service</h1>
+<p>In many cases, there is a fixed number of object types, like users, posts, files, etc.
+And there is a variable size of objects per type, many users, posts and files. Every
+object can have Create/Read/Update/Delete action.</p>
+<p>We can see a hierarchy here: Service -&gt; Object Types -&gt; Individual Objects -&gt; Individual Object Action.</p>
+<p>Another type of hierarchy can be: Service -&gt; Interface -&gt; Function.</p>
+<p>In all cases it is possible to unify access control system to operate on neutral
+tree-like structure of identifiers. On low level, Client access is controlled on specific
+end-object+action. The details of how access is granted (e.g. roles, individual permissions, ownership, etc.)
+are AccessControlService implementation details. However, access can be granted by parent node and/or
+access control tree mask, where some of parent nodes can be "any".</p>
+<p>Doing an API call for every action may produce a significant overhead. It is important to design
+effective caching mechanism with stable invalidation for security reasons.</p>
+<h2>5.1. Access Control descriptor</h2>
+<p>There must be a common notation to identify object of checked control. In API, the access notation is
+an ordered array, where the first item is the top most in scope.</p>
+<p>Descriptor scope is specific to context. In Service context, scope is the Service. In Access Control Service,
+the scope is a common set of all Services registered to the system (meaning the first element is Service identifier).</p>
+<p><em>Example: ["root_node", "object_type", "action"]</em></p>
+<p>In some cases, wildcard is desired for some items. Example: grant update access to all users.
+Wildcard is marked as null value in place of item in the descriptor array.</p>
+<p><em>Example: ["root_node", null, "action"]</em></p>
+<p>For human readable purpose, the same descriptor can be written in string form, each item being separated by
+dot "." and wildcard null being replaced by star "*".</p>
+<p><em>Example: "root.object_type.action", "root.</em>.action"*</p>
+<h2>5.2. Access Control check</h2>
+<ul>
+<li>Client performs a request to Service</li>
+<li>Service calls AccessControlService providing client ID and access descriptor</li>
+<li>AccessControlService checks access implementation-dependent way</li>
+<li>If access is not granted, AccessControlService returns "Forbidden" exception</li>
+<li>AccessControlService returns<ul>
+<li>matched access control descriptor (access can be granted by parent item)</li>
+<li>cache Time-to-Live</li>
+<li>required auth security level</li>
+</ul>
+</li>
+<li>Service caches response by descriptor to optimize checks next time</li>
+<li>Service checks if current auth security level satisfy requirements</li>
+<li>Service continues request processing</li>
+</ul>
+<h2>5.3. Example</h2>
+<pre><code>    Client                     Service                      AccessControlService
+       |                          |                              |
+       |-------- request -------&gt; |                              |
+       |                          |--------- checkAccess ------&gt; |
+       |                          | &lt;-- validation constraints --|
+       | &lt;------ response --------|                              |
+       |                          |                              |
+</code></pre>
+<h1>6. Interface definitions</h1>
+<h2>6.1. MasterService provider</h2>
+<pre><code>    {
+        "iface" : "futoin.master.provider",
+        "version" : "0.1",
+        "funcs" : {
+            "register" : {
+                "params" : {
+                    "callback" :  {
+                        "type" : "string",
+                        "desc" : "Consumer callback URL, implementing futoin.master.consumer interface"
+                    },
+                    "secret" : {
+                        "type" : "string",
+                        "desc" : "Initial shared secret"
+                    },
+                    "swver" : {
+                        "type" : "string",
+                        "desc" : "Software of Service and its version"
+                    },
+                    "purpose" : {
+                        "type" : "string",
+                        "desc" : "Purpose/Description for the Service"
+                    }
+                },
+                "result" : {
+                    "ok" : {
+                        "type" : "boolean",
+                        "desc" : "Always true, if no exception"
+                    }
+                },
+                "throws" : [
+                    "AlreadyRegistered",
+                    "InvalidCallback",
+                    "InvalidSecret",
+                    "KeyRotationFailure"
+                ]
+            },
+            "unRegister" : {
+                "params" : {
+                    "callback" :  {
+                        "type" : "string",
+                        "desc" : "Original value from registration request"
+                    }
+                },
+                "result" : {
+                    "ok" : {
+                        "type" : "boolean",
+                        "desc" : "Always true, if no exception"
+                    }
+                },
+                "throws" : [
+                    "UnknownCallback"
+                ]
+            }
+        },
+        "requires" : [
+            "AllowAnonymous",
+            "SecureChannel"
+        ],
+        "desc" : "MasterService Provider interface"
+    }
+</code></pre>
+<h2>6.2. MasterService consumer</h2>
+<pre><code>    {
+        "iface" : "futoin.master.consumer",
+        "version" : "0.1",
+        "funcs" : {
+            "newSharedKey" : {
+                "params" : {
+                    "key_id" :  {
+                        "type" : "string",
+                        "desc" : "Shared secret ID"
+                    },
+                    "enc_key" : {
+                        "type" : "string",
+                        "desc" : "Key, encrypted with the same key as used for HMAC"
+                    }
+                },
+                "result" : {
+                    "ok" : {
+                        "type" : "boolean",
+                        "desc" : "Always true, if no exception"
+                    }
+                }
+            }
+        },
+        "requires" : [
+            "SecureChannel"
+        ],
+        "desc" : "MasterService Provider interface"
+    }
+</code></pre>
+<h2>6.3. AuthService backend provider (Service interface)</h2>
+<pre><code>    {
+        "iface" : "futoin.auth.backend",
+        "version" : "0.1",
+        "funcs" : {
+            "getClientInfo" : {
+                "params" : {
+                    "session" : {
+                        "type" : "string",
+                        "desc" : "Session token from futoin.auth.consumer.complete.ssn"
+                    }
+                },
+                "result" : {
+                    "info" : {
+                        "type" : "map",
+                        "desc" : "Map of Private Info fields, allowed by Client to be sent"
+                    }
+                },
+                "throws" : [
+                    "InvalidSessionID"
+                ]
+            },
+            "validate" : {
+                "params" : {
+                    "session" : {
+                        "type" : "string",
+                        "desc" : "Session token from futoin.auth.consumer.complete.essn"
+                    }
+                },
+                "result" : {
+                    "constraints" : {
+                        "type" : "array",
+                        "desc" : "Array of object sets of constraints"
+                    }
+                },
+                "throws" : [
+                    "InvalidSessionID"
+                ]
+            },
+            "validateBySecret" : {
+                "params" : {
+                    "client_id" : {
+                        "type" : "string",
+                        "desc" : "Unique Client ID"
+                    },
+                    "secret" : {
+                        "type" : "string",
+                        "desc" : "Client secret"
+                    }
+                },
+                "result" : {
+                    "constraints" : {
+                        "type" : "array",
+                        "desc" : "Array of object sets of constraints"
+                    }
+                },
+                "throws" : [
+                    "InvalidClientID",
+                    "InvalidSecret",
+                    "Blocked"
+                ],
+                "desc" : "Authorize by ID/secret pair"
+            }
+        },
+        "requires" : [
+            "SecureChannel"
+        ],
+        "desc" : "AuthService Backend Provider interface"
+    }
+</code></pre>
+<h2>6.4. AuthService frontend provider (Client interface)</h2>
+<pre><code>    {
+        "iface" : "futoin.auth.frontend",
+        "version" : "0.1",
+        "funcs" : {
+            "signIn" : {
+                "params" : {
+                    "lvl" : {
+                        "type" : "string",
+                        "desc" : "Required Security Level"
+                    },
+                    "pf" : {
+                        "type" : "array",
+                        "desc" : "List of private field access to request"
+                    },
+                    "tkn" : {
+                        "type" : "string",
+                        "desc" : "Requesting Service provided client token"
+                    }
+                },
+                "desc" : "Special handling. Service and its callback must be determined from sec.ki parameter. Client is 'transport'"
+            },
+            "authBySecret" : {
+                "params" : {
+                    "client_id" : {
+                        "type" : "string",
+                        "desc" : "Unique Client ID"
+                    },
+                    "secret" : {
+                        "type" : "string",
+                        "desc" : "Client secret"
+                    }
+                },
+                "result" : {
+                    "ok" : {
+                        "type" : "boolean",
+                        "desc" : "Always true, if no exception"
+                    }
+                },
+                "throws" : [
+                    "InvalidClientID",
+                    "InvalidSecret",
+                    "Blocked"
+                ],
+                "desc" : "Authorize by ID/secret pair"
+            },
+            "completeSignIn" : {
+                "result" : {
+                    "redirect" : {
+                        "type" : "string",
+                        "desc" : "Redirect URL to return to requesting Service"
+                    }
+                }
+            },
+            "cancelSignIn" : {
+                "result" : {
+                    "redirect" : {
+                        "type" : "string",
+                        "desc" : "Redirect URL to return to requesting Service"
+                    }
+                }
+            }
+        },
+        "requires" : [
+            "AllowAnonymous",
+            "SecureChannel"
+        ],
+        "desc" : "AuthService Backend Provider interface"
+    }
+</code></pre>
+<h2>6.5. AuthConsumer (Service interface)</h2>
+<pre><code>    {
+        "iface" : "futoin.auth.consumer",
+        "version" : "0.1",
+        "funcs" : {
+            "complete" : {
+                "params" : {
+                    "essn" : {
+                        "type" : "string",
+                        "desc" : "Encrypted session token ID"
+                    },
+                    "ttl" : {
+                        "type" : "string",
+                        "desc" : "Time-to-Live for Client session"
+                    }
+                }
+            },
+            "invalidate" : {
+                "params" : {
+                    "essn" : {
+                        "type" : "string",
+                        "desc" : "Encrypted session token ID"
+                    }
+                },
+                "result" : {
+                    "ok" : {
+                        "type" : "boolean",
+                        "desc" : "Always true, if no exception"
+                    }
+                },
+                "desc" : "Invalidate session and force re-check on next user activity or earlier"
+            }
+        },
+        "requires" : [
+            "AllowAnonymous"
+        ],
+        "desc" : "AuthService Backend Provider interface"
+    }
+</code></pre>
+<h2>6.6. AccessControl provider</h2>
+<pre><code>    {
+        "iface" : "futoin.acl.provider",
+        "version" : "0.1",
+        "funcs" : {
+            "checkAccess" : {
+                "params" : {
+                    "client_id" : {
+                        "type" : "string",
+                        "desc" : "Unique Client ID"
+                    },
+                    "acd" : {
+                        "type" : "string",
+                        "desc" : "Access control descriptor"
+                    }
+                },
+                "result" : {
+                    "acd" : {
+                        "type" : "string",
+                        "desc" : "Access control descriptor"
+                    },
+                    "ttl" : {
+                        "type" : "string",
+                        "desc" : "Time-to-Live for client descriptor cache"
+                    },
+                    "auth_level" : {
+                        "type" : "string",
+                        "desc" : "Required Security Level"
+                    }
+                },
+                "throws" : [
+                    "Forbidden"
+                ],
+                "desc" : "Check access to calling Service"
+            },
+            "grantAccess" : {
+                "params" : {
+                    "client_id" : {
+                        "type" : "string",
+                        "desc" : "Unique Client ID"
+                    },
+                    "acd" : {
+                        "type" : "string",
+                        "desc" : "Access control descriptor"
+                    },
+                    "auth_level" : {
+                        "type" : "string",
+                        "desc" : "Required Security Level"
+                    }
+                },
+                "result" : {
+                    "ok" : {
+                        "type" : "boolean",
+                        "desc" : "Always true, if no exception"
+                    }
+                },
+                "desc" : "Invalidate session and force re-check on next user activity or earlier"
+            },
+            "registerDescriptors" : {
+                "params" : {
+                    "acd_tree" : {
+                        "type" : "map",
+                        "desc" : "Access control descriptor tree"
+                    },
+                    "auth_level" : {
+                        "type" : "string",
+                        "desc" : "Required Security Level"
+                    }
+                },
+                "result" : {
+                    "ok" : {
+                        "type" : "boolean",
+                        "desc" : "Always true, if no exception"
+                    }
+                },
+                "desc" : "Register tree of access descriptors for specific auth level"
+            }
+        },
+        "requires" : [
+            "SecureChannel"
+        ],
+        "desc" : "AuthService Backend Provider interface"
+    }
+</code></pre>
+<h2>6.7. AccessControl consumer</h2>
+<pre><code>    {
+        "iface" : "futoin.acl.consumer",
+        "version" : "0.1",
+        "funcs" : {
+            "invalidate" : {
+                "params" : {
+                    "client_id" : {
+                        "type" : "string",
+                        "desc" : "Unique Client ID"
+                    },
+                    "acd" : {
+                        "type" : "string",
+                        "desc" : "Access control descriptor"
+                    }
+                },
+                "result" : {
+                    "ok" : {
+                        "type" : "boolean",
+                        "desc" : "Always true, if no exception"
+                    }
+                },
+                "desc" : "Invalidate cached Client's access control descriptor"
+            }
+        },
+        "requires" : [
+            "SecureChannel"
+        ],
+        "desc" : "AuthService Backend Provider interface"
+    }
+</code></pre></body></html>

@@ -1,0 +1,95 @@
+<html><head><title>ftn7_iface_invoker_concept.md</title></head><body><pre>
+FTN6: FutoIn Invoker Concept
+Version: 0.1
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>Warning</h1>
+<p>This specification IS NOT mandatory. It is just a reference model.
+Any implementation IS ALLOWED to provide own architecture with
+drawback of breaking easy migration from one to another.</p>
+<h1>1. Concept</h1>
+<p>There must be a centralized connection and credentials manager (CCM) object.
+It should be possible to create multiple independent instances of such type.</p>
+<p>Each connection end-point should have a unique associative name in scope of
+single CCM object. Connection end-points can be statically and/or dynamically
+registered/configured. More advanced implementation may use centralized service to
+resolve/retrieve connection end-points and related credentials on demand.</p>
+<p>Invoker code retrieves FutoIn interface references from CCM object and invokes
+FutoIn interface function through special "call" method, passing function name
+and associative parameter map. Invocation result is returned as a map of result
+values.</p>
+<p>There should be a common FutoIn exception type from which Expected and Unexpected
+FutoIn exception types must inherit as defined in FTN3.</p>
+<p>By design, most Executor implementation also implement Invoker design as it is required
+for separation of concerns on Service/RPC level, but not single project level.</p>
+<h1>1.1. Reserved interface names</h1>
+<p>Some of interface names can be reserved for internal semantics, like runtime
+resolving service interface.</p>
+<p>All names starting with hash "#" symbol are reserved for internal purpose in
+Invoker implementation concept.</p>
+<p>Pre-defined interfaces names:</p>
+<ul>
+<li>"#resolver" - end-point for runtime resolution</li>
+<li>"#auth" - AuthService end-point</li>
+<li>"#defense" - defense system end-point</li>
+</ul>
+<h1>1.2. Type and identifier safety</h1>
+<p>There should be a Simple CCM, which is lightweight and designed for small memory
+footprint and/or high performance cases. Advanced CCM interface should inherit
+from the Simple one.</p>
+<p>Advanced CCM implementation must implement a special native dummy interface,
+even if there is no difference with Simple one, so native link/resolve error is generated,
+if Simple CCM implementation is provided to Client code, which expects Advanced CCM.</p>
+<p>Advanced CCM implementation can retrieve FutoIn interface definitions and enforce
+additional checks, including compile and/or run-time specialized native interface
+building.</p>
+<p>In such process, FutoIn interface functions must become native interface members with
+every function parameter becoming native member's formal parameter. If multiple
+values can be returned natively, result values are mapped to those. Otherwise,
+map of result values is returned. If there is only one return value then it
+becomes return value of native member instead of result value map. If there are no
+result values then native member returns nothing and should complete as soon
+as request message is scheduled to be sent without waiting for reply.</p>
+<h1>1.2. Invoker calls to Executor in scope of the same process</h1>
+<p>FutoIn implementations are allowed to optimize calls within single process in
+implementation-defined way, keeping the same behavior between remote and local calls.</p>
+<p>Local calls must never execute if there are Invoker frames on stack. It means, Invoker
+function must return or Executor must run in a different thread. Yes, it may have performance
+issues.</p>
+<h1>2. Invoker interfaces</h1>
+<h2>2.1. Connection and Credentials Manager</h2>
+<ol>
+<li>register( name, iface, endpoint ) - register standard MasterService end-point</li>
+<li>registerPlain( name, iface, endpoint, credentials ) - register end-point with 'plain" credentials</li>
+<li>getIface( name ) / getIface&lt;Spec>( name ) - get end-point's native interface by name</li>
+<li>unregister( name ) - unregister any type of interface (should not be used, unless really needed)</li>
+<li>defense() - shortcut to getIface( "#defense" )</li>
+</ol>
+<p><em>Note: iface may represented as plain FutoIn interface identifier or "{ID}:{Version}" pair.
+Example: "futoin.master.service", "futoin.master.service:1.0"</em></p>
+<h2>2.2. Native FutoIn interface interface</h2>
+<ol>
+<li>results call( name, params ) throws FutoInException - generic FutoIn function call interface</li>
+<li>callAsync( name, params, callback( result ), callback( error ) ) - generic FutoIn asynchronous function call interface</li>
+<li>futoinType() - get FutoIn interface type, may be not implemented</li>
+<li>futoinVersion() - get FutoIn interface version, may be not implemented</li>
+<li>futoinInherits() - get list of inherited interfaces</li>
+<li>futoinFuncs() - get list of available functions</li>
+<li>futoinConstraints() - get list of interface constraints</li>
+</ol>
+<h2>2.3. Derived Key accessing wrapper</h2>
+<p>This interface is designed only if access to Derived Key is expected.</p>
+<ol>
+<li>Constructor( iface ) - wrap iface and act as proxy</li>
+<li>getDerivedKey()</li>
+<li>*() - any function, calls underlying iface function, ensuring the right derived key in use</li>
+</ol>
+<h2>2.4. Derived Key</h2>
+<p>See FTN6: Interface Executor Concept</p>
+<h1>3. Language/Platform-specific notes</h1>
+<h2>3.1. native JVM (Java, Groovy, etc.)</h2>
+<h2>3.2. Python</h2>
+<h2>3.3. PHP</h2>
+<h2>3.4. C++</h2></body></html>

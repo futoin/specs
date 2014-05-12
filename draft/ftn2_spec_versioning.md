@@ -1,6 +1,6 @@
 <pre>
 FTN2: FutoIn Specification Versioning
-Version: 0.DV
+Version: 0.1
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -41,10 +41,10 @@ MAJOR is set to 1, MINOR - to 0.
 
 ### 2.3.1. Backward compatible draft
 Existing specification is updated and versioned as draft (MAJOR.DVn).
-New version is released as released as "MAJOR.(MINOR+1)".
+New version is released as "MAJOR.(MINOR+1)".
 
 ### 2.3.2. Draft with broken backward compatibility
-Broken backward compatibility is released as "(MAJOR+1).0"
+Broken backward compatibility is versioned as "(MAJOR+1).DVn" and then releases as "(MAJOR+1).0".
 
 
 # 3. Requirements for specification release

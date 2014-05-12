@@ -1,6 +1,6 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 0.DV
+Version: 0.1
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -36,6 +36,7 @@ Low-level protocol for message exchange is out of scope of this specification.
 
 
 Possible examples of Peer-to-peer communication types:
+
 * raw datagram like UNIX Socket, UDP or SCTP
 * WebSockets
 * HTTP with request in POST and response in body
@@ -53,8 +54,8 @@ There are three major parts: **function identifier**, **parameters**, **result**
 
 * **function identifier** - unique associative name of string type
 * **parameters** - key-value pairs
-** key - unique associative name of string type
-** value - value of arbitrary type
+    * key - unique associative name of string type
+    * value - value of arbitrary type
 * **result** - key-value pairs, similar to parameters
 * **exception** - associative name of first error occurred during function execution
 
@@ -81,7 +82,7 @@ to this value.
 
 Invoker/Executor side is semantically defined and does not rely on Client/Server
 status of peer. There is no protocol-level support for that. Each side controls if
-it can act in Executor.
+it can act as Executor.
 
 It is suggested that Client side is always Invoker in uni-directional pattern.
 
@@ -205,10 +206,10 @@ Using [JSON-SCHEMA][]:
 * number - float value with 32-bit precision
 * string - string of unlimited length
 * map - key-value pairs (JSON object by fact). No ordering is guaranteed.
-** key - string
-** value - any type defined in this section
+    * key - string
+    * value - any type defined in this section
 * array - ordered list of values
-** value - any type defined in this section
+    * value - any type defined in this section
 
 *Note: **null** can be used only as placeholder in "default" values.*
 
@@ -241,6 +242,8 @@ for all excepted errors.
     *Must be generated on Executor side*.
 * **InternalError** - unexpected internal error on Executor side, including internal CommErrors.
     *Must be generated on Executor side*.
+* **InvokerError** - unexpected internal error on Invoker side, not realted to CommErrors.
+    *Must be generated on Invoker side*
 
 
 # 2. Interface concept
@@ -418,7 +421,7 @@ Example: "some_param", "some_result_value"
 
 ## 2.3. Interface inheritance
 
-In many cases, domain-specific interfaces have a large neutral subset and only a few
+In many cases, domain-specific interfaces have a large universal subset and only a few
 domain-specific additional functions and/or function parameters.
 
 Interface can inherit another interface. It should be possible to call any interface
@@ -428,10 +431,10 @@ Inheritance is limited to:
 
 * Adding additional functions
 * Adding additional parameters to existing function parameters
-** Executor must accept null/absent values for additional parameters
-** All additional parameters must have default value
+    * Executor must accept null/absent values for additional parameters
+    * All additional parameters must have default value
 * Adding additional result fields to existing result values
-** Invoker must ignore additional result values, if function is called through parent interface
+    * Invoker must ignore additional result values, if function is called through parent interface
 
 *Note: multiple interface inheritance is not supported at the moment*
 
