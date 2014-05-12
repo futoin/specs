@@ -4,7 +4,7 @@ function compile(){
 	local src="$1"
 	
 	mkdir -p $src/{meta,preview}
-	./tools/compilespec.py $src/*.md
+	ls $src/*.md | grep -v 'ftnX_' | xargs ./tools/compilespec.py
 }
 
 compile draft

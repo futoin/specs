@@ -28,7 +28,7 @@ def compilespec( spec_file ) :
 
     if spec_time < html_time :
         print( "Skipping " + spec_file + "\n" )
-        sys.exit( 0 )
+        return
 
     #---
     input_file = codecs.open( spec_file, mode="r", encoding="utf-8" )

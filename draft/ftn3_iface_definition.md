@@ -414,6 +414,7 @@ Function names follow camelCase. Example: "someFunc", anotherFunc"
 Parameter and result value names follow small_caps_with_underscore pattern.
 Example: "some_param", "some_result_value"
 
+*Note: "futoin" function prefix is reserved for internal purposes*
 
 ## 2.3. Interface inheritance
 

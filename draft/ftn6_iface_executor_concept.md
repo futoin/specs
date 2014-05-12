@@ -1,5 +1,5 @@
 <pre>
-FTN6: FutoIn Interface bindings in strict type languages
+FTN6: FutoIn Executor Concept
 Version: 0.DV
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -7,7 +7,7 @@ Authors: Andrey Galkin
 
 # Warning
 
-This specification IS NOT mandatory. It just a reference model.
+This specification IS NOT mandatory. It is just a reference model.
 Any implementation IS ALLOWED to provide own architecture with
 drawback of breaking easy migration from one to another.
 
@@ -132,4 +132,13 @@ exceptions.
 4. checkAlive() - check, if request can be completed (client is still connected)
 
 
+# 3. Language/Platform-specific notes
+
+## 3.1. native JVM (Java, Groovy, etc.)
+
+## 3.2. Python
+
+## 3.3. PHP
+
+## 3.4. C++
 
