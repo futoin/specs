@@ -81,8 +81,10 @@ def compilespec( spec_file ) :
 
             elif l == '`}Schema`\n' :
                 schema = json.dumps( json.loads( ''.join( json_text ) ) )
+                spec_major_ver = spec_ver.split('.')
+                spec_major_ver = spec_major_ver[0]
 
-                schema_file = parsing_schema + '-' + spec_ver + '-schema.json'
+                schema_file = parsing_schema + '-' + spec_major_ver + '-schema.json'
 
                 with codecs.open( os.path.join( meta_dir, schema_file ),
                                 "w",
@@ -92,7 +94,10 @@ def compilespec( spec_file ) :
                     f.write( schema )
 
                 schema_file_nover = os.path.join( meta_dir, parsing_schema + '-schema.json' )
-                os.unlink( schema_file_nover )
+                try:
+                    os.unlink( schema_file_nover )
+                except OSError:
+                    pass
                 os.symlink( schema_file, schema_file_nover )
 
                 parsing_schema = False
@@ -110,10 +115,11 @@ def compilespec( spec_file ) :
 
                 iface = json.loads( ''.join( json_text ) )
                 iface_name = iface['iface']
-                iface_ver = iface['version']
+                iface_major_ver = iface['version'].split('.')
+                iface_major_ver = iface_major_ver[0]
                 iface = json.dumps( iface )
 
-                iface_file = iface_name + '-' + iface_ver + '-iface.json'
+                iface_file = iface_name + '-' + iface_major_ver + '-iface.json'
 
                 with codecs.open( os.path.join( meta_dir, iface_file ),
                                 "w",
@@ -123,7 +129,10 @@ def compilespec( spec_file ) :
                     f.write( iface )
 
                 iface_file_nover = os.path.join( meta_dir, iface_name + '-iface.json' )
-                os.unlink( iface_file_nover )
+                try:
+                    os.unlink( iface_file_nover )
+                except OSError:
+                    pass
                 os.symlink( iface_file, iface_file_nover )
 
                 parsing_iface = False
@@ -162,7 +171,10 @@ def compilespec( spec_file ) :
                             errors="xmlcharrefreplace"
     )
 
-    os.unlink( html_file )
+    try :
+        os.unlink( html_file )
+    except OSError:
+        pass
     os.symlink( os.path.basename( html_ver_file ), html_file )
 
     output_file.write( '<html><head><title>' + os.path.basename( spec_file ) + '</title></head><body>' )

@@ -89,8 +89,8 @@ issues.
 4. unregister( name ) - unregister any type of interface (should not be used, unless really needed)
 5. defense() - shortcut to getIface( "#defense" )
 
-*Note: iface may represented as plain FutoIn interface identifier or "{ID}:{Version}" pair.
-Example: "futoin.master.service", "futoin.master.service:1.0"*
+*Note: iface must be represented as FutoIn interface identifier and version, separated by colon.
+Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*
 
 ## 2.2. Native FutoIn interface interface
 

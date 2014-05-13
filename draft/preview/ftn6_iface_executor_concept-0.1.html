@@ -25,7 +25,7 @@ compilers and/or converters.</p>
 <li>gathering basic request-response info</li>
 <li>checking interface constraints</li>
 <li>checking message security (HMAC) or authenticating user by credentials</li>
-<li>passing control to implementation</li>
+<li>passing control to implementation of specific interfaces with required major version</li>
 <li>catching exceptions or normal result</li>
 <li>converting response to transport-level representation</li>
 <li>
@@ -51,6 +51,9 @@ Client          ||  Executor           Implementation
 <p>Executor should be tighly integrated with MasterService implementation, if supported.
 It is required almost for each request to validate and generate HMAC.</p>
 <p>Executor should also integrate with AuthService consumer.</p>
+<p><em>Note: Executor is allowed to pass control to implementation only if requested major version of
+interfaces exactly matches implemented version and minor version is greater than or equal
+to requested minor version.</em></p>
 <h2>1.1. FutoIn interfaces</h2>
 <p>Interfaces must get converted according to language/platform-specific
 convention into native interfaces, which can depend only on

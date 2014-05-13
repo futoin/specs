@@ -109,8 +109,8 @@ Using [JSON-SCHEMA][]:
             "properties" : {
                 "f" : {
                     "type" : "string",
-                    "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)+:$",
-                    "description" : "Unique interface identifier"
+                    "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)*:[0-9]+\\.[0-9]+:[a-z][a-zA-Z0-9]*$",
+                    "description" : "Unique interface identifier and version"
                 },
                 "p" : {
                     "type" : "object",
@@ -138,7 +138,7 @@ Using [JSON-SCHEMA][]:
 *Example:*
 
         {
-            "f" : "futoin.event.reliableEvent",
+            "f" : "futoin.event:1.0:reliableEvent",
             "p" : {
                 "event" : "SomeEvent"
             }
@@ -243,7 +243,11 @@ for all excepted errors.
 * **InternalError** - unexpected internal error on Executor side, including internal CommErrors.
     *Must be generated on Executor side*.
 * **InvokerError** - unexpected internal error on Invoker side, not realted to CommErrors.
-    *Must be generated on Invoker side*
+    *Must be generated on Invoker side*.
+* **UnknownInterface** - unknown interface requested.
+    *Must be generated on Executor side*.
+* **NotSupportedVersion** - not supported interface version
+    *Must be generated on Executor side*.
 
 
 # 2. Interface concept

@@ -80,8 +80,8 @@ in message multiplexing mode.</p>
         "properties" : {
             "f" : {
                 "type" : "string",
-                "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)+:$",
-                "description" : "Unique interface identifier"
+                "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)*:[0-9]+\\.[0-9]+:[a-z][a-zA-Z0-9]*$",
+                "description" : "Unique interface identifier and version"
             },
             "p" : {
                 "type" : "object",
@@ -105,7 +105,7 @@ in message multiplexing mode.</p>
 </code></pre>
 <p><em>Example:</em></p>
 <pre><code>    {
-        "f" : "futoin.event.reliableEvent",
+        "f" : "futoin.event:1.0:reliableEvent",
         "p" : {
             "event" : "SomeEvent"
         }
@@ -198,7 +198,11 @@ for all excepted errors.</p>
 <li><strong>InternalError</strong> - unexpected internal error on Executor side, including internal CommErrors.
     <em>Must be generated on Executor side</em>.</li>
 <li><strong>InvokerError</strong> - unexpected internal error on Invoker side, not realted to CommErrors.
-    <em>Must be generated on Invoker side</em></li>
+    <em>Must be generated on Invoker side</em>.</li>
+<li><strong>UnknownInterface</strong> - unknown interface requested.
+    <em>Must be generated on Executor side</em>.</li>
+<li><strong>NotSupportedVersion</strong> - not supported interface version
+    <em>Must be generated on Executor side</em>.</li>
 </ul>
 <h1>2. Interface concept</h1>
 <p>Executor side functions identifiers are grouped into interfaces, which must be

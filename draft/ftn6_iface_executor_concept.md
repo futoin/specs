@@ -33,7 +33,7 @@ Executor is responsible for:
 2. gathering basic request-response info
 3. checking interface constraints
 4. checking message security (HMAC) or authenticating user by credentials
-5. passing control to implementation
+5. passing control to implementation of specific interfaces with required major version
 6. catching exceptions or normal result
 7. converting response to transport-level representation
 8. maintaining persistent communication channel, if needed
@@ -59,6 +59,10 @@ Executor should be tighly integrated with MasterService implementation, if suppo
 It is required almost for each request to validate and generate HMAC.
 
 Executor should also integrate with AuthService consumer.
+
+*Note: Executor is allowed to pass control to implementation only if requested major version of
+interfaces exactly matches implemented version and minor version is greater than or equal
+to requested minor version.*
 
 
 ## 1.1. FutoIn interfaces
