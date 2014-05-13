@@ -155,7 +155,9 @@ def compilespec( spec_file ) :
             die( "At line %s: Exception: %s\n" % ( curr_line, e )  )
 
     #---
-    html_ver_file = html_file.replace( '.html', '-' + spec_ver + '.html' )
+    spec_major_ver = spec_ver.split('.')
+    spec_major_ver = spec_major_ver[0]
+    html_ver_file = html_file.replace( '.html', '-' + spec_major_ver + '.html' )
     
     if False :
         raw_file = codecs.open( html_file + '.raw', "w",

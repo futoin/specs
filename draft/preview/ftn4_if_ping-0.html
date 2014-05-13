@@ -1,0 +1,39 @@
+<html><head><title>ftn4_if_ping.md</title></head><body><pre>
+FTN3: FutoIn Ping-Pong interface
+Version: 0.1
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>1. Intro</h1>
+<p>Nothing to say, just a generic ping interface, which can be used
+to check other peer availability.</p>
+<p>This interface should be implemented on all peers, which can act
+as Executor.</p>
+<h1>2. Interface schema</h1>
+<pre><code>    {
+        "iface" : "futoin.ping",
+        "version" : "0.1",
+        "funcs" : {
+            "ping" : {
+                "params" : {
+                    "echo" : {
+                        "type" : "string",
+                        "desc" : "Any string"
+                    }
+                },
+                "result" : {
+                    "echo" : {
+                        "type" : "string",
+                        "desc" : "See params"
+                    }
+                },
+                "desc" : "Check if peer is accessible"
+            }
+        },
+        "requires" : [
+            "AllowAnonymous"
+        ],
+        "desc" : "Ping-pong interface"
+    }
+</code></pre></body></html>
