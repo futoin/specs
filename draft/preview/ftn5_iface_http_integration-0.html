@@ -10,19 +10,117 @@ Authors: Andrey Galkin
 of Web technologies in scope of Enterprise solutions.</p>
 <p>Use cases:</p>
 <ol>
-<li>The default integration is based on single end-point URL, which
+<li>The default integration is based on single end-point URI, which
     accepts HTTP POST requests in plain JSON format and responses in plain
     JSON format.</li>
 <li>Another integration type is when FutoIn interface, its version and
-    function name are placed into URL's path and all parameters are placed
-    in GET query</li>
+    function name are placed into URI's path and all parameters are placed
+    in HTTP GET query</li>
 <li>A special case of large [binary/text] object upload is combination of
-    #2 made with HTTP POST. Call information is coded in URL, but large
+    #2 made with HTTP POST. Call information is coded in URI, but large
     data is passed through POST as is.</li>
+<li>Multiple large objects can be uploaded in multi-part format, when
+    FutoIn interfaces, its version and function name are coded in URI's
+    path, but all parameters are sent as HTML form fields in HTTP POST.</li>
 <li>A special case of large [binary/text] object download is when there
     are no result parameters. Instead, large object is sent as body
-    of HTTP response</li>
-<li>Multiple large objects can be uploaded in multipart format, when
-    FutoIn interfaces, its version and function name are coded in URL's
-    path, but all parameters are sent as HTML form fields.</li>
-</ol></body></html>
+    of HTTP response. Can be combined with any other use case.</li>
+</ol>
+<h1>2. Use case auto-detection</h1>
+<ul>
+<li>If request URI exactly matches Executor's end-point URI:<ul>
+<li>case if GET<ul>
+<li><em>Use Case #1</em></li>
+<li>read request body as JSON FutoIn request</li>
+<li>process (see below)</li>
+</ul>
+</li>
+<li>othewise, fail</li>
+</ul>
+</li>
+<li>else if sub-path after Executor's end-point URI, matches "interfaces/version/function" format:<ul>
+<li>deduce interface, its version and function name from sub-path</li>
+<li>if query string is present and <ul>
+<li>read parameters from query string</li>
+<li>case if GET<ul>
+<li><em>Use Case #2</em></li>
+<li>process (see below)</li>
+</ul>
+</li>
+<li>case if POST<ul>
+<li><em>Use Case #3</em></li>
+<li>store request body as temporary uploaded file</li>
+<li>process (see below)</li>
+</ul>
+</li>
+<li>otherwise, fail</li>
+</ul>
+</li>
+<li>else<ul>
+<li>if multi-part data<ul>
+<li><em>Use Case #4</em></li>
+<li>read parameters from form fields</li>
+<li>store files as temporary uploaded files</li>
+<li>process (see below)</li>
+</ul>
+</li>
+<li>else fail</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>else:<ul>
+<li>fail</li>
+</ul>
+</li>
+</ul>
+<h1>2.1. Request processing steps</h1>
+<ul>
+<li>process request in Executor</li>
+<li>write response body as (one of):<ul>
+<li>JSON FutoIn response, if function has parameters</li>
+<li>arbitrary large object (<em>Use Case #5</em>)</li>
+<li>empty string (even though, there is no result, HTTP requires response)</li>
+</ul>
+</li>
+</ul>
+<h1>3. Misc. technical details</h1>
+<p>URI is assumed as defined in its <a href="http://www.ietf.org/rfc/rfc3986.txt" title="Uniform Resource Identifier (URI): Generic Syntax">RFC3986</a> or any later version.</p>
+<p><em>Note: Executor must behave equally with or without trailing slash in URI path part.</em></p>
+<h2>3.1. Executor's end-point sub-path format</h2>
+<p>Generic format: "{end-point-URI}/{interface}/{version}/{function_name}"</p>
+<p><em>Example: "https://api.example.com/futoin/<strong>some.interface.name/1.0/someFunc</strong>"</em></p>
+<h2>3.2. URI Query string format</h2>
+<p>Query string starts with question mark "?". Parameters are separated with ampersand sign "&amp;".</p>
+<p><em>Example: "https://api.example.com/futoin/some.interface.name/1.0/someFunc?<strong>param1=val1&amp;param2=val2</strong>"</em></p>
+<h2>3.3. Rules for representing objects and arrays in query string and multi-part form data</h2>
+<p>Note: the specifications uses unreserved by URI <a href="http://www.ietf.org/rfc/rfc3986.txt" title="Uniform Resource Identifier (URI): Generic Syntax">RFC3986</a> character classes to avoid extra coding needed.</p>
+<p>JSON object is a tree-like structure. Each parent node is marked as object by added 
+dot "." as separator right after parent node name.</p>
+<p>JSON array is marked by adding plus sign "+" right after parent node name.</p>
+<p>The function parameters object type is implicitly assumed and leading "." is forbidden.</p>
+<p>Example:</p>
+<pre><code>    {
+        "tree" : {
+            "subtree" : {
+                "node1" : "val1"
+            },
+            "node2" : "val2",
+            "array" : [
+                "item1",
+                {
+                    "node3" : "val3"
+                }
+            ]
+        }
+    }
+</code></pre>
+<p>would be coded as:</p>
+<pre><code>    tree.subtree.node1=val1
+    tree.node2=val2
+    tree.array+=item1
+    tree.array+.node3=val3
+</code></pre>
+<h2>3.4. Conflicts in passed parameters</h2>
+<p>In case if the same request parameter tree node is used in different contexts
+(as leaf, as object or as array). Executor must rise InvalidRequest.</p></body></html>

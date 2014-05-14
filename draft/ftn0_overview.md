@@ -24,3 +24,7 @@ Authors: Andrey Galkin
 
 # 5. Interfaces
 * [FTN4 IF Ping](./ftn4\_if\_ping.md)
+* [FTN8 IF MasterService](./ftn8\_security\_concept.md)
+* [FTN8 IF AuthService](./ftn8\_security\_concept.md)
+* [FTN8 IF AccessControlService](./ftn8\_security\_concept.md)
+* [FTN9 IF DefenseService](./ftn9\_defense\_concept.md)

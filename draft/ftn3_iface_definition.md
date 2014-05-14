@@ -248,6 +248,8 @@ for all excepted errors.
     *Must be generated on Executor side*.
 * **NotSupportedVersion** - not supported interface version
     *Must be generated on Executor side*.
+* **InvalidRequest** - invalid data is passed as FutoIn request.
+    *Must be generated on Executor side*.
 
 
 # 2. Interface concept
