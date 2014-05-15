@@ -469,11 +469,99 @@ dot "." and wildcard null being replaced by star "*".
            | <------ response --------|                              |
            |                          |                              |           
 
-           
 
-# 6. Interface definitions
+# 6. Defense Systems
 
-## 6.1. MasterService provider
+Any open system requires effective reaction to errors generated
+by misconfiguration and intentional attacks. It is also required
+to impose limits on utilization of resources for normal operation.
+
+There are no requirements on how defense system must behave to
+identify possible attacks and misconfiguration, and how to react
+to them. It is like a fraud detection system - a full time job type
+of thing.
+
+However, this specification defines a universal interface for
+system audit and reaction.
+
+## 6.1. Example
+
+* Successful call (common):
+
+        Client                     Service                      DefenseService
+           |                          |                              |
+           |-------- request -------> |                              |
+           |                          |----------- onCall() -------> |
+           |                          | <----- defense action -------|
+           |                  [defense action]                       |
+           |                      [process]                          |
+           |                          |----------- onResult() -----> |
+           | <------ response --------|                              |
+           |                          |                              |
+
+* Failed call (common):
+        Client                     Service                      DefenseService
+           |                          |                              |
+           |-------- request -------> |                              |
+           |                          |----------- onCall() -------> |
+           |                          | <----- defense action -------|
+           |                  [defense action]                       |
+           |                      [process]                          |
+           |                          |----------- onFail() -------> |
+           |                          | <----- defense action -------|
+           |                  [defense action]                       |
+           | <------ response --------|                              |
+           |                          |                              |
+
+* Defense with drop:
+        Client                     Service                      DefenseService
+           |                          |                              |
+           |-------- request -------> |                              |
+           |                          |----------- onCall() -------> |
+           |                          | <----- defense action -------|
+           |                       [drop]                            |
+           |                          |                              |
+
+* Defense with reject / reauth:
+        Client                     Service                      DefenseService
+           |                          |                              |
+           |-------- request -------> |                              |
+           |                          |----------- onCall() -------> |
+           |                          | <----- defense action -------|
+           |                  [defense action]                       |
+           | <-- response failure ----|                              |
+           |                          |                              |
+
+* Defense with request delay:
+        Client                     Service                      DefenseService
+           |                          |                              |
+           |-------- request -------> |                              |
+           |                          |----------- onCall() -------> |
+           |                          | <----- defense action -------|
+           |                       [delay]                           |
+           |                      [process]                          |
+           |                          |----------- onResult() -----> |
+           | <------ response --------|                              |
+           |                          |                              |
+
+* Defense with response delay:
+        Client                     Service                      DefenseService
+           |                          |                              |
+           |-------- request -------> |                              |
+           |                          |----------- onCall() -------> |
+           |                          | <----- defense action -------|
+           |                  [defense action]                       |
+           |                      [process]                          |
+           |                          |----------- onFail() -------> |
+           |                          | <----- defense action -------|
+           |                       [delay]                           |
+           | <------ response --------|                              |
+           |                          |                              |
+
+
+# 7. Interface definitions
+
+## 7.1. MasterService provider
 
 `Iface{`
 
@@ -541,7 +629,7 @@ dot "." and wildcard null being replaced by star "*".
 `}Iface`
 
 
-## 6.2. MasterService consumer
+## 7.2. MasterService consumer
 
 `Iface{`
 
@@ -576,7 +664,7 @@ dot "." and wildcard null being replaced by star "*".
 
 `}Iface`
 
-## 6.3. AuthService backend provider (Service interface)
+## 7.3. AuthService backend provider (Service interface)
 
 `Iface{`
 
@@ -651,7 +739,7 @@ dot "." and wildcard null being replaced by star "*".
 
 `}Iface`
 
-## 6.4. AuthService frontend provider (Client interface)
+## 7.4. AuthService frontend provider (Client interface)
 
 `Iface{`
 
@@ -726,7 +814,7 @@ dot "." and wildcard null being replaced by star "*".
 
 `}Iface`
 
-## 6.5. AuthConsumer (Service interface)
+## 7.5. AuthConsumer (Service interface)
 
 `Iface{`
 
@@ -770,7 +858,7 @@ dot "." and wildcard null being replaced by star "*".
 
 `}Iface`
 
-## 6.6. AccessControl provider
+## 7.7. AccessControl provider
 
 `Iface{`
 
@@ -785,13 +873,13 @@ dot "." and wildcard null being replaced by star "*".
                             "desc" : "Unique Client ID"
                         },
                         "acd" : {
-                            "type" : "string",
+                            "type" : "array",
                             "desc" : "Access control descriptor"
                         }
                     },
                     "result" : {
                         "acd" : {
-                            "type" : "string",
+                            "type" : "array",
                             "desc" : "Access control descriptor"
                         },
                         "ttl" : {
@@ -815,12 +903,8 @@ dot "." and wildcard null being replaced by star "*".
                             "desc" : "Unique Client ID"
                         },
                         "acd" : {
-                            "type" : "string",
+                            "type" : "array",
                             "desc" : "Access control descriptor"
-                        },
-                        "auth_level" : {
-                            "type" : "string",
-                            "desc" : "Required Security Level"
                         }
                     },
                     "result" : {
@@ -829,17 +913,17 @@ dot "." and wildcard null being replaced by star "*".
                             "desc" : "Always true, if no exception"
                         }
                     },
-                    "desc" : "Invalidate session and force re-check on next user activity or earlier"
+                    "desc" : "Grant access to specific descriptor"
                 },
-                "registerDescriptors" : {
+                "requestAccess" : {
                     "params" : {
-                        "acd_tree" : {
-                            "type" : "map",
-                            "desc" : "Access control descriptor tree"
-                        },
-                        "auth_level" : {
+                        "client_id" : {
                             "type" : "string",
-                            "desc" : "Required Security Level"
+                            "desc" : "Unique Client ID"
+                        },
+                        "acd" : {
+                            "type" : "array",
+                            "desc" : "Access control descriptor"
                         }
                     },
                     "result" : {
@@ -848,7 +932,26 @@ dot "." and wildcard null being replaced by star "*".
                             "desc" : "Always true, if no exception"
                         }
                     },
-                    "desc" : "Register tree of access descriptors for specific auth level"
+                    "desc" : "Request access for specific client to be later approved by Admin"
+                },
+                "revokeAccess" : {
+                    "params" : {
+                        "client_id" : {
+                            "type" : "string",
+                            "desc" : "Unique Client ID"
+                        },
+                        "acd" : {
+                            "type" : "array",
+                            "desc" : "Access control descriptor"
+                        }
+                    },
+                    "result" : {
+                        "ok" : {
+                            "type" : "boolean",
+                            "desc" : "Always true, if no exception"
+                        }
+                    },
+                    "desc" : "Revoke access to specific descriptor"
                 }
             },
             "requires" : [
@@ -859,7 +962,7 @@ dot "." and wildcard null being replaced by star "*".
 
 `}Iface`
 
-## 6.7. AccessControl consumer
+## 7.7. AccessControl consumer
 
 `Iface{`
 
@@ -874,7 +977,7 @@ dot "." and wildcard null being replaced by star "*".
                             "desc" : "Unique Client ID"
                         },
                         "acd" : {
-                            "type" : "string",
+                            "type" : "array",
                             "desc" : "Access control descriptor"
                         }
                     },
@@ -885,6 +988,19 @@ dot "." and wildcard null being replaced by star "*".
                         }
                     },
                     "desc" : "Invalidate cached Client's access control descriptor"
+                },
+                "getDescriptors" : {
+                    "params" : {
+                        "acd" : {
+                            "type" : "array",
+                            "desc" : "Access control descriptor. If not empty, skip not matching and not sub-tree"
+                        },
+                        "locale" : {
+                            "type" : "string",
+                            "desc" : "Get locale name for translations"
+                        }
+                    },
+                    "desc" : "Get futoin-acl-tree file"
                 }
             },
             "requires" : [
@@ -894,6 +1010,138 @@ dot "." and wildcard null being replaced by star "*".
         }
 
 `}Iface`
+
+`Schema(futoin-acl-tree){`
+
+        {
+            "title" : "FutoIn ACL tree",
+            "type" : "object",
+            "additionalProperties" : false,
+            "required" : [ "auth_level" ],
+            "properties" : {
+                "auth_level" : {
+                    "type" : "string",
+                    "description" : "Required Auth Level"
+                },
+                "print_name" : {
+                    "type" : "string",
+                    "description" : "Print name"
+                },
+                "desc" : {
+                    "type" : "string",
+                    "description" : "Description in MarkDown format"
+                },
+                "children" : {
+                    "type" : "object",
+                    "description" : "Recursive structure"
+                }
+            }
+        }
+
+`}Schema`
+
+## 7.8. DefenseService interface
+
+`Iface{`
+
+        {
+            "iface" : "futoin.defense.provider",
+            "version" : "0.1",
+            "funcs" : {
+                "onCall" : {
+                    "params" : {
+                        "client_id" : {
+                            "type" : "string",
+                            "desc" : "Unique Client ID"
+                        },
+                        "client_addr" : {
+                            "type" : "string",
+                            "desc" : "ipv4:addr, ipv6:addr or other-type:addr"
+                        },
+                        "request" : {
+                            "type" : "object",
+                            "desc" : "Original request data"
+                        }
+                    },
+                    "result" : {
+                        "act" : {
+                            "type" : "string",
+                            "desc" : "one of: pass, drop, reject, reauth, delay"
+                        },
+                        "delay" : {
+                            "type" : "number",
+                            "desc" : "delay execution for specific absolute time in microseconds since request was made"
+                        },
+                        "refid" : {
+                            "type" : "string",
+                            "desc" : "Reference ID for onResult()"
+                        }
+                    },
+                    "desc" : "Call before processing each client's call"
+                },
+                "onResult" : {
+                    "params" : {
+                        "refid" : {
+                            "type" : "string",
+                            "desc" : "Reference ID for onCall()"
+                        },
+                        "response" : {
+                            "type" : "object",
+                            "desc" : "Original response data"
+                        }
+                    },
+                    "desc" : "Call after processing each client's call"
+                },
+                "onFail" : {
+                    "params" : {
+                        "refid" : {
+                            "type" : "string",
+                            "desc" : "Reference ID for onCall()"
+                        },
+                        "error" : {
+                            "type" : "string",
+                            "desc" : "Generated error"
+                        }
+                    },
+                    "result" : {
+                        "delay" : {
+                            "type" : "number",
+                            "desc" : "delay response for specific absolute time in microseconds since request was made"
+                        }
+                    },
+                    "desc" : "Call before processing each client's call"
+                }
+            },
+            "requires" : [
+                "SecureChannel"
+            ],
+            "desc" : "AuthService Backend Provider interface"
+        }
+
+`}Iface`
+
+
+## 7.9. Example: Holistic picture with all peers in scope
+
+Yes, it may look like too much of overhead, but it is what is done in
+all-in-one implementation in scope of single process. It is very important
+to optimize communication with backend services, possibly clustering them
+to the same OS as running Service.
+
+        Client            Service    [AuthService]   ACLService   DefenseService
+           |                 |                 |          |            |
+           |--- request ---> |                 |          |            |
+           |                 |- valBySecret -> |          |            |
+           |                 | <-- val cnstr --|          |            |
+           |                 |----- checkAccess --------> |            |
+           |                 | <- validation constraints -|            |
+           |                 |----------- onCall() ------------------> |
+           |                 | <----- defense action ------------------|
+           |           [defense action]        |          |            |
+           |             [process]             |          |            |
+           |                 |----------- onResult() ----------------> |
+           | <- response ----|                 |          |            |
+           |                 |                 |          |            |
 
 
 
