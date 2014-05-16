@@ -564,6 +564,9 @@ system audit and reaction.
 ## 7.1. MasterService provider
 
 * futoin.master.provider.register - establish interaction
+    * In case of Client with no URL, it is allowed to use "channel" literal
+        to identify that callbacks must be done through bi-directional
+        communication channel. It implies futoin.master.provider.authChannel()
 * futoin.master.provider.unRegister - finish interaction
 * futoin.master.provider.authChannel - authenticate persistent secure channel
     to avoid "sec" part in every message.
@@ -578,7 +581,7 @@ system audit and reaction.
                     "params" : {
                         "callback" :  {
                             "type" : "string",
-                            "desc" : "Consumer callback URL, implementing futoin.master.consumer interface"
+                            "desc" : "Consumer callback URL or 'channel', implementing futoin.master.consumer interface"
                         },
                         "secret" : {
                             "type" : "string",

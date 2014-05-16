@@ -106,6 +106,7 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*
 8. callDataAsync( name, params, upload_data, async_callback )
     * generic FutoIn asynchronous function call interface with data transfer
     * upload_data - map of input streams of buffers
+    * Note: all data transfer requests must be done through separate communication channel
 
 
 Note: result is either 
