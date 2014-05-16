@@ -34,6 +34,7 @@ Invoker implementation concept.</p>
 <li>"#resolver" - end-point for runtime resolution</li>
 <li>"#auth" - AuthService end-point</li>
 <li>"#defense" - defense system end-point</li>
+<li>"#log" - audit logging end-poitn</li>
 </ul>
 <h1>1.2. Type and identifier safety</h1>
 <p>There should be a Simple CCM, which is lightweight and designed for small memory
@@ -64,8 +65,9 @@ issues.</p>
 <li>register( name, iface, endpoint ) - register standard MasterService end-point</li>
 <li>registerPlain( name, iface, endpoint, credentials ) - register end-point with 'plain" credentials</li>
 <li>getIface( name ) / getIface&lt;Spec>( name ) - get end-point's native interface by name</li>
-<li>unregister( name ) - unregister any type of interface (should not be used, unless really needed)</li>
+<li>unRegister( name ) - unregister any type of interface (should not be used, unless really needed)</li>
 <li>defense() - shortcut to getIface( "#defense" )</li>
+<li>log() - shortcut to getIface( "#log" )</li>
 </ol>
 <p><em>Note: iface must be represented as FutoIn interface identifier and version, separated by colon.
 Example: "futoin.master.service:1.0", "futoin.master.service:2.1"</em></p>

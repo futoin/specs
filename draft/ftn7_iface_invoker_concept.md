@@ -46,6 +46,7 @@ Pre-defined interfaces names:
 * "#resolver" - end-point for runtime resolution
 * "#auth" - AuthService end-point
 * "#defense" - defense system end-point
+* "#log" - audit logging end-poitn
 
 # 1.2. Type and identifier safety
 
@@ -86,8 +87,9 @@ issues.
 1. register( name, iface, endpoint ) - register standard MasterService end-point
 2. registerPlain( name, iface, endpoint, credentials ) - register end-point with 'plain" credentials
 3. getIface( name ) / getIface<Spec\>( name ) - get end-point's native interface by name
-4. unregister( name ) - unregister any type of interface (should not be used, unless really needed)
+4. unRegister( name ) - unregister any type of interface (should not be used, unless really needed)
 5. defense() - shortcut to getIface( "#defense" )
+6. log() - shortcut to getIface( "#log" )
 
 *Note: iface must be represented as FutoIn interface identifier and version, separated by colon.
 Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*

@@ -563,6 +563,11 @@ system audit and reaction.
 
 ## 7.1. MasterService provider
 
+* futoin.master.provider.register - establish interaction
+* futoin.master.provider.unRegister - finish interaction
+* futoin.master.provider.authChannel - authenticate persistent secure channel
+    to avoid "sec" part in every message.
+
 `Iface{`
 
         {
@@ -617,6 +622,15 @@ system audit and reaction.
                     "throws" : [
                         "UnknownCallback"
                     ]
+                },
+                "authChannel" : {
+                    "result" : {
+                        "ok" : {
+                            "type" : "boolean",
+                            "desc" : "Always true, if no exception"
+                        }
+                    },
+                    "desc" : "Authenticate channel with credentials for performance reasons (skip sec section)"
                 }
             },
             "requires" : [
@@ -858,7 +872,7 @@ system audit and reaction.
 
 `}Iface`
 
-## 7.7. AccessControl provider
+## 7.6. AccessControl provider
 
 `Iface{`
 

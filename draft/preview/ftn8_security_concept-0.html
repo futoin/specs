@@ -509,67 +509,84 @@ system audit and reaction.</p>
 </ul>
 <h1>7. Interface definitions</h1>
 <h2>7.1. MasterService provider</h2>
-<pre><code>    {
-        "iface" : "futoin.master.provider",
-        "version" : "0.1",
-        "funcs" : {
-            "register" : {
-                "params" : {
-                    "callback" :  {
-                        "type" : "string",
-                        "desc" : "Consumer callback URL, implementing futoin.master.consumer interface"
-                    },
-                    "secret" : {
-                        "type" : "string",
-                        "desc" : "Initial shared secret"
-                    },
-                    "swver" : {
-                        "type" : "string",
-                        "desc" : "Software of Service and its version"
-                    },
-                    "purpose" : {
-                        "type" : "string",
-                        "desc" : "Purpose/Description for the Service"
-                    }
+<ul>
+<li>futoin.master.provider.register - establish interaction</li>
+<li>futoin.master.provider.unRegister - finish interaction</li>
+<li>
+<p>futoin.master.provider.authChannel - authenticate persistent secure channel
+    to avoid "sec" part in every message.</p>
+<pre><code>{
+    "iface" : "futoin.master.provider",
+    "version" : "0.1",
+    "funcs" : {
+        "register" : {
+            "params" : {
+                "callback" :  {
+                    "type" : "string",
+                    "desc" : "Consumer callback URL, implementing futoin.master.consumer interface"
                 },
-                "result" : {
-                    "ok" : {
-                        "type" : "boolean",
-                        "desc" : "Always true, if no exception"
-                    }
+                "secret" : {
+                    "type" : "string",
+                    "desc" : "Initial shared secret"
                 },
-                "throws" : [
-                    "AlreadyRegistered",
-                    "InvalidCallback",
-                    "InvalidSecret",
-                    "KeyRotationFailure"
-                ]
+                "swver" : {
+                    "type" : "string",
+                    "desc" : "Software of Service and its version"
+                },
+                "purpose" : {
+                    "type" : "string",
+                    "desc" : "Purpose/Description for the Service"
+                }
             },
-            "unRegister" : {
-                "params" : {
-                    "callback" :  {
-                        "type" : "string",
-                        "desc" : "Original value from registration request"
-                    }
-                },
-                "result" : {
-                    "ok" : {
-                        "type" : "boolean",
-                        "desc" : "Always true, if no exception"
-                    }
-                },
-                "throws" : [
-                    "UnknownCallback"
-                ]
-            }
+            "result" : {
+                "ok" : {
+                    "type" : "boolean",
+                    "desc" : "Always true, if no exception"
+                }
+            },
+            "throws" : [
+                "AlreadyRegistered",
+                "InvalidCallback",
+                "InvalidSecret",
+                "KeyRotationFailure"
+            ]
         },
-        "requires" : [
-            "AllowAnonymous",
-            "SecureChannel"
-        ],
-        "desc" : "MasterService Provider interface"
-    }
+        "unRegister" : {
+            "params" : {
+                "callback" :  {
+                    "type" : "string",
+                    "desc" : "Original value from registration request"
+                }
+            },
+            "result" : {
+                "ok" : {
+                    "type" : "boolean",
+                    "desc" : "Always true, if no exception"
+                }
+            },
+            "throws" : [
+                "UnknownCallback"
+            ]
+        },
+        "authChannel" : {
+            "result" : {
+                "ok" : {
+                    "type" : "boolean",
+                    "desc" : "Always true, if no exception"
+                }
+            },
+            "desc" : "Authenticate channel with credentials for performance reasons (skip sec section)"
+        }
+    },
+    "requires" : [
+        "AllowAnonymous",
+        "SecureChannel"
+    ],
+    "desc" : "MasterService Provider interface"
+}
 </code></pre>
+</li>
+</ul>
 <h2>7.2. MasterService consumer</h2>
 <pre><code>    {
         "iface" : "futoin.master.consumer",
@@ -779,7 +796,7 @@ system audit and reaction.</p>
         "desc" : "AuthService Backend Provider interface"
     }
 </code></pre>
-<h2>7.7. AccessControl provider</h2>
+<h2>7.6. AccessControl provider</h2>
 <pre><code>    {
         "iface" : "futoin.acl.provider",
         "version" : "0.1",
