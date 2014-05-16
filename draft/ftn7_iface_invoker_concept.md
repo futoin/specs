@@ -89,7 +89,7 @@ issues.
 3. getIface( name ) / getIface<Spec\>( name ) - get end-point's native interface by name
 4. unRegister( name ) - unregister any type of interface (should not be used, unless really needed)
 5. defense() - shortcut to getIface( "#defense" )
-6. log() - shortcut to getIface( "#log" )
+6. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
 
 *Note: iface must be represented as FutoIn interface identifier and version, separated by colon.
 Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*
@@ -126,3 +126,7 @@ See FTN6: Interface Executor Concept
 ## 3.3. PHP
 
 ## 3.4. C++
+
+
+[FTN9 IF AuditLogService]: ./ftn9\_if\_auditlog.md "FTN9 Interface - AuditLog"
+

@@ -108,6 +108,7 @@ exceptions.
 8. getDerivedKey() - generate, cache and return derived key to be used in HMAC
     and perhaps other places. Implementation may forbid its use.
 9. async() - mark request as asynchronous and return async completion interface
+10. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
 
 ## 2.3. User info
 
@@ -147,3 +148,5 @@ exceptions.
 
 ## 3.4. C++
 
+
+[RAII]: http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization "Resource Acquisition Is Initialization"
