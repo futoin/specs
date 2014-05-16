@@ -97,12 +97,18 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*
 ## 2.2. Native FutoIn interface interface
 
 1. results call( name, params ) throws FutoInException - generic FutoIn function call interface
-2. callAsync( name, params, callback( result ), callback( error ) ) - generic FutoIn asynchronous function call interface
+2. callAsync( name, params, async_callback ) - generic FutoIn asynchronous function call interface
 3. futoinType() - get FutoIn interface type, may be not implemented
 4. futoinVersion() - get FutoIn interface version, may be not implemented
 5. futoinInherits() - get list of inherited interfaces
 6. futoinFuncs() - get list of available functions
 7. futoinConstraints() - get list of interface constraints
+8. callDataAsync( name, params, upload_data, async_callback )
+    * generic FutoIn asynchronous function call interface with data transfer
+    * upload_data - map of input streams of buffers
+
+
+Note: result is either 
 
 ## 2.3. Derived Key accessing wrapper
 
@@ -116,6 +122,10 @@ This interface is designed only if access to Derived Key is expected.
 
 See FTN6: Interface Executor Concept
 
+## 2.5. Async callback interface
+
+* success( result ) - result map or input binary stream
+* error( error )
 
 # 3. Language/Platform-specific notes
 

@@ -109,6 +109,8 @@ exceptions.
     and perhaps other places. Implementation may forbid its use.
 9. async() - mark request as asynchronous and return async completion interface
 10. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
+11. files() - return map to uploaded temporary file streams
+12. rawoutput() - return raw output stream
 
 ## 2.3. User info
 

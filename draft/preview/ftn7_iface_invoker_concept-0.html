@@ -74,13 +74,19 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1"</em></p>
 <h2>2.2. Native FutoIn interface interface</h2>
 <ol>
 <li>results call( name, params ) throws FutoInException - generic FutoIn function call interface</li>
-<li>callAsync( name, params, callback( result ), callback( error ) ) - generic FutoIn asynchronous function call interface</li>
+<li>callAsync( name, params, async_callback ) - generic FutoIn asynchronous function call interface</li>
 <li>futoinType() - get FutoIn interface type, may be not implemented</li>
 <li>futoinVersion() - get FutoIn interface version, may be not implemented</li>
 <li>futoinInherits() - get list of inherited interfaces</li>
 <li>futoinFuncs() - get list of available functions</li>
 <li>futoinConstraints() - get list of interface constraints</li>
+<li>callDataAsync( name, params, upload_data, async_callback )<ul>
+<li>generic FutoIn asynchronous function call interface with data transfer</li>
+<li>upload_data - map of input streams of buffers</li>
+</ul>
+</li>
 </ol>
+<p>Note: result is either </p>
 <h2>2.3. Derived Key accessing wrapper</h2>
 <p>This interface is designed only if access to Derived Key is expected.</p>
 <ol>
@@ -90,6 +96,11 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1"</em></p>
 </ol>
 <h2>2.4. Derived Key</h2>
 <p>See FTN6: Interface Executor Concept</p>
+<h2>2.5. Async callback interface</h2>
+<ul>
+<li>success( result ) - result map or input binary stream</li>
+<li>error( error )</li>
+</ul>
 <h1>3. Language/Platform-specific notes</h1>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>
 <h2>3.2. Python</h2>
