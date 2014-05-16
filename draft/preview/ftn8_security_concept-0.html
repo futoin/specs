@@ -443,68 +443,73 @@ system audit and reaction.</p>
 </code></pre>
 </li>
 <li>
-<p>Failed call (common):
-        Client                     Service                      DefenseService
-           |                          |                              |
-           |-------- request -------&gt; |                              |
-           |                          |----------- onCall() -------&gt; |
-           |                          | &lt;----- defense action -------|
-           |                  [defense action]                       |
-           |                      [process]                          |
-           |                          |----------- onFail() -------&gt; |
-           |                          | &lt;----- defense action -------|
-           |                  [defense action]                       |
-           | &lt;------ response --------|                              |
-           |                          |                              |</p>
+<p>Failed call (common):</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                  [defense action]                       |
+   |                      [process]                          |
+   |                          |----------- onFail() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                  [defense action]                       |
+   | &lt;------ response --------|                              |
+   |                          |                              |
+</code></pre>
 </li>
 <li>
-<p>Defense with drop:
-        Client                     Service                      DefenseService
-           |                          |                              |
-           |-------- request -------&gt; |                              |
-           |                          |----------- onCall() -------&gt; |
-           |                          | &lt;----- defense action -------|
-           |                       [drop]                            |
-           |                          |                              |</p>
+<p>Defense with drop:</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                       [drop]                            |
+   |                          |                              |
+</code></pre>
 </li>
 <li>
-<p>Defense with reject / reauth:
-        Client                     Service                      DefenseService
-           |                          |                              |
-           |-------- request -------&gt; |                              |
-           |                          |----------- onCall() -------&gt; |
-           |                          | &lt;----- defense action -------|
-           |                  [defense action]                       |
-           | &lt;-- response failure ----|                              |
-           |                          |                              |</p>
+<p>Defense with reject / reauth:</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                  [defense action]                       |
+   | &lt;-- response failure ----|                              |
+   |                          |                              |
+</code></pre>
 </li>
 <li>
-<p>Defense with request delay:
-        Client                     Service                      DefenseService
-           |                          |                              |
-           |-------- request -------&gt; |                              |
-           |                          |----------- onCall() -------&gt; |
-           |                          | &lt;----- defense action -------|
-           |                       [delay]                           |
-           |                      [process]                          |
-           |                          |----------- onResult() -----&gt; |
-           | &lt;------ response --------|                              |
-           |                          |                              |</p>
+<p>Defense with request delay:</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                       [delay]                           |
+   |                      [process]                          |
+   |                          |----------- onResult() -----&gt; |
+   | &lt;------ response --------|                              |
+   |                          |                              |
+</code></pre>
 </li>
 <li>
-<p>Defense with response delay:
-        Client                     Service                      DefenseService
-           |                          |                              |
-           |-------- request -------&gt; |                              |
-           |                          |----------- onCall() -------&gt; |
-           |                          | &lt;----- defense action -------|
-           |                  [defense action]                       |
-           |                      [process]                          |
-           |                          |----------- onFail() -------&gt; |
-           |                          | &lt;----- defense action -------|
-           |                       [delay]                           |
-           | &lt;------ response --------|                              |
-           |                          |                              |</p>
+<p>Defense with response delay:</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                  [defense action]                       |
+   |                      [process]                          |
+   |                          |----------- onFail() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                       [delay]                           |
+   | &lt;------ response --------|                              |
+   |                          |                              |
+</code></pre>
 </li>
 </ul>
 <h1>7. Interface definitions</h1>
@@ -513,7 +518,12 @@ system audit and reaction.</p>
 <li>futoin.master.provider.register - establish interaction<ul>
 <li>In case of Client with no URL, it is allowed to use "channel" literal
     to identify that callbacks must be done through bi-directional
-    communication channel. It implies futoin.master.provider.authChannel()</li>
+    communication channel. It implies futoin.master.provider.authChannel().<ul>
+<li>It should be possible to-reopen channel through authChannel()</li>
+<li>MasterService should forget channel on second in a row
+key exchange failure (Client is gone)</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>futoin.master.provider.unRegister - finish interaction</li>

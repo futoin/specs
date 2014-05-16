@@ -500,6 +500,7 @@ system audit and reaction.
            |                          |                              |
 
 * Failed call (common):
+
         Client                     Service                      DefenseService
            |                          |                              |
            |-------- request -------> |                              |
@@ -514,6 +515,7 @@ system audit and reaction.
            |                          |                              |
 
 * Defense with drop:
+
         Client                     Service                      DefenseService
            |                          |                              |
            |-------- request -------> |                              |
@@ -523,6 +525,7 @@ system audit and reaction.
            |                          |                              |
 
 * Defense with reject / reauth:
+
         Client                     Service                      DefenseService
            |                          |                              |
            |-------- request -------> |                              |
@@ -533,6 +536,7 @@ system audit and reaction.
            |                          |                              |
 
 * Defense with request delay:
+
         Client                     Service                      DefenseService
            |                          |                              |
            |-------- request -------> |                              |
@@ -545,6 +549,7 @@ system audit and reaction.
            |                          |                              |
 
 * Defense with response delay:
+
         Client                     Service                      DefenseService
            |                          |                              |
            |-------- request -------> |                              |
@@ -566,7 +571,10 @@ system audit and reaction.
 * futoin.master.provider.register - establish interaction
     * In case of Client with no URL, it is allowed to use "channel" literal
         to identify that callbacks must be done through bi-directional
-        communication channel. It implies futoin.master.provider.authChannel()
+        communication channel. It implies futoin.master.provider.authChannel().
+        * It should be possible to-reopen channel through authChannel()
+        * MasterService should forget channel on second in a row
+        key exchange failure (Client is gone)
 * futoin.master.provider.unRegister - finish interaction
 * futoin.master.provider.authChannel - authenticate persistent secure channel
     to avoid "sec" part in every message.
