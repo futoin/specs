@@ -101,7 +101,7 @@ exceptions.
 1. request() - return reference to request parameter map
 2. response() - return reference to response parameter map
 3. info() - return reference to info parameter map
-4. throw(name) - set request error and raise exception to complete execution
+4. error(name) - set request error and raise exception to complete execution
 5. getSecurityLevel() - get current authentication security level
 6. getUser() - get user object
 7. getSourceAddress() - reference to source IPv4/IPv6/etc. address
@@ -111,6 +111,8 @@ exceptions.
 10. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
 11. files() - return map to uploaded temporary file streams
 12. rawoutput() - return raw output stream
+13. context() - get reference to Executor
+13. ccm() - get reference to Invoker CCM, if any
 
 ## 2.3. User info
 
@@ -135,10 +137,16 @@ exceptions.
 ## 2.6. Async completion interface
 
 1. parent() - return reference to original request info
-2. throw( name ) - complete request with error, but do not throw anything
+2. error( name ) - complete request with error, but do not throw anything
 3. complete() - complete request
 4. checkAlive() - check, if request can be completed (client is still connected)
 
+## 2.7. Executor
+
+1. ccm() - get reference to Invoker CCM, if any
+2. addIface( name, impl ) - add interface implementation
+    * impl is object derived from native interface or associative name for lazy loading
+3. process( request_info ) - do full cycle of request processing, including all security checks
 
 # 3. Language/Platform-specific notes
 

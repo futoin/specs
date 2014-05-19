@@ -76,6 +76,8 @@ or futoin.burst.noResultBurst, depending on interface definition.
 Simple CCM can implement dummy start() and finish() without affecting regular flow.
 **Therefore, invoking code must not rely on side effects of batch processing.**
 
+Burst can be used globally on CCM or on individual interfaces.
+
 * start()
 * finish()
 

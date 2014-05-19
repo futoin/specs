@@ -66,7 +66,7 @@ issues.</p>
 <ol>
 <li>register( name, iface, endpoint ) - register standard MasterService end-point</li>
 <li>registerPlain( name, iface, endpoint, credentials ) - register end-point with 'plain" credentials</li>
-<li>getIface( name ) / getIface&lt;Spec>( name ) - get end-point's native interface by name</li>
+<li>iface( name ) / getIface&lt;Spec>( name ) - get end-point's native interface by name</li>
 <li>unRegister( name ) - unregister any type of interface (should not be used, unless really needed)</li>
 <li>defense() - shortcut to getIface( "#defense" )</li>
 <li>log() - returns extended API interfaces defined in <a href="./ftn9\_if\_auditlog.html" title="FTN9 Interface - AuditLog">FTN9 IF AuditLogService</a></li>
@@ -76,10 +76,10 @@ issues.</p>
 Example: "futoin.master.service:1.0", "futoin.master.service:2.1"</em></p>
 <h2>2.2. Native FutoIn interface interface</h2>
 <ol>
-<li>results call( name, params ) throws FutoInException - generic FutoIn function call interface</li>
+<li>results call( name, params ) throws FutoInError - generic FutoIn function call interface</li>
 <li>callAsync( name, params, async_callback ) - generic FutoIn asynchronous function call interface</li>
 <li>iface() - return interface to introspect interface information:<ol>
-<li>type() - get FutoIn interface type, may be not implemented</li>
+<li>name() - get FutoIn interface type, may be not implemented</li>
 <li>version() - get FutoIn interface version, may be not implemented</li>
 <li>inherits() - get list of inherited interfaces</li>
 <li>funcs() - get list of available functions</li>
@@ -88,10 +88,11 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1"</em></p>
 </li>
 <li>callDataAsync( name, params, upload_data, async_callback )<ul>
 <li>generic FutoIn asynchronous function call interface with data transfer</li>
-<li>upload_data - map of input streams of buffers</li>
+<li>upload_data - map of input streams or buffers</li>
 <li>Note: all data transfer requests must be done through separate communication channel</li>
 </ul>
 </li>
+<li>burst() - returns extended API interfaces defined in <a href="./ftn10\_burst\_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
 </ol>
 <p>Note: result is either </p>
 <h2>2.3. Derived Key accessing wrapper</h2>

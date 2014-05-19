@@ -84,6 +84,7 @@ feateres are desired.
     * infof( tpl, args ) / infos() - equal to msgf/msgs with "info" lvl
     * warnf( tpl, args ) / warns() - equal to msgf/msgs with "warn" lvl
     * errorf( tpl, args ) / errors() - equal to msgf/msgs with "warn" lvl
+    * securityf( tpl, args ) / securitys() - equal to msgf/msgs with "security" lvl
 * Enumeration:
     * LVL_DEBUG
     * LVL_INFO

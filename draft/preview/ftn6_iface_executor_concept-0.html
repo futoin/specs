@@ -84,7 +84,7 @@ exceptions.</p>
 <li>request() - return reference to request parameter map</li>
 <li>response() - return reference to response parameter map</li>
 <li>info() - return reference to info parameter map</li>
-<li>throw(name) - set request error and raise exception to complete execution</li>
+<li>error(name) - set request error and raise exception to complete execution</li>
 <li>getSecurityLevel() - get current authentication security level</li>
 <li>getUser() - get user object</li>
 <li>getSourceAddress() - reference to source IPv4/IPv6/etc. address</li>
@@ -94,6 +94,8 @@ exceptions.</p>
 <li>log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]</li>
 <li>files() - return map to uploaded temporary file streams</li>
 <li>rawoutput() - return raw output stream</li>
+<li>context() - get reference to Executor</li>
+<li>ccm() - get reference to Invoker CCM, if any</li>
 </ol>
 <h2>2.3. User info</h2>
 <ol>
@@ -118,9 +120,18 @@ exceptions.</p>
 <h2>2.6. Async completion interface</h2>
 <ol>
 <li>parent() - return reference to original request info</li>
-<li>throw( name ) - complete request with error, but do not throw anything</li>
+<li>error( name ) - complete request with error, but do not throw anything</li>
 <li>complete() - complete request</li>
 <li>checkAlive() - check, if request can be completed (client is still connected)</li>
+</ol>
+<h2>2.7. Executor</h2>
+<ol>
+<li>ccm() - get reference to Invoker CCM, if any</li>
+<li>addIface( name, impl ) - add interface implementation<ul>
+<li>impl is object derived from native interface or associative name for lazy loading</li>
+</ul>
+</li>
+<li>process( request_info ) - do full cycle of request processing, including all security checks</li>
 </ol>
 <h1>3. Language/Platform-specific notes</h1>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>

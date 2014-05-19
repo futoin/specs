@@ -64,6 +64,7 @@ request to the same end-point, then they should be wrapped into futoin.burst.res
 or futoin.burst.noResultBurst, depending on interface definition.</p>
 <p>Simple CCM can implement dummy start() and finish() without affecting regular flow.
 <strong>Therefore, invoking code must not rely on side effects of batch processing.</strong></p>
+<p>Burst can be used globally on CCM or on individual interfaces.</p>
 <ul>
 <li>start()</li>
 <li>finish()</li>

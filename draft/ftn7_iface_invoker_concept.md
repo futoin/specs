@@ -89,29 +89,30 @@ issues.
 
 1. register( name, iface, endpoint ) - register standard MasterService end-point
 2. registerPlain( name, iface, endpoint, credentials ) - register end-point with 'plain" credentials
-3. getIface( name ) / getIface<Spec\>( name ) - get end-point's native interface by name
+3. iface( name ) / getIface<Spec\>( name ) - get end-point's native interface by name
 4. unRegister( name ) - unregister any type of interface (should not be used, unless really needed)
 5. defense() - shortcut to getIface( "#defense" )
 6. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
-9. burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
+7. burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
 
 *Note: iface must be represented as FutoIn interface identifier and version, separated by colon.
 Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*
 
 ## 2.2. Native FutoIn interface interface
 
-1. results call( name, params ) throws FutoInException - generic FutoIn function call interface
+1. results call( name, params ) throws FutoInError - generic FutoIn function call interface
 2. callAsync( name, params, async_callback ) - generic FutoIn asynchronous function call interface
 3. iface() - return interface to introspect interface information:
-    1. type() - get FutoIn interface type, may be not implemented
+    1. name() - get FutoIn interface type, may be not implemented
     2. version() - get FutoIn interface version, may be not implemented
     3. inherits() - get list of inherited interfaces
     4. funcs() - get list of available functions
     5. constraints() - get list of interface constraints
 4. callDataAsync( name, params, upload_data, async_callback )
     * generic FutoIn asynchronous function call interface with data transfer
-    * upload_data - map of input streams of buffers
+    * upload_data - map of input streams or buffers
     * Note: all data transfer requests must be done through separate communication channel
+5. burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
 
 
 Note: result is either 
