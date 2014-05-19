@@ -110,7 +110,8 @@ It must be possible to unregister from MasterService.
 This is default method to be used for most cases.
 
 * Client connects to Service
-* Service redirects Client to AuthService with special parameters, identifying
+* If Client gets "Unauthorized" error on request, clients asks for AuthService redirection URL
+* Service provides AuthService URL with special parameters to Client, identifying
     1) requesting Service (deduced from HMAC key ID) and 2) required security level
     3) random token associated with Client (must not be sensitive information)
     4) hmac signature made with Shared Secret.
@@ -156,7 +157,7 @@ but it becomes really important for all modification type of requests.
 
         Client                     Service                      AuthService
            |                          |                              |
-           |-------- Connect -------> |                              |
+           |------ getSignIn -------> |                              |
            | <--- Redirect signIn ----|                              |
            |------------------ signIn -----------------------------> |
            | <------------------ SignIn page/form -------------------|
@@ -859,6 +860,14 @@ system audit and reaction.
                         }
                     }
                 },
+                "getSignIn" : {
+                    "result" : {
+                        "url" : {
+                            "type" : "string",
+                            "desc" : "AuthService redirection URL"
+                        }
+                    }
+                },
                 "invalidate" : {
                     "params" : {
                         "essn" : {
@@ -1151,7 +1160,7 @@ system audit and reaction.
 Yes, it may look like too much of overhead, but it is what is done in
 all-in-one implementation in scope of single process. It is very important
 to optimize communication with backend services, possibly clustering them
-to the same OS as running Service.
+to the same OS instance as running Service.
 
         Client            Service    [AuthService]   ACLService   DefenseService
            |                 |                 |          |            |

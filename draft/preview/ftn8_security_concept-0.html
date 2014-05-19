@@ -100,7 +100,8 @@ It must be possible to unregister from MasterService.</p>
 <p>This is default method to be used for most cases.</p>
 <ul>
 <li>Client connects to Service</li>
-<li>Service redirects Client to AuthService with special parameters, identifying
+<li>If Client gets "Unauthorized" error on request, clients asks for AuthService redirection URL</li>
+<li>Service provides AuthService URL with special parameters to Client, identifying
     1) requesting Service (deduced from HMAC key ID) and 2) required security level
     3) random token associated with Client (must not be sensitive information)
     4) hmac signature made with Shared Secret.<ul>
@@ -153,7 +154,7 @@ but it becomes really important for all modification type of requests.</p>
 <h3>2.3.3. Example</h3>
 <pre><code>    Client                     Service                      AuthService
        |                          |                              |
-       |-------- Connect -------&gt; |                              |
+       |------ getSignIn -------&gt; |                              |
        | &lt;--- Redirect signIn ----|                              |
        |------------------ signIn -----------------------------&gt; |
        | &lt;------------------ SignIn page/form -------------------|
@@ -789,6 +790,14 @@ key exchange failure (Client is gone)</li>
                     }
                 }
             },
+            "getSignIn" : {
+                "result" : {
+                    "url" : {
+                        "type" : "string",
+                        "desc" : "AuthService redirection URL"
+                    }
+                }
+            },
             "invalidate" : {
                 "params" : {
                     "essn" : {
@@ -1060,7 +1069,7 @@ key exchange failure (Client is gone)</li>
 <p>Yes, it may look like too much of overhead, but it is what is done in
 all-in-one implementation in scope of single process. It is very important
 to optimize communication with backend services, possibly clustering them
-to the same OS as running Service.</p>
+to the same OS instance as running Service.</p>
 <pre><code>    Client            Service    [AuthService]   ACLService   DefenseService
        |                 |                 |          |            |
        |--- request ---&gt; |                 |          |            |
