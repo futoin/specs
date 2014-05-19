@@ -18,6 +18,7 @@ Authors: Andrey Galkin
 # 3. Language and Platform specific interface concept
 * [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)
 * [FTN7 Interface Invoker Concept](./ftn7\_iface\_invoker\_concept.md)
+* [FTN10 Burst Calls](./ftn10\_burst\_calls.md)
 
 # 4. Technology-specific integration
 * [FTN5 HTTP/RESTful API call integration](./ftn5\_iface\_http\_integration.md)

@@ -31,6 +31,10 @@ with handy shortcuts and formatting.
                         "txt" : {
                             "type" : "string",
                             "desc" : "Text message, may include new lines"
+                        },
+                        "ts" : {
+                            "type" : "string",
+                            "desc" : "Original timestamp in YYYYMMDDhhmmss.frac format"
                         }
                     },
                     "desc" : "Trivial log message"
@@ -44,6 +48,10 @@ with handy shortcuts and formatting.
                         "txt" : {
                             "type" : "string",
                             "desc" : "Text message, may include new lines"
+                        },
+                        "ts" : {
+                            "type" : "string",
+                            "desc" : "Original timestamp in YYYYMMDDhhmmss.frac format"
                         },
                         "data" : {
                             "type" : "string",

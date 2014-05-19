@@ -70,6 +70,9 @@ becomes return value of native member instead of result value map. If there are 
 result values then native member returns nothing and should complete as soon
 as request message is scheduled to be sent without waiting for reply.
 
+Note: Simple CCM is not expected to parse interfaces. Therefore, all request
+messages must have "forcersp" flag and Simple CCM must expect response for every call.
+
 # 1.2. Invoker calls to Executor in scope of the same process
 
 FutoIn implementations are allowed to optimize calls within single process in
@@ -90,6 +93,7 @@ issues.
 4. unRegister( name ) - unregister any type of interface (should not be used, unless really needed)
 5. defense() - shortcut to getIface( "#defense" )
 6. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
+9. burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
 
 *Note: iface must be represented as FutoIn interface identifier and version, separated by colon.
 Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*
@@ -98,12 +102,13 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*
 
 1. results call( name, params ) throws FutoInException - generic FutoIn function call interface
 2. callAsync( name, params, async_callback ) - generic FutoIn asynchronous function call interface
-3. futoinType() - get FutoIn interface type, may be not implemented
-4. futoinVersion() - get FutoIn interface version, may be not implemented
-5. futoinInherits() - get list of inherited interfaces
-6. futoinFuncs() - get list of available functions
-7. futoinConstraints() - get list of interface constraints
-8. callDataAsync( name, params, upload_data, async_callback )
+3. iface() - return interface to introspect interface information:
+    1. type() - get FutoIn interface type, may be not implemented
+    2. version() - get FutoIn interface version, may be not implemented
+    3. inherits() - get list of inherited interfaces
+    4. funcs() - get list of available functions
+    5. constraints() - get list of interface constraints
+4. callDataAsync( name, params, upload_data, async_callback )
     * generic FutoIn asynchronous function call interface with data transfer
     * upload_data - map of input streams of buffers
     * Note: all data transfer requests must be done through separate communication channel
@@ -140,4 +145,5 @@ See FTN6: Interface Executor Concept
 
 
 [FTN9 IF AuditLogService]: ./ftn9\_if\_auditlog.md "FTN9 Interface - AuditLog"
+[FTN10 Burst Calls]: ./ftn10\_burst\_calls.md "FTN10 Burst Calls"
 

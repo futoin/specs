@@ -20,7 +20,8 @@ to native features.</p>
 each components, suitable for easy separation, replacement and unit testing.</p>
 <p>Each call has request and response messages with key-value pairs described below.
 If a call does not expect to return any result then no response message must be
-sent and/or expected to be received.
+sent and/or expected to be received. It should be possible to override with <em>forcersp</em>
+flag.
 <br>
 <em>Note: it means that call must return at least something to detect on invoker if the
 call is properly executed</em></p>
@@ -95,6 +96,10 @@ in message multiplexing mode.</p>
                 "type" : "string",
                 "pattern" : "^(C|S)[0-9]+$",
                 "description" : "Optional request ID for multiplexing"
+            },
+            "forcersp" : {
+                "type" : "boolean",
+                "description" : "If present and true, force response to be sent, even if no result is expected"
             },
             "sec" : {
                 "type" : "object",
