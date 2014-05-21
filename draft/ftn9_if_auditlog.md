@@ -75,16 +75,17 @@ The raw FutoIn interface is not very handy for writing code and additional
 feateres are desired.
 
 * Extend "futoin.log"
-* Two type of functions
-    * func*f*( tpl, args ) - printf() or similar style
-    * func*s*() - language/platform-specific stream object
+* Three type of functions
+    * lvl( msg ) - shortcut for msg( lvl, msg ) - preffered way for languages with easy string formatting
+    * lvl*f*( tpl, args ) - printf() or similar style
+    * lvl*s*() - language/platform-specific stream object
 * Functions:
     * msgf( lvl, tpl, args ) / msgs( lvl ) - formatting enabled msg functions
-    * debugf( tpl, args ) / debugs() - equal to msgf/msgs with "debug" lvl
-    * infof( tpl, args ) / infos() - equal to msgf/msgs with "info" lvl
-    * warnf( tpl, args ) / warns() - equal to msgf/msgs with "warn" lvl
-    * errorf( tpl, args ) / errors() - equal to msgf/msgs with "warn" lvl
-    * securityf( tpl, args ) / securitys() - equal to msgf/msgs with "security" lvl
+    * debug( msg ) / debugf( tpl, args ) / debugs() - equal to msg/msgf/msgs with "debug" lvl
+    * info( msg ) / infof( tpl, args ) / infos() - equal to msg/msgf/msgs with "info" lvl
+    * warn( msg ) / warnf( tpl, args ) / warns() - equal to msg/msgf/msgs with "warn" lvl
+    * error( msg ) / errorf( tpl, args ) / errors() - equal to msg/msgf/msgs with "warn" lvl
+    * security( msg ) / securityf( tpl, args ) / securitys() - equal to msg/msgf/msgs with "security" lvl
 * Enumeration:
     * LVL_DEBUG
     * LVL_INFO

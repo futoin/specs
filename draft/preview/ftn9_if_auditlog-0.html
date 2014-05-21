@@ -66,18 +66,19 @@ with handy shortcuts and formatting.</p>
 feateres are desired.</p>
 <ul>
 <li>Extend "futoin.log"</li>
-<li>Two type of functions<ul>
-<li>func<em>f</em>( tpl, args ) - printf() or similar style</li>
-<li>func<em>s</em>() - language/platform-specific stream object</li>
+<li>Three type of functions<ul>
+<li>lvl( msg ) - shortcut for msg( lvl, msg ) - preffered way for languages with easy string formatting</li>
+<li>lvl<em>f</em>( tpl, args ) - printf() or similar style</li>
+<li>lvl<em>s</em>() - language/platform-specific stream object</li>
 </ul>
 </li>
 <li>Functions:<ul>
 <li>msgf( lvl, tpl, args ) / msgs( lvl ) - formatting enabled msg functions</li>
-<li>debugf( tpl, args ) / debugs() - equal to msgf/msgs with "debug" lvl</li>
-<li>infof( tpl, args ) / infos() - equal to msgf/msgs with "info" lvl</li>
-<li>warnf( tpl, args ) / warns() - equal to msgf/msgs with "warn" lvl</li>
-<li>errorf( tpl, args ) / errors() - equal to msgf/msgs with "warn" lvl</li>
-<li>securityf( tpl, args ) / securitys() - equal to msgf/msgs with "security" lvl</li>
+<li>debug( msg ) / debugf( tpl, args ) / debugs() - equal to msg/msgf/msgs with "debug" lvl</li>
+<li>info( msg ) / infof( tpl, args ) / infos() - equal to msg/msgf/msgs with "info" lvl</li>
+<li>warn( msg ) / warnf( tpl, args ) / warns() - equal to msg/msgf/msgs with "warn" lvl</li>
+<li>error( msg ) / errorf( tpl, args ) / errors() - equal to msg/msgf/msgs with "warn" lvl</li>
+<li>security( msg ) / securityf( tpl, args ) / securitys() - equal to msg/msgf/msgs with "security" lvl</li>
 </ul>
 </li>
 <li>Enumeration:<ul>
