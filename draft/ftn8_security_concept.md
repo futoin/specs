@@ -1090,7 +1090,7 @@ system audit and reaction.
                         },
                         "client_addr" : {
                             "type" : "string",
-                            "desc" : "ipv4:addr, ipv6:addr or other-type:addr"
+                            "desc" : "IPv4:addr, IPv6:addr or other-type:addr, optionally followed by :port or :path"
                         },
                         "request" : {
                             "type" : "object",
@@ -1100,11 +1100,11 @@ system audit and reaction.
                     "result" : {
                         "act" : {
                             "type" : "string",
-                            "desc" : "one of: pass, drop, reject, reauth, delay"
+                            "desc" : "one of: pass, drop, reject, reauth"
                         },
                         "delay" : {
                             "type" : "number",
-                            "desc" : "delay execution for specific absolute time in microseconds since request was made"
+                            "desc" : "delay response for specific absolute time in microseconds since request was made for _any_ action"
                         },
                         "refid" : {
                             "type" : "string",
@@ -1165,12 +1165,12 @@ to the same OS instance as running Service.
         Client            Service    [AuthService]   ACLService   DefenseService
            |                 |                 |          |            |
            |--- request ---> |                 |          |            |
+           |                 |----------- onCall() ------------------> |
+           |                 | <----- defense action ------------------|
            |                 |- valBySecret -> |          |            |
            |                 | <-- val cnstr --|          |            |
            |                 |----- checkAccess --------> |            |
            |                 | <- validation constraints -|            |
-           |                 |----------- onCall() ------------------> |
-           |                 | <----- defense action ------------------|
            |           [defense action]        |          |            |
            |             [process]             |          |            |
            |                 |----------- onResult() ----------------> |

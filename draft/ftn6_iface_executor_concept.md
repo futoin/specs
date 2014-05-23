@@ -113,6 +113,8 @@ exceptions.
 12. rawoutput() - return raw output stream
 13. context() - get reference to Executor
 13. ccm() - get reference to Invoker CCM, if any
+14. rawRequest( - get raw request data map
+15. rawResponse() - get raw response data map
 
 ## 2.3. User info
 
@@ -125,6 +127,7 @@ exceptions.
 1. getHost() - numeric, no name lookup
 2. getPort()
 3. getType() - IPv4, IPv6
+4. asString() "Type:Host:Port"
 
 ## 2.5. Derived Key
 
@@ -145,6 +148,7 @@ exceptions.
 
 1. ccm() - get reference to Invoker CCM, if any
 2. addIface( name, impl ) - add interface implementation
+    * name must be represented as FutoIn interface identifier and version, separated by colon ":"
     * impl is object derived from native interface or associative name for lazy loading
 3. process( request_info ) - do full cycle of request processing, including all security checks
 

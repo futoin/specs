@@ -255,6 +255,11 @@ for all excepted errors.
     *Must be generated on Executor side*.
 * **InvalidRequest** - invalid data is passed as FutoIn request.
     *Must be generated on Executor side*.
+* **DefenseRejected** - defense system has triggered rejection
+    *Must be generated on Executor side*.
+* **PleaseReauth** - Executor requests re-authorization
+    *Must be generated on Executor side*.
+
 
 
 # 2. Interface concept

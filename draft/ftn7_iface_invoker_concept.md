@@ -46,7 +46,8 @@ Pre-defined interfaces names:
 * "#resolver" - end-point for runtime resolution
 * "#auth" - AuthService end-point
 * "#defense" - defense system end-point
-* "#log" - audit logging end-poitn
+* "#acl" - defense system end-point
+* "#log" - audit logging end-point
 
 # 1.2. Type and identifier safety
 
@@ -95,7 +96,7 @@ issues.
 6. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
 7. burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
 
-*Note: iface must be represented as FutoIn interface identifier and version, separated by colon.
+*Note: iface must be represented as FutoIn interface identifier and version, separated by colon ":"
 Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*
 
 ## 2.2. Native FutoIn interface interface

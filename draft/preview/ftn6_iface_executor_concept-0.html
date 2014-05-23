@@ -96,6 +96,8 @@ exceptions.</p>
 <li>rawoutput() - return raw output stream</li>
 <li>context() - get reference to Executor</li>
 <li>ccm() - get reference to Invoker CCM, if any</li>
+<li>rawRequest( - get raw request data map</li>
+<li>rawResponse() - get raw response data map</li>
 </ol>
 <h2>2.3. User info</h2>
 <ol>
@@ -108,6 +110,7 @@ exceptions.</p>
 <li>getHost() - numeric, no name lookup</li>
 <li>getPort()</li>
 <li>getType() - IPv4, IPv6</li>
+<li>asString() "Type:Host:Port"</li>
 </ol>
 <h2>2.5. Derived Key</h2>
 <ol>
@@ -128,6 +131,7 @@ exceptions.</p>
 <ol>
 <li>ccm() - get reference to Invoker CCM, if any</li>
 <li>addIface( name, impl ) - add interface implementation<ul>
+<li>name must be represented as FutoIn interface identifier and version, separated by colon ":"</li>
 <li>impl is object derived from native interface or associative name for lazy loading</li>
 </ul>
 </li>

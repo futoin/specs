@@ -34,7 +34,8 @@ Invoker implementation concept.</p>
 <li>"#resolver" - end-point for runtime resolution</li>
 <li>"#auth" - AuthService end-point</li>
 <li>"#defense" - defense system end-point</li>
-<li>"#log" - audit logging end-poitn</li>
+<li>"#acl" - defense system end-point</li>
+<li>"#log" - audit logging end-point</li>
 </ul>
 <h1>1.2. Type and identifier safety</h1>
 <p>There should be a Simple CCM, which is lightweight and designed for small memory
@@ -72,7 +73,7 @@ issues.</p>
 <li>log() - returns extended API interfaces defined in <a href="./ftn9\_if\_auditlog.html" title="FTN9 Interface - AuditLog">FTN9 IF AuditLogService</a></li>
 <li>burst() - returns extended API interfaces defined in <a href="./ftn10\_burst\_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
 </ol>
-<p><em>Note: iface must be represented as FutoIn interface identifier and version, separated by colon.
+<p><em>Note: iface must be represented as FutoIn interface identifier and version, separated by colon ":"
 Example: "futoin.master.service:1.0", "futoin.master.service:2.1"</em></p>
 <h2>2.2. Native FutoIn interface interface</h2>
 <ol>
