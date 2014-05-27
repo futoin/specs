@@ -65,9 +65,9 @@ issues.</p>
 <h1>2. Invoker interfaces</h1>
 <h2>2.1. Connection and Credentials Manager</h2>
 <ol>
-<li>register( name, iface, endpoint ) - register standard MasterService end-point</li>
-<li>registerPlain( name, iface, endpoint, credentials ) - register end-point with 'plain" credentials</li>
-<li>iface( name ) / getIface&lt;Spec>( name ) - get end-point's native interface by name</li>
+<li>register( name, ifacever, endpoint ) - register standard MasterService end-point</li>
+<li>registerPlain( name, ifacever, endpoint, credentials ) - register end-point with 'plain" credentials</li>
+<li>iface( name [, ifacever] ) / getIface&lt;Spec>( name [, ifacever] ) - get end-point's native interface by name</li>
 <li>unRegister( name ) - unregister any type of interface (should not be used, unless really needed)</li>
 <li>defense() - shortcut to getIface( "#defense" )</li>
 <li>log() - returns extended API interfaces defined in <a href="./ftn9\_if\_auditlog.html" title="FTN9 Interface - AuditLog">FTN9 IF AuditLogService</a></li>

@@ -253,7 +253,7 @@ See [HMAC][] for details
 
 * Payload has a tree structure and coded in JSON or any alternative format
 * All keys and fields are feed to HMAC generator in text representation
-* HMAC security field is skipped, if present (in case of request validation)
+* Top level "sec" field is skipped, if present (in case of request validation)
 * For each nested level, starting from the very root of tree-like payload structure:
     * Key-value pairs are processing in ascending order based on Unicode comparison rules
     * Key is feed into HMAC generator
@@ -398,7 +398,7 @@ length is 256-bit. Longer keys should be truncated.
                 },
                 "secret" : {
                     "type" : "string",
-                    "description" : "Optional. Any type of secret, typically password"
+                    "description" : "Any type of secret, typically password"
                 }
             }
         }
@@ -1100,11 +1100,11 @@ system audit and reaction.
                     "result" : {
                         "act" : {
                             "type" : "string",
-                            "desc" : "one of: pass, drop, reject, reauth"
+                            "desc" : "one of: pass, drop, reject, reauth, delay"
                         },
                         "delay" : {
                             "type" : "number",
-                            "desc" : "delay response for specific absolute time in microseconds since request was made for _any_ action"
+                            "desc" : "delay response (processing for 'delay') for specific absolute time in microseconds since request was made for _any_ action"
                         },
                         "refid" : {
                             "type" : "string",

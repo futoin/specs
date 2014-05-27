@@ -233,7 +233,7 @@ In every set, there can be one or more authentication method.</p>
 <ul>
 <li>Payload has a tree structure and coded in JSON or any alternative format</li>
 <li>All keys and fields are feed to HMAC generator in text representation</li>
-<li>HMAC security field is skipped, if present (in case of request validation)</li>
+<li>Top level "sec" field is skipped, if present (in case of request validation)</li>
 <li>For each nested level, starting from the very root of tree-like payload structure:<ul>
 <li>Key-value pairs are processing in ascending order based on Unicode comparison rules</li>
 <li>Key is feed into HMAC generator</li>
@@ -362,7 +362,7 @@ length is 256-bit. Longer keys should be truncated.</p>
             },
             "secret" : {
                 "type" : "string",
-                "description" : "Optional. Any type of secret, typically password"
+                "description" : "Any type of secret, typically password"
             }
         }
     }
@@ -528,10 +528,8 @@ key exchange failure (Client is gone)</li>
 </ul>
 </li>
 <li>futoin.master.provider.unRegister - finish interaction</li>
-<li>
-<p>futoin.master.provider.authChannel - authenticate persistent secure channel
-    to avoid "sec" part in every message.</p>
-<pre><code>{
+<li>futoin.master.provider.authChannel - authenticate persistent secure channel
+    to avoid "sec" part in every message.<pre><code>{
     "iface" : "futoin.master.provider",
     "version" : "0.1",
     "funcs" : {
@@ -1013,11 +1011,11 @@ key exchange failure (Client is gone)</li>
                 "result" : {
                     "act" : {
                         "type" : "string",
-                        "desc" : "one of: pass, drop, reject, reauth"
+                        "desc" : "one of: pass, drop, reject, reauth, delay"
                     },
                     "delay" : {
                         "type" : "number",
-                        "desc" : "delay response for specific absolute time in microseconds since request was made for _any_ action"
+                        "desc" : "delay response (processing for 'delay') for specific absolute time in microseconds since request was made for _any_ action"
                     },
                     "refid" : {
                         "type" : "string",

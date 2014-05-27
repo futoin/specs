@@ -28,9 +28,7 @@ compilers and/or converters.</p>
 <li>passing control to implementation of specific interfaces with required major version</li>
 <li>catching exceptions or normal result</li>
 <li>converting response to transport-level representation</li>
-<li>
-<p>maintaining persistent communication channel, if needed</p>
-<pre><code>            Firewall
+<li>maintaining persistent communication channel, if needed<pre><code>            Firewall
 Client          ||  Executor           Implementation
    .            || [Register]                 .
    .            ||      |                     .
@@ -83,7 +81,15 @@ exceptions.</p>
 <ol>
 <li>request() - return reference to request parameter map</li>
 <li>response() - return reference to response parameter map</li>
-<li>info() - return reference to info parameter map</li>
+<li>info() - return reference to info parameter map, keys:<ul>
+<li>X509_CN - validated x509 certificate CN field</li>
+<li>PUBKEY - public key, if present</li>
+<li>CLIENT_ADDR - IPv4, IPv6 or any other type of address</li>
+<li>USER_AGENT - User Agent, coming from HTTP headers or other source</li>
+<li>COOKIES - array of strings</li>
+<li>SECURE_CHANNEL - boolean</li>
+</ul>
+</li>
 <li>error(name) - set request error and raise exception to complete execution</li>
 <li>getSecurityLevel() - get current authentication security level</li>
 <li>getUser() - get user object</li>
@@ -136,6 +142,7 @@ exceptions.</p>
 </ul>
 </li>
 <li>process( request_info ) - do full cycle of request processing, including all security checks</li>
+<li>checkAccess( request_info, acd ) - shorcut to check access through #acl interface</li>
 </ol>
 <h1>3. Language/Platform-specific notes</h1>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>

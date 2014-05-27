@@ -100,7 +100,13 @@ exceptions.
 
 1. request() - return reference to request parameter map
 2. response() - return reference to response parameter map
-3. info() - return reference to info parameter map
+3. info() - return reference to info parameter map, keys:
+    * X509_CN - validated x509 certificate CN field
+    * PUBKEY - public key, if present
+    * CLIENT_ADDR - IPv4, IPv6 or any other type of address
+    * USER_AGENT - User Agent, coming from HTTP headers or other source
+    * COOKIES - array of strings
+    * SECURE_CHANNEL - boolean
 4. error(name) - set request error and raise exception to complete execution
 5. getSecurityLevel() - get current authentication security level
 6. getUser() - get user object
@@ -151,6 +157,7 @@ exceptions.
     * name must be represented as FutoIn interface identifier and version, separated by colon ":"
     * impl is object derived from native interface or associative name for lazy loading
 3. process( request_info ) - do full cycle of request processing, including all security checks
+4. checkAccess( request_info, acd ) - shorcut to check access through #acl interface
 
 # 3. Language/Platform-specific notes
 

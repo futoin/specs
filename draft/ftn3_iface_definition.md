@@ -259,6 +259,8 @@ for all excepted errors.
     *Must be generated on Executor side*.
 * **PleaseReauth** - Executor requests re-authorization
     *Must be generated on Executor side*.
+* **SecurityError** - 'sec' request section has invalid data
+    *Must be generated on Executor side*.
 
 
 
