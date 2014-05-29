@@ -137,6 +137,7 @@ This is default method to be used for most cases.
 In some cases, Client may be allowed to get read-only information without deep verification,
 but it becomes really important for all modification type of requests.
 
+* Anonymous - placeholder for not authenticated user
 * Info - read-only access to private information
 * SafeOps - Info + access to operation, which should not seriously compromise the system
 * PrivilegedOps - SafeOps + access to operations, which may compromise the system. Requires SecureChannel

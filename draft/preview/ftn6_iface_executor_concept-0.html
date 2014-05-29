@@ -79,8 +79,8 @@ exceptions.</p>
 </ol>
 <h2>2.2. Request Info</h2>
 <ol>
-<li>request() - return reference to request parameter map</li>
-<li>response() - return reference to response parameter map</li>
+<li>args() - return reference to request parameter map</li>
+<li>result() - return reference to response parameter map</li>
 <li>info() - return reference to info parameter map, keys:<ul>
 <li>X509_CN - validated x509 certificate CN field</li>
 <li>PUBKEY - public key, if present</li>
@@ -88,6 +88,7 @@ exceptions.</p>
 <li>USER_AGENT - User Agent, coming from HTTP headers or other source</li>
 <li>COOKIES - array of strings</li>
 <li>SECURE_CHANNEL - boolean</li>
+<li>UPLOAD_FILES - map of upload_name -&gt; file stream</li>
 </ul>
 </li>
 <li>error(name) - set request error and raise exception to complete execution</li>
@@ -104,6 +105,13 @@ exceptions.</p>
 <li>ccm() - get reference to Invoker CCM, if any</li>
 <li>rawRequest( - get raw request data map</li>
 <li>rawResponse() - get raw response data map</li>
+<li>constants:
+    SL_ANONYMOUS = "Anonymous"
+    SL_INFO = "Info"
+    SL_SAFEOPS = "SafeOps"
+    SL_PRIVLEGED_OPS = "PrivilegedOps"
+    SL_EXCEPTIONAL_OPS = "ExceptionalOps"</li>
+<li>isSecurityLevel( lvl ) - test if current security level equals or higher than lvl</li>
 </ol>
 <h2>2.3. User info</h2>
 <ol>

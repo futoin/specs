@@ -98,8 +98,8 @@ exceptions.
 
 ## 2.2. Request Info
 
-1. request() - return reference to request parameter map
-2. response() - return reference to response parameter map
+1. args() - return reference to request parameter map
+2. result() - return reference to response parameter map
 3. info() - return reference to info parameter map, keys:
     * X509_CN - validated x509 certificate CN field
     * PUBKEY - public key, if present
@@ -107,6 +107,7 @@ exceptions.
     * USER_AGENT - User Agent, coming from HTTP headers or other source
     * COOKIES - array of strings
     * SECURE_CHANNEL - boolean
+    * UPLOAD_FILES - map of upload_name -> file stream
 4. error(name) - set request error and raise exception to complete execution
 5. getSecurityLevel() - get current authentication security level
 6. getUser() - get user object
@@ -121,6 +122,14 @@ exceptions.
 13. ccm() - get reference to Invoker CCM, if any
 14. rawRequest( - get raw request data map
 15. rawResponse() - get raw response data map
+16. constants:
+    SL_ANONYMOUS = "Anonymous"
+    SL_INFO = "Info"
+    SL_SAFEOPS = "SafeOps"
+    SL_PRIVLEGED_OPS = "PrivilegedOps"
+    SL_EXCEPTIONAL_OPS = "ExceptionalOps"
+17. isSecurityLevel( lvl ) - test if current security level equals or higher than lvl
+
 
 ## 2.3. User info
 
