@@ -597,6 +597,10 @@ system audit and reaction.
                             "type" : "string",
                             "desc" : "Initial shared secret"
                         },
+                        "cbid" : {
+                            "type" : "string",
+                            "desc" : "Arbitrary string to be passed in futoin.master.consumer interface"
+                        }
                         "swver" : {
                             "type" : "string",
                             "desc" : "Software of Service and its version"

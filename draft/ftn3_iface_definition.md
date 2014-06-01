@@ -259,7 +259,7 @@ for all excepted errors.
     *Must be generated on Executor side*.
 * **PleaseReauth** - Executor requests re-authorization
     *Must be generated on Executor side*.
-* **SecurityError** - 'sec' request section has invalid data
+* **SecurityError** - 'sec' request section has invalid data or not SecureChannel
     *Must be generated on Executor side*.
 
 
@@ -365,7 +365,7 @@ Using [JSON-SCHEMA][]:
                 },
                 "inherit" : {
                     "type" : "string",
-                    "description" : "Name of interface identifier to be inherited"
+                    "description" : "Name:version of interface to be inherited"
                 },
                 "requires" : {
                     "type" : "array",

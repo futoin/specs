@@ -90,7 +90,7 @@ issues.
 
 1. register( name, ifacever, endpoint ) - register standard MasterService end-point
 2. registerPlain( name, ifacever, endpoint, credentials ) - register end-point with 'plain" credentials
-3. iface( name [, ifacever] ) / getIface<Spec\>( name [, ifacever] ) - get end-point's native interface by name
+3. iface( name [, ifacever [,$endpoint [, $credentials]]] ) / getIface<Spec\>( name [, ifacever [,$endpoint [, $credentials]]] ) - get end-point's native interface by name
 4. unRegister( name ) - unregister any type of interface (should not be used, unless really needed)
 5. defense() - shortcut to getIface( "#defense" )
 6. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]

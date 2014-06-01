@@ -108,6 +108,7 @@ exceptions.
     * COOKIES - array of strings
     * SECURE_CHANNEL - boolean
     * UPLOAD_FILES - map of upload_name -> file stream
+    * REQUEST_TIME_FLOAT - platform-specific reference of request creation time
 4. error(name) - set request error and raise exception to complete execution
 5. getSecurityLevel() - get current authentication security level
 6. getUser() - get user object
