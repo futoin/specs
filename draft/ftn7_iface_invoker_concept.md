@@ -102,14 +102,14 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*
 ## 2.2. Native FutoIn interface interface
 
 1. results call( name, params ) throws FutoInError - generic FutoIn function call interface
-2. callAsync( name, params, async_callback ) - generic FutoIn asynchronous function call interface
+2. callAsync( async_iface, name, params ) - generic FutoIn asynchronous function call interface
 3. iface() - return interface to introspect interface information:
     1. name() - get FutoIn interface type, may be not implemented
     2. version() - get FutoIn interface version, may be not implemented
     3. inherits() - get list of inherited interfaces
     4. funcs() - get list of available functions
     5. constraints() - get list of interface constraints
-4. callDataAsync( name, params, upload_data, async_callback )
+4. callDataAsync( async_iface, name, params, upload_data )
     * generic FutoIn asynchronous function call interface with data transfer
     * upload_data - map of input streams or buffers
     * Note: all data transfer requests must be done through separate communication channel
@@ -132,8 +132,7 @@ See FTN6: Interface Executor Concept
 
 ## 2.5. Async callback interface
 
-* success( result ) - result map or input binary stream
-* error( error )
+See FTN6: Interface Executor Concept for "General Async Step interface"
 
 # 3. Language/Platform-specific notes
 

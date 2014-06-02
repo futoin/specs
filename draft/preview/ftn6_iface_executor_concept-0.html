@@ -89,6 +89,7 @@ exceptions.</p>
 <li>COOKIES - array of strings</li>
 <li>SECURE_CHANNEL - boolean</li>
 <li>UPLOAD_FILES - map of upload_name -&gt; file stream</li>
+<li>REQUEST_TIME_FLOAT - platform-specific reference of request creation time</li>
 </ul>
 </li>
 <li>error(name) - set request error and raise exception to complete execution</li>
@@ -134,14 +135,47 @@ exceptions.</p>
 <li>encrypt( data ) - return Base64 data</li>
 <li>decrypt( data ) - decrypt Base64 data</li>
 </ol>
-<h2>2.6. Async completion interface</h2>
+<h2>2.6. General Async Step interface</h2>
 <ol>
-<li>parent() - return reference to original request info</li>
-<li>error( name ) - complete request with error, but do not throw anything</li>
-<li>complete() - complete request</li>
-<li>checkAlive() - check, if request can be completed (client is still connected)</li>
+<li>add( func[, onerror] ) - add step, getting async interface as parameter<ul>
+<li>func( async_iface [, prev_result_arg, ...] )</li>
+<li>every next function is called when async_iface.result() is called</li>
+<li>can be called multiple times</li>
+<li>insert position starts after current function being called</li>
+<li>onerror( async_iface, name ) is called on exception or async_iface.error()<ul>
+<li>if not present then everything is aborted</li>
+<li>if present and calls async_iface.result(), execution is continued</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>parallel( [onerror] ) <ul>
+<li>creates a step and returns special General Async Step interfaces</li>
+<li>add() gets altered semantic on return interfaces</li>
+<li>all add()'ed sub-steps are executed in parallel</li>
+<li>next step is executed only when all steps complete</li>
+</ul>
+</li>
+<li>success( [result_arg, ...] )<ul>
+<li>if supported by languages, also available through call operator overloading</li>
+<li>complete current step execution. Should be called by func()</li>
+</ul>
+</li>
+<li>state()<ul>
+<li>returns reference to map, which can be populated with arbitrary state values</li>
+</ul>
+</li>
+<li>error( name ) - call onerror( async_iface, name )</li>
 </ol>
-<h2>2.7. Executor</h2>
+<h2>2.7. Async completion interface</h2>
+<p>Inherits General Async Step interface. When all steps are executed and request info is
+still not complete, InternalError is automatically raised</p>
+<ol>
+<li>reqinfo() - return reference to original request info</li>
+<li>completeReq() - complete request</li>
+<li>checkReqAlive() - check, if request can be completed (client is still connected)</li>
+</ol>
+<h2>2.8. Executor</h2>
 <ol>
 <li>ccm() - get reference to Invoker CCM, if any</li>
 <li>addIface( name, impl ) - add interface implementation<ul>
@@ -150,7 +184,7 @@ exceptions.</p>
 </ul>
 </li>
 <li>process( request_info ) - do full cycle of request processing, including all security checks</li>
-<li>checkAccess( request_info, acd ) - shorcut to check access through #acl interface</li>
+<li>checkAccess( async_iface, acd ) - shortcut to check access through #acl interface</li>
 </ol>
 <h1>3. Language/Platform-specific notes</h1>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>

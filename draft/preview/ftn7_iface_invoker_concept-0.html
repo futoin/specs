@@ -67,7 +67,7 @@ issues.</p>
 <ol>
 <li>register( name, ifacever, endpoint ) - register standard MasterService end-point</li>
 <li>registerPlain( name, ifacever, endpoint, credentials ) - register end-point with 'plain" credentials</li>
-<li>iface( name [, ifacever] ) / getIface&lt;Spec>( name [, ifacever] ) - get end-point's native interface by name</li>
+<li>iface( name [, ifacever [,$endpoint [, $credentials]]] ) / getIface&lt;Spec>( name [, ifacever [,$endpoint [, $credentials]]] ) - get end-point's native interface by name</li>
 <li>unRegister( name ) - unregister any type of interface (should not be used, unless really needed)</li>
 <li>defense() - shortcut to getIface( "#defense" )</li>
 <li>log() - returns extended API interfaces defined in <a href="./ftn9\_if\_auditlog.html" title="FTN9 Interface - AuditLog">FTN9 IF AuditLogService</a></li>
@@ -78,7 +78,7 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1"</em></p>
 <h2>2.2. Native FutoIn interface interface</h2>
 <ol>
 <li>results call( name, params ) throws FutoInError - generic FutoIn function call interface</li>
-<li>callAsync( name, params, async_callback ) - generic FutoIn asynchronous function call interface</li>
+<li>callAsync( async_iface, name, params ) - generic FutoIn asynchronous function call interface</li>
 <li>iface() - return interface to introspect interface information:<ol>
 <li>name() - get FutoIn interface type, may be not implemented</li>
 <li>version() - get FutoIn interface version, may be not implemented</li>
@@ -87,7 +87,7 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1"</em></p>
 <li>constraints() - get list of interface constraints</li>
 </ol>
 </li>
-<li>callDataAsync( name, params, upload_data, async_callback )<ul>
+<li>callDataAsync( async_iface, name, params, upload_data )<ul>
 <li>generic FutoIn asynchronous function call interface with data transfer</li>
 <li>upload_data - map of input streams or buffers</li>
 <li>Note: all data transfer requests must be done through separate communication channel</li>
@@ -106,10 +106,7 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1"</em></p>
 <h2>2.4. Derived Key</h2>
 <p>See FTN6: Interface Executor Concept</p>
 <h2>2.5. Async callback interface</h2>
-<ul>
-<li>success( result ) - result map or input binary stream</li>
-<li>error( error )</li>
-</ul>
+<p>See FTN6: Interface Executor Concept for "General Async Step interface"</p>
 <h1>3. Language/Platform-specific notes</h1>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>
 <h2>3.2. Python</h2>

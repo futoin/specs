@@ -214,7 +214,7 @@ for all excepted errors.</p>
     <em>Must be generated on Executor side</em>.</li>
 <li><strong>PleaseReauth</strong> - Executor requests re-authorization
     <em>Must be generated on Executor side</em>.</li>
-<li><strong>SecurityError</strong> - 'sec' request section has invalid data
+<li><strong>SecurityError</strong> - 'sec' request section has invalid data or not SecureChannel
     <em>Must be generated on Executor side</em>.</li>
 </ul>
 <h1>2. Interface concept</h1>
@@ -312,7 +312,7 @@ loose for interface definition.</p>
             },
             "inherit" : {
                 "type" : "string",
-                "description" : "Name of interface identifier to be inherited"
+                "description" : "Name:version of interface to be inherited"
             },
             "requires" : {
                 "type" : "array",

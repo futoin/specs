@@ -600,7 +600,7 @@ system audit and reaction.
                         "cbid" : {
                             "type" : "string",
                             "desc" : "Arbitrary string to be passed in futoin.master.consumer interface"
-                        }
+                        },
                         "swver" : {
                             "type" : "string",
                             "desc" : "Software of Service and its version"

@@ -153,21 +153,48 @@ exceptions.
 4. encrypt( data ) - return Base64 data
 5. decrypt( data ) - decrypt Base64 data
 
-## 2.6. Async completion interface
+## 2.6. General Async Step interface
 
-1. parent() - return reference to original request info
-2. error( name ) - complete request with error, but do not throw anything
-3. complete() - complete request
-4. checkAlive() - check, if request can be completed (client is still connected)
+1. add( func[, onerror] ) - add step, getting async interface as parameter
+    * func( async_iface [, prev_result_arg, ...] )
+    * every next function is called when async_iface.result() is called
+    * can be called multiple times
+    * insert position starts after current function being called
+    * onerror( async_iface, name ) is called on exception or async_iface.error()
+        * if not present then everything is aborted
+        * if present and calls async_iface.result(), execution is continued
+2. parallel( [onerror] ) 
+    * creates a step and returns special General Async Step interfaces
+    * add() gets altered semantic on return interfaces
+    * all add()'ed sub-steps are executed in parallel
+    * next step is executed only when all steps complete
+3. success( [result_arg, ...] )
+    * if supported by languages, also available through call operator overloading
+    * complete current step execution. Should be called by func()
+4. state()
+    * returns reference to map, which can be populated with arbitrary state values
+5. error( name ) - call onerror( async_iface, name )
 
-## 2.7. Executor
+
+## 2.7. Async completion interface
+
+Inherits General Async Step interface. When all steps are executed and request info is
+still not complete, InternalError is automatically raised
+
+1. reqinfo() - return reference to original request info
+2. completeReq() - complete request
+3. checkReqAlive() - check, if request can be completed (client is still connected)
+
+## 2.8. Executor
 
 1. ccm() - get reference to Invoker CCM, if any
 2. addIface( name, impl ) - add interface implementation
     * name must be represented as FutoIn interface identifier and version, separated by colon ":"
     * impl is object derived from native interface or associative name for lazy loading
 3. process( request_info ) - do full cycle of request processing, including all security checks
-4. checkAccess( request_info, acd ) - shorcut to check access through #acl interface
+4. checkAccess( async_iface, acd ) - shortcut to check access through #acl interface
+
+
 
 # 3. Language/Platform-specific notes
 
