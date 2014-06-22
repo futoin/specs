@@ -132,7 +132,7 @@ See FTN6: Interface Executor Concept
 
 ## 2.5. Async callback interface
 
-See FTN6: Interface Executor Concept for "General Async Step interface"
+See FTN12: Async API - AsyncSteps
 
 # 3. Language/Platform-specific notes
 

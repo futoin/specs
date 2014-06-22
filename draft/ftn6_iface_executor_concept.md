@@ -27,7 +27,7 @@ have standardized interface even for helper tools, like FutoIn interface
 compilers and/or converters.
 
 
-Executor is responsible for:
+Executor is responsible for (actions are done in AsyncSteps):
 
 1. converting request from transport-level representation to internal message format
 2. gathering basic request-response info
@@ -63,6 +63,15 @@ Executor should also integrate with AuthService consumer.
 *Note: Executor is allowed to pass control to implementation only if requested major version of
 interfaces exactly matches implemented version and minor version is greater than or equal
 to requested minor version.*
+
+
+All actions are implemented through AsyncSteps interface ([FTN12: Async API](./ftn12\_async\_api.md)).
+For backward compatibility and/or complex logic, it is possible to make blocking
+implementation. Such implementations run in dedicated worker threads and receive only RequestInfo
+object reference.
+
+All true asynchronous implementation must implement special FutoIn AsyncImplementation interface to
+clearly distinguish more advanced one.
 
 
 ## 1.1. FutoIn interfaces
@@ -113,23 +122,24 @@ exceptions.
 5. getSecurityLevel() - get current authentication security level
 6. getUser() - get user object
 7. getSourceAddress() - reference to source IPv4/IPv6/etc. address
-8. getDerivedKey() - generate, cache and return derived key to be used in HMAC
+8. getDerivedKey() - return associated derived key to be used in HMAC
     and perhaps other places. Implementation may forbid its use.
-9. async() - mark request as asynchronous and return async completion interface
-10. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
-11. files() - return map to uploaded temporary file streams
-12. rawoutput() - return raw output stream
-13. context() - get reference to Executor
+9. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
+10. files() - return map to uploaded temporary file streams
+11. rawoutput() - return raw output stream
+12. context() - get reference to Executor
 13. ccm() - get reference to Invoker CCM, if any
 14. rawRequest( - get raw request data map
 15. rawResponse() - get raw response data map
 16. constants:
-    SL_ANONYMOUS = "Anonymous"
-    SL_INFO = "Info"
-    SL_SAFEOPS = "SafeOps"
-    SL_PRIVLEGED_OPS = "PrivilegedOps"
-    SL_EXCEPTIONAL_OPS = "ExceptionalOps"
+    * SL_ANONYMOUS = "Anonymous"
+    * SL_INFO = "Info"
+    * SL_SAFEOPS = "SafeOps"
+    * SL_PRIVLEGED_OPS = "PrivilegedOps"
+    * SL_EXCEPTIONAL_OPS = "ExceptionalOps"
 17. isSecurityLevel( lvl ) - test if current security level equals or higher than lvl
+18. ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
+    Invoker abort (disconnect)
 
 
 ## 2.3. User info
@@ -138,12 +148,14 @@ exceptions.
 2. getGlobalID() - get globally unique user ID (string)
 3. getXYZ() - where XYZ is standard field identifier, like FirstName, DateOfBirth, AvatarURL, etc.
 
+
 ## 2.4. Source Address
 
 1. getHost() - numeric, no name lookup
 2. getPort()
 3. getType() - IPv4, IPv6
 4. asString() "Type:Host:Port"
+
 
 ## 2.5. Derived Key
 
@@ -153,39 +165,18 @@ exceptions.
 4. encrypt( data ) - return Base64 data
 5. decrypt( data ) - decrypt Base64 data
 
+
 ## 2.6. General Async Step interface
 
-1. add( func[, onerror] ) - add step, getting async interface as parameter
-    * func( async_iface [, prev_result_arg, ...] )
-    * every next function is called when async_iface.result() is called
-    * can be called multiple times
-    * insert position starts after current function being called
-    * onerror( async_iface, name ) is called on exception or async_iface.error()
-        * if not present then everything is aborted
-        * if present and calls async_iface.result(), execution is continued
-2. parallel( [onerror] ) 
-    * creates a step and returns special General Async Step interfaces
-    * add() gets altered semantic on return interfaces
-    * all add()'ed sub-steps are executed in parallel
-    * next step is executed only when all steps complete
-3. success( [result_arg, ...] )
-    * if supported by languages, also available through call operator overloading
-    * complete current step execution. Should be called by func()
-4. state()
-    * returns reference to map, which can be populated with arbitrary state values
-5. error( name ) - call onerror( async_iface, name )
-6. waitResult( timeout_ms ) - inform execution engine to wait for either success() or error()
-    for specified timeout in ms. On timeout, error("Timeout") is called
+See FTN12: Async API
 
 
 ## 2.7. Async completion interface
 
-Inherits General Async Step interface. When all steps are executed and request info is
+AsyncCompletion inherits from AsyncSteps interface. When all steps are executed and request info is
 still not complete, InternalError is automatically raised
 
 1. reqinfo() - return reference to original request info
-2. completeReq() - complete request
-3. checkReqAlive() - check, if request can be completed (client is still connected)
 
 ## 2.8. Executor
 
@@ -193,8 +184,8 @@ still not complete, InternalError is automatically raised
 2. addIface( name, impl ) - add interface implementation
     * name must be represented as FutoIn interface identifier and version, separated by colon ":"
     * impl is object derived from native interface or associative name for lazy loading
-3. process( request_info ) - do full cycle of request processing, including all security checks
-4. checkAccess( async_iface, acd ) - shortcut to check access through #acl interface
+3. process( AsyncCompletion async_completion ) - do full cycle of request processing, including all security checks
+4. checkAccess( AsyncCompletion async_completion, acd ) - shortcut to check access through #acl interface
 
 
 
