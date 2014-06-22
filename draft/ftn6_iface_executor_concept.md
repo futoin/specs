@@ -174,6 +174,8 @@ exceptions.
 4. state()
     * returns reference to map, which can be populated with arbitrary state values
 5. error( name ) - call onerror( async_iface, name )
+6. waitResult( timeout_ms ) - inform execution engine to wait for either success() or error()
+    for specified timeout in ms. On timeout, error("Timeout") is called
 
 
 ## 2.7. Async completion interface

@@ -166,6 +166,8 @@ exceptions.</p>
 </ul>
 </li>
 <li>error( name ) - call onerror( async_iface, name )</li>
+<li>waitResult( timeout_ms ) - inform execution engine to wait for either success() or error()
+    for specified timeout in ms. On timeout, error("Timeout") is called</li>
 </ol>
 <h2>2.7. Async completion interface</h2>
 <p>Inherits General Async Step interface. When all steps are executed and request info is

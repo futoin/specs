@@ -261,6 +261,9 @@ for all excepted errors.
     *Must be generated on Executor side*.
 * **SecurityError** - 'sec' request section has invalid data or not SecureChannel
     *Must be generated on Executor side*.
+* **Timeout** - Timeout occured in any stage
+    *Must be used only internally*.
+
 
 
 
