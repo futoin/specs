@@ -107,9 +107,9 @@ exceptions.
 
 ## 2.2. Request Info
 
-1. args() - return reference to request parameter map
-2. result() - return reference to response parameter map
-3. info() - return reference to info parameter map, keys:
+1. request() - return reference to request parameter map
+2. response() - return reference to response parameter map
+3. info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
     * X509_CN - validated x509 certificate CN field
     * PUBKEY - public key, if present
     * CLIENT_ADDR - IPv4, IPv6 or any other type of address
@@ -120,24 +120,24 @@ exceptions.
     * REQUEST_TIME_FLOAT - platform-specific reference of request creation time
 4. error(name) - set request error and raise exception to complete execution
 5. getSecurityLevel() - get current authentication security level
-6. getUser() - get user object
-7. getSourceAddress() - reference to source IPv4/IPv6/etc. address
-8. getDerivedKey() - return associated derived key to be used in HMAC
+6. isSecurityLevel( lvl ) - test if current security level equals or higher than lvl
+7. getUser() - get user object
+8. getSourceAddress() - reference to source IPv4/IPv6/etc. address
+9. getDerivedKey() - return associated derived key to be used in HMAC
     and perhaps other places. Implementation may forbid its use.
-9. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
-10. files() - return map to uploaded temporary file streams
-11. rawoutput() - return raw output stream
-12. context() - get reference to Executor
-13. ccm() - get reference to Invoker CCM, if any
-14. rawRequest( - get raw request data map
-15. rawResponse() - get raw response data map
-16. constants:
+10. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
+11. files() - return map to uploaded temporary file streams
+12. rawoutput() - return raw output stream
+13. context() - get reference to Executor
+14. ccm() - get reference to Invoker CCM, if any
+15. rawRequest( - get raw request data map
+16. rawResponse() - get raw response data map
+17. constants:
     * SL_ANONYMOUS = "Anonymous"
     * SL_INFO = "Info"
     * SL_SAFEOPS = "SafeOps"
     * SL_PRIVLEGED_OPS = "PrivilegedOps"
     * SL_EXCEPTIONAL_OPS = "ExceptionalOps"
-17. isSecurityLevel( lvl ) - test if current security level equals or higher than lvl
 18. ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
     Invoker abort (disconnect)
 
