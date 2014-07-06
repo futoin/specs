@@ -6,6 +6,7 @@ import sys
 import os
 import codecs
 import re
+import collections
 
 def die( msg ) :
     sys.stderr.write( msg )
@@ -80,7 +81,11 @@ def compilespec( spec_file ) :
                 text.append('<p class="futoin-schema">Schema: ' + parsing_schema + '</p>\n')
 
             elif l == '`}Schema`\n' :
-                schema = json.dumps( json.loads( ''.join( json_text ) ) )
+                schema = json.dumps(
+                        json.loads(
+                                ''.join( json_text ),
+                                object_pairs_hook = lambda pairs: collections.OrderedDict( pairs )
+                        ) )
                 spec_major_ver = spec_ver.split('.')
                 spec_major_ver = spec_major_ver[0]
 
@@ -113,7 +118,10 @@ def compilespec( spec_file ) :
                 if not parsing_iface:
                     die( str(curr_line) + ': Unexpected end of Iface' )
 
-                iface = json.loads( ''.join( json_text ) )
+                iface = json.loads(
+                        ''.join( json_text ),
+                        object_pairs_hook = lambda pairs: collections.OrderedDict( pairs )
+                )
                 iface_name = iface['iface']
                 iface_major_ver = iface['version'].split('.')
                 iface_major_ver = iface_major_ver[0]

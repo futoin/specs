@@ -1,1 +1,1 @@
-{"funcs": {"ping": {"params": {"echo": {"type": "string", "desc": "Any string"}}, "result": {"echo": {"type": "string", "desc": "See params"}}, "desc": "Check if peer is accessible"}}, "iface": "futoin.ping", "requires": ["AllowAnonymous"], "version": "0.1", "desc": "Ping-pong interface"}
+{"iface": "futoin.ping", "version": "0.1", "funcs": {"ping": {"params": {"echo": {"type": "string", "desc": "Any string"}}, "result": {"echo": {"type": "string", "desc": "See params"}}, "desc": "Check if peer is accessible"}}, "requires": ["AllowAnonymous"], "desc": "Ping-pong interface"}
