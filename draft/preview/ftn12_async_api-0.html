@@ -1,6 +1,6 @@
 <html><head><title>ftn12_async_api.md</title></head><body><pre>
 FTN6: FutoIn Async API
-Version: 0.1
+Version: 0.9
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -13,8 +13,9 @@ for scalable high performance server implementations.
 Traditional synchronous program flow becomes an addon
 on top of asynchronous base for legacy code and/or too
 complex logic.</p>
-<p>Program flow is split into non-blocking execution steps, representing
-with execution callback function.</p>
+<p>Program flow is split into non-blocking execution steps, represented
+with execution callback function. Processing Unit (eg. CPU) halting/
+spinning/switching-to-another-task is seen as a blocking action in program flow.</p>
 <p>Any step must not call any of blocking functions, except for synchronization
 with guaranteed minimal period of lock acquisition.
 <em>Note: under minimal period, it is assumed that any acquired lock is 
@@ -49,7 +50,7 @@ given request processing.</p>
 <h1>2. Async Steps API</h1>
 <h2>2.1. Types</h2>
 <ul>
-<li>void execute_callback( AsyncSteps as[, previous_success_args] )<ul>
+<li><em>void execute_callback( AsyncSteps as[, previous_success_args] )</em><ul>
 <li>first argument is always AsyncSteps object</li>
 <li>other arguments come from previous as.success() call, if any</li>
 <li>returns nothing</li>
@@ -63,7 +64,7 @@ given request processing.</p>
 <li>can limit time for sub-step processing with setTimeout()</li>
 </ul>
 </li>
-<li>void error_callback( AsyncSteps as, error )<ul>
+<li><em>void error_callback( AsyncSteps as, error )</em><ul>
 <li>the first argument is always AsyncSteps object</li>
 <li>the second argument comes previous as.error() call</li>
 <li>returns nothing</li>
@@ -77,20 +78,20 @@ given request processing.</p>
 <li>can use as.state() for global current request state data</li>
 </ul>
 </li>
-<li>void cancel_callback( AsyncSteps as )
+<li><em>void cancel_callback( AsyncSteps as )</em>
     it * must be used to cancel out of AsyncSteps program flow actions, like
         waiting on connection, timer, dedicated task, etc.</li>
 </ul>
 <h2>2.2. Functions</h2>
 <ol>
-<li>add( execute_callback func[, error_callback onerror] )<ul>
+<li><em>AsyncSteps add( execute_callback func[, error_callback onerror] )</em><ul>
 <li>add step, getting async interface as parameter</li>
 <li>can be called multiple times to add sub-steps of the same level</li>
 <li>insert position starts right after the current called step</li>
 <li>returns current AsyncSteps object reference</li>
 </ul>
 </li>
-<li>parallel( [error_callback onerror] ) <ul>
+<li><em>AsyncSteps parallel( [error_callback onerror] )</em><ul>
 <li>creates a step and returns specialization of AsyncSteps interface<ul>
 <li>all add()'ed sub-steps are executed in parallel</li>
 <li>next step is executed only when all steps complete</li>
@@ -100,27 +101,30 @@ given request processing.</p>
 </li>
 </ul>
 </li>
-<li>success( [result_arg, ...] )<ul>
+<li><em>void success( [result_arg, ...] )</em><ul>
 <li>successfully complete current step execution. Should be called from func()</li>
 </ul>
 </li>
-<li>error( name )<ul>
+<li><em>void error( name )</em><ul>
 <li>complete with error</li>
-<li>throws exception, if supported by language/platform</li>
-<li>call onerror( async_iface, name )</li>
+<li>does NOT throw exception/abort execution</li>
+<li>calls onerror( async_iface, name )</li>
 </ul>
 </li>
-<li>state()<ul>
+<li><em>Map state()</em><ul>
 <li>returns reference to map, which can be populated with arbitrary state values</li>
 </ul>
 </li>
-<li>setTimeout( timeout_ms ) - inform execution engine to wait for either success() or error()
-    for specified timeout in ms. On timeout, error("Timeout") is called</li>
-<li>call operator overloading<ul>
+<li><em>void setTimeout( timeout_ms )</em><ul>
+<li>inform execution engine to wait for either success() or error()
+for specified timeout in ms. On timeout, error("Timeout") is called</li>
+</ul>
+</li>
+<li><em>call operator overloading</em><ul>
 <li>if supported by language/platform, alias for success()</li>
 </ul>
 </li>
-<li>setCancel( cancel_callback oncancel )<ul>
+<li><em>void setCancel( cancel_callback oncancel )</em><ul>
 <li>set callback, to be used to cancel execution</li>
 </ul>
 </li>

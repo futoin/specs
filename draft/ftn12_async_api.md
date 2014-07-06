@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Async API
-Version: 0.1
+Version: 0.9
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -15,8 +15,9 @@ Traditional synchronous program flow becomes an addon
 on top of asynchronous base for legacy code and/or too
 complex logic.
 
-Program flow is split into non-blocking execution steps, representing
-with execution callback function.
+Program flow is split into non-blocking execution steps, represented
+with execution callback function. Processing Unit (eg. CPU) halting/
+spinning/switching-to-another-task is seen as a blocking action in program flow.
 
 Any step must not call any of blocking functions, except for synchronization
 with guaranteed minimal period of lock acquisition.
@@ -63,7 +64,7 @@ AsyncSteps may be used by Invoker implementation.
 
 ## 2.1. Types
 
-* void execute_callback( AsyncSteps as[, previous_success_args] )
+* *void execute_callback( AsyncSteps as[, previous_success_args] )*
     * first argument is always AsyncSteps object
     * other arguments come from previous as.success() call, if any
     * returns nothing
@@ -73,7 +74,7 @@ AsyncSteps may be used by Invoker implementation.
         * any violation is reported as as.error( InternalError )
     * can use as.state() for global current request state data
     * can limit time for sub-step processing with setTimeout()
-* void error_callback( AsyncSteps as, error )
+* *void error_callback( AsyncSteps as, error )*
     * the first argument is always AsyncSteps object
     * the second argument comes previous as.error() call
     * returns nothing
@@ -83,37 +84,38 @@ AsyncSteps may be used by Invoker implementation.
         * return
         * any violation is reported as as.error( InternalError )
     * can use as.state() for global current request state data
-* void cancel_callback( AsyncSteps as )
+* *void cancel_callback( AsyncSteps as )*
     it * must be used to cancel out of AsyncSteps program flow actions, like
         waiting on connection, timer, dedicated task, etc.
 
     
 ## 2.2. Functions
 
-1. add( execute_callback func[, error_callback onerror] )
+1. *AsyncSteps add( execute_callback func[, error_callback onerror] )*
     - add step, getting async interface as parameter
     * can be called multiple times to add sub-steps of the same level
     * insert position starts right after the current called step
     * returns current AsyncSteps object reference
-2. parallel( [error_callback onerror] ) 
+2. *AsyncSteps parallel( [error_callback onerror] )*
     * creates a step and returns specialization of AsyncSteps interface
         * all add()'ed sub-steps are executed in parallel
         * next step is executed only when all steps complete
         * sub-steps of parallel steps follow normal sequential semantics
         * success() does not allow any arguments - use state() to pass results
-3. success( [result_arg, ...] )
+3. *void success( [result_arg, ...] )*
     * successfully complete current step execution. Should be called from func()
-4. error( name )
+4. *void error( name )*
     * complete with error
-    * throws exception, if supported by language/platform
-    * call onerror( async_iface, name )
-4. state()
+    * does NOT throw exception/abort execution
+    * calls onerror( async_iface, name )
+4. *Map state()*
     * returns reference to map, which can be populated with arbitrary state values
-6. setTimeout( timeout_ms ) - inform execution engine to wait for either success() or error()
+6. *void setTimeout( timeout_ms )*
+    * inform execution engine to wait for either success() or error()
     for specified timeout in ms. On timeout, error("Timeout") is called
-7. call operator overloading
+7. *call operator overloading*
     * if supported by language/platform, alias for success()
-8. setCancel( cancel_callback oncancel )
+8. *void setCancel( cancel_callback oncancel )*
     * set callback, to be used to cancel execution
     
     
