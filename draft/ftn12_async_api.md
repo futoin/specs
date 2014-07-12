@@ -117,6 +117,8 @@ AsyncSteps may be used by Invoker implementation.
     * if supported by language/platform, alias for success()
 8. *void setCancel( cancel_callback oncancel )*
     * set callback, to be used to cancel execution
+9. get/set/exists/unset wildcard accessor functions, which map to state() variables
+    * only if supported by language/platform
     
     
 # 3. Example
