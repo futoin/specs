@@ -1,1 +1,1 @@
-{"title": "FutoIn ACL tree", "type": "object", "additionalProperties": false, "required": ["auth_level"], "properties": {"auth_level": {"type": "string", "description": "Required Auth Level"}, "print_name": {"type": "string", "description": "Print name"}, "desc": {"type": "string", "description": "Description in MarkDown format"}, "children": {"type": "object", "description": "Recursive structure"}}}
+futoin-acl-tree-0.1-schema.json

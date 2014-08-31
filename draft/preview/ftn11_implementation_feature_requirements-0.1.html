@@ -1,0 +1,60 @@
+<html><head><title>ftn11_implementation_feature_requirements.md</title></head><body><pre>
+FTN11: FutoIn - Implementation Feature Requirements
+Version: 0.1
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>1. Intro</h1>
+<p>Invoker and Executor implementation may not implement all required interfaces,
+but they are required to provide dummy placeholder, which still allow to
+operate. Below is a summary of required features for Invoker and Executor to
+be implemented.</p>
+<p>Note: version of this specification also serves as implementation feature
+list to be used in dependency management.</p>
+<h1>2. Executor requirements</h1>
+<h2>2.1. Service-side Executor requirements</h2>
+<ul>
+<li><a href="./ftn4_if_ping.html">futoin.ping</a></li>
+<li><a href="./ftn8_security_concept.html">futoin.master.provider</a></li>
+<li>Client for <a href="./ftn8_security_concept.html">futoin.auth.backend</a></li>
+<li><a href="./ftn8_security_concept.html">futoin.auth.consumer</a></li>
+<li>Client for <a href="./ftn8_security_concept.html">futoin.acl.provider</a></li>
+<li><a href="./ftn8_security_concept.html">futoin.acl.consumer</a></li>
+<li>Client for <a href="./ftn8_security_concept.html">futoin.defense.provider</a></li>
+<li><a href="./ftn6_iface_executor_concept.html">Interface Executor Concept</a></li>
+<li>Client for <a href="./ftn9_if_auditlog.html">futoin.log</a></li>
+<li><a href="./ftn10_burst_calls.html">futoin.burst</a></li>
+<li>HTTP and WebSocket end-point <a href="./ftn5_iface_http_integration.html">FTN5 HTTP integration</a></li>
+</ul>
+<h2>2.2. Client-side Executor requirements</h2>
+<ul>
+<li>In-Channel <a href="./ftn4_if_ping.html">futoin.ping</a></li>
+<li>In-Channel <a href="./ftn8_security_concept.html">futoin.master.consumer</a></li>
+<li>Optional: <a href="./ftn6_iface_executor_concept.html">FTN6 Interface Executor Concept</a><ul>
+<li>If not implemented, In-Channel Executor interfaces must be handled
+    internally by Client-side implementation</li>
+</ul>
+</li>
+</ul>
+<h1>3. Invoker requirements</h1>
+<h2>3.1. Invoker requirements - Simple CCM</h2>
+<ul>
+<li>Client-side Executor requirements (#3)</li>
+<li><a href="./ftn8_security_concept.html">Credentials or HMAC-based message security</a></li>
+<li>If interactive, support for "Unauthorized" error:<ul>
+<li><a href="./ftn8_security_concept.html">Client for futoin.auth.consumer</a></li>
+</ul>
+</li>
+<li>Simple part of <a href="./ftn7_iface_invoker_concept.html">FTN7 Interface Invoker Concept</a></li>
+<li>Dummy API for <a href="./ftn10_burst_calls.html">futoin.burst</a></li>
+<li>Client for HTTP end-point <a href="./ftn5_iface_http_integration.html">FTN5 HTTP integration</a></li>
+</ul>
+<h2>3.2. Invoker requirements - Advanced CCM</h2>
+<ul>
+<li>Invoker requirements - Simple CCM (#4)</li>
+<li><a href="./ftn8_security_concept.html">Both Credentials AND HMAC-based message security</a></li>
+<li>Full support <a href="./ftn7_iface_invoker_concept.html">FTN7 Interface Invoker Concept</a></li>
+<li>Full API for <a href="./ftn10_burst_calls.html">futoin.burst</a></li>
+<li>Client for WebSocket end-point <a href="./ftn5_iface_http_integration.html">FTN5 HTTP integration</a></li>
+</ul></body></html>

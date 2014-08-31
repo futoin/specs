@@ -1,4 +1,10 @@
 #!/usr/bin/python3
+#
+#
+# !!! NOTE: THIS IS ONLY A QUICK DIRTY TOOL - MUST BE REWRITTEN !!!
+#
+#
+#
 
 import json
 import markdown
@@ -86,24 +92,36 @@ def compilespec( spec_file ) :
                                 ''.join( json_text ),
                                 object_pairs_hook = lambda pairs: collections.OrderedDict( pairs )
                         ) )
-                spec_major_ver = spec_ver.split('.')
-                spec_major_ver = spec_major_ver[0]
 
-                schema_file = parsing_schema + '-' + spec_major_ver + '-schema.json'
+                schema_file = os.path.join( meta_dir, parsing_schema + '-' + spec_ver + '-schema.json' )
 
-                with codecs.open( os.path.join( meta_dir, schema_file ),
+                with codecs.open( schema_file,
                                 "w",
                                 encoding="utf-8",
                                 errors="xmlcharrefreplace"
                 ) as f:
                     f.write( schema )
+                    
+                    
+                # mjr ver
+                spec_major_ver = spec_ver.split('.')
+                spec_major_ver = spec_major_ver[0]
 
+                schema_mjr_file = os.path.join( meta_dir, parsing_schema + '-' + spec_major_ver + '-schema.json' )
+                try:
+                    os.unlink( schema_mjr_file )
+                except OSError:
+                    pass
+                
+                os.symlink( os.path.basename( schema_file ), schema_mjr_file )
+                    
+                # no ver
                 schema_file_nover = os.path.join( meta_dir, parsing_schema + '-schema.json' )
                 try:
                     os.unlink( schema_file_nover )
                 except OSError:
                     pass
-                os.symlink( schema_file, schema_file_nover )
+                os.symlink( os.path.basename( schema_mjr_file ), schema_file_nover )
 
                 parsing_schema = False
                 json_text = []
@@ -123,25 +141,36 @@ def compilespec( spec_file ) :
                         object_pairs_hook = lambda pairs: collections.OrderedDict( pairs )
                 )
                 iface_name = iface['iface']
-                iface_major_ver = iface['version'].split('.')
-                iface_major_ver = iface_major_ver[0]
-                iface = json.dumps( iface )
+                
+                # version file
+                iface_ver_file = os.path.join( meta_dir, iface_name + '-' + iface['version'] + '-iface.json' )
 
-                iface_file = iface_name + '-' + iface_major_ver + '-iface.json'
-
-                with codecs.open( os.path.join( meta_dir, iface_file ),
+                with codecs.open( iface_ver_file,
                                 "w",
                                 encoding="utf-8",
                                 errors="xmlcharrefreplace"
                 ) as f:
-                    f.write( iface )
+                    f.write( json.dumps( iface ) )
 
+                # mjr symlink
+                iface_major_ver = iface['version'].split('.')
+                iface_major_ver = iface_major_ver[0]
+                iface_mjr_file = os.path.join( meta_dir, iface_name + '-' + iface_major_ver + '-iface.json' )
+                
+                try:
+                    os.unlink( iface_mjr_file )
+                except OSError:
+                    pass
+                os.symlink( os.path.basename( iface_ver_file ), iface_mjr_file )
+
+                
+                # no ver symlink
                 iface_file_nover = os.path.join( meta_dir, iface_name + '-iface.json' )
                 try:
                     os.unlink( iface_file_nover )
                 except OSError:
                     pass
-                os.symlink( iface_file, iface_file_nover )
+                os.symlink( os.path.basename( iface_mjr_file ), iface_file_nover )
 
                 parsing_iface = False
                 json_text = []
@@ -163,9 +192,11 @@ def compilespec( spec_file ) :
             die( "At line %s: Exception: %s\n" % ( curr_line, e )  )
 
     #---
+    html_ver_file = html_file.replace( '.html', '-' + spec_ver + '.html' )
+    
     spec_major_ver = spec_ver.split('.')
     spec_major_ver = spec_major_ver[0]
-    html_ver_file = html_file.replace( '.html', '-' + spec_major_ver + '.html' )
+    html_mjrver_file = html_file.replace( '.html', '-' + spec_major_ver + '.html' )
     
     if False :
         raw_file = codecs.open( html_file + '.raw', "w",
@@ -181,12 +212,21 @@ def compilespec( spec_file ) :
                             errors="xmlcharrefreplace"
     )
 
+    # mjr.mnr symlink
+    try :
+        os.unlink( html_mjrver_file )
+    except OSError:
+        pass
+    os.symlink( os.path.basename( html_ver_file ), html_mjrver_file )
+
+    # mjr symlink
     try :
         os.unlink( html_file )
     except OSError:
         pass
-    os.symlink( os.path.basename( html_ver_file ), html_file )
+    os.symlink( os.path.basename( html_mjrver_file ), html_file )
 
+    # update html
     output_file.write( '<html><head><title>' + os.path.basename( spec_file ) + '</title></head><body>' )
     output_file.write( markdown.markdown( ''.join( text ), output_format='html5' ) )
     output_file.write( '</body></html>' )

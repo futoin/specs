@@ -1,1 +1,1 @@
-{"title": "FutoIn 'sec' field - HMAC", "type": "object", "additionalProperties": false, "required": ["ksn", "hmac"], "properties": {"ki": {"type": "string", "description": "Base shared secret ID"}, "di": {"type": "string", "description": "Derived key sequence ID"}, "hmac": {"type": "string", "description": "Base64 encoded HMAC"}}}
+futoin-sec-hmac-0.1-schema.json

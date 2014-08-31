@@ -1,0 +1,170 @@
+<html><head><title>ftn6_iface_executor_concept.md</title></head><body><pre>
+FTN6: FutoIn Executor Concept
+Version: 0.1
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>Warning</h1>
+<p>This specification IS NOT mandatory. It is just a reference model.
+Any implementation IS ALLOWED to provide own architecture with
+drawback of breaking easy migration from one to another.</p>
+<h1>1. Concept</h1>
+<p>There must be a generic object type, which can represent both
+request and response message data.</p>
+<p>There must be a wrapper, which holds current request-response info
+and potentially as set of standard utilities.</p>
+<p>There must be a generic request Executor, which knows all registered
+interfaces and their implementations.</p>
+<p>Executor implementation is not limited in internal behavior, but should
+have standardized interface even for helper tools, like FutoIn interface
+compilers and/or converters.</p>
+<p>Executor is responsible for (actions are done in AsyncSteps):</p>
+<ol>
+<li>converting request from transport-level representation to internal message format</li>
+<li>gathering basic request-response info</li>
+<li>checking interface constraints</li>
+<li>checking message security (HMAC) or authenticating user by credentials</li>
+<li>passing control to implementation of specific interfaces with required major version</li>
+<li>catching exceptions or normal result</li>
+<li>converting response to transport-level representation</li>
+<li>maintaining persistent communication channel, if needed<pre><code>            Firewall
+Client          ||  Executor           Implementation
+   .            || [Register]                 .
+   .            ||      |                     .
+   |----- Request -----&gt;|                     .
+   |            ||  [Unpack]                  .
+   |            ||   [Info]                   .
+   |            || [Constraints]              .
+   |            ||  [Security]                .
+   |            ||      |---- Invoke --------&gt;|
+   |            ||      |&lt;-- Except/Result ---|
+   |            ||   [Pack]                   .
+   |&lt;---- Response -----|                     .
+   .            ||      |                     .
+   .            ||      |                     .
+</code></pre>
+</li>
+</ol>
+<p>Executor should be tighly integrated with MasterService implementation, if supported.
+It is required almost for each request to validate and generate HMAC.</p>
+<p>Executor should also integrate with AuthService consumer.</p>
+<p><em>Note: Executor is allowed to pass control to implementation only if requested major version of
+interfaces exactly matches implemented version and minor version is greater than or equal
+to requested minor version.</em></p>
+<p>All actions are implemented through AsyncSteps interface (<a href="./ftn12_async_api.html">FTN12: Async API</a>).
+For backward compatibility and/or complex logic, it is possible to make blocking
+implementation. Such implementations run in dedicated worker threads and receive only RequestInfo
+object reference.</p>
+<p>All true asynchronous implementation must implement special FutoIn AsyncImplementation interface to
+clearly distinguish more advanced one.</p>
+<h2>1.1. FutoIn interfaces</h2>
+<p>Interfaces must get converted according to language/platform-specific
+convention into native interfaces, which can depend only on
+standard runtime and native language/platform-specific interfaces
+of Executor and related objects.</p>
+<h1>2. Native Executor interface requirements</h1>
+<p>Language/platform must support runtime introspection and
+exceptions.</p>
+<h2>2.1. FutoIn interface</h2>
+<ol>
+<li>Each FutoIn interfaces is represented as simple native
+    interface type with only abstract methods for each
+    FutoIn interface function</li>
+<li>Each abstract method must return no value and take exactly one
+    Request Info object as argument</li>
+<li>Method can assume that all request parameters can be
+    accessed from request data</li>
+<li>Access to unexpected request and/or response parameters
+    should raise InternalError</li>
+<li>Throw of unexpected error should raise InternalError</li>
+<li>Each method should have public accessed</li>
+<li>There must be no other public method</li>
+<li>All native interfaces should inherit from single
+    native interface with no abstract methods</li>
+</ol>
+<h2>2.2. Request Info</h2>
+<ol>
+<li>request() - return reference to request parameter map</li>
+<li>response() - return reference to response parameter map</li>
+<li>info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):<ul>
+<li>X509_CN - validated x509 certificate CN field</li>
+<li>PUBKEY - public key, if present</li>
+<li>CLIENT_ADDR - IPv4, IPv6 or any other type of address</li>
+<li>USER_AGENT - User Agent, coming from HTTP headers or other source</li>
+<li>COOKIES - array of strings</li>
+<li>SECURE_CHANNEL - boolean</li>
+<li>UPLOAD_FILES - map of upload_name -&gt; file stream</li>
+<li>REQUEST_TIME_FLOAT - platform-specific reference of request creation time</li>
+</ul>
+</li>
+<li>error(name) - set request error and raise exception to complete execution</li>
+<li>getSecurityLevel() - get current authentication security level</li>
+<li>isSecurityLevel( lvl ) - test if current security level equals or higher than lvl</li>
+<li>getUser() - get user object</li>
+<li>getSourceAddress() - reference to source IPv4/IPv6/etc. address</li>
+<li>getDerivedKey() - return associated derived key to be used in HMAC
+    and perhaps other places. Implementation may forbid its use.</li>
+<li>log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]</li>
+<li>files() - return map to uploaded temporary file streams</li>
+<li>rawoutput() - return raw output stream</li>
+<li>context() - get reference to Executor</li>
+<li>ccm() - get reference to Invoker CCM, if any</li>
+<li>rawRequest( - get raw request data map</li>
+<li>rawResponse() - get raw response data map</li>
+<li>constants:<ul>
+<li>SL_ANONYMOUS = "Anonymous"</li>
+<li>SL_INFO = "Info"</li>
+<li>SL_SAFEOPS = "SafeOps"</li>
+<li>SL_PRIVLEGED_OPS = "PrivilegedOps"</li>
+<li>SL_EXCEPTIONAL_OPS = "ExceptionalOps"</li>
+</ul>
+</li>
+<li>ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
+    Invoker abort (disconnect)</li>
+</ol>
+<h2>2.3. User info</h2>
+<ol>
+<li>getLocalID() - get user ID as seen by trusted AuthService (integer)</li>
+<li>getGlobalID() - get globally unique user ID (string)</li>
+<li>getXYZ() - where XYZ is standard field identifier, like FirstName, DateOfBirth, AvatarURL, etc.</li>
+</ol>
+<h2>2.4. Source Address</h2>
+<ol>
+<li>getHost() - numeric, no name lookup</li>
+<li>getPort()</li>
+<li>getType() - IPv4, IPv6</li>
+<li>asString() "Type:Host:Port"</li>
+</ol>
+<h2>2.5. Derived Key</h2>
+<ol>
+<li>getRaw()</li>
+<li>getBaseID()</li>
+<li>getSequenceID()</li>
+<li>encrypt( data ) - return Base64 data</li>
+<li>decrypt( data ) - decrypt Base64 data</li>
+</ol>
+<h2>2.6. General Async Step interface</h2>
+<p>See FTN12: Async API</p>
+<h2>2.7. Async completion interface</h2>
+<p>AsyncCompletion inherits from AsyncSteps interface. When all steps are executed and request info is
+still not complete, InternalError is automatically raised</p>
+<ol>
+<li>reqinfo() - return reference to original request info</li>
+</ol>
+<h2>2.8. Executor</h2>
+<ol>
+<li>ccm() - get reference to Invoker CCM, if any</li>
+<li>addIface( name, impl ) - add interface implementation<ul>
+<li>name must be represented as FutoIn interface identifier and version, separated by colon ":"</li>
+<li>impl is object derived from native interface or associative name for lazy loading</li>
+</ul>
+</li>
+<li>process( AsyncCompletion async_completion ) - do full cycle of request processing, including all security checks</li>
+<li>checkAccess( AsyncCompletion async_completion, acd ) - shortcut to check access through #acl interface</li>
+</ol>
+<h1>3. Language/Platform-specific notes</h1>
+<h2>3.1. native JVM (Java, Groovy, etc.)</h2>
+<h2>3.2. Python</h2>
+<h2>3.3. PHP</h2>
+<h2>3.4. C++</h2></body></html>

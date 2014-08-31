@@ -1,0 +1,103 @@
+<html><head><title>ftn9_if_auditlog.md</title></head><body><pre>
+FTN9: FutoIn Interface - AuditLog
+Version: 0.1
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>1. Intro</h1>
+<p>It is assumed that there is a central sink for all audit log
+messages in the system. There should be no individual logging
+mechanism per component.</p>
+<p>There should be universal Invoker and Executor API wrapper interface
+with handy shortcuts and formatting.</p>
+<h1>2. Interface schema</h1>
+<pre><code>    {
+        "iface" : "futoin.log",
+        "version" : "0.1",
+        "funcs" : {
+            "msg" : {
+                "params" : {
+                    "lvl" : {
+                        "type" : "string",
+                        "desc" : "Severity level: debug|info|warn|error|security"
+                    },
+                    "txt" : {
+                        "type" : "string",
+                        "desc" : "Text message, may include new lines"
+                    },
+                    "ts" : {
+                        "type" : "string",
+                        "desc" : "Original timestamp in YYYYMMDDhhmmss.frac format"
+                    }
+                },
+                "desc" : "Trivial log message"
+            },
+            "hexdump" : {
+                "params" : {
+                    "lvl" : {
+                        "type" : "string",
+                        "desc" : "Severity level: debug|info|warn|error|security"
+                    },
+                    "txt" : {
+                        "type" : "string",
+                        "desc" : "Text message, may include new lines"
+                    },
+                    "ts" : {
+                        "type" : "string",
+                        "desc" : "Original timestamp in YYYYMMDDhhmmss.frac format"
+                    },
+                    "data" : {
+                        "type" : "string",
+                        "desc" : "Base64 encoded binary data"
+                    }
+                },
+                "desc" : "Trivial log message"
+            }
+        },
+        "requires" : [
+            "SecureChannel"
+        ],
+        "desc" : "Audit Log interface"
+    }
+</code></pre>
+<h1>3. Extended API interface</h1>
+<p>The raw FutoIn interface is not very handy for writing code and additional
+feateres are desired.</p>
+<ul>
+<li>Extend "futoin.log"</li>
+<li>Three type of functions<ul>
+<li>lvl( msg ) - shortcut for msg( lvl, msg ) - preffered way for languages with easy string formatting</li>
+<li>lvl<em>f</em>( tpl, args ) - printf() or similar style</li>
+<li>lvl<em>s</em>() - language/platform-specific stream object</li>
+</ul>
+</li>
+<li>Functions:<ul>
+<li>msgf( lvl, tpl, args ) / msgs( lvl ) - formatting enabled msg functions</li>
+<li>debug( msg ) / debugf( tpl, args ) / debugs() - equal to msg/msgf/msgs with "debug" lvl</li>
+<li>info( msg ) / infof( tpl, args ) / infos() - equal to msg/msgf/msgs with "info" lvl</li>
+<li>warn( msg ) / warnf( tpl, args ) / warns() - equal to msg/msgf/msgs with "warn" lvl</li>
+<li>error( msg ) / errorf( tpl, args ) / errors() - equal to msg/msgf/msgs with "warn" lvl</li>
+<li>security( msg ) / securityf( tpl, args ) / securitys() - equal to msg/msgf/msgs with "security" lvl</li>
+</ul>
+</li>
+<li>Enumeration:<ul>
+<li>LVL_DEBUG</li>
+<li>LVL_INFO</li>
+<li>LVL_WARN</li>
+<li>LVL_ERROR</li>
+<li>LVL_SECURITY</li>
+</ul>
+</li>
+</ul>
+<h2>3.1. Example of use</h2>
+<pre><code>    Without [RAII][] principle (e.g. Java, Python, PHP):
+    ...log().infof( "Message %s", str )
+    with ...log().infos() as l:
+        l.write( "Message " )
+        l.write( str )
+
+    With [RAII][] principle (e.g. C++):
+    ...log().infof( "Message %s", str );
+    ...log().infos() &lt;&lt; "Message " &lt;&lt; str;
+</code></pre></body></html>
