@@ -1,6 +1,6 @@
 <html><head><title>ftn12_async_api.md</title></head><body><pre>
 FTN6: FutoIn Async API
-Version: 0.9
+Version: 1.0
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -8,8 +8,8 @@ Authors: Andrey Galkin
 <h1>1. Concept</h1>
 <p>This interface was born as a secondary option for
 executor concept. However, it quickly became clear that
-async/reactor/proactor/light threads/etc. is base
-for scalable high performance server implementations.
+async/reactor/proactor/light threads/etc. should be base
+for scalable high performance server implementations, even though it is more difficult for understanding and/or debugging.
 Traditional synchronous program flow becomes an addon
 on top of asynchronous base for legacy code and/or too
 complex logic.</p>
@@ -26,7 +26,7 @@ becomes input for the following step.</p>
 <p>Each step can have own error handler. Error handler is called, if
 AsyncSteps.error() is called within step execution or any of its 
 sub-steps. Typical behavior is to ignore error and continue or
-to make cleanup actions and complete request with error.</p>
+to make cleanup actions and complete job with error.</p>
 <p>Each step can have own sequence of sub-steps. Sub-steps can be added
 only during that step execution. Sub-step sequence is executed after
 current step execution is finished.</p>
@@ -47,6 +47,163 @@ After cancel, it must be safe to destroy AsyncSteps object.</p>
 [root] AsyncSteps object must be used for all asynchronous tasks within
 given request processing.</p>
 <p>AsyncSteps may be used by Invoker implementation.</p>
+<p>AsyncSteps must support derived classes in implementation-defined way.
+Typical use case: functionality extension (e.g. request processing API).</p>
+<h2>1.1. Levels</h2>
+<p>When AsyncSteps (or derived) object is created all steps are added
+sequentially in Level 0 through add() and/or parallel(). Note: each
+parallel() is seen as a step.</p>
+<p>After AsyncSteps execution is initiated, each step of Level 0 is executed.
+All sub-steps are added in Level n+1. Example:</p>
+<pre><code>add() -&gt; Level 0 #1
+    add() -&gt; Level 1 #1
+        add() -&gt; Level 2 #1
+        parallel() -&gt; Level 2 #2
+        add() -&gt; Level 2 #3
+    parallel() -&gt; Level 1 #2
+    add() -&gt; Level 1 #3
+parallel() -&gt; Level 0 #2
+add() -&gt; Level 0 #3
+</code></pre>
+<p>Execution cannot continue to the next step of current Level until all steps of higher Level
+are executed.</p>
+<p>The execution sequence would be:</p>
+<pre><code>Level 0 add #1
+Level 1 add #1
+Level 2 add #1
+Level 2 parallel #2
+Level 2 add #3
+Level 1 parallel #2
+Level 1 add #3
+Level 0 parallel #2
+Level 0 add #3
+</code></pre>
+<h2>1.2. Error handling</h2>
+<p>Due to not linear programming, classic try/catch blocks are converted into execute/onerror.
+Each added step may have custom error handler. If error handler is not specified then
+control passed to lower Level error handler. If non is defined then execution is aborted.</p>
+<p>Example:</p>
+<pre><code>add( -&gt; Level 0
+    func( as ){
+        print( "Level 0 func" )
+        add( -&gt; Level 1
+            func( as ){
+                print( "Level 1 func" )
+                as.error( "myerror" )
+            },
+            onerror( as, error ){
+                print( "Level 1 onerror: " + error )
+                as.error( "newerror" )
+            }
+        )
+    },
+    onerror( as, error ){
+        print( "Level 0 onerror: " + error )
+        as.success( "Prm" )
+    }
+)
+add( -&gt; Level 0
+    func( as, param ){
+        print( "Level 0 func2: " + param )
+        as.success()
+    }
+)
+</code></pre>
+<p>Output would be:</p>
+<pre><code>Level 0 func
+Level 1 func
+Level 1 onerror: myerror
+Level 0 onerror: newerror
+Level 0 func2: Prm
+</code></pre>
+<p>In synchronous way, it would look like:</p>
+<pre><code>variable = null
+
+try
+{
+    print( "Level 0 func" )
+
+    try
+    {
+        print( "Level 1 func" )
+        throw "myerror"
+    }
+    catch ( error )
+    {
+        print( "Level 1 onerror: " + error )
+        throw "newerror"
+    }
+}
+catch( error )
+{
+    print( "Level 0 onerror: " + error )
+    variable = "Prm"
+}
+
+print( "Level 0 func2: " + variable )
+</code></pre>
+<h2>1.3. Wait for external resources</h2>
+<p>Very often, execution of step cannot continue without waiting for external event like input from network or disk.
+It is forbidden to block execution in event waiting. As a solution, there are special setTimeout() and setCancel()
+methods.</p>
+<p>Example:</p>
+<pre><code>add(
+    func( as ){
+        socket.read( function( data ){
+            as.success( data )
+        } )
+
+        as.setCancel( function(){
+            socket.cancel_read()
+        } )
+
+        as.setTimeout( 30_000 ) // 30 seconds
+    },
+    onerror( as, error ){
+        if ( error == timeout ) {
+            print( "Timeout" )
+        }
+        else
+        {
+            print( "Read Error" )
+        }
+    }
+)
+</code></pre>
+<h2>1.4. Parallel execution abort</h2>
+<p>Definition of parallel steps makes no sense to continue execution if any of steps fails. To avoid
+excessive time and resources spent on other steps, there is a concept of canceling execution similar to 
+timeout above.</p>
+<p>Example:</p>
+<pre><code>as.parallel()
+    .add(
+        func( as ){
+            as.setCancel( function(){ ... } )
+
+            // do parallel job #1
+            as.state()-&gt;result1 = ...;
+        }
+    )
+    .add(
+        func( as ){
+            as.setCancel( function(){ ... } )
+
+            // do parallel job #1
+            as.state()-&gt;result2 = ...;
+        }
+    )
+    .add(
+        func( as ){
+            as.error( "Some Error" )
+        }
+    )
+as.add(
+    func( as ){
+        print( as.state()-&gt;result1 + as.state-&gt;result2 )
+        as.success()
+    }
+)
+</code></pre>
 <h1>2. Async Steps API</h1>
 <h2>2.1. Types</h2>
 <ul>
@@ -55,12 +212,12 @@ given request processing.</p>
 <li>other arguments come from previous as.success() call, if any</li>
 <li>returns nothing</li>
 <li>behavior:<ul>
-<li>either complete through as.success() or as.error()</li>
+<li>either set completion status through as.success() or as.error()</li>
 <li>or add sub-steps through as.add() and/or as.parallel()</li>
 <li>any violation is reported as as.error( InternalError )</li>
 </ul>
 </li>
-<li>can use as.state() for global current request state data</li>
+<li>can use as.state() for global current job state data</li>
 <li>can limit time for sub-step processing with setTimeout()</li>
 </ul>
 </li>
@@ -69,32 +226,34 @@ given request processing.</p>
 <li>the second argument comes previous as.error() call</li>
 <li>returns nothing</li>
 <li>behavior, completes through:<ul>
-<li>as.success() - continue execution from the next step</li>
+<li>as.success() - continue execution from the next step, after return</li>
 <li>as.error() - change error string</li>
-<li>return</li>
+<li>return - continue unwinding error handler stack</li>
 <li>any violation is reported as as.error( InternalError )</li>
 </ul>
 </li>
-<li>can use as.state() for global current request state data</li>
+<li>can use as.state() for global current job state data</li>
 </ul>
 </li>
-<li><em>void cancel_callback( AsyncSteps as )</em>
-    it * must be used to cancel out of AsyncSteps program flow actions, like
-        waiting on connection, timer, dedicated task, etc.</li>
+<li><em>void cancel_callback( AsyncSteps as )</em><ul>
+<li>it must be used to cancel out of AsyncSteps program flow actions, like
+    waiting on connection, timer, dedicated task, etc.</li>
+</ul>
+</li>
 </ul>
 <h2>2.2. Functions</h2>
 <ol>
 <li><em>AsyncSteps add( execute_callback func[, error_callback onerror] )</em><ul>
 <li>add step, getting async interface as parameter</li>
-<li>can be called multiple times to add sub-steps of the same level</li>
-<li>insert position starts right after the current called step</li>
-<li>returns current AsyncSteps object reference</li>
+<li>can be called multiple times to add sub-steps of the same level (sequential execution)</li>
+<li>steps are queued in the same execution level (sub-steps create a new level)</li>
+<li>returns current level AsyncSteps object accessor</li>
 </ul>
 </li>
 <li><em>AsyncSteps parallel( [error_callback onerror] )</em><ul>
 <li>creates a step and returns specialization of AsyncSteps interface<ul>
-<li>all add()'ed sub-steps are executed in parallel</li>
-<li>next step is executed only when all steps complete</li>
+<li>all add()'ed sub-steps are executed in parallel (not strictly required)</li>
+<li>the next step in current is executed only when all parallel steps complete</li>
 <li>sub-steps of parallel steps follow normal sequential semantics</li>
 <li>success() does not allow any arguments - use state() to pass results</li>
 </ul>
@@ -128,8 +287,12 @@ for specified timeout in ms. On timeout, error("Timeout") is called</li>
 <li>set callback, to be used to cancel execution</li>
 </ul>
 </li>
-<li>get/set/exists/unset wildcard accessor functions, which map to state() variables<ul>
+<li><em>get/set/exists/unset</em> wildcard accessor, which map to state() variables<ul>
 <li>only if supported by language/platform</li>
+</ul>
+</li>
+<li><em>execute()</em> - must be called only once after Level 0 steps are configured.<ul>
+<li>Initiates AsyncSteps execution implementation-defined way</li>
 </ul>
 </li>
 </ol>
