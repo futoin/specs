@@ -22,12 +22,12 @@ in technology stack provided by large companies.
 The ultimate goal is not only to define standards, but also to provide production-ready reference implementation,
 which can be used in proprietary solutions.
 
-# 2. Goals & Phylosophy
+# 2. Goals & Philosophy
 1. Loose coupling of any system component on implementation-neutral protocol level, but not platform level or above
 2. Alternative implementations are welcome
 3. Backward compatibility is not a priority, but Migration path is one
 4. Security has priority over usability
-5. Ondemand revise and redesign is assumed, keeping a single interface for each area
+5. On demand revise and redesign is assumed, keeping a single interface for each area
 
 # 3. Why ???
 There are existing solutions, but they get bloated, redundant and overweighted with backward
