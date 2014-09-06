@@ -8,11 +8,19 @@ Authors: Andrey Galkin
 
 # 1. FutoIn Intro
 
-FutoIn originally stays for **Fu**ll Au**to**mation **In**terface.
-The idea of "Full Automation" was born in scope of enterprise integration demand focusing on usage
-of modern to the moment Web patterns. Quickly, the idea got further evolved to be used in rapidly changing
-Web world as well. The major focus is on defining requirements, assumed processes and interoperability interfaces
+FutoIn originally stays for *Fu*ll Au*to*mation *In*terface.
+
+The idea of "Full Automation Interface" was born in scope of enterprise integration demand focusing on usage
+of modern to the moment Web patterns. Quickly, the idea got further evolved to be used in rapidly changing Web
+world as well. The major focus is on defining requirements, assumed processes and interoperability interfaces
 for modularization on any level.
+
+Of course, there are plenty of technology companies with advanced proprietary API features, but only some of
+them are really standardized and open to public. User, Developers, Owners and even Governments become locked
+in technology stack provided by large companies.
+
+The ultimate goal is not only to define standards, but also to provide production-ready reference implementation,
+which can be used in proprietary solutions.
 
 # 2. Goals & Phylosophy
 1. Loose coupling of any system component on implementation-neutral protocol level, but not platform level or above
