@@ -6,21 +6,21 @@
 </head><body>
 <pre>
 FTN2: FutoIn Specification Versioning
-Version: 0.1
+Version: 1.0
+Date: 2014-09-07
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>1. Version format</h1>
 <p>There are two version components MAJOR and MINOR, separated by point.</p>
-<p>For released specifications, both components are not negative integer number, monotonically increasing from zero.
-<pre>
-Example: 1.0, 1.1, 2.0
-</pre></p>
-<p>The latest up-to-date version in development/draft is to be marked with special "DV" component in place of MINOR, concatenated with draft number
-<pre>
-Example: 0.DV1, 1.DV1, 2.DV1, 2.DV2
-</pre></p>
+<p>For released specifications, both components are not negative integer number, monotonically increasing from zero.</p>
+<pre><code>Example: 1.0, 1.1, 2.0
+</code></pre>
+<p>The latest up-to-date version in development/draft is to be marked with special "DV" component in place of MINOR, concatenated with draft number equal to the next
+expected version.</p>
+<pre><code>Example: 0.DV1, 1.DV1, 2.DV1, 2.DV2
+</code></pre>
 <h1>2. Linear Versioning</h1>
 <p>FutoIn specification versioning is linear - no branching is allowed.</p>
 <p>"(n+1).x" version is guaranteed to be newer than any "n.y", where x, y - any value</p>
@@ -35,20 +35,21 @@ Example: 0.DV1, 1.DV1, 2.DV1, 2.DV2
 New version is released as "MAJOR.(MINOR+1)".</p>
 <h3>2.3.2. Draft with broken backward compatibility</h3>
 <p>Broken backward compatibility is versioned as "(MAJOR+1).DVn" and then releases as "(MAJOR+1).0".</p>
+<p>The previous version should be available with "_vMAJOR" postfix/suffix in filename for easy accessibility purposes.</p>
 <h1>3. Requirements for specification release</h1>
 <ol>
 <li>Specification must be approved (see note below)</li>
-<li>At least one full [automatic] test suite must exist</li>
-<li>At least one reference implementation must exist</li>
+<li>At least one reference implementation must exist, if applicable</li>
+<li>At least one full [automatic] test suite must exist, if applicable</li>
 </ol>
-<p>Note: Review &amp; Approval process is out of scope of this document.</p>
+<p><em>Note: Review &amp; Approval process is out of scope of this document.</em></p>
 <h1>4. Backward compatibility</h1>
-<p>"x.(n+1)" is guaranteed to be backward compatible with any "x.n". Specification bug fix is not subject for backward compatibility.
-<pre>
-Example: 1.1 with 1.0, 1.2 with 1.1 and 1.0, etc.
-</pre></p>
+<p>"x.(n+1)" is guaranteed to be backward compatible with any "x.n". Specification bug fix is not subject for backward compatibility.</p>
+<pre><code>Example: 1.1 with 1.0, 1.2 with 1.1 and 1.0, etc.
+</code></pre>
 <p>"(n+1).0" version increment is allowed only, if there is backward incompatible change.
-Typically, such releases are allowed only after deep revise process to drop deprecated features.</p>
+Typically, such releases are allowed only after deep revise process to drop deprecated features.
+Exception is when MAJOR=0 - initial development.</p>
 <h1>5. Specification deprecation</h1>
 <p>Whole specification can be marked deprecated, if its features are fully covered by another specification.
 The goal is to avoid alternative specs for the same area.</p>
