@@ -8,7 +8,7 @@ Authors: Andrey Galkin
 
 # 1. Intro
 * [FTN1 Intro](./ftn1\_intro.md)
-* NOT YET FINAL: [FTN2 Specification Versioning](./ftn2\_spec\_versioning.md)
+* [FTN2 Specification Versioning](./ftn2\_spec\_versioning.md)
 * NOT YET FINAL: [FTN3 Interface Definition](./ftn3\_iface\_definition.md)
 
 # 2. Security
@@ -26,7 +26,7 @@ Authors: Andrey Galkin
 * NOT YET FINAL: [FTN5 HTTP integration](./ftn5\_iface\_http\_integration.md)
 
 # 5. Interfaces
-## 5.1. Fundamental
+## 5.1. Core
 * NOT YET FINAL: [FTN8 IF AccessControlService](./ftn8\_security\_concept.md)
 * NOT YET FINAL: [FTN9 IF AuditLogService](./ftn9\_if\_auditlog.md)
 * NOT YET FINAL: [FTN8 IF AuthService](./ftn8\_security\_concept.md)

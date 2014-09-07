@@ -26,7 +26,7 @@ Authors: Andrey Galkin
 * [FTN5 HTTP integration](./ftn5\_iface\_http\_integration.md)
 
 # 5. Interfaces
-## 5.1. Fundamental
+## 5.1. Core
 * [FTN8 IF AccessControlService](./ftn8\_security\_concept.md)
 * [FTN9 IF AuditLogService](./ftn9\_if\_auditlog.md)
 * [FTN8 IF AuthService](./ftn8\_security\_concept.md)
