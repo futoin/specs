@@ -8,7 +8,7 @@ Authors: Andrey Galkin
 # CHANGES
 
 * v1.1
-    * Added cloning concept and requirement
+    * Added cloning concept and requirements
 
 # 1. Concept
 
@@ -258,7 +258,8 @@ processing with minimal overhead.
 However, there would be no performance difference in sub-step definition unless
 its callback function is also created at initialization time, but not at parent
 step execution time (the default concept). So, it should be possible to predefine
-those as well and copy/inherit during step execution.
+those as well and copy/inherit during step execution. Copying steps must also
+involve copying of state variables.
 
 Example:
 
@@ -344,7 +345,8 @@ However, this approach only make sense for deep performance optimizations.
     * Initiates AsyncSteps execution implementation-defined way
 11. *clone*/*copy c-tor* - implementation-defined way of cloning AsyncSteps object
 12. *AsyncSteps copyFrom( AsyncSteps other )*
-    * Copy steps from other(model) AsyncSteps object
+    * Copy steps and state variables not present in current state
+    from other(model) AsyncSteps object
     * See cloning concept
     
     

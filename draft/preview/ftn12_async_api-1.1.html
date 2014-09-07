@@ -14,7 +14,7 @@ Authors: Andrey Galkin
 <h1>CHANGES</h1>
 <ul>
 <li>v1.1<ul>
-<li>Added cloning concept and requirement</li>
+<li>Added cloning concept and requirements</li>
 </ul>
 </li>
 </ul>
@@ -230,7 +230,8 @@ processing with minimal overhead.</p>
 <p>However, there would be no performance difference in sub-step definition unless
 its callback function is also created at initialization time, but not at parent
 step execution time (the default concept). So, it should be possible to predefine
-those as well and copy/inherit during step execution.</p>
+those as well and copy/inherit during step execution. Copying steps must also
+involve copying of state variables.</p>
 <p>Example:</p>
 <pre><code>AsyncSteps req_repo_common;
 req_repo_common.add(func( as ){
@@ -342,7 +343,8 @@ for specified timeout in ms. On timeout, error("Timeout") is called</li>
 </li>
 <li><em>clone</em>/<em>copy c-tor</em> - implementation-defined way of cloning AsyncSteps object</li>
 <li><em>AsyncSteps copyFrom( AsyncSteps other )</em><ul>
-<li>Copy steps from other(model) AsyncSteps object</li>
+<li>Copy steps and state variables not present in current state
+from other(model) AsyncSteps object</li>
 <li>See cloning concept</li>
 </ul>
 </li>
