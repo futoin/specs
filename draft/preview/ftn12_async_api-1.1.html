@@ -5,12 +5,19 @@
 <link rel="stylesheet" type="text/css" href="../../css/specs.css">
 </head><body>
 <pre>
-FTN6: FutoIn Async API
-Version: 1.0
+FTN12: FutoIn Async API
+Version: 1.1
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
+<h1>CHANGES</h1>
+<ul>
+<li>v1.1<ul>
+<li>Added cloning concept and requirement</li>
+</ul>
+</li>
+</ul>
 <h1>1. Concept</h1>
 <p>This interface was born as a secondary option for
 executor concept. However, it quickly became clear that
@@ -55,6 +62,9 @@ given request processing.</p>
 <p>AsyncSteps may be used by Invoker implementation.</p>
 <p>AsyncSteps must support derived classes in implementation-defined way.
 Typical use case: functionality extension (e.g. request processing API).</p>
+<p>For performance reasons, it is not economical to initialize AsyncSteps
+with business logic every time. Every implementation must support
+platform-specific AsyncSteps cloning/duplicating.</p>
 <h2>1.1. Levels</h2>
 <p>When AsyncSteps (or derived) object is created all steps are added
 sequentially in Level 0 through add() and/or parallel(). Note: each
@@ -210,12 +220,41 @@ as.add(
     }
 )
 </code></pre>
+<h2>1.5. AsyncSteps cloning</h2>
+<p>In long living applications the same business logic may be re-used multiple times
+during execution.</p>
+<p>In a REST API server example, complex business logic can be defined only once and
+stored in a kind of AsyncSteps object repository.
+On each request, a reference object from the repository would be copied for actual
+processing with minimal overhead.</p>
+<p>However, there would be no performance difference in sub-step definition unless
+its callback function is also created at initialization time, but not at parent
+step execution time (the default concept). So, it should be possible to predefine
+those as well and copy/inherit during step execution.</p>
+<p>Example:</p>
+<pre><code>AsyncSteps req_repo_common;
+req_repo_common.add(func( as ){
+    as.add( func( as ){ ... } );
+    as.copyFrom( as.state().business_logic );
+    as.add( func( as ){ ... } );
+});
+
+AsyncSteps req_repo_buslog1;
+req_repo_buslog1
+    .add(func( as ){ ... })
+    .add(func( as ){ ... });
+
+AsyncSteps actual_exec = copy req_repo_common;
+actual_exec.state().business_logic = req_repo_buslog1;
+actual_exec.execute();
+</code></pre>
+<p>However, this approach only make sense for deep performance optimizations.</p>
 <h1>2. Async Steps API</h1>
 <h2>2.1. Types</h2>
 <ul>
 <li><em>void execute_callback( AsyncSteps as[, previous_success_args] )</em><ul>
 <li>first argument is always AsyncSteps object</li>
-<li>other arguments come from previous as.success() call, if any</li>
+<li>other arguments come from the previous as.success() call, if any</li>
 <li>returns nothing</li>
 <li>behavior:<ul>
 <li>either set completion status through as.success() or as.error()</li>
@@ -229,7 +268,7 @@ as.add(
 </li>
 <li><em>void error_callback( AsyncSteps as, error )</em><ul>
 <li>the first argument is always AsyncSteps object</li>
-<li>the second argument comes previous as.error() call</li>
+<li>the second argument comes from the previous as.error() call</li>
 <li>returns nothing</li>
 <li>behavior, completes through:<ul>
 <li>as.success() - continue execution from the next step, after return</li>
@@ -250,7 +289,7 @@ as.add(
 <h2>2.2. Functions</h2>
 <ol>
 <li><em>AsyncSteps add( execute_callback func[, error_callback onerror] )</em><ul>
-<li>add step, getting async interface as parameter</li>
+<li>add step, executor callback gets async interface as parameter</li>
 <li>can be called multiple times to add sub-steps of the same level (sequential execution)</li>
 <li>steps are queued in the same execution level (sub-steps create a new level)</li>
 <li>returns current level AsyncSteps object accessor</li>
@@ -259,7 +298,7 @@ as.add(
 <li><em>AsyncSteps parallel( [error_callback onerror] )</em><ul>
 <li>creates a step and returns specialization of AsyncSteps interface<ul>
 <li>all add()'ed sub-steps are executed in parallel (not strictly required)</li>
-<li>the next step in current is executed only when all parallel steps complete</li>
+<li>the next step in current level is executed only when all parallel steps complete</li>
 <li>sub-steps of parallel steps follow normal sequential semantics</li>
 <li>success() does not allow any arguments - use state() to pass results</li>
 </ul>
@@ -277,7 +316,7 @@ as.add(
 </ul>
 </li>
 <li><em>Map state()</em><ul>
-<li>returns reference to map, which can be populated with arbitrary state values</li>
+<li>returns reference to map/object, which can be populated with arbitrary state values</li>
 </ul>
 </li>
 <li><em>void setTimeout( timeout_ms )</em><ul>
@@ -299,6 +338,12 @@ for specified timeout in ms. On timeout, error("Timeout") is called</li>
 </li>
 <li><em>execute()</em> - must be called only once after Level 0 steps are configured.<ul>
 <li>Initiates AsyncSteps execution implementation-defined way</li>
+</ul>
+</li>
+<li><em>clone</em>/<em>copy c-tor</em> - implementation-defined way of cloning AsyncSteps object</li>
+<li><em>AsyncSteps copyFrom( AsyncSteps other )</em><ul>
+<li>Copy steps from other(model) AsyncSteps object</li>
+<li>See cloning concept</li>
 </ul>
 </li>
 </ol>
