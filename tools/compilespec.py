@@ -227,9 +227,13 @@ def compilespec( spec_file ) :
     os.symlink( os.path.basename( html_mjrver_file ), html_file )
 
     # update html
-    output_file.write( '<html><head><title>' + os.path.basename( spec_file ) + '</title></head><body>' )
+    output_file.write( '<!DOCTYPE html>\n' )
+    output_file.write( '<html>\n<head>\n' )
+    output_file.write( '<title>' + os.path.basename( spec_file ) + '</title>\n' )
+    output_file.write( '<link rel="stylesheet" type="text/css" href="../../css/specs.css">\n' )
+    output_file.write( '</head><body>\n' )
     output_file.write( markdown.markdown( ''.join( text ), output_format='html5' ) )
-    output_file.write( '</body></html>' )
+    output_file.write( '\n</body></html>' )
     output_file.close()
     input_file.close()
 
