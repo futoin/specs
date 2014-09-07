@@ -1,9 +1,14 @@
 <pre>
-FTN6: FutoIn Async API
-Version: 1.0
+FTN12: FutoIn Async API
+Version: 1.1
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
+
+# CHANGES
+
+* v1.1
+    * Added cloning concept and requirement
 
 # 1. Concept
 
@@ -61,6 +66,10 @@ AsyncSteps may be used by Invoker implementation.
 
 AsyncSteps must support derived classes in implementation-defined way.
 Typical use case: functionality extension (e.g. request processing API).
+
+For performance reasons, it is not economical to initialize AsyncSteps
+with business logic every time. Every implementation must support
+platform-specific AsyncSteps cloning/duplicating.
 
 ## 1.1. Levels
 
@@ -236,6 +245,40 @@ Example:
         }
     )
 
+## 1.5. AsyncSteps cloning
+
+In long living applications the same business logic may be re-used multiple times
+during execution.
+
+In a REST API server example, complex business logic can be defined only once and
+stored in a kind of AsyncSteps object repository.
+On each request, a reference object from the repository would be copied for actual
+processing with minimal overhead.
+
+However, there would be no performance difference in sub-step definition unless
+its callback function is also created at initialization time, but not at parent
+step execution time (the default concept). So, it should be possible to predefine
+those as well and copy/inherit during step execution.
+
+Example:
+
+    AsyncSteps req_repo_common;
+    req_repo_common.add(func( as ){
+        as.add( func( as ){ ... } );
+        as.copyFrom( as.state().business_logic );
+        as.add( func( as ){ ... } );
+    });
+    
+    AsyncSteps req_repo_buslog1;
+    req_repo_buslog1
+        .add(func( as ){ ... })
+        .add(func( as ){ ... });
+
+    AsyncSteps actual_exec = copy req_repo_common;
+    actual_exec.state().business_logic = req_repo_buslog1;
+    actual_exec.execute();
+
+However, this approach only make sense for deep performance optimizations.
 
 
 # 2. Async Steps API
@@ -244,7 +287,7 @@ Example:
 
 * *void execute_callback( AsyncSteps as[, previous_success_args] )*
     * first argument is always AsyncSteps object
-    * other arguments come from previous as.success() call, if any
+    * other arguments come from the previous as.success() call, if any
     * returns nothing
     * behavior:
         * either set completion status through as.success() or as.error()
@@ -254,7 +297,7 @@ Example:
     * can limit time for sub-step processing with setTimeout()
 * *void error_callback( AsyncSteps as, error )*
     * the first argument is always AsyncSteps object
-    * the second argument comes previous as.error() call
+    * the second argument comes from the previous as.error() call
     * returns nothing
     * behavior, completes through:
         * as.success() - continue execution from the next step, after return
@@ -270,14 +313,14 @@ Example:
 ## 2.2. Functions
 
 1. *AsyncSteps add( execute_callback func[, error_callback onerror] )*
-    - add step, getting async interface as parameter
+    * add step, executor callback gets async interface as parameter
     * can be called multiple times to add sub-steps of the same level (sequential execution)
     * steps are queued in the same execution level (sub-steps create a new level)
     * returns current level AsyncSteps object accessor
 2. *AsyncSteps parallel( [error_callback onerror] )*
     * creates a step and returns specialization of AsyncSteps interface
         * all add()'ed sub-steps are executed in parallel (not strictly required)
-        * the next step in current is executed only when all parallel steps complete
+        * the next step in current level is executed only when all parallel steps complete
         * sub-steps of parallel steps follow normal sequential semantics
         * success() does not allow any arguments - use state() to pass results
 3. *void success( [result_arg, ...] )*
@@ -287,7 +330,7 @@ Example:
     * does NOT throw exception/abort execution
     * calls onerror( async_iface, name )
 4. *Map state()*
-    * returns reference to map, which can be populated with arbitrary state values
+    * returns reference to map/object, which can be populated with arbitrary state values
 6. *void setTimeout( timeout_ms )*
     * inform execution engine to wait for either success() or error()
     for specified timeout in ms. On timeout, error("Timeout") is called
@@ -299,6 +342,10 @@ Example:
     * only if supported by language/platform
 10. *execute()* - must be called only once after Level 0 steps are configured.
     * Initiates AsyncSteps execution implementation-defined way
+11. *clone*/*copy c-tor* - implementation-defined way of cloning AsyncSteps object
+12. *AsyncSteps copyFrom( AsyncSteps other )*
+    * Copy steps from other(model) AsyncSteps object
+    * See cloning concept
     
     
 # 3. Example
