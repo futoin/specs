@@ -62,7 +62,7 @@ def compilespec( spec_file ) :
 
                     if tag == 'Version' :
                         spec_ver = value
-                    elif tag in ('Copyright','Authors') :
+                    elif tag in ('Copyright','Authors','Date') :
                         pass
                     elif re.match( 'FTN[0-9]+', l ) :
                         pass
