@@ -50,6 +50,7 @@ def compilespec( spec_file ) :
     curr_line = 1
     in_header = True
     spec_ver = ''
+    end_of_spec_seen = False
 
     for l in input_file:
         try:
@@ -61,7 +62,7 @@ def compilespec( spec_file ) :
                     value = value.strip()
 
                     if tag == 'Version' :
-                        spec_ver = value
+                        spec_ver = value.replace('DV','')
                     elif tag in ('Copyright','Authors','Date') :
                         pass
                     elif re.match( 'FTN[0-9]+', l ) :
@@ -74,6 +75,10 @@ def compilespec( spec_file ) :
 
                     if not spec_ver :
                         die( str(curr_line) + " Missing spec Version" )
+                        
+            #---
+            if end_of_spec_seen and l != '\n':
+                die( str(curr_line) + " Text after end of spec" )
                         
             #---
             m = schema_re.match( l )
@@ -176,6 +181,9 @@ def compilespec( spec_file ) :
                 json_text = []
 
             else :
+                if l == '=END OF SPEC=\n' :
+                    end_of_spec_seen = True
+                    
                 if parsing_iface or parsing_schema :
                     json_text.append( l )
 
@@ -190,6 +198,10 @@ def compilespec( spec_file ) :
                     sys.stderr.write( "%s: %s"  % ( i, jl ) )
                     i += 1
             die( "At line %s: Exception: %s\n" % ( curr_line, e )  )
+            
+    #---
+    if not end_of_spec_seen:
+        die( "Missing '=END OF SPEC='"  )
 
     #---
     html_ver_file = html_file.replace( '.html', '-' + spec_ver + '.html' )
