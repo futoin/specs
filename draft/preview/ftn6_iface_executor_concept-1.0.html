@@ -6,7 +6,7 @@
 </head><body>
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 0.1
+Version: 1.DV0
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -17,7 +17,7 @@ Any implementation IS ALLOWED to provide own architecture with
 drawback of breaking easy migration from one to another.</p>
 <h1>1. Concept</h1>
 <p>There must be a generic object type, which can represent both
-request and response message data.</p>
+request and response message data and/or communication channels.</p>
 <p>There must be a wrapper, which holds current request-response info
 and potentially as set of standard utilities.</p>
 <p>There must be a generic request Executor, which knows all registered
@@ -64,6 +64,10 @@ implementation. Such implementations run in dedicated worker threads and receive
 object reference.</p>
 <p>All true asynchronous implementation must implement special FutoIn AsyncImplementation interface to
 clearly distinguish more advanced one.</p>
+<p>Method signatures:</p>
+<pre><code>void AsyncMethod( AsyncSteps as, RequestInfo reqinfo );
+void BlockingMethod( RequestInfo reqinfo );
+</code></pre>
 <h2>1.1. FutoIn interfaces</h2>
 <p>Interfaces must get converted according to language/platform-specific
 convention into native interfaces, which can depend only on
@@ -78,16 +82,19 @@ exceptions.</p>
     interface type with only abstract methods for each
     FutoIn interface function</li>
 <li>Each abstract method must return no value and take exactly one
-    Request Info object as argument</li>
+    Request Info object as argument for blocking implementation. Or
+    AsyncSteps and RequestInfo objects as arguments for asynchronous
+    implementation.</li>
 <li>Method can assume that all request parameters can be
     accessed from request data</li>
 <li>Access to unexpected request and/or response parameters
     should raise InternalError</li>
 <li>Throw of unexpected error should raise InternalError</li>
-<li>Each method should have public accessed</li>
-<li>There must be no other public method</li>
+<li>Each implementation method should have public access</li>
+<li>There must be no public method which is not part of the
+    specific FutoIn interface definition</li>
 <li>All native interfaces should inherit from single
-    native interface with no abstract methods</li>
+    native interface with no public abstract methods</li>
 </ol>
 <h2>2.2. Request Info</h2>
 <ol>
@@ -102,21 +109,20 @@ exceptions.</p>
 <li>SECURE_CHANNEL - boolean</li>
 <li>UPLOAD_FILES - map of upload_name -&gt; file stream</li>
 <li>REQUEST_TIME_FLOAT - platform-specific reference of request creation time</li>
+<li>SECURITY_LEVEL - one of pre-defined security levels of current processing</li>
+<li>SOURCE_ADDRESS - source address of request external to current system
+    (e.g. without <em>trusted</em> reverse proxies, gateways, etc.)</li>
+<li>USER_INFO - user information object</li>
 </ul>
 </li>
 <li>error(name) - set request error and raise exception to complete execution</li>
-<li>getSecurityLevel() - get current authentication security level</li>
-<li>isSecurityLevel( lvl ) - test if current security level equals or higher than lvl</li>
-<li>getUser() - get user object</li>
-<li>getSourceAddress() - reference to source IPv4/IPv6/etc. address</li>
 <li>getDerivedKey() - return associated derived key to be used in HMAC
     and perhaps other places. Implementation may forbid its use.</li>
 <li>log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]</li>
 <li>files() - return map to uploaded temporary file streams</li>
 <li>rawoutput() - return raw output stream</li>
 <li>context() - get reference to Executor</li>
-<li>ccm() - get reference to Invoker CCM, if any</li>
-<li>rawRequest( - get raw request data map</li>
+<li>rawRequest() - get raw request data map</li>
 <li>rawResponse() - get raw response data map</li>
 <li>constants:<ul>
 <li>SL_ANONYMOUS = "Anonymous"</li>
@@ -144,14 +150,16 @@ exceptions.</p>
 </ol>
 <h2>2.5. Derived Key</h2>
 <ol>
-<li>getRaw()</li>
+<li>getRaw() - implementation may forbid its use</li>
 <li>getBaseID()</li>
 <li>getSequenceID()</li>
-<li>encrypt( data ) - return Base64 data</li>
-<li>decrypt( data ) - decrypt Base64 data</li>
+<li>encrypt( data ) - return Base64 data, implementation should limit max length</li>
+<li>decrypt( data ) - decrypt Base64 data, implementation should limit max length</li>
+<li>encryptAsync( AsyncSteps as, data ) - return Base64 data</li>
+<li>decryptAsync( AsyncSteps as, data ) - decrypt Base64 data</li>
 </ol>
 <h2>2.6. General Async Step interface</h2>
-<p>See FTN12: Async API</p>
+<p>See <a href="./ftn12_async_api.html">FTN12 Async API</a></p>
 <h2>2.7. Async completion interface</h2>
 <p>AsyncCompletion inherits from AsyncSteps interface. When all steps are executed and request info is
 still not complete, InternalError is automatically raised</p>
@@ -161,17 +169,18 @@ still not complete, InternalError is automatically raised</p>
 <h2>2.8. Executor</h2>
 <ol>
 <li>ccm() - get reference to Invoker CCM, if any</li>
-<li>addIface( name, impl ) - add interface implementation<ul>
-<li>name must be represented as FutoIn interface identifier and version, separated by colon ":"</li>
+<li>addIface( ifacever, impl ) - add interface implementation<ul>
+<li>ifacever must be represented as FutoIn interface identifier and version, separated by colon ":"</li>
 <li>impl is object derived from native interface or associative name for lazy loading</li>
 </ul>
 </li>
-<li>process( AsyncCompletion async_completion ) - do full cycle of request processing, including all security checks</li>
-<li>checkAccess( AsyncCompletion async_completion, acd ) - shortcut to check access through #acl interface</li>
+<li>process( AsyncSteps as, RequestInfo reqinfo ) - do full cycle of request processing, including all security checks</li>
+<li>checkAccess( AsyncSteps as, RequestInfo reqinfo, acd ) - shortcut to check access through #acl interface</li>
 </ol>
 <h1>3. Language/Platform-specific notes</h1>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>
 <h2>3.2. Python</h2>
 <h2>3.3. PHP</h2>
 <h2>3.4. C++</h2>
+<p>=END OF SPEC=</p>
 </body></html>

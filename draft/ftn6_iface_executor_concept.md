@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 0.1
+Version: 1.DV0
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -14,7 +14,7 @@ drawback of breaking easy migration from one to another.
 # 1. Concept
 
 There must be a generic object type, which can represent both
-request and response message data.
+request and response message data and/or communication channels.
 
 There must be a wrapper, which holds current request-response info
 and potentially as set of standard utilities.
@@ -73,6 +73,11 @@ object reference.
 All true asynchronous implementation must implement special FutoIn AsyncImplementation interface to
 clearly distinguish more advanced one.
 
+Method signatures:
+
+    void AsyncMethod( AsyncSteps as, RequestInfo reqinfo );
+    void BlockingMethod( RequestInfo reqinfo );
+
 
 ## 1.1. FutoIn interfaces
 
@@ -94,16 +99,19 @@ exceptions.
     interface type with only abstract methods for each
     FutoIn interface function
 2. Each abstract method must return no value and take exactly one
-    Request Info object as argument
+    Request Info object as argument for blocking implementation. Or
+    AsyncSteps and RequestInfo objects as arguments for asynchronous
+    implementation.
 3. Method can assume that all request parameters can be
     accessed from request data
 4. Access to unexpected request and/or response parameters
     should raise InternalError
 5. Throw of unexpected error should raise InternalError
-6. Each method should have public accessed
-7. There must be no other public method
+6. Each implementation method should have public access
+7. There must be no public method which is not part of the
+    specific FutoIn interface definition
 8. All native interfaces should inherit from single
-    native interface with no abstract methods
+    native interface with no public abstract methods
 
 ## 2.2. Request Info
 
@@ -118,19 +126,18 @@ exceptions.
     * SECURE_CHANNEL - boolean
     * UPLOAD_FILES - map of upload_name -> file stream
     * REQUEST_TIME_FLOAT - platform-specific reference of request creation time
+    * SECURITY_LEVEL - one of pre-defined security levels of current processing
+    * SOURCE_ADDRESS - source address of request external to current system
+        (e.g. without *trusted* reverse proxies, gateways, etc.)
+    * USER_INFO - user information object
 4. error(name) - set request error and raise exception to complete execution
-5. getSecurityLevel() - get current authentication security level
-6. isSecurityLevel( lvl ) - test if current security level equals or higher than lvl
-7. getUser() - get user object
-8. getSourceAddress() - reference to source IPv4/IPv6/etc. address
 9. getDerivedKey() - return associated derived key to be used in HMAC
     and perhaps other places. Implementation may forbid its use.
 10. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
 11. files() - return map to uploaded temporary file streams
 12. rawoutput() - return raw output stream
 13. context() - get reference to Executor
-14. ccm() - get reference to Invoker CCM, if any
-15. rawRequest( - get raw request data map
+15. rawRequest() - get raw request data map
 16. rawResponse() - get raw response data map
 17. constants:
     * SL_ANONYMOUS = "Anonymous"
@@ -159,16 +166,18 @@ exceptions.
 
 ## 2.5. Derived Key
 
-1. getRaw()
+1. getRaw() - implementation may forbid its use
 2. getBaseID()
 3. getSequenceID()
-4. encrypt( data ) - return Base64 data
-5. decrypt( data ) - decrypt Base64 data
+4. encrypt( data ) - return Base64 data, implementation should limit max length
+5. decrypt( data ) - decrypt Base64 data, implementation should limit max length
+4. encryptAsync( AsyncSteps as, data ) - return Base64 data
+5. decryptAsync( AsyncSteps as, data ) - decrypt Base64 data
 
 
 ## 2.6. General Async Step interface
 
-See FTN12: Async API
+See [FTN12 Async API](./ftn12\_async\_api.md)
 
 
 ## 2.7. Async completion interface
@@ -181,11 +190,11 @@ still not complete, InternalError is automatically raised
 ## 2.8. Executor
 
 1. ccm() - get reference to Invoker CCM, if any
-2. addIface( name, impl ) - add interface implementation
-    * name must be represented as FutoIn interface identifier and version, separated by colon ":"
+2. addIface( ifacever, impl ) - add interface implementation
+    * ifacever must be represented as FutoIn interface identifier and version, separated by colon ":"
     * impl is object derived from native interface or associative name for lazy loading
-3. process( AsyncCompletion async_completion ) - do full cycle of request processing, including all security checks
-4. checkAccess( AsyncCompletion async_completion, acd ) - shortcut to check access through #acl interface
+3. process( AsyncSteps as, RequestInfo reqinfo ) - do full cycle of request processing, including all security checks
+4. checkAccess( AsyncSteps as, RequestInfo reqinfo, acd ) - shortcut to check access through #acl interface
 
 
 
@@ -201,3 +210,5 @@ still not complete, InternalError is automatically raised
 
 
 [RAII]: http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization "Resource Acquisition Is Initialization"
+
+=END OF SPEC=
