@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Invoker Concept
-Version: 0.1
+Version: 1.DV0
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -41,12 +41,12 @@ resolving service interface.
 All names starting with hash "#" symbol are reserved for internal purpose in
 Invoker implementation concept.
 
-Pre-defined interfaces names:
+### 1.1.2. Pre-defined interfaces names:
 
 * "#resolver" - end-point for runtime resolution
 * "#auth" - AuthService end-point
 * "#defense" - defense system end-point
-* "#acl" - defense system end-point
+* "#acl" - access control system end-point
 * "#log" - audit logging end-point
 
 # 1.2. Type and identifier safety
@@ -66,8 +66,7 @@ building.
 In such process, FutoIn interface functions must become native interface members with
 every function parameter becoming native member's formal parameter. If multiple
 values can be returned natively, result values are mapped to those. Otherwise,
-map of result values is returned. If there is only one return value then it
-becomes return value of native member instead of result value map. If there are no
+map of result values is returned. If there are no
 result values then native member returns nothing and should complete as soon
 as request message is scheduled to be sent without waiting for reply.
 
@@ -79,44 +78,112 @@ messages must have "forcersp" flag and Simple CCM must expect response for every
 FutoIn implementations are allowed to optimize calls within single process in
 implementation-defined way, keeping the same behavior between remote and local calls.
 
-Local calls must never execute if there are Invoker frames on stack. It means, Invoker
-function must return or Executor must run in a different thread. Yes, it may have performance
+Local calls must never execute if there are Invoker frames on execution stack. It means, Invoker
+function must return before Executor runs or Executor must run in a different thread. Yes, it may have performance
 issues.
 
 
 # 2. Invoker interfaces
 
+Reference Invoker concept is built around [FTN12 Async API](./ftn12\_async\_api.md)
+
+
 ## 2.1. Connection and Credentials Manager
 
-1. register( name, ifacever, endpoint ) - register standard MasterService end-point
-2. registerPlain( name, ifacever, endpoint, credentials ) - register end-point with 'plain" credentials
-3. iface( name [, ifacever [,$endpoint [, $credentials]]] ) / getIface<Spec\>( name [, ifacever [,$endpoint [, $credentials]]] ) - get end-point's native interface by name
-4. unRegister( name ) - unregister any type of interface (should not be used, unless really needed)
-5. defense() - shortcut to getIface( "#defense" )
-6. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
-7. burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
+1. void register( AsyncSteps as, name, ifacever, endpoint [, $credentials] )
+    * register standard MasterService end-point (adds steps to *as*)
+    * *as* - AsyncSteps instance as registration may be blocking on external resources
+    * *name* - unique identifier in scope of CCM instance
+    * *ifacever* - iface identifier and its version separated by colon, see note below
+    * *endpoint* - URI or any other resource identifier of iface implementing peer, accepted by CCM implementation
+    * *$credentials* - optional, authentication credentials
+3. NativeIface iface( name )
+    * Get native interface wrapper for invocation of iface methods
+    * *name* - see register()
+    * Note: it can have template/generic counterpart like iface<NativeImpl>() for strict type languages
+4. void unRegister( name )
+    * unregister previously registered interface (should not be used, unless really needed)
+    * *name* - see register()
+5. NativeDefenseIface defense() - shortcut to iface( "#defense" )
+6. NativeLogIface log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
+7. NativeBurstIface burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
+8. void assertIface( name, ifacever )
+    * Assert that interface registered by name matches major version and minor is not less than required.
+    * This function must generate fatal error and forbid any further execution
+    * *name* - see register()
+    * *ifacever* - required interface and its version
+9. void alias( name, alias )
+    * Alias interface name with another name
+    * *name* - as provided in register()
+    * *alias* - register alias for *name*
 
-*Note: iface must be represented as FutoIn interface identifier and version, separated by colon ":"
-Example: "futoin.master.service:1.0", "futoin.master.service:2.1"*
+### 2.1.1. Unique interface name in CCM instance (*name*)
+
+The idea behind is that each component/library/etc. assumes that end product registers interfaces,
+their endpoints and possibly provides other information during initialization phase or
+prior to using the specific component.
+
+Example:
+
+    // Init
+    AsyncSteps as;
+    
+    ccm.register( as, "some_id', "some.iface:1.3", "https://..." )
+    ccm.alias( "some_id', "componentA.ifaceA" )
+    ccm.alias( "some_id', "componentB.ifaceB" )
+    
+    as.add( ComponentA.init )
+    as.add( ComponentB.init )
+    
+    as.add( startService )
+    
+    // start actual execution
+    as.execute();
+    
+    // in Component A (note minor version less than registered)
+    ComponentA.init()
+    {
+        ccm.assertIface( "componentA.iface", "some.iface:1.0" )
+        iface = ccm.iface( "componentA.iface" )
+        iface.someFunc()
+    }
+
+    // in Component B (note different minor version)
+    ComponentB.init()
+    {
+        ccm.assertIface( "componentB.iface", "some.iface:1.1" )
+        iface = ccm.iface( "componentB.iface" )
+        iface.someFunc()
+    }
+
+
+
+### 2.1.2. Interface and version
+
+*ifacever* must be represented as FutoIn interface identifier and version, separated by colon ":"
+Example: "futoin.master.service:1.0", "futoin.master.service:2.1".
+
+Invoker implementation must ensure that major versions match and registered minor version is not less
+than requested minor version.
+
 
 ## 2.2. Native FutoIn interface interface
 
-1. results call( name, params ) throws FutoInError - generic FutoIn function call interface
-2. callAsync( async_iface, name, params ) - generic FutoIn asynchronous function call interface
+1. void call( AsyncSteps as, name, params )
+    - generic FutoIn function call interface
+    - result is passed through AsyncSteps.success() as a map
 3. iface() - return interface to introspect interface information:
-    1. name() - get FutoIn interface type, may be not implemented
-    2. version() - get FutoIn interface version, may be not implemented
-    3. inherits() - get list of inherited interfaces
-    4. funcs() - get list of available functions
-    5. constraints() - get list of interface constraints
-4. callDataAsync( async_iface, name, params, upload_data )
+    1. name - get FutoIn interface type
+    2. version - get FutoIn interface version
+    3. inherits - get list of inherited interfaces starting from the most derived, may be null
+    4. funcs - get list of available functions, may be null
+    5. constraints - get list of interface constraints, may be null
+4. callData( AsyncSteps as, name, params, upload_data )
     * generic FutoIn asynchronous function call interface with data transfer
     * upload_data - map of input streams or buffers
     * Note: all data transfer requests must be done through separate communication channel
 5. burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
 
-
-Note: result is either 
 
 ## 2.3. Derived Key accessing wrapper
 
@@ -128,11 +195,11 @@ This interface is designed only if access to Derived Key is expected.
 
 ## 2.4. Derived Key
 
-See FTN6: Interface Executor Concept
+See [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)
 
-## 2.5. Async callback interface
+## 2.5. AsyncSteps interface
 
-See FTN12: Async API - AsyncSteps
+See [FTN12 Async API](./ftn12\_async\_api.md)
 
 # 3. Language/Platform-specific notes
 
@@ -148,3 +215,5 @@ See FTN12: Async API - AsyncSteps
 [FTN9 IF AuditLogService]: ./ftn9\_if\_auditlog.md "FTN9 Interface - AuditLog"
 [FTN10 Burst Calls]: ./ftn10\_burst\_calls.md "FTN10 Burst Calls"
 
+
+=END OF SPEC=
