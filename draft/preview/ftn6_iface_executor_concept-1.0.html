@@ -150,7 +150,6 @@ exceptions.</p>
 </ol>
 <h2>2.5. Derived Key</h2>
 <ol>
-<li>getRaw() - implementation may forbid its use</li>
 <li>getBaseID()</li>
 <li>getSequenceID()</li>
 <li>encrypt( data ) - return Base64 data, implementation should limit max length</li>
@@ -169,13 +168,13 @@ still not complete, InternalError is automatically raised</p>
 <h2>2.8. Executor</h2>
 <ol>
 <li>ccm() - get reference to Invoker CCM, if any</li>
-<li>addIface( ifacever, impl ) - add interface implementation<ul>
+<li>register( ifacever, impl ) - add interface implementation<ul>
 <li>ifacever must be represented as FutoIn interface identifier and version, separated by colon ":"</li>
 <li>impl is object derived from native interface or associative name for lazy loading</li>
 </ul>
 </li>
-<li>process( AsyncSteps as, RequestInfo reqinfo ) - do full cycle of request processing, including all security checks</li>
-<li>checkAccess( AsyncSteps as, RequestInfo reqinfo, acd ) - shortcut to check access through #acl interface</li>
+<li>process( AsyncCompletion as, RequestInfo reqinfo ) - do full cycle of request processing, including all security checks</li>
+<li>checkAccess( AsyncCompletion as, acd ) - shortcut to check access through #acl interface</li>
 </ol>
 <h1>3. Language/Platform-specific notes</h1>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>

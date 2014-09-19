@@ -116,8 +116,8 @@ exceptions.
 ## 2.2. Request Info
 
 1. request() - return reference to request parameter map
-2. response() - return reference to response parameter map
-3. info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
+1. response() - return reference to response parameter map
+1. info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
     * X509_CN - validated x509 certificate CN field
     * PUBKEY - public key, if present
     * CLIENT_ADDR - IPv4, IPv6 or any other type of address
@@ -130,49 +130,48 @@ exceptions.
     * SOURCE_ADDRESS - source address of request external to current system
         (e.g. without *trusted* reverse proxies, gateways, etc.)
     * USER_INFO - user information object
-4. error(name) - set request error and raise exception to complete execution
-9. getDerivedKey() - return associated derived key to be used in HMAC
+1. error(name) - set request error and raise exception to complete execution
+1. getDerivedKey() - return associated derived key to be used in HMAC
     and perhaps other places. Implementation may forbid its use.
-10. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
-11. files() - return map to uploaded temporary file streams
-12. rawoutput() - return raw output stream
-13. context() - get reference to Executor
-15. rawRequest() - get raw request data map
-16. rawResponse() - get raw response data map
-17. constants:
+1. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
+1. files() - return map to uploaded temporary file streams
+1. rawoutput() - return raw output stream
+1. context() - get reference to Executor
+1. rawRequest() - get raw request data map
+1. rawResponse() - get raw response data map
+1. constants:
     * SL_ANONYMOUS = "Anonymous"
     * SL_INFO = "Info"
     * SL_SAFEOPS = "SafeOps"
     * SL_PRIVLEGED_OPS = "PrivilegedOps"
     * SL_EXCEPTIONAL_OPS = "ExceptionalOps"
-18. ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
+1. ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
     Invoker abort (disconnect)
 
 
 ## 2.3. User info
 
 1. getLocalID() - get user ID as seen by trusted AuthService (integer)
-2. getGlobalID() - get globally unique user ID (string)
-3. getXYZ() - where XYZ is standard field identifier, like FirstName, DateOfBirth, AvatarURL, etc.
+1. getGlobalID() - get globally unique user ID (string)
+1. getXYZ() - where XYZ is standard field identifier, like FirstName, DateOfBirth, AvatarURL, etc.
 
 
 ## 2.4. Source Address
 
 1. getHost() - numeric, no name lookup
-2. getPort()
-3. getType() - IPv4, IPv6
-4. asString() "Type:Host:Port"
+1. getPort()
+1. getType() - IPv4, IPv6
+1. asString() "Type:Host:Port"
 
 
 ## 2.5. Derived Key
 
-1. getRaw() - implementation may forbid its use
-2. getBaseID()
-3. getSequenceID()
-4. encrypt( data ) - return Base64 data, implementation should limit max length
-5. decrypt( data ) - decrypt Base64 data, implementation should limit max length
-4. encryptAsync( AsyncSteps as, data ) - return Base64 data
-5. decryptAsync( AsyncSteps as, data ) - decrypt Base64 data
+1. getBaseID()
+1. getSequenceID()
+1. encrypt( data ) - return Base64 data, implementation should limit max length
+1. decrypt( data ) - decrypt Base64 data, implementation should limit max length
+1. encryptAsync( AsyncSteps as, data ) - return Base64 data
+1. decryptAsync( AsyncSteps as, data ) - decrypt Base64 data
 
 
 ## 2.6. General Async Step interface
@@ -190,11 +189,11 @@ still not complete, InternalError is automatically raised
 ## 2.8. Executor
 
 1. ccm() - get reference to Invoker CCM, if any
-2. addIface( ifacever, impl ) - add interface implementation
+1. register( ifacever, impl ) - add interface implementation
     * ifacever must be represented as FutoIn interface identifier and version, separated by colon ":"
     * impl is object derived from native interface or associative name for lazy loading
-3. process( AsyncSteps as, RequestInfo reqinfo ) - do full cycle of request processing, including all security checks
-4. checkAccess( AsyncSteps as, RequestInfo reqinfo, acd ) - shortcut to check access through #acl interface
+1. process( AsyncCompletion as, RequestInfo reqinfo ) - do full cycle of request processing, including all security checks
+1. checkAccess( AsyncCompletion as, acd ) - shortcut to check access through #acl interface
 
 
 
