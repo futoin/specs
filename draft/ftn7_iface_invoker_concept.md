@@ -97,22 +97,22 @@ Reference Invoker concept is built around [FTN12 Async API](./ftn12\_async\_api.
     * *ifacever* - iface identifier and its version separated by colon, see note below
     * *endpoint* - URI or any other resource identifier of iface implementing peer, accepted by CCM implementation
     * *$credentials* - optional, authentication credentials
-3. NativeIface iface( name )
+1. NativeIface iface( name )
     * Get native interface wrapper for invocation of iface methods
     * *name* - see register()
     * Note: it can have template/generic counterpart like iface<NativeImpl>() for strict type languages
-4. void unRegister( name )
+1. void unRegister( name )
     * unregister previously registered interface (should not be used, unless really needed)
     * *name* - see register()
-5. NativeDefenseIface defense() - shortcut to iface( "#defense" )
-6. NativeLogIface log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
-7. NativeBurstIface burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
-8. void assertIface( name, ifacever )
+1. NativeDefenseIface defense() - shortcut to iface( "#defense" )
+1. NativeLogIface log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
+1. NativeBurstIface burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
+1. void assertIface( name, ifacever )
     * Assert that interface registered by name matches major version and minor is not less than required.
     * This function must generate fatal error and forbid any further execution
     * *name* - see register()
     * *ifacever* - required interface and its version
-9. void alias( name, alias )
+1. void alias( name, alias )
     * Alias interface name with another name
     * *name* - as provided in register()
     * *alias* - register alias for *name*
@@ -172,26 +172,23 @@ than requested minor version.
 1. void call( AsyncSteps as, name, params )
     - generic FutoIn function call interface
     - result is passed through AsyncSteps.success() as a map
-3. iface() - return interface to introspect interface information:
-    1. name - get FutoIn interface type
-    2. version - get FutoIn interface version
-    3. inherits - get list of inherited interfaces starting from the most derived, may be null
-    4. funcs - get list of available functions, may be null
-    5. constraints - get list of interface constraints, may be null
-4. callData( AsyncSteps as, name, params, upload_data )
+1. void callData( AsyncSteps as, name, params, upload_data )
     * generic FutoIn asynchronous function call interface with data transfer
     * upload_data - map of input streams or buffers
     * Note: all data transfer requests must be done through separate communication channel
-5. burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
+1. InterfaceInfo iface() - return interface to introspect interface information:
+1. NativeBurstIface burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
+1. void bindDerivedKey( AsyncSteps as )
+    * results with DerivedKeyAccessor through as.success()
 
 
 ## 2.3. Derived Key accessing wrapper
 
-This interface is designed only if access to Derived Key is expected.
+The same interface can be used in parallel. This feature generated and
+binds specific DerivedKey for the following call.
 
-1. Constructor( iface ) - wrap iface and act as proxy
-2. getDerivedKey()
-3. *() - any function, calls underlying iface function, ensuring the right derived key in use
+1. derivedKey()
+1. *() - any function, calls underlying iface function, ensuring the right derived key in use
 
 ## 2.4. Derived Key
 
@@ -200,6 +197,15 @@ See [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)
 ## 2.5. AsyncSteps interface
 
 See [FTN12 Async API](./ftn12\_async\_api.md)
+
+## 2.5. InterfaceInfo
+
+1. name() - get FutoIn interface type
+1. version() - get FutoIn interface version
+1. inherits() - get list of inherited interfaces starting from the most derived, may be null
+1. funcs() - get list of available functions, may be null
+1. constraints() - get list of interface constraints, may be null
+
 
 # 3. Language/Platform-specific notes
 

@@ -156,33 +156,38 @@ than requested minor version.</p>
 <li>result is passed through AsyncSteps.success() as a map</li>
 </ul>
 </li>
-<li>iface() - return interface to introspect interface information:<ol>
-<li>name - get FutoIn interface type</li>
-<li>version - get FutoIn interface version</li>
-<li>inherits - get list of inherited interfaces starting from the most derived, may be null</li>
-<li>funcs - get list of available functions, may be null</li>
-<li>constraints - get list of interface constraints, may be null</li>
-</ol>
-</li>
-<li>callData( AsyncSteps as, name, params, upload_data )<ul>
+<li>void callData( AsyncSteps as, name, params, upload_data )<ul>
 <li>generic FutoIn asynchronous function call interface with data transfer</li>
 <li>upload_data - map of input streams or buffers</li>
 <li>Note: all data transfer requests must be done through separate communication channel</li>
 </ul>
 </li>
-<li>burst() - returns extended API interfaces defined in <a href="./ftn10\_burst\_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
+<li>InterfaceInfo iface() - return interface to introspect interface information:</li>
+<li>NativeBurstIface burst() - returns extended API interfaces defined in <a href="./ftn10\_burst\_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
+<li>void bindDerivedKey( AsyncSteps as )<ul>
+<li>results with DerivedKeyAccessor through as.success()</li>
+</ul>
+</li>
 </ol>
 <h2>2.3. Derived Key accessing wrapper</h2>
-<p>This interface is designed only if access to Derived Key is expected.</p>
+<p>The same interface can be used in parallel. This feature generated and
+binds specific DerivedKey for the following call.</p>
 <ol>
-<li>Constructor( iface ) - wrap iface and act as proxy</li>
-<li>getDerivedKey()</li>
+<li>derivedKey()</li>
 <li>*() - any function, calls underlying iface function, ensuring the right derived key in use</li>
 </ol>
 <h2>2.4. Derived Key</h2>
 <p>See <a href="./ftn6_iface_executor_concept.html">FTN6 Interface Executor Concept</a></p>
 <h2>2.5. AsyncSteps interface</h2>
 <p>See <a href="./ftn12_async_api.html">FTN12 Async API</a></p>
+<h2>2.5. InterfaceInfo</h2>
+<ol>
+<li>name() - get FutoIn interface type</li>
+<li>version() - get FutoIn interface version</li>
+<li>inherits() - get list of inherited interfaces starting from the most derived, may be null</li>
+<li>funcs() - get list of available functions, may be null</li>
+<li>constraints() - get list of interface constraints, may be null</li>
+</ol>
 <h1>3. Language/Platform-specific notes</h1>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>
 <h2>3.2. Python</h2>

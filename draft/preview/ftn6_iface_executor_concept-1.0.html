@@ -98,42 +98,46 @@ exceptions.</p>
 </ol>
 <h2>2.2. Request Info</h2>
 <ol>
-<li>request() - return reference to request parameter map</li>
-<li>response() - return reference to response parameter map</li>
-<li>info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):<ul>
-<li>X509_CN - validated x509 certificate CN field</li>
-<li>PUBKEY - public key, if present</li>
-<li>CLIENT_ADDR - IPv4, IPv6 or any other type of address</li>
-<li>USER_AGENT - User Agent, coming from HTTP headers or other source</li>
-<li>COOKIES - array of strings</li>
-<li>SECURE_CHANNEL - boolean</li>
-<li>UPLOAD_FILES - map of upload_name -&gt; file stream</li>
-<li>REQUEST_TIME_FLOAT - platform-specific reference of request creation time</li>
-<li>SECURITY_LEVEL - one of pre-defined security levels of current processing</li>
-<li>SOURCE_ADDRESS - source address of request external to current system
-    (e.g. without <em>trusted</em> reverse proxies, gateways, etc.)</li>
-<li>USER_INFO - user information object</li>
-</ul>
-</li>
-<li>error(name) - set request error and raise exception to complete execution</li>
-<li>getDerivedKey() - return associated derived key to be used in HMAC
-    and perhaps other places. Implementation may forbid its use.</li>
-<li>log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]</li>
-<li>files() - return map to uploaded temporary file streams</li>
-<li>rawoutput() - return raw output stream</li>
-<li>context() - get reference to Executor</li>
-<li>rawRequest() - get raw request data map</li>
-<li>rawResponse() - get raw response data map</li>
 <li>constants:<ul>
 <li>SL_ANONYMOUS = "Anonymous"</li>
 <li>SL_INFO = "Info"</li>
 <li>SL_SAFEOPS = "SafeOps"</li>
 <li>SL_PRIVLEGED_OPS = "PrivilegedOps"</li>
 <li>SL_EXCEPTIONAL_OPS = "ExceptionalOps"</li>
+<li>INFO_X509_CN - validated x509 certificate CN field</li>
+<li>INFO_PUBKEY - public key, if present</li>
+<li>INFO_CLIENT_ADDR - SourceAddress object of request external to current system
+    (e.g. without <em>trusted</em> reverse proxies, gateways, etc.)</li>
+<li>INFO_USER_AGENT - User Agent, coming from HTTP headers or other source</li>
+<li>INFO_COOKIES - array of strings</li>
+<li>INFO_SECURE_CHANNEL - boolean - is request coming through secure channel?</li>
+<li>INFO_UPLOAD_FILES - map of upload_name -&gt; file stream, if mandated by runtime (like PHP)</li>
+<li>INFO_REQUEST_TIME_FLOAT - platform-specific reference of request creation time</li>
+<li>INFO_SECURITY_LEVEL - one of pre-defined security levels of current processing</li>
+<li>INFO_USER_INFO - user information object</li>
 </ul>
 </li>
+<li>request() - return reference to request parameter map</li>
+<li>response() - return reference to response parameter map</li>
+<li>info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):</li>
+<li>error(name) - set request error and raise exception to complete execution</li>
+<li>derivedKey() - return associated derived key to be used in HMAC
+    and perhaps other places. Implementation may forbid its use.</li>
+<li>log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]</li>
+<li>rawinput() - return raw output stream</li>
+<li>rawoutput() - return raw output stream</li>
+<li>context() - get reference to Executor</li>
+<li>rawRequest() - get request object, representing FutoIn message</li>
+<li>rawResponse() - get response object, representing FutoIn message</li>
 <li>ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
     Invoker abort (disconnect)</li>
+<li>http_header( name, value [,override=true] ) - set HTTP response headers<ul>
+<li>should not be used in regular processing</li>
+<li><em>name</em> - HTTP header name</li>
+<li><em>value</em> - HTTP header value</li>
+<li><em>override</em> - boolean - Should any previously set header with the same $name be overridden?</li>
+</ul>
+</li>
 </ol>
 <h2>2.3. User info</h2>
 <ol>
@@ -157,6 +161,8 @@ exceptions.</p>
 <li>encryptAsync( AsyncSteps as, data ) - return Base64 data</li>
 <li>decryptAsync( AsyncSteps as, data ) - decrypt Base64 data</li>
 </ol>
+<p><em>Note: user must no rely that encrypt()/decrypt() can handle for than 8KB of data. Any
+implementation should support that limit</em></p>
 <h2>2.6. General Async Step interface</h2>
 <p>See <a href="./ftn12_async_api.html">FTN12 Async API</a></p>
 <h2>2.7. Async completion interface</h2>
