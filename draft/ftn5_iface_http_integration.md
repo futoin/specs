@@ -64,9 +64,20 @@ Use cases:
 
 * process request in Executor
 * write response body as (one of):
-    * JSON FutoIn response, if function has parameters
+    * JSON FutoIn response, if function has result variables
     * arbitrary large object (*Use Case #5*)
     * empty string (even though, there is no result, HTTP requires response)
+
+# 2.2. MIME-type
+
+FutoIn request and response messages must have *application/futoin+json* MIME-type. This type must be used
+ONLY for actual messages in Invoker-Executor dialog. In any other case, *application/json* should be used
+for messages.
+
+Implementation must refuse to parse JSON as request or response message, if corresponding HTTP
+headers do not have correct MIME-type.
+
+Invoker should assume *Use Case #5*, if response MIME-Type is not *application/futoin+json*.
 
 
 # 3. Misc. technical details
