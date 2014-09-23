@@ -169,13 +169,12 @@ than requested minor version.
 
 ## 2.2. Native FutoIn interface interface
 
-1. void call( AsyncSteps as, name, params )
-    - generic FutoIn function call interface
-    - result is passed through AsyncSteps.success() as a map
-1. void callData( AsyncSteps as, name, params, upload_data )
-    * generic FutoIn asynchronous function call interface with data transfer
-    * upload_data - map of input streams or buffers
-    * Note: all data transfer requests must be done through separate communication channel
+1. void call( AsyncSteps as, name, params [, upload_data [, download_stream]] )
+    * generic FutoIn function call interface
+    * result is passed through AsyncSteps.success() as a map
+    * upload_data - either raw data or input stream, if provided
+    * download_stream - output stream, if provided
+    * Note: data transfer requests must not interleave with non-data calls, if parallel processing is possible
 1. InterfaceInfo iface() - return interface to introspect interface information:
 1. NativeBurstIface burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
 1. void bindDerivedKey( AsyncSteps as )

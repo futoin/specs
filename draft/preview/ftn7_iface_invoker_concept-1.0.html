@@ -151,15 +151,12 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1".</p>
 than requested minor version.</p>
 <h2>2.2. Native FutoIn interface interface</h2>
 <ol>
-<li>void call( AsyncSteps as, name, params )<ul>
+<li>void call( AsyncSteps as, name, params [, upload_data [, download_stream]] )<ul>
 <li>generic FutoIn function call interface</li>
 <li>result is passed through AsyncSteps.success() as a map</li>
-</ul>
-</li>
-<li>void callData( AsyncSteps as, name, params, upload_data )<ul>
-<li>generic FutoIn asynchronous function call interface with data transfer</li>
-<li>upload_data - map of input streams or buffers</li>
-<li>Note: all data transfer requests must be done through separate communication channel</li>
+<li>upload_data - either raw data or input stream, if provided</li>
+<li>download_stream - output stream, if provided</li>
+<li>Note: data transfer requests must not interleave with non-data calls, if parallel processing is possible</li>
 </ul>
 </li>
 <li>InterfaceInfo iface() - return interface to introspect interface information:</li>

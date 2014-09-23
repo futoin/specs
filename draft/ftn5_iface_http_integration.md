@@ -33,7 +33,7 @@ Use cases:
 # 2. Use case auto-detection
 
 * If request URI exactly matches Executor's end-point URI:
-    * case if GET
+    * case if POST
         * *Use Case #1*
         * read request body as JSON FutoIn request
         * process (see below)
@@ -143,3 +143,5 @@ In case if the same request parameter tree node is used in different contexts
 
 
 [RFC3986]: http://www.ietf.org/rfc/rfc3986.txt "Uniform Resource Identifier (URI): Generic Syntax"
+
+=END OF SPEC=

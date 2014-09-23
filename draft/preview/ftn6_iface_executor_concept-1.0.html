@@ -141,21 +141,25 @@ exceptions.</p>
 </ol>
 <h2>2.3. User info</h2>
 <ol>
-<li>getLocalID() - get user ID as seen by trusted AuthService (integer)</li>
-<li>getGlobalID() - get globally unique user ID (string)</li>
-<li>getXYZ() - where XYZ is standard field identifier, like FirstName, DateOfBirth, AvatarURL, etc.</li>
+<li>localID() - get user ID as seen by trusted AuthService (string)</li>
+<li>globalID() - get globally unique user ID (string)</li>
+<li>details( AsyncCompletion async_compl, array user_field_identifiers )<ul>
+<li>Request more detailed user information gets available</li>
+<li>Note: executor implementation should cache it at least in scope of current request processing</li>
+</ul>
+</li>
 </ol>
 <h2>2.4. Source Address</h2>
 <ol>
-<li>getHost() - numeric, no name lookup</li>
-<li>getPort()</li>
-<li>getType() - IPv4, IPv6</li>
+<li>host() - numeric, no name lookup</li>
+<li>port()</li>
+<li>type() - IPv4, IPv6</li>
 <li>asString() "Type:Host:Port"</li>
 </ol>
 <h2>2.5. Derived Key</h2>
 <ol>
-<li>getBaseID()</li>
-<li>getSequenceID()</li>
+<li>baseID()</li>
+<li>sequenceID()</li>
 <li>encrypt( data ) - return Base64 data, implementation should limit max length</li>
 <li>decrypt( data ) - decrypt Base64 data, implementation should limit max length</li>
 <li>encryptAsync( AsyncSteps as, data ) - return Base64 data</li>
@@ -179,13 +183,18 @@ still not complete, InternalError is automatically raised</p>
 <li>impl is object derived from native interface or associative name for lazy loading</li>
 </ul>
 </li>
-<li>process( AsyncCompletion as, RequestInfo reqinfo ) - do full cycle of request processing, including all security checks</li>
-<li>checkAccess( AsyncCompletion as, acd ) - shortcut to check access through #acl interface</li>
+<li>process( AsyncCompletion async_completion ) - do full cycle of request processing, including all security checks</li>
+<li>checkAccess( AsyncCompletion async_completion, acd ) - shortcut to check access through #acl interface</li>
 </ol>
+<h2>2.9. Interface Implementation</h2>
+<p>No public members</p>
 <h1>3. Language/Platform-specific notes</h1>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>
 <h2>3.2. Python</h2>
 <h2>3.3. PHP</h2>
+<ul>
+<li>Uses INFO_UPLOAD_FILES by design of PHP</li>
+</ul>
 <h2>3.4. C++</h2>
 <p>=END OF SPEC=</p>
 </body></html>

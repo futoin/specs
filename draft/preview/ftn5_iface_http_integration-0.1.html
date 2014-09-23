@@ -35,7 +35,7 @@ of Web technologies in scope of Enterprise solutions.</p>
 <h1>2. Use case auto-detection</h1>
 <ul>
 <li>If request URI exactly matches Executor's end-point URI:<ul>
-<li>case if GET<ul>
+<li>case if POST<ul>
 <li><em>Use Case #1</em></li>
 <li>read request body as JSON FutoIn request</li>
 <li>process (see below)</li>
@@ -84,12 +84,19 @@ of Web technologies in scope of Enterprise solutions.</p>
 <ul>
 <li>process request in Executor</li>
 <li>write response body as (one of):<ul>
-<li>JSON FutoIn response, if function has parameters</li>
+<li>JSON FutoIn response, if function has result variables</li>
 <li>arbitrary large object (<em>Use Case #5</em>)</li>
 <li>empty string (even though, there is no result, HTTP requires response)</li>
 </ul>
 </li>
 </ul>
+<h1>2.2. MIME-type</h1>
+<p>FutoIn request and response messages must have <em>application/futoin+json</em> MIME-type. This type must be used
+ONLY for actual messages in Invoker-Executor dialog. In any other case, <em>application/json</em> should be used
+for messages.</p>
+<p>Implementation must refuse to parse JSON as request or response message, if corresponding HTTP
+headers do not have correct MIME-type.</p>
+<p>Invoker should assume <em>Use Case #5</em>, if response MIME-Type is not <em>application/futoin+json</em>.</p>
 <h1>3. Misc. technical details</h1>
 <p>URI is assumed as defined in its <a href="http://www.ietf.org/rfc/rfc3986.txt" title="Uniform Resource Identifier (URI): Generic Syntax">RFC3986</a> or any later version.</p>
 <p><em>Note: Executor must behave equally with or without trailing slash in URI path part.</em></p>
@@ -130,4 +137,5 @@ dot "." as separator right after parent node name.</p>
 <h2>3.4. Conflicts in passed parameters</h2>
 <p>In case if the same request parameter tree node is used in different contexts
 (as leaf, as object or as array). Executor must rise InvalidRequest.</p>
+<p>=END OF SPEC=</p>
 </body></html>
