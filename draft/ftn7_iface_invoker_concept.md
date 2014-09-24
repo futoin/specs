@@ -166,6 +166,16 @@ Example: "futoin.master.service:1.0", "futoin.master.service:2.1".
 Invoker implementation must ensure that major versions match and registered minor version is not less
 than requested minor version.
 
+### 2.1.3. End point URL
+
+The following URL schemes should be supported:
+
+* http://
+* https://
+* ws:// - with automatic fallback to http://, if not supported by Invoker implementation
+* wss// - with automatic fallback to https://, if not supported by Invoker implementation 
+* "self://" - implemented in scope of the same Executor, when used as CCM for Executor
+
 
 ## 2.2. Native FutoIn interface interface
 

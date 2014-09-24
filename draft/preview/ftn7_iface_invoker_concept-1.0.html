@@ -149,6 +149,15 @@ ComponentB.init()
 Example: "futoin.master.service:1.0", "futoin.master.service:2.1".</p>
 <p>Invoker implementation must ensure that major versions match and registered minor version is not less
 than requested minor version.</p>
+<h3>2.1.3. End point URL</h3>
+<p>The following URL schemes should be supported:</p>
+<ul>
+<li>http://</li>
+<li>https://</li>
+<li>ws:// - with automatic fallback to http://, if not supported by Invoker implementation</li>
+<li>wss// - with automatic fallback to https://, if not supported by Invoker implementation </li>
+<li>"self://" - implemented in scope of the same Executor, when used as CCM for Executor</li>
+</ul>
 <h2>2.2. Native FutoIn interface interface</h2>
 <ol>
 <li>void call( AsyncSteps as, name, params [, upload_data [, download_stream]] )<ul>
