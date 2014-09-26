@@ -1,6 +1,7 @@
 <pre>
 FTN6: FutoIn Invoker Concept
-Version: 1.DV0
+Version: 1.0
+Date: 2014-09-26
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -43,11 +44,11 @@ Invoker implementation concept.
 
 ### 1.1.2. Pre-defined interfaces names:
 
-* "#resolver" - end-point for runtime resolution
-* "#auth" - AuthService end-point
-* "#defense" - defense system end-point
-* "#acl" - access control system end-point
-* "#log" - audit logging end-point
+* "#resolver" - end-point for runtime resolution v1.x
+* "#auth" - AuthService end-point v1.x
+* "#defense" - defense system end-point v1.x
+* "#acl" - access control system end-point v1.x
+* "#log" - audit logging end-point v1.x
 
 # 1.2. Type and identifier safety
 
@@ -193,7 +194,7 @@ The following URL schemes should be supported:
 
 ## 2.3. Derived Key accessing wrapper
 
-The same interface can be used in parallel. This feature generated and
+The same interface can be used in parallel. This feature generates and
 binds specific DerivedKey for the following call.
 
 1. derivedKey()
