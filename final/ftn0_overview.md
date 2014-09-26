@@ -17,7 +17,7 @@ Authors: Andrey Galkin
 
 # 3. Language and Platform specific interface concept
 * NOT YET FINAL: [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)
-* NOT YET FINAL: [FTN7 Interface Invoker Concept](./ftn7\_iface\_invoker\_concept.md)
+* [FTN7 Interface Invoker Concept](./ftn7\_iface\_invoker\_concept.md)
 * NOT YET FINAL: [FTN10 Burst Calls](./ftn10\_burst\_calls.md)
 * [FTN12 Async API](./ftn12\_async\_api.md)
 * NOT YET FINAL: [FTN11 Implementation Feature Requirements ](./ftn11\_implementation\_feature\_requirements.md)
@@ -35,3 +35,4 @@ Authors: Andrey Galkin
 * NOT YET FINAL: [FTN4 IF Ping](./ftn4\_if\_ping.md)
 * NOT YET FINAL: [FTN10 IF Burst](./ftn10\_burst\_calls.md)
 
+=END OF SPEC=

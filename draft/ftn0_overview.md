@@ -35,3 +35,4 @@ Authors: Andrey Galkin
 * [FTN4 IF Ping](./ftn4\_if\_ping.md)
 * [FTN10 IF Burst](./ftn10\_burst\_calls.md)
 
+=END OF SPEC=
