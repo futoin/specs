@@ -7,6 +7,7 @@
 <pre>
 FTN6: FutoIn Executor Concept
 Version: 1.DV0
+Date: 2014-09-26
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -53,14 +54,14 @@ Client          ||  Executor           Implementation
 </li>
 </ol>
 <p>Executor should be tighly integrated with MasterService implementation, if supported.
-It is required almost for each request to validate and generate HMAC.</p>
-<p>Executor should also integrate with AuthService consumer.</p>
+General FutoIn message verification should be based on HMAC checking.</p>
+<p>Executor should also integrate with AuthService as consumer.</p>
 <p><em>Note: Executor is allowed to pass control to implementation only if requested major version of
 interfaces exactly matches implemented version and minor version is greater than or equal
 to requested minor version.</em></p>
 <p>All actions are implemented through AsyncSteps interface (<a href="./ftn12_async_api.html">FTN12: Async API</a>).
 For backward compatibility and/or complex logic, it is possible to make blocking
-implementation. Such implementations run in dedicated worker threads and receive only RequestInfo
+implementation. Such implementations run in dedicated worker threads/processes and receive only RequestInfo
 object reference.</p>
 <p>All true asynchronous implementation must implement special FutoIn AsyncImplementation interface to
 clearly distinguish more advanced one.</p>
@@ -74,8 +75,9 @@ convention into native interfaces, which can depend only on
 standard runtime and native language/platform-specific interfaces
 of Executor and related objects.</p>
 <h1>2. Native Executor interface requirements</h1>
-<p>Language/platform must support runtime introspection and
-exceptions.</p>
+<p>Language/platform should support runtime introspection and
+exceptions. For other cases, platform/language-specific workarounds
+are assumed.</p>
 <h2>2.1. FutoIn interface</h2>
 <ol>
 <li>Each FutoIn interfaces is represented as simple native
@@ -111,8 +113,7 @@ exceptions.</p>
 <li>INFO_USER_AGENT - User Agent, coming from HTTP headers or other source</li>
 <li>INFO_COOKIES - array of strings</li>
 <li>INFO_SECURE_CHANNEL - boolean - is request coming through secure channel?</li>
-<li>INFO_UPLOAD_FILES - map of upload_name -&gt; file stream, if mandated by runtime (like PHP)</li>
-<li>INFO_REQUEST_TIME_FLOAT - platform-specific reference of request creation time</li>
+<li>INFO_REQUEST_TIME_FLOAT - platform-specific timestamp of request processing start</li>
 <li>INFO_SECURITY_LEVEL - one of pre-defined security levels of current processing</li>
 <li>INFO_USER_INFO - user information object</li>
 </ul>
@@ -122,10 +123,10 @@ exceptions.</p>
 <li>info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):</li>
 <li>error(name) - set request error and raise exception to complete execution</li>
 <li>derivedKey() - return associated derived key to be used in HMAC
-    and perhaps other places. Implementation may forbid its use.</li>
+    and perhaps other places. Implementation may forbid its use. Note: can be null</li>
 <li>log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]</li>
-<li>rawinput() - return raw output stream</li>
-<li>rawoutput() - return raw output stream</li>
+<li>rawInput() - return raw input stream or null, if FutoIn request comes in that stream</li>
+<li>rawOutput() - return raw output stream (no result variables are expected)</li>
 <li>context() - get reference to Executor</li>
 <li>rawRequest() - get request object, representing FutoIn message</li>
 <li>rawResponse() - get response object, representing FutoIn message</li>
@@ -160,17 +161,13 @@ exceptions.</p>
 <ol>
 <li>baseID()</li>
 <li>sequenceID()</li>
-<li>encrypt( data ) - return Base64 data, implementation should limit max length</li>
-<li>decrypt( data ) - decrypt Base64 data, implementation should limit max length</li>
-<li>encryptAsync( AsyncSteps as, data ) - return Base64 data</li>
-<li>decryptAsync( AsyncSteps as, data ) - decrypt Base64 data</li>
+<li>encrypt( AsyncSteps as, data ) - return Base64 data</li>
+<li>decrypt( AsyncSteps as, data ) - decrypt Base64 data</li>
 </ol>
-<p><em>Note: user must no rely that encrypt()/decrypt() can handle for than 8KB of data. Any
-implementation should support that limit</em></p>
 <h2>2.6. General Async Step interface</h2>
 <p>See <a href="./ftn12_async_api.html">FTN12 Async API</a></p>
 <h2>2.7. Async completion interface</h2>
-<p>AsyncCompletion inherits from AsyncSteps interface. When all steps are executed and request info is
+<p>AsyncCompletion inherits from <em>AsyncSteps</em> interface. When all steps are executed and request info is
 still not complete, InternalError is automatically raised</p>
 <ol>
 <li>reqinfo() - return reference to original request info</li>
@@ -192,9 +189,6 @@ still not complete, InternalError is automatically raised</p>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>
 <h2>3.2. Python</h2>
 <h2>3.3. PHP</h2>
-<ul>
-<li>Uses INFO_UPLOAD_FILES by design of PHP</li>
-</ul>
 <h2>3.4. C++</h2>
 <p>=END OF SPEC=</p>
 </body></html>

@@ -362,6 +362,10 @@ Using [JSON-SCHEMA][]:
                                     },
                                     "description" : "List of allowed result key-value pairs"
                                 },
+                                "rawresult" : {
+                                    "type" : "boolean",
+                                    "desc" : "If set then no FutoIn response is assumed. Arbitrary raw data is sent instead."
+                                },
                                 "throws" : {
                                     "type" : "array",
                                     "uniqueItems": true,

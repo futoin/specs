@@ -1,6 +1,7 @@
 <pre>
 FTN6: FutoIn Executor Concept
 Version: 1.DV0
+Date: 2014-09-26
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -56,9 +57,9 @@ Executor is responsible for (actions are done in AsyncSteps):
 
 
 Executor should be tighly integrated with MasterService implementation, if supported.
-It is required almost for each request to validate and generate HMAC.
+General FutoIn message verification should be based on HMAC checking.
 
-Executor should also integrate with AuthService consumer.
+Executor should also integrate with AuthService as consumer.
 
 *Note: Executor is allowed to pass control to implementation only if requested major version of
 interfaces exactly matches implemented version and minor version is greater than or equal
@@ -67,7 +68,7 @@ to requested minor version.*
 
 All actions are implemented through AsyncSteps interface ([FTN12: Async API](./ftn12\_async\_api.md)).
 For backward compatibility and/or complex logic, it is possible to make blocking
-implementation. Such implementations run in dedicated worker threads and receive only RequestInfo
+implementation. Such implementations run in dedicated worker threads/processes and receive only RequestInfo
 object reference.
 
 All true asynchronous implementation must implement special FutoIn AsyncImplementation interface to
@@ -89,8 +90,9 @@ of Executor and related objects.
 
 # 2. Native Executor interface requirements
 
-Language/platform must support runtime introspection and
-exceptions.
+Language/platform should support runtime introspection and
+exceptions. For other cases, platform/language-specific workarounds
+are assumed.
 
 
 ## 2.1. FutoIn interface
@@ -128,8 +130,7 @@ exceptions.
     * INFO_USER_AGENT - User Agent, coming from HTTP headers or other source
     * INFO_COOKIES - array of strings
     * INFO_SECURE_CHANNEL - boolean - is request coming through secure channel?
-    * INFO_UPLOAD_FILES - map of upload_name -> file stream, if mandated by runtime (like PHP)
-    * INFO_REQUEST_TIME_FLOAT - platform-specific reference of request creation time
+    * INFO_REQUEST_TIME_FLOAT - platform-specific timestamp of request processing start
     * INFO_SECURITY_LEVEL - one of pre-defined security levels of current processing
     * INFO_USER_INFO - user information object
 1. request() - return reference to request parameter map
@@ -137,10 +138,10 @@ exceptions.
 1. info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
 1. error(name) - set request error and raise exception to complete execution
 1. derivedKey() - return associated derived key to be used in HMAC
-    and perhaps other places. Implementation may forbid its use.
+    and perhaps other places. Implementation may forbid its use. Note: can be null
 1. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
-1. rawinput() - return raw output stream
-1. rawoutput() - return raw output stream
+1. rawInput() - return raw input stream or null, if FutoIn request comes in that stream
+1. rawOutput() - return raw output stream (no result variables are expected)
 1. context() - get reference to Executor
 1. rawRequest() - get request object, representing FutoIn message
 1. rawResponse() - get response object, representing FutoIn message
@@ -174,13 +175,8 @@ exceptions.
 
 1. baseID()
 1. sequenceID()
-1. encrypt( data ) - return Base64 data, implementation should limit max length
-1. decrypt( data ) - decrypt Base64 data, implementation should limit max length
-1. encryptAsync( AsyncSteps as, data ) - return Base64 data
-1. decryptAsync( AsyncSteps as, data ) - decrypt Base64 data
-
-*Note: user must no rely that encrypt()/decrypt() can handle for than 8KB of data. Any
-implementation should support that limit*
+1. encrypt( AsyncSteps as, data ) - return Base64 data
+1. decrypt( AsyncSteps as, data ) - decrypt Base64 data
 
 
 ## 2.6. General Async Step interface
@@ -190,7 +186,7 @@ See [FTN12 Async API](./ftn12\_async\_api.md)
 
 ## 2.7. Async completion interface
 
-AsyncCompletion inherits from AsyncSteps interface. When all steps are executed and request info is
+AsyncCompletion inherits from *AsyncSteps* interface. When all steps are executed and request info is
 still not complete, InternalError is automatically raised
 
 1. reqinfo() - return reference to original request info
@@ -217,8 +213,6 @@ No public members
 ## 3.2. Python
 
 ## 3.3. PHP
-
-* Uses INFO_UPLOAD_FILES by design of PHP
 
 ## 3.4. C++
 
