@@ -12,6 +12,16 @@ Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
+<h1>CHANGES</h1>
+<ul>
+<li>v1.1<ul>
+<li>Added FTN14 Cache support</li>
+<li>Clarified "credentials" parameter</li>
+<li>Clarified "self://" scheme</li>
+<li>Added AdvancedCCM-specific startup optimization extensions</li>
+</ul>
+</li>
+</ul>
 <h1>Warning</h1>
 <p>This specification IS NOT mandatory. It is just a reference model.
 Any implementation IS ALLOWED to provide own architecture with
@@ -129,7 +139,7 @@ issues.</p>
 <li>Note: Cache L1 needs to be registered first</li>
 </ul>
 </li>
-<li>void cacheReg()<ul>
+<li>void cacheReg( AsyncSteps as )<ul>
 <li>call after all registrations are done to cache them</li>
 </ul>
 </li>
@@ -201,6 +211,14 @@ than requested minor version.</p>
 <li>NativeBurstIface burst() - returns extended API interfaces defined in <a href="./ftn10\_burst\_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
 <li>void bindDerivedKey( AsyncSteps as )<ul>
 <li>results with DerivedKeyAccessor through as.success()</li>
+</ul>
+</li>
+</ol>
+<p>Advanced CCM:</p>
+<ol>
+<li>void <em>member_call_intercept</em>( AsyncSteps as, param1, param2, param3 )<ul>
+<li>Platform/Language-specific interception of undefined method calls, converting to
+NativeInterface.call()</li>
 </ul>
 </li>
 </ol>

@@ -6,6 +6,15 @@ Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
+# CHANGES
+
+* v1.1
+    * Added FTN14 Cache support
+    * Clarified "credentials" parameter
+    * Clarified "self://" scheme
+    * Added AdvancedCCM-specific startup optimization extensions
+
+
 # Warning
 
 This specification IS NOT mandatory. It is just a reference model.
@@ -135,7 +144,7 @@ Advanced CCM extensions:
     * *cache_l1_endpoint* - end-point URL for Cache L1
     * returns true, if successfully initialized from cache (no need to register interfaces)
     * Note: Cache L1 needs to be registered first
-1. void cacheReg()
+1. void cacheReg( AsyncSteps as )
     * call after all registrations are done to cache them
 
 ### 2.1.1. Unique interface name in CCM instance (*name*)
@@ -211,6 +220,12 @@ The following URL schemes should be supported:
 1. NativeBurstIface burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
 1. void bindDerivedKey( AsyncSteps as )
     * results with DerivedKeyAccessor through as.success()
+
+Advanced CCM:
+
+1. void _member_call_intercept_( AsyncSteps as, param1, param2, param3 )
+    * Platform/Language-specific interception of undefined method calls, converting to
+    NativeInterface.call()
 
 
 ## 2.3. Derived Key accessing wrapper
