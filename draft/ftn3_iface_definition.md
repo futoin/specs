@@ -362,6 +362,10 @@ Using [JSON-SCHEMA][]:
                                     },
                                     "description" : "List of allowed result key-value pairs"
                                 },
+                                "rawupload" : {
+                                    "type" : "boolean",
+                                    "desc" : "If not set then arbitrary data upload is not allowed."
+                                },
                                 "rawresult" : {
                                     "type" : "boolean",
                                     "desc" : "If set then no FutoIn response is assumed. Arbitrary raw data is sent instead."
@@ -492,6 +496,7 @@ Inheritance is limited to:
 * Adding additional result fields to existing result variables
     * Invoker must ignore additional result variables, if function
     is called through parent interface (it should ignore additional result variable in general)
+    * Note: it is not allowed to change "rawresult" flag
 
 *Note: multiple interface inheritance is not supported at the moment*
 

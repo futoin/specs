@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Invoker Concept
-Version: 1.0
+Version: 1.DV1
 Date: 2014-09-26
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -44,11 +44,14 @@ Invoker implementation concept.
 
 ### 1.1.2. Pre-defined interfaces names:
 
-* "#resolver" - end-point for runtime resolution v1.x
-* "#auth" - AuthService end-point v1.x
-* "#defense" - defense system end-point v1.x
-* "#acl" - access control system end-point v1.x
-* "#log" - audit logging end-point v1.x
+* "#resolver" - Runtime Iface Resolver v1.x
+* "#auth" - AuthService v1.x
+* "#defense" - Defense system v1.x
+* "#acl" - Access Control system v1.x
+* "#log" - Audit Logging v1.x
+* "#cachel1" - cache v1.x (fast local, but small)
+* "#cachel2" - cache v1.x (slower local, but large)
+* "#cachel3" - cache v1.x (much slower and much larger)
 
 # 1.2. Type and identifier safety
 
@@ -91,13 +94,18 @@ Reference Invoker concept is built around [FTN12 Async API](./ftn12\_async\_api.
 
 ## 2.1. Connection and Credentials Manager
 
+Simple CCM:
+
 1. void register( AsyncSteps as, name, ifacever, endpoint [, $credentials] )
     * register standard MasterService end-point (adds steps to *as*)
     * *as* - AsyncSteps instance as registration may be blocking on external resources
     * *name* - unique identifier in scope of CCM instance
     * *ifacever* - iface identifier and its version separated by colon, see note below
     * *endpoint* - URI or any other resource identifier of iface implementing peer, accepted by CCM implementation
-    * *$credentials* - optional, authentication credentials
+    * *$credentials* - optional, authentication credentials (string)
+        * 'master' - enable MasterService authentication logic (Advanced CCM only)
+        * '{user}:{clear-text-password}' - send as is in the 'sec' section
+        * NOTE: some more reserved words and/or patterns can appear in the future
 1. NativeIface iface( name )
     * Get native interface wrapper for invocation of iface methods
     * *name* - see register()
@@ -106,8 +114,11 @@ Reference Invoker concept is built around [FTN12 Async API](./ftn12\_async\_api.
     * unregister previously registered interface (should not be used, unless really needed)
     * *name* - see register()
 1. NativeDefenseIface defense() - shortcut to iface( "#defense" )
-1. NativeLogIface log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
-1. NativeBurstIface burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
+1. NativeLogIface log() - returns extended API interface as defined in [FTN9 IF AuditLogService][]
+1. NativeBurstIface burst() - returns extended API interface as defined in [FTN10 Burst Calls][]
+1. NativeCacheIface cache_l1() - returns extended API interface as defined in [FTN14 Cache][]
+1. NativeCacheIface cache_l2() - returns extended API interface as defined in [FTN14 Cache][]
+1. NativeCacheIface cache_l3() - returns extended API interface as defined in [FTN14 Cache][]
 1. void assertIface( name, ifacever )
     * Assert that interface registered by name matches major version and minor is not less than required.
     * This function must generate fatal error and forbid any further execution
@@ -117,6 +128,15 @@ Reference Invoker concept is built around [FTN12 Async API](./ftn12\_async\_api.
     * Alias interface name with another name
     * *name* - as provided in register()
     * *alias* - register alias for *name*
+
+Advanced CCM extensions:
+
+1. boolean initRegFromCache( AsyncSteps as, cache_l1_endpoint )
+    * *cache_l1_endpoint* - end-point URL for Cache L1
+    * returns true, if successfully initialized from cache (no need to register interfaces)
+    * Note: Cache L1 needs to be registered first
+1. void cacheReg()
+    * call after all registrations are done to cache them
 
 ### 2.1.1. Unique interface name in CCM instance (*name*)
 
@@ -175,7 +195,8 @@ The following URL schemes should be supported:
 * https://
 * ws:// - with automatic fallback to http://, if not supported by Invoker implementation
 * wss// - with automatic fallback to https://, if not supported by Invoker implementation 
-* "self://" - implemented in scope of the same Executor, when used as CCM for Executor
+* self:// - implemented in scope of the same Executor, when used as CCM for Executor
+    * The rest is implementation-defined name/pointer to implementation
 
 
 ## 2.2. Native FutoIn interface interface
@@ -230,6 +251,7 @@ See [FTN12 Async API](./ftn12\_async\_api.md)
 
 [FTN9 IF AuditLogService]: ./ftn9\_if\_auditlog.md "FTN9 Interface - AuditLog"
 [FTN10 Burst Calls]: ./ftn10\_burst\_calls.md "FTN10 Burst Calls"
+[FTN14 Cache]: ./ftn14\_cache.md "FTN14 Cache"
 
 
 =END OF SPEC=
