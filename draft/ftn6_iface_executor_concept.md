@@ -193,11 +193,15 @@ still not complete, InternalError is automatically raised
 ## 2.8. Executor
 
 1. ccm() - get reference to Invoker CCM, if any
-1. register( ifacever, impl ) - add interface implementation
+1. register( AsyncSteps as, ifacever, impl ) - add interface implementation
     * ifacever must be represented as FutoIn interface identifier and version, separated by colon ":"
     * impl is object derived from native interface or associative name for lazy loading
 1. process( AsyncCompletion async_completion ) - do full cycle of request processing, including all security checks
 1. checkAccess( AsyncCompletion async_completion, acd ) - shortcut to check access through #acl interface
+1. initFromCache( AsyncSteps as )
+    * load initialization from cache
+1. cacheInit( AsyncSteps as )
+    * store initialization to cache
 
 
 ## 2.9. Interface Implementation

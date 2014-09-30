@@ -174,13 +174,21 @@ still not complete, InternalError is automatically raised</p>
 <h2>2.8. Executor</h2>
 <ol>
 <li>ccm() - get reference to Invoker CCM, if any</li>
-<li>register( ifacever, impl ) - add interface implementation<ul>
+<li>register( AsyncSteps as, ifacever, impl ) - add interface implementation<ul>
 <li>ifacever must be represented as FutoIn interface identifier and version, separated by colon ":"</li>
 <li>impl is object derived from native interface or associative name for lazy loading</li>
 </ul>
 </li>
 <li>process( AsyncCompletion async_completion ) - do full cycle of request processing, including all security checks</li>
 <li>checkAccess( AsyncCompletion async_completion, acd ) - shortcut to check access through #acl interface</li>
+<li>initFromCache( AsyncSteps as )<ul>
+<li>load initialization from cache</li>
+</ul>
+</li>
+<li>cacheInit( AsyncSteps as )<ul>
+<li>store initialization to cache</li>
+</ul>
+</li>
 </ol>
 <h2>2.9. Interface Implementation</h2>
 <p>No public members</p>

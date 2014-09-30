@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Invoker Concept
-Version: 1.1
+Version: 1.DV2
 Date: 2014-09-30
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -140,11 +140,11 @@ Simple CCM:
 
 Advanced CCM extensions:
 
-1. boolean initRegFromCache( AsyncSteps as, cache_l1_endpoint )
+1. boolean initFromCache( AsyncSteps as, cache_l1_endpoint )
     * *cache_l1_endpoint* - end-point URL for Cache L1
     * returns true, if successfully initialized from cache (no need to register interfaces)
     * Note: Cache L1 needs to be registered first
-1. void cacheReg( AsyncSteps as )
+1. void cacheInit( AsyncSteps as )
     * call after all registrations are done to cache them
 
 ### 2.1.1. Unique interface name in CCM instance (*name*)
