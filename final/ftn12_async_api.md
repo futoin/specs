@@ -1,7 +1,7 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.1
-Date: 2014-09-07
+Version: 1.2
+Date: 2014-09-30
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -10,6 +10,10 @@ Authors: Andrey Galkin
 
 * v1.1
     * Added cloning concept and requirements
+* v1.2
+    * Added concept of successStep()
+    * Added "error_info" convention
+    * Changed behavior of as.error() to throw exception (not backward-compatible, but more like a bugfix)
 
 # 1. Concept
 
@@ -282,6 +286,53 @@ Example:
 
 However, this approach only make sense for deep performance optimizations.
 
+## 1.6. "Success Step" and Throw
+
+During development, when step flow is not known at coding time, but dynamically resolved
+based on configuration, internal state, etc., it is common to see the following logic:
+
+    as.add(func( as ){
+        someHelperA( as ); // adds sub-step
+        someHelperB( as ); // does nothing
+        
+        // Not effective
+        as.add(func( as ){
+            as->success();
+        })
+    })
+    
+The idea is that is it not known in advance if someHelper*() adds sub-steps or not. However, we must ensure
+that a) only one success() call is yield b) there are no sub-steps. 
+
+To make this elegant and efficient, a "success step" concept can be introduced:
+
+    as.add(func( as ){
+        someHelperA( as ); // adds sub-step
+        someHelperB( as ); // does nothing
+        
+        // Runtime optimized
+        as.successStep();
+    })
+    
+As a counterpart for error handling, we must ensure that execution has stopped after error
+is triggered in someHelper*() with no enclosing sub-step. The only safe way is to throw exception
+what is now done in as.error()
+
+### 1.6.1. Safety Rules of "Success" and "Error"
+
+1. as.success() should be called only in top-most function of the
+    step (the one passed to as.add() directly)
+1. if top-most functions calls abstract helpers then it should call as.successStep()
+    for safe and efficient successful termination
+
+
+## 1.7. Error Info
+
+Error code is not always descriptive enough, especially, if it can be generated in multiple ways.
+As a convention special "error_info" state field should hold descriptive information of the last error.
+
+For convenience, error() is extended with optional parameter error_info
+
 
 # 2. Async Steps API
 
@@ -319,39 +370,44 @@ However, this approach only make sense for deep performance optimizations.
     * can be called multiple times to add sub-steps of the same level (sequential execution)
     * steps are queued in the same execution level (sub-steps create a new level)
     * returns current level AsyncSteps object accessor
-2. *AsyncSteps parallel( [error_callback onerror] )*
+1. *AsyncSteps parallel( [error_callback onerror] )*
     * creates a step and returns specialization of AsyncSteps interface
         * all add()'ed sub-steps are executed in parallel (not strictly required)
         * the next step in current level is executed only when all parallel steps complete
         * sub-steps of parallel steps follow normal sequential semantics
         * success() does not allow any arguments - use state() to pass results
-3. *void success( [result_arg, ...] )*
+1. *void success( [result_arg, ...] )*
     * successfully complete current step execution. Should be called from func()
-4. *void error( name )*
+1. *void successStep()*
+    * efficiently add as.success() call or a sub-step with as.success()
+        call, if there are other sub-steps added
+    * run-time should optimize the sub-step case
+1. *void error( name [, error_info] )*
     * complete with error
-    * does NOT throw exception/abort execution
-    * calls onerror( async_iface, name )
-4. *Map state()*
+    * throws FutoIn.Error exception
+    * calls onerror( async_iface, name ) after returning to execution engine
+    * *error_info* - assigned to "error_info" state field
+1. *Map state()*
     * returns reference to map/object, which can be populated with arbitrary state values
-6. *void setTimeout( timeout_ms )*
+1. *void setTimeout( timeout_ms )*
     * inform execution engine to wait for either success() or error()
     for specified timeout in ms. On timeout, error("Timeout") is called
-7. *call operator overloading*
+1. *call operator overloading*
     * if supported by language/platform, alias for success()
-8. *void setCancel( cancel_callback oncancel )*
+1. *void setCancel( cancel_callback oncancel )*
     * set callback, to be used to cancel execution
-9. *get/set/exists/unset* wildcard accessor, which map to state() variables
+1. *get/set/exists/unset* wildcard accessor, which map to state() variables
     * only if supported by language/platform
-10. *execute()* - must be called only once after Level 0 steps are configured.
+1. *execute()* - must be called only once after Level 0 steps are configured.
     * Initiates AsyncSteps execution implementation-defined way
-11. *clone*/*copy c-tor* - implementation-defined way of cloning AsyncSteps object
-12. *AsyncSteps copyFrom( AsyncSteps other )*
+1. *clone*/*copy c-tor* - implementation-defined way of cloning AsyncSteps object
+1. *AsyncSteps copyFrom( AsyncSteps other )*
     * Copy steps and state variables not present in current state
     from other(model) AsyncSteps object
     * See cloning concept
+
     
-    
-# 3. Example
+# 3. Examples
 
 In pseudo-code.
 
@@ -452,3 +508,5 @@ In pseudo-code.
             inner_as.success()
         },
     )
+    
+=END OF SPEC=
