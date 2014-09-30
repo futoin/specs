@@ -1,7 +1,7 @@
 <pre>
 FTN6: FutoIn Invoker Concept
-Version: 1.DV1
-Date: 2014-09-26
+Version: 1.1
+Date: 2014-09-30
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>

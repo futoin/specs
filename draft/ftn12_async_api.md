@@ -1,7 +1,7 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.DV2
-Date: 2014-09-07
+Version: 1.2
+Date: 2014-09-30
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -386,6 +386,7 @@ For convenience, error() is extended with optional parameter error_info
     * complete with error
     * throws FutoIn.Error exception
     * calls onerror( async_iface, name ) after returning to execution engine
+    * *error_info* - assigned to "error_info" state field
 1. *Map state()*
     * returns reference to map/object, which can be populated with arbitrary state values
 1. *void setTimeout( timeout_ms )*
