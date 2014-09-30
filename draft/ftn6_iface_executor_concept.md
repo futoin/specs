@@ -1,7 +1,7 @@
 <pre>
 FTN6: FutoIn Executor Concept
 Version: 1.DV0
-Date: 2014-09-26
+Date: 2014-09-30
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -18,7 +18,7 @@ There must be a generic object type, which can represent both
 request and response message data and/or communication channels.
 
 There must be a wrapper, which holds current request-response info
-and potentially as set of standard utilities.
+and potentially a set of standard utilities.
 
 There must be a generic request Executor, which knows all registered
 interfaces and their implementations.
@@ -59,7 +59,7 @@ Executor is responsible for (actions are done in AsyncSteps):
 Executor should be tighly integrated with MasterService implementation, if supported.
 General FutoIn message verification should be based on HMAC checking.
 
-Executor should also integrate with AuthService as consumer.
+Executor should also integrate with AuthService as consumer, if real human users expected to use the service.
 
 *Note: Executor is allowed to pass control to implementation only if requested major version of
 interfaces exactly matches implemented version and minor version is greater than or equal
@@ -67,11 +67,11 @@ to requested minor version.*
 
 
 All actions are implemented through AsyncSteps interface ([FTN12: Async API](./ftn12\_async\_api.md)).
-For backward compatibility and/or complex logic, it is possible to make blocking
+For backward compatibility with pre-FutoIn code and/or complex logic, it is possible to make blocking
 implementation. Such implementations run in dedicated worker threads/processes and receive only RequestInfo
 object reference.
 
-All true asynchronous implementation must implement special FutoIn AsyncImplementation interface to
+All true asynchronous implementations must implement special FutoIn AsyncImplementation interface to
 clearly distinguish more advanced one.
 
 Method signatures:
@@ -104,8 +104,8 @@ are assumed.
     Request Info object as argument for blocking implementation. Or
     AsyncSteps and RequestInfo objects as arguments for asynchronous
     implementation.
-3. Method can assume that all request parameters can be
-    accessed from request data
+3. Implementation method can assume that all request parameters defined
+    in spec can be accessed from request data
 4. Access to unexpected request and/or response parameters
     should raise InternalError
 5. Throw of unexpected error should raise InternalError
@@ -136,7 +136,6 @@ are assumed.
 1. request() - return reference to request parameter map
 1. response() - return reference to response parameter map
 1. info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
-1. error(name) - set request error and raise exception to complete execution
 1. derivedKey() - return associated derived key to be used in HMAC
     and perhaps other places. Implementation may forbid its use. Note: can be null
 1. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
