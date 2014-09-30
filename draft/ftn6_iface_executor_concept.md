@@ -133,24 +133,17 @@ are assumed.
     * INFO_REQUEST_TIME_FLOAT - platform-specific timestamp of request processing start
     * INFO_SECURITY_LEVEL - one of pre-defined security levels of current processing
     * INFO_USER_INFO - user information object
+    * INFO_RAW_REQUEST - raw request object
+    * INFO_RAW_RESPONSE - raw response object
+    * INFO_DERIVED_KEY - derived key object
 1. request() - return reference to request parameter map
 1. response() - return reference to response parameter map
 1. info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
-1. derivedKey() - return associated derived key to be used in HMAC
-    and perhaps other places. Implementation may forbid its use. Note: can be null
-1. log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]
 1. rawInput() - return raw input stream or null, if FutoIn request comes in that stream
 1. rawOutput() - return raw output stream (no result variables are expected)
 1. context() - get reference to Executor
-1. rawRequest() - get request object, representing FutoIn message
-1. rawResponse() - get response object, representing FutoIn message
 1. ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
     Invoker abort (disconnect)
-1. http_header( name, value [,override=true] ) - set HTTP response headers
-    * should not be used in regular processing
-    * *name* - HTTP header name
-    * *value* - HTTP header value
-    * *override* - boolean - Should any previously set header with the same $name be overridden?
 
 
 ## 2.3. User info

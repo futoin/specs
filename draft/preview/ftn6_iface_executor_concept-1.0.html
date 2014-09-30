@@ -116,28 +116,19 @@ are assumed.</p>
 <li>INFO_REQUEST_TIME_FLOAT - platform-specific timestamp of request processing start</li>
 <li>INFO_SECURITY_LEVEL - one of pre-defined security levels of current processing</li>
 <li>INFO_USER_INFO - user information object</li>
+<li>INFO_RAW_REQUEST - raw request object</li>
+<li>INFO_RAW_RESPONSE - raw response object</li>
+<li>INFO_DERIVED_KEY - derived key object</li>
 </ul>
 </li>
 <li>request() - return reference to request parameter map</li>
 <li>response() - return reference to response parameter map</li>
 <li>info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):</li>
-<li>derivedKey() - return associated derived key to be used in HMAC
-    and perhaps other places. Implementation may forbid its use. Note: can be null</li>
-<li>log() - returns extended API interfaces defined in [FTN9 IF AuditLogService][]</li>
 <li>rawInput() - return raw input stream or null, if FutoIn request comes in that stream</li>
 <li>rawOutput() - return raw output stream (no result variables are expected)</li>
 <li>context() - get reference to Executor</li>
-<li>rawRequest() - get request object, representing FutoIn message</li>
-<li>rawResponse() - get response object, representing FutoIn message</li>
 <li>ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
     Invoker abort (disconnect)</li>
-<li>http_header( name, value [,override=true] ) - set HTTP response headers<ul>
-<li>should not be used in regular processing</li>
-<li><em>name</em> - HTTP header name</li>
-<li><em>value</em> - HTTP header value</li>
-<li><em>override</em> - boolean - Should any previously set header with the same $name be overridden?</li>
-</ul>
-</li>
 </ol>
 <h2>2.3. User info</h2>
 <ol>
