@@ -123,18 +123,22 @@ are assumed.</p>
 </li>
 <li>request() - return reference to request parameter map</li>
 <li>response() - return reference to response parameter map</li>
-<li>info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):</li>
+<li>info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):<ul>
+<li>Note: info() is not merged to AsyncSteps only for minor security reasons</li>
+</ul>
+</li>
 <li>rawInput() - return raw input stream or null, if FutoIn request comes in that stream</li>
 <li>rawOutput() - return raw output stream (no result variables are expected)</li>
 <li>context() - get reference to Executor</li>
 <li>ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
     Invoker abort (disconnect)</li>
+<li>Language-specic get accessor for info properties</li>
 </ol>
 <h2>2.3. User info</h2>
 <ol>
 <li>localID() - get user ID as seen by trusted AuthService (string)</li>
 <li>globalID() - get globally unique user ID (string)</li>
-<li>details( AsyncCompletion async_compl, array user_field_identifiers )<ul>
+<li>details( AsyncSteps as, array user_field_identifiers )<ul>
 <li>Request more detailed user information gets available</li>
 <li>Note: executor implementation should cache it at least in scope of current request processing</li>
 </ul>
@@ -157,11 +161,9 @@ are assumed.</p>
 <h2>2.6. General Async Step interface</h2>
 <p>See <a href="./ftn12_async_api.html">FTN12 Async API</a></p>
 <h2>2.7. Async completion interface</h2>
-<p>AsyncCompletion inherits from <em>AsyncSteps</em> interface. When all steps are executed and request info is
-still not complete, InternalError is automatically raised</p>
-<ol>
-<li>reqinfo() - return reference to original request info</li>
-</ol>
+<p>There is little use of extended AsyncSteps to provide additional API.
+Instead, by convention, "reqinfo" AsyncSteps state field must point to
+associated RequestInfo instance.</p>
 <h2>2.8. Executor</h2>
 <ol>
 <li>ccm() - get reference to Invoker CCM, if any</li>
@@ -170,8 +172,14 @@ still not complete, InternalError is automatically raised</p>
 <li>impl is object derived from native interface or associative name for lazy loading</li>
 </ul>
 </li>
-<li>process( AsyncCompletion async_completion ) - do full cycle of request processing, including all security checks</li>
-<li>checkAccess( AsyncCompletion async_completion, acd ) - shortcut to check access through #acl interface</li>
+<li>process( AsyncSteps as ) - do full cycle of request processing, including all security checks<ul>
+<li>as-&gt;reqinfo must point to instance of RequestInfo</li>
+</ul>
+</li>
+<li>checkAccess( AsyncSteps as, acd ) - shortcut to check access through #acl interface<ul>
+<li>as-&gt;reqinfo must point to instance of RequestInfo</li>
+</ul>
+</li>
 <li>initFromCache( AsyncSteps as )<ul>
 <li>load initialization from cache</li>
 </ul>
