@@ -189,11 +189,32 @@ than requested minor version.</p>
 <p>The following URL schemes should be supported:</p>
 <ul>
 <li>http://</li>
-<li>https://</li>
+<li>https://<ul>
+<li>SecureChannel</li>
+</ul>
+</li>
 <li>ws:// - with automatic fallback to http://, if not supported by Invoker implementation</li>
-<li>wss// - with automatic fallback to https://, if not supported by Invoker implementation </li>
+<li>wss// - with automatic fallback to https://, if not supported by Invoker implementation <ul>
+<li>SecureChannel</li>
+</ul>
+</li>
 <li>self:// - implemented in scope of the same Executor, when used as CCM for Executor<ul>
+<li>SecureChannel</li>
 <li>The rest is implementation-defined name/pointer to implementation</li>
+</ul>
+</li>
+<li>unix://{framing_type}/{file_path} - UNIX stream socket file with specified framing type<ul>
+<li>SecureChannel</li>
+<li>Framing Type:<ul>
+<li>websocket</li>
+<li>eot</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>secure+{anyscheme}:// - force any scheme to be seen as secure (e.g. in controlled LAN)<ul>
+<li>SecureChannel</li>
+<li>Example: secure+http://, secure+ws://</li>
 </ul>
 </li>
 </ul>

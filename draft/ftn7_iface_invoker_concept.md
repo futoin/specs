@@ -202,10 +202,21 @@ The following URL schemes should be supported:
 
 * http://
 * https://
+    * SecureChannel
 * ws:// - with automatic fallback to http://, if not supported by Invoker implementation
 * wss// - with automatic fallback to https://, if not supported by Invoker implementation 
+    * SecureChannel
 * self:// - implemented in scope of the same Executor, when used as CCM for Executor
+    * SecureChannel
     * The rest is implementation-defined name/pointer to implementation
+* unix://{framing_type}/{file_path} - UNIX stream socket file with specified framing type
+    * SecureChannel
+    * Framing Type:
+        * websocket
+        * eot
+* secure+{anyscheme}:// - force any scheme to be seen as secure (e.g. in controlled LAN)
+    * SecureChannel
+    * Example: secure+http://, secure+ws://
 
 
 ## 2.2. Native FutoIn interface interface
