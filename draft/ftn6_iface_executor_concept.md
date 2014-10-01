@@ -136,8 +136,8 @@ are assumed.
     * INFO_RAW_REQUEST - raw request object
     * INFO_RAW_RESPONSE - raw response object
     * INFO_DERIVED_KEY - derived key object
-1. request() - return reference to request parameter map
-1. response() - return reference to response parameter map
+1. params() - return reference to request parameter map
+1. result() - return reference to response parameter map
 1. info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
     * Note: info() is not merged to AsyncSteps only for minor security reasons
 1. rawInput() - return raw input stream or null, if FutoIn request comes in that stream
