@@ -77,7 +77,10 @@ clearly distinguish more advanced one.
 Method signatures:
 
     void AsyncMethod( AsyncSteps as, RequestInfo reqinfo );
-    void BlockingMethod( RequestInfo reqinfo );
+    Result BlockingMethod( RequestInfo reqinfo );
+    
+*Note: if BlockingMethod or AsyncMethod returns result then its fields are added to already existing
+result fields in reqinfo object.*
 
 
 ## 1.1. FutoIn interfaces

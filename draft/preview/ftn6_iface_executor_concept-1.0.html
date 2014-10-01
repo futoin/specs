@@ -67,8 +67,10 @@ object reference.</p>
 clearly distinguish more advanced one.</p>
 <p>Method signatures:</p>
 <pre><code>void AsyncMethod( AsyncSteps as, RequestInfo reqinfo );
-void BlockingMethod( RequestInfo reqinfo );
+Result BlockingMethod( RequestInfo reqinfo );
 </code></pre>
+<p><em>Note: if BlockingMethod or AsyncMethod returns result then its fields are added to already existing
+result fields in reqinfo object.</em></p>
 <h2>1.1. FutoIn interfaces</h2>
 <p>Interfaces must get converted according to language/platform-specific
 convention into native interfaces, which can depend only on
