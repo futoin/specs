@@ -139,6 +139,7 @@ are assumed.
     * INFO_RAW_REQUEST - raw request object
     * INFO_RAW_RESPONSE - raw response object
     * INFO_DERIVED_KEY - derived key object
+    * INFO_HAVE_RAW_UPLOAD - boolean - have raw upload (e.g. can open rawInput())
 1. params() - return reference to request parameter map
 1. result() - return reference to response parameter map
 1. info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
