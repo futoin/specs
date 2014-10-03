@@ -6,7 +6,7 @@
 </head><body>
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.DV0
+Version: 1.0
 Date: 2014-09-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -14,7 +14,7 @@ Authors: Andrey Galkin
 
 <h1>1. Basic concept</h1>
 <h2>1.1. Peer-to-peer communication</h2>
-<p>There is invoker and executor side. Both can be implemented in scope of single
+<p>There is Invoker and Executor side. Both can be implemented in scope of single
 process, different processes or different machines across network.</p>
 <p>Multi-peer communication is assumed to be a higher level concept on top of 
 current one.</p>
@@ -27,12 +27,15 @@ to native features.</p>
 each components, suitable for easy separation, replacement and unit testing.</p>
 <p>Each call has a request and may have a response messages with key-value pairs described below.
 If a call does not expect to return any result then no response message must be
-sent and/or expected to be received. It should be possible to override with <em>forcersp</em>
-flag.
+sent and/or expected to be received. It must be possible to override with <em>forcersp</em>
+flag in request message.
 <br>
 <em>Note: it means that call must return at least something to detect on invoker if the
 call is properly executed</em></p>
-<p>Low-level protocol for message exchange is out of scope of this specification.</p>
+<p>For large data transfer efficiency purposes, if message transport allows such extension,
+request message can be coupled with raw request data and/or response can be <em>replaced</em>
+with raw response data. Typical scenario is file upload and/or download through HTTP(S).</p>
+<p>Lower-level protocol of message exchange is out of scope of this specification.</p>
 <p>Possible examples of Peer-to-peer communication types:</p>
 <ul>
 <li>raw datagram like UNIX Socket, UDP or SCTP</li>
@@ -43,14 +46,14 @@ call is properly executed</em></p>
 <li>HTTP CRUDL mapped to/from FutoIn interface</li>
 </ul>
 <h2>1.2. Function Call</h2>
-<p>There are three major parts: <strong>function identifier</strong>, <strong>parameters</strong>, <strong>result</strong> and
+<p>The major parts: <strong>function identifier</strong>, <strong>parameters</strong>, <strong>result</strong> and
 <strong>exception</strong>.</p>
 <ul>
 <li><strong>function identifier</strong> - unique associative name of string type with interface name,
     version and interface function coded in it</li>
 <li><strong>parameters</strong> - key-value pairs<ul>
 <li>key - unique associative name of string type</li>
-<li>value - value of arbitrary type</li>
+<li>value - value of arbitrary JSON type defined in interface</li>
 </ul>
 </li>
 <li><strong>result</strong> - key-value pairs, similar to parameters</li>
@@ -69,6 +72,8 @@ Server side request ID must be prefixed with "S".</p>
 <p>The rest of request ID should be integer value starting with 1 and incrementing with
 every subsequent request sent. However, it should be allowed to add other prefixes
 to this value.</p>
+<p><em>Note: Request ID must never be used outside of multiplexing context as it by definition
+duplicates across different communication channels</em></p>
 <h2>1.4. Uni-directional call pattern</h2>
 <p>Invoker/Executor side is semantically defined and does not rely on Client/Server
 status of peer. There is no protocol-level support for that. Each side controls if
@@ -173,7 +178,7 @@ in message multiplexing mode.</p>
 </code></pre>
 <h2>1.8. Parameter and result types</h2>
 <ul>
-<li>boolean - true of false</li>
+<li>boolean - true or false</li>
 <li>integer - signed integer with 32-bit precision</li>
 <li>number - float value with 32-bit precision</li>
 <li>string - string of unlimited length</li>
@@ -189,7 +194,7 @@ in message multiplexing mode.</p>
 </ul>
 <p><em>Note: <strong>null</strong> can be used only as placeholder in "default" values.</em></p>
 <h2>1.9. Errors and exceptions</h2>
-<p>Any functional call can result in expected and unexpected errors. This concept
+<p>Any functional call can result in expected or unexpected errors. This concept
 is similar to checked/unchecked exceptions in Java language.</p>
 <p>All expected exceptions/errors, which appear in standard flow must be enumerated
 in "throws" clause of function declaration in interface definitions (see below).</p>
@@ -216,7 +221,7 @@ for all excepted errors.</p>
     <em>Must be generated only on Executor side</em>.</li>
 <li><strong>InternalError</strong> - unexpected internal error on Executor side, including internal CommErrors.
     <em>Must be generated only on Executor side</em>.</li>
-<li><strong>InvokerError</strong> - unexpected internal error on Invoker side, not realted to CommErrors.
+<li><strong>InvokerError</strong> - unexpected internal error on Invoker side, not related to CommErrors.
     <em>Must be generated only on Invoker side</em>.</li>
 <li><strong>InvalidRequest</strong> - invalid data is passed as FutoIn request.
     <em>Must be generated only on Executor side</em>.</li>
@@ -439,7 +444,7 @@ through "requires" attribute.</p>
 <ul>
 <li>AllowAnonymous - interface can be called without Client Authentication information</li>
 <li>SecureChannel - message exchange must be done through secure channel as it contains
-    not encrypted sensitive information. Channel security control is Service
+    not encrypted sensitive information. Channel security control is both Client and Service
     implementation responsibility</li>
 </ul>
 <p>For safety reasons, inheriting interface must re-define all "requires" items from

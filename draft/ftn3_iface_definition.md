@@ -1,6 +1,6 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.DV0
+Version: 1.0
 Date: 2014-09-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -10,7 +10,7 @@ Authors: Andrey Galkin
 
 ## 1.1. Peer-to-peer communication
 
-There is invoker and executor side. Both can be implemented in scope of single
+There is Invoker and Executor side. Both can be implemented in scope of single
 process, different processes or different machines across network.
 
 Multi-peer communication is assumed to be a higher level concept on top of 
@@ -28,13 +28,17 @@ each components, suitable for easy separation, replacement and unit testing.
 
 Each call has a request and may have a response messages with key-value pairs described below.
 If a call does not expect to return any result then no response message must be
-sent and/or expected to be received. It should be possible to override with *forcersp*
-flag.
+sent and/or expected to be received. It must be possible to override with *forcersp*
+flag in request message.
 <br>
 *Note: it means that call must return at least something to detect on invoker if the
 call is properly executed*
 
-Low-level protocol for message exchange is out of scope of this specification.
+For large data transfer efficiency purposes, if message transport allows such extension,
+request message can be coupled with raw request data and/or response can be *replaced*
+with raw response data. Typical scenario is file upload and/or download through HTTP(S).
+
+Lower-level protocol of message exchange is out of scope of this specification.
 
 
 Possible examples of Peer-to-peer communication types:
@@ -51,14 +55,14 @@ Possible examples of Peer-to-peer communication types:
 
 ## 1.2. Function Call
 
-There are three major parts: **function identifier**, **parameters**, **result** and
+The major parts: **function identifier**, **parameters**, **result** and
 **exception**.
 
 * **function identifier** - unique associative name of string type with interface name,
     version and interface function coded in it
 * **parameters** - key-value pairs
     * key - unique associative name of string type
-    * value - value of arbitrary type
+    * value - value of arbitrary JSON type defined in interface
 * **result** - key-value pairs, similar to parameters
 * **exception** - associative name of the first error occurred during function execution
 
@@ -80,6 +84,9 @@ Server side request ID must be prefixed with "S".
 The rest of request ID should be integer value starting with 1 and incrementing with
 every subsequent request sent. However, it should be allowed to add other prefixes
 to this value.
+
+*Note: Request ID must never be used outside of multiplexing context as it by definition
+duplicates across different communication channels*
 
 
 ## 1.4. Uni-directional call pattern
@@ -209,7 +216,7 @@ Using [JSON-SCHEMA][]:
 
 ## 1.8. Parameter and result types
 
-* boolean - true of false
+* boolean - true or false
 * integer - signed integer with 32-bit precision
 * number - float value with 32-bit precision
 * string - string of unlimited length
@@ -224,7 +231,7 @@ Using [JSON-SCHEMA][]:
 
 ## 1.9. Errors and exceptions
 
-Any functional call can result in expected and unexpected errors. This concept
+Any functional call can result in expected or unexpected errors. This concept
 is similar to checked/unchecked exceptions in Java language.
 
 All expected exceptions/errors, which appear in standard flow must be enumerated
@@ -255,7 +262,7 @@ for all excepted errors.
     *Must be generated only on Executor side*.
 * **InternalError** - unexpected internal error on Executor side, including internal CommErrors.
     *Must be generated only on Executor side*.
-* **InvokerError** - unexpected internal error on Invoker side, not realted to CommErrors.
+* **InvokerError** - unexpected internal error on Invoker side, not related to CommErrors.
     *Must be generated only on Invoker side*.
 * **InvalidRequest** - invalid data is passed as FutoIn request.
     *Must be generated only on Executor side*.
@@ -509,7 +516,7 @@ Standard requirement type:
 
 * AllowAnonymous - interface can be called without Client Authentication information
 * SecureChannel - message exchange must be done through secure channel as it contains
-    not encrypted sensitive information. Channel security control is Service
+    not encrypted sensitive information. Channel security control is both Client and Service
     implementation responsibility
 
 
