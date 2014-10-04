@@ -190,6 +190,22 @@ limit buffer size to a reasonable size until direct streaming from file is not s
 by XHR.
 
 
+## 3.6. INFO_HTTP_CONTEXT field of Executor.RequestInfo.info()
+
+It should be an object for on-demand access of HTTP request/response details.
+
+* getRequestHeaders()
+* setResponseHeader( name, value, override=true )
+* setResponseCode( http_code, desc=default )
+* getCookie( name )
+* setCookie( name, value, options )
+    * options.http_only = true 
+    * options.secure = INFO_SECURE_CHANNEL
+    * options.domain = null
+    * options.path = null
+    * options.expires = null (date object or string)
+    * options.max_age = null (interval object or string)
+
 
 
 
