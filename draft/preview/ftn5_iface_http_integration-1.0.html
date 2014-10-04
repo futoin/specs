@@ -6,7 +6,7 @@
 </head><body>
 <pre>
 FTN5: FutoIn HTTP integration
-Version: 0.1
+Version: 1.DV0
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -76,23 +76,36 @@ with no multiplexing on communication channel level.</p>
 <h1>2.1. Request processing steps</h1>
 <ul>
 <li>process request in Executor</li>
-<li>
-<p>on success, write response body as (one of):</p>
-<ul>
+<li>on success, write response body as (one of):<ul>
 <li>if raw data response expected (by spec)<ul>
 <li>arbitrary large object (<em>Use Case #4</em>)</li>
 <li>Note: there is no point in re-defining HTTP conditional requests (If-*/Etag/etc).
     in scope of this spec.</li>
 </ul>
 </li>
-<li>
-<p>JSON FutoIn response, if function has result variables</p>
+<li>else<ul>
+<li>JSON FutoIn response (even with empty result variables)</li>
+</ul>
 </li>
-<li>
-<p>empty string (even though, there is no result, HTTP requires response)</p>
+</ul>
 </li>
-<li>on error,</li>
-<li>if raw data response expected (by spec)</li>
+<li>on error,<ul>
+<li>if raw data response expected (by spec)<ul>
+<li>map errors to HTTP error codes<ul>
+<li>UnknownInterface -&gt; 501 Not Implemented</li>
+<li>NotSupportedVersion -&gt; 501 Not Implemented</li>
+<li>NotImplemented -&gt; 501 Not Implemented</li>
+<li>Unauthorized -&gt; 401 Unauthorized</li>
+<li>InternalError -&gt; 500 Internal Server Error</li>
+<li>InvalidRequest -&gt; 400 Bad Request</li>
+<li>DefenseRejected -&gt; 403 Forbidden</li>
+<li>PleaseReauth -&gt; 403 Forbidden</li>
+<li>SecurityError -&gt; 403 Forbidden</li>
+<li>{Function Throw} -&gt; 409 Conflict (this code should not match any of the standard errors)</li>
+</ul>
+</li>
+</ul>
+</li>
 <li>else<ul>
 <li>JSON FutoIn response</li>
 </ul>
@@ -111,7 +124,7 @@ headers do not have correct MIME-type.</p>
 <p>URI is assumed as defined in its <a href="http://www.ietf.org/rfc/rfc3986.txt" title="Uniform Resource Identifier (URI): Generic Syntax">RFC3986</a> or any later version.</p>
 <p><em>Note: Executor must behave equally with or without trailing slash in URI path part.</em></p>
 <h2>3.1. Executor's end-point sub-path format</h2>
-<p>Generic format: "{end-point-URI}/{interface}/{version}/{function_name}"</p>
+<p>Generic format: "{end-point-URI}/{interface}/{version}/{function_name}[/sec_field]"</p>
 <p><em>Example: "https://api.example.com/futoin/<strong>some.interface.name/1.0/someFunc</strong>"</em></p>
 <h2>3.2. URI Query string format</h2>
 <p>Query string starts with question mark "?". Parameters are separated with ampersand sign "&amp;".</p>
@@ -147,5 +160,30 @@ dot "." as separator right after parent node name.</p>
 <h2>3.4. Conflicts in passed parameters</h2>
 <p>In case if the same request parameter tree node is used in different contexts
 (as leaf, as object or as array). Executor must rise InvalidRequest.</p>
+<h2>3.5. File upload</h2>
+<p>By fundamental principles of FutoIn, there should be a special File Upload service
+implemented once (for both long storage and temporary files). In general, no 
+other service should accept file uploads. Instead, special file operation API
+should exist. </p>
+<p>File uploads have a serious risk of security exploits and denial of service. It
+should not be implemented in any arbitrary service.</p>
+<p>Client code should first request file upload token and only then start upload
+identifying each related request with this token, besides general security framework.</p>
+<h3>3.5.1 Raw HTML form file upload</h3>
+<p>HTTP multipart/form-data upload must not be handled by Executor. Instead, FileUpload
+service should handle one.
+Still, it is not recommended to upload more than one file at a time to save bandwidth
+or error situations.</p>
+<h3>3.5.2. Advanced file upload</h3>
+<p>To minimize effect of temporary upload errors, FileUpload service should support
+incremental file upload using combination of Use Case #2 and #3.</p>
+<ul>
+<li>Maximal chunk size should not be limited by Service side</li>
+<li>Chunk size must be dynamically adjusted by client to be uploaded within 3 seconds
+    based on results of previously uploaded chunk(s).</li>
+</ul>
+<p>Modern web browser JavaScript should support file reading API. Client side should
+limit buffer size to a reasonable size until direct streaming from file is not supported
+by XHR.</p>
 <p>=END OF SPEC=</p>
 </body></html>

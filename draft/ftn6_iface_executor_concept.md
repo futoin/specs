@@ -1,10 +1,17 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.0
+Version: 1.DV1
 Date: 2014-09-30
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
+
+# CHANGES
+
+* v1.1
+    * Dropped INFO_COOKIES and INFO_USER_AGENT
+    * Added concept of INFO_HTTP_CONTEXT to be defined in scope of FTN5: HTTP Integration
+    * Added INFO_HAVE_RAW_RESULT
 
 # Warning
 
@@ -130,8 +137,6 @@ are assumed.
     * INFO_PUBKEY - public key, if present
     * INFO_CLIENT_ADDR - SourceAddress object of request external to current system
         (e.g. without *trusted* reverse proxies, gateways, etc.)
-    * INFO_USER_AGENT - User Agent, coming from HTTP headers or other source
-    * INFO_COOKIES - array of strings
     * INFO_SECURE_CHANNEL - boolean - is request coming through secure channel?
     * INFO_REQUEST_TIME_FLOAT - platform-specific timestamp of request processing start
     * INFO_SECURITY_LEVEL - one of pre-defined security levels of current processing
@@ -140,6 +145,8 @@ are assumed.
     * INFO_RAW_RESPONSE - raw response object
     * INFO_DERIVED_KEY - derived key object
     * INFO_HAVE_RAW_UPLOAD - boolean - have raw upload (e.g. can open rawInput())
+    * INFO_HAVE_RAW_RESULT - boolean - have raw result (e.g. should open rawOutput())
+    * INFO_HTTP_CONTEXT - FTN5-defined accessor to HTTP state
 1. params() - return reference to request parameter map
 1. result() - return reference to response parameter map
 1. info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
