@@ -21,6 +21,10 @@ Authors: Andrey Galkin
 </ul>
 </li>
 <li>Added INFO_HAVE_RAW_RESULT</li>
+<li>Dropped ignoreInvokerAbort() and replaced with ChannelContext.onInvokerAbort()
+    (would be broken backward compatibility, if used somewhere)</li>
+<li>Changed context() to executor() to avoid ambiguity
+    (would be broken backward compatibility, if used somewhere)</li>
 </ul>
 </li>
 </ul>
@@ -144,9 +148,7 @@ are assumed.</p>
 </li>
 <li>stream rawInput() - return raw input stream or null, if FutoIn request comes in that stream</li>
 <li>stream rawOutput() - return raw output stream (no result variables are expected)</li>
-<li>Excutor context() - get reference to Executor</li>
-<li>void ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
-    Invoker abort (disconnect)</li>
+<li>Excutor executor() - get reference to Executor</li>
 <li>Language-specic get accessor for info properties</li>
 </ol>
 <h2>2.3. User info</h2>
@@ -214,14 +216,18 @@ associated RequestInfo instance.</p>
 <li>LOCAL</li>
 <li>TCP</li>
 <li>UDP</li>
-<li>any other</li>
+<li>any other - as non-standard extension</li>
 </ul>
 </li>
-<li>boolean isStateful()</li>
+<li>boolean isStateful()<ul>
+<li>check if current communication channel between Invoker and Executor is stateful</li>
+</ul>
+</li>
 <li>map state() - get channel state variables<ul>
 <li>state is persistent only for stateful protocols</li>
 </ul>
 </li>
+<li>void onInvokerAbort( callable( AsyncSteps as, user_data ), user_data=null )</li>
 <li>Language/Platform-specific get/set/remove/check accessors to state variables</li>
 </ul>
 <p>Various specification can extend this interface with additional functionality.</p>

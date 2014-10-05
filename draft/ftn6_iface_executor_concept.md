@@ -13,6 +13,10 @@ Authors: Andrey Galkin
     * Added concept of ChannelContext/INFO_CHANNEL_CONTEXT
         * HTTPChannelContext is defined in scope of FTN5: HTTP Integration
     * Added INFO_HAVE_RAW_RESULT
+    * Dropped ignoreInvokerAbort() and replaced with ChannelContext.onInvokerAbort()
+        (would be broken backward compatibility, if used somewhere)
+    * Changed context() to executor() to avoid ambiguity
+        (would be broken backward compatibility, if used somewhere)
 
 # Warning
 
@@ -154,9 +158,7 @@ are assumed.
     * Note: info() is not merged to AsyncSteps only for minor security reasons
 1. stream rawInput() - return raw input stream or null, if FutoIn request comes in that stream
 1. stream rawOutput() - return raw output stream (no result variables are expected)
-1. Excutor context() - get reference to Executor
-1. void ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
-    Invoker abort (disconnect)
+1. Excutor executor() - get reference to Executor
 1. Language-specic get accessor for info properties
 
 
@@ -225,10 +227,12 @@ No public members
     * LOCAL
     * TCP
     * UDP
-    * any other
+    * any other - as non-standard extension
 * boolean isStateful()
+    * check if current communication channel between Invoker and Executor is stateful
 * map state() - get channel state variables
     * state is persistent only for stateful protocols
+* void onInvokerAbort( callable( AsyncSteps as, user_data ), user_data=null )
 * Language/Platform-specific get/set/remove/check accessors to state variables
 
 Various specification can extend this interface with additional functionality.
