@@ -185,14 +185,15 @@ incremental file upload using combination of Use Case #2 and #3.</p>
 <p>Modern web browser JavaScript should support file reading API. Client side should
 limit buffer size to a reasonable size until direct streaming from file is not supported
 by XHR.</p>
-<h2>3.6. INFO_HTTP_CONTEXT field of Executor.RequestInfo.info()</h2>
+<h2>3.6. INFO_CHANNEL_CONTEXT field of Executor.RequestInfo.info()</h2>
 <p>It should be an object for on-demand access of HTTP request/response details.</p>
+<p>HTTPChannelContext inherits from ChannelContext</p>
 <ul>
-<li>getRequestHeaders()</li>
-<li>setResponseHeader( name, value, override=true )</li>
-<li>setResponseCode( http_code, desc=default )</li>
-<li>getCookie( name )</li>
-<li>setCookie( name, value, options )<ul>
+<li>map getRequestHeaders()</li>
+<li>void setResponseHeader( name, value, override=true )</li>
+<li>void setResponseCode( http_code, desc=default )</li>
+<li>string getCookie( name )</li>
+<li>void setCookie( name, value, options )<ul>
 <li>options.http_only = true </li>
 <li>options.secure = INFO_SECURE_CHANNEL</li>
 <li>options.domain = null</li>

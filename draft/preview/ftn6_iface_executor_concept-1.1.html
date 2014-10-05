@@ -15,8 +15,11 @@ Authors: Andrey Galkin
 <h1>CHANGES</h1>
 <ul>
 <li>v1.1<ul>
-<li>Dropped INFO_COOKIES and INFO_USER_AGENT</li>
-<li>Added concept of INFO_HTTP_CONTEXT to be defined in scope of FTN5: HTTP Integration</li>
+<li>Dropped INFO_COOKIES and INFO_USER_AGENT (were not used)</li>
+<li>Added concept of ChannelContext/INFO_CHANNEL_CONTEXT<ul>
+<li>HTTPChannelContext is defined in scope of FTN5: HTTP Integration</li>
+</ul>
+</li>
 <li>Added INFO_HAVE_RAW_RESULT</li>
 </ul>
 </li>
@@ -130,27 +133,27 @@ are assumed.</p>
 <li>INFO_DERIVED_KEY - derived key object</li>
 <li>INFO_HAVE_RAW_UPLOAD - boolean - have raw upload (e.g. can open rawInput())</li>
 <li>INFO_HAVE_RAW_RESULT - boolean - have raw result (e.g. should open rawOutput())</li>
-<li>INFO_HTTP_CONTEXT - FTN5-defined accessor to HTTP state</li>
+<li>INFO_CHANNEL_CONTEXT - persistent channel context (e.g. WebSockets</li>
 </ul>
 </li>
-<li>params() - return reference to request parameter map</li>
-<li>result() - return reference to response parameter map</li>
-<li>info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):<ul>
+<li>map params() - return reference to request parameter map</li>
+<li>map result() - return reference to response parameter map</li>
+<li>map info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):<ul>
 <li>Note: info() is not merged to AsyncSteps only for minor security reasons</li>
 </ul>
 </li>
-<li>rawInput() - return raw input stream or null, if FutoIn request comes in that stream</li>
-<li>rawOutput() - return raw output stream (no result variables are expected)</li>
-<li>context() - get reference to Executor</li>
-<li>ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
+<li>stream rawInput() - return raw input stream or null, if FutoIn request comes in that stream</li>
+<li>stream rawOutput() - return raw output stream (no result variables are expected)</li>
+<li>Excutor context() - get reference to Executor</li>
+<li>void ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
     Invoker abort (disconnect)</li>
 <li>Language-specic get accessor for info properties</li>
 </ol>
 <h2>2.3. User info</h2>
 <ol>
-<li>localID() - get user ID as seen by trusted AuthService (string)</li>
-<li>globalID() - get globally unique user ID (string)</li>
-<li>details( AsyncSteps as, array user_field_identifiers )<ul>
+<li>string localID() - get user ID as seen by trusted AuthService</li>
+<li>string globalID() - get globally unique user ID</li>
+<li>void details( AsyncSteps as, array user_field_identifiers )<ul>
 <li>Request more detailed user information gets available</li>
 <li>Note: executor implementation should cache it at least in scope of current request processing</li>
 </ul>
@@ -158,17 +161,17 @@ are assumed.</p>
 </ol>
 <h2>2.4. Source Address</h2>
 <ol>
-<li>host() - numeric, no name lookup</li>
-<li>port()</li>
-<li>type() - IPv4, IPv6</li>
-<li>asString() "Type:Host:Port"</li>
+<li>string host() - numeric, no name lookup</li>
+<li>string port() - IP port or local path/identifier</li>
+<li>string type() - IPv4, IPv6, LOCAL</li>
+<li>string asString() "Type:Host:Port"</li>
 </ol>
 <h2>2.5. Derived Key</h2>
 <ol>
-<li>baseID()</li>
-<li>sequenceID()</li>
-<li>encrypt( AsyncSteps as, data ) - return Base64 data</li>
-<li>decrypt( AsyncSteps as, data ) - decrypt Base64 data</li>
+<li>string baseID()</li>
+<li>string sequenceID()</li>
+<li>void encrypt( AsyncSteps as, data ) - return Base64 data</li>
+<li>void decrypt( AsyncSteps as, data ) - decrypt Base64 data</li>
 </ol>
 <h2>2.6. General Async Step interface</h2>
 <p>See <a href="./ftn12_async_api.html">FTN12 Async API</a></p>
@@ -178,31 +181,50 @@ Instead, by convention, "reqinfo" AsyncSteps state field must point to
 associated RequestInfo instance.</p>
 <h2>2.8. Executor</h2>
 <ol>
-<li>ccm() - get reference to Invoker CCM, if any</li>
-<li>register( AsyncSteps as, ifacever, impl ) - add interface implementation<ul>
+<li>AdvancedCCM ccm() - get reference to Invoker CCM, if any</li>
+<li>void register( AsyncSteps as, ifacever, impl ) - add interface implementation<ul>
 <li>ifacever must be represented as FutoIn interface identifier and version, separated by colon ":"</li>
 <li>impl is object derived from native interface or associative name for lazy loading</li>
 </ul>
 </li>
-<li>process( AsyncSteps as ) - do full cycle of request processing, including all security checks<ul>
+<li>void process( AsyncSteps as ) - do full cycle of request processing, including all security checks<ul>
 <li>as-&gt;reqinfo must point to instance of RequestInfo</li>
 </ul>
 </li>
-<li>checkAccess( AsyncSteps as, acd ) - shortcut to check access through #acl interface<ul>
+<li>void checkAccess( AsyncSteps as, acd ) - shortcut to check access through #acl interface<ul>
 <li>as-&gt;reqinfo must point to instance of RequestInfo</li>
 </ul>
 </li>
-<li>initFromCache( AsyncSteps as )<ul>
+<li>void initFromCache( AsyncSteps as )<ul>
 <li>load initialization from cache</li>
 </ul>
 </li>
-<li>cacheInit( AsyncSteps as )<ul>
+<li>void cacheInit( AsyncSteps as )<ul>
 <li>store initialization to cache</li>
 </ul>
 </li>
 </ol>
 <h2>2.9. Interface Implementation</h2>
 <p>No public members</p>
+<h2>2.10. Channel Context</h2>
+<p><em>ChannelContext</em> interface</p>
+<ul>
+<li>string type() - get type of channel<ul>
+<li>HTTP (including HTTPS)</li>
+<li>LOCAL</li>
+<li>TCP</li>
+<li>UDP</li>
+<li>any other</li>
+</ul>
+</li>
+<li>boolean isStateful()</li>
+<li>map state() - get channel state variables<ul>
+<li>state is persistent only for stateful protocols</li>
+</ul>
+</li>
+<li>Language/Platform-specific get/set/remove/check accessors to state variables</li>
+</ul>
+<p>Various specification can extend this interface with additional functionality.</p>
 <h1>3. Language/Platform-specific notes</h1>
 <h2>3.1. native JVM (Java, Groovy, etc.)</h2>
 <h2>3.2. Python</h2>

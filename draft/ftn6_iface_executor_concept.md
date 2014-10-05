@@ -9,8 +9,9 @@ Authors: Andrey Galkin
 # CHANGES
 
 * v1.1
-    * Dropped INFO_COOKIES and INFO_USER_AGENT
-    * Added concept of INFO_HTTP_CONTEXT to be defined in scope of FTN5: HTTP Integration
+    * Dropped INFO_COOKIES and INFO_USER_AGENT (were not used)
+    * Added concept of ChannelContext/INFO_CHANNEL_CONTEXT
+        * HTTPChannelContext is defined in scope of FTN5: HTTP Integration
     * Added INFO_HAVE_RAW_RESULT
 
 # Warning
@@ -146,42 +147,42 @@ are assumed.
     * INFO_DERIVED_KEY - derived key object
     * INFO_HAVE_RAW_UPLOAD - boolean - have raw upload (e.g. can open rawInput())
     * INFO_HAVE_RAW_RESULT - boolean - have raw result (e.g. should open rawOutput())
-    * INFO_HTTP_CONTEXT - FTN5-defined accessor to HTTP state
-1. params() - return reference to request parameter map
-1. result() - return reference to response parameter map
-1. info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
+    * INFO_CHANNEL_CONTEXT - persistent channel context (e.g. WebSockets
+1. map params() - return reference to request parameter map
+1. map result() - return reference to response parameter map
+1. map info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
     * Note: info() is not merged to AsyncSteps only for minor security reasons
-1. rawInput() - return raw input stream or null, if FutoIn request comes in that stream
-1. rawOutput() - return raw output stream (no result variables are expected)
-1. context() - get reference to Executor
-1. ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
+1. stream rawInput() - return raw input stream or null, if FutoIn request comes in that stream
+1. stream rawOutput() - return raw output stream (no result variables are expected)
+1. Excutor context() - get reference to Executor
+1. void ignoreInvokerAbort( [bool=true] ) - [un]mark request as ready to be canceled on
     Invoker abort (disconnect)
 1. Language-specic get accessor for info properties
 
 
 ## 2.3. User info
 
-1. localID() - get user ID as seen by trusted AuthService (string)
-1. globalID() - get globally unique user ID (string)
-1. details( AsyncSteps as, array user_field_identifiers )
+1. string localID() - get user ID as seen by trusted AuthService
+1. string globalID() - get globally unique user ID
+1. void details( AsyncSteps as, array user_field_identifiers )
     * Request more detailed user information gets available
     * Note: executor implementation should cache it at least in scope of current request processing
 
 
 ## 2.4. Source Address
 
-1. host() - numeric, no name lookup
-1. port()
-1. type() - IPv4, IPv6
-1. asString() "Type:Host:Port"
+1. string host() - numeric, no name lookup
+1. string port() - IP port or local path/identifier
+1. string type() - IPv4, IPv6, LOCAL
+1. string asString() "Type:Host:Port"
 
 
 ## 2.5. Derived Key
 
-1. baseID()
-1. sequenceID()
-1. encrypt( AsyncSteps as, data ) - return Base64 data
-1. decrypt( AsyncSteps as, data ) - decrypt Base64 data
+1. string baseID()
+1. string sequenceID()
+1. void encrypt( AsyncSteps as, data ) - return Base64 data
+1. void decrypt( AsyncSteps as, data ) - decrypt Base64 data
 
 
 ## 2.6. General Async Step interface
@@ -197,23 +198,41 @@ associated RequestInfo instance.
 
 ## 2.8. Executor
 
-1. ccm() - get reference to Invoker CCM, if any
-1. register( AsyncSteps as, ifacever, impl ) - add interface implementation
+1. AdvancedCCM ccm() - get reference to Invoker CCM, if any
+1. void register( AsyncSteps as, ifacever, impl ) - add interface implementation
     * ifacever must be represented as FutoIn interface identifier and version, separated by colon ":"
     * impl is object derived from native interface or associative name for lazy loading
-1. process( AsyncSteps as ) - do full cycle of request processing, including all security checks
+1. void process( AsyncSteps as ) - do full cycle of request processing, including all security checks
     * as->reqinfo must point to instance of RequestInfo
-1. checkAccess( AsyncSteps as, acd ) - shortcut to check access through #acl interface
+1. void checkAccess( AsyncSteps as, acd ) - shortcut to check access through #acl interface
     * as->reqinfo must point to instance of RequestInfo
-1. initFromCache( AsyncSteps as )
+1. void initFromCache( AsyncSteps as )
     * load initialization from cache
-1. cacheInit( AsyncSteps as )
+1. void cacheInit( AsyncSteps as )
     * store initialization to cache
 
 
 ## 2.9. Interface Implementation
 
 No public members
+
+## 2.10. Channel Context
+
+*ChannelContext* interface
+
+* string type() - get type of channel
+    * HTTP (including HTTPS)
+    * LOCAL
+    * TCP
+    * UDP
+    * any other
+* boolean isStateful()
+* map state() - get channel state variables
+    * state is persistent only for stateful protocols
+* Language/Platform-specific get/set/remove/check accessors to state variables
+
+Various specification can extend this interface with additional functionality.
+
 
 
 # 3. Language/Platform-specific notes
