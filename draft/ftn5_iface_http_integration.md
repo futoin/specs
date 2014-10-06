@@ -198,7 +198,7 @@ HTTPChannelContext inherits from ChannelContext
 
 * map getRequestHeaders()
 * void setResponseHeader( name, value, override=true )
-* void setResponseCode( http_code, desc=default )
+* void setStatusCode( http_code )
 * string getCookie( name )
 * void setCookie( name, value, options )
     * options.http_only = true 
