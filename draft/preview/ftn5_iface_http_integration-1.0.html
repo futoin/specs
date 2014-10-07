@@ -125,38 +125,15 @@ headers do not have correct MIME-type.</p>
 <p><em>Note: Executor must behave equally with or without trailing slash in URI path part.</em></p>
 <h2>3.1. Executor's end-point sub-path format</h2>
 <p>Generic format: "{end-point-URI}/{interface}/{version}/{function_name}[/sec_field]"</p>
-<p><em>Example: "https://api.example.com/futoin/<strong>some.interface.name/1.0/someFunc</strong>"</em></p>
+<p><em>Example:</em>
+    "https://api.example.com/futoin/<strong>some.interface.name/1.0/someFunc</strong>"
+    "https://api.example.com/futoin/<strong>some.interface.name/1.0/someFunc/sec_field</strong>"</p>
 <h2>3.2. URI Query string format</h2>
 <p>Query string starts with question mark "?". Parameters are separated with ampersand sign "&amp;".</p>
 <p><em>Example: "https://api.example.com/futoin/some.interface.name/1.0/someFunc?<strong>param1=val1&amp;param2=val2</strong>"</em></p>
-<h2>3.3. Rules for representing objects and arrays in query string and multi-part form data</h2>
-<p>Note: the specifications uses unreserved by URI <a href="http://www.ietf.org/rfc/rfc3986.txt" title="Uniform Resource Identifier (URI): Generic Syntax">RFC3986</a> character classes to avoid extra coding needed.</p>
-<p>JSON object is a tree-like structure. Each parent node is marked as object by added 
-dot "." as separator right after parent node name.</p>
-<p>JSON array is marked by adding plus sign "+" right after parent node name.</p>
-<p>The function parameters object type is implicitly assumed and leading "." is forbidden.</p>
-<p>Example:</p>
-<pre><code>    {
-        "tree" : {
-            "subtree" : {
-                "node1" : "val1"
-            },
-            "node2" : "val2",
-            "array" : [
-                "item1",
-                {
-                    "node3" : "val3"
-                }
-            ]
-        }
-    }
-</code></pre>
-<p>would be coded as:</p>
-<pre><code>    tree.subtree.node1=val1
-    tree.node2=val2
-    tree.array+=item1
-    tree.array+.node3=val3
-</code></pre>
+<h2>3.3. Objects and arrays in query string and multi-part form data</h2>
+<p>GET method and multi-part form data do no provide ability to code all possible FutoIn request parameters.
+Only string parameters can be passed through this way.</p>
 <h2>3.4. Conflicts in passed parameters</h2>
 <p>In case if the same request parameter tree node is used in different contexts
 (as leaf, as object or as array). Executor must rise InvalidRequest.</p>

@@ -106,7 +106,9 @@ URI is assumed as defined in its [RFC3986][] or any later version.
 
 Generic format: "{end-point-URI}/{interface}/{version}/{function_name}[/sec_field]"
 
-*Example: "https://api.example.com/futoin/**some.interface.name/1.0/someFunc**"*
+*Example:*
+    "https://api.example.com/futoin/**some.interface.name/1.0/someFunc**"
+    "https://api.example.com/futoin/**some.interface.name/1.0/someFunc/sec_field**"
 
 
 ## 3.2. URI Query string format
@@ -115,40 +117,10 @@ Query string starts with question mark "?". Parameters are separated with ampers
 
 *Example: "https://api.example.com/futoin/some.interface.name/1.0/someFunc?**param1=val1&param2=val2**"*
 
-## 3.3. Rules for representing objects and arrays in query string and multi-part form data
+## 3.3. Objects and arrays in query string and multi-part form data
 
-Note: the specifications uses unreserved by URI [RFC3986][] character classes to avoid extra coding needed.
-
-JSON object is a tree-like structure. Each parent node is marked as object by added 
-dot "." as separator right after parent node name.
-
-JSON array is marked by adding plus sign "+" right after parent node name.
-
-The function parameters object type is implicitly assumed and leading "." is forbidden.
-
-Example:
-
-        {
-            "tree" : {
-                "subtree" : {
-                    "node1" : "val1"
-                },
-                "node2" : "val2",
-                "array" : [
-                    "item1",
-                    {
-                        "node3" : "val3"
-                    }
-                ]
-            }
-        }
-
-would be coded as:
-
-        tree.subtree.node1=val1
-        tree.node2=val2
-        tree.array+=item1
-        tree.array+.node3=val3
+GET method and multi-part form data do no provide ability to code all possible FutoIn request parameters.
+Only string parameters can be passed through this way.
 
 
 ## 3.4. Conflicts in passed parameters
