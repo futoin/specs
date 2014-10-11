@@ -23,7 +23,7 @@ Authors: Andrey Galkin
 * NOT YET FINAL: [FTN11 Implementation Feature Requirements ](./ftn11\_implementation\_feature\_requirements.md)
 
 # 4. Technology-specific integration
-* NOT YET FINAL: [FTN5 HTTP integration](./ftn5\_iface\_http\_integration.md)
+* [FTN5 HTTP integration](./ftn5\_iface\_http\_integration.md)
 
 # 5. Interfaces
 ## 5.1. Core
