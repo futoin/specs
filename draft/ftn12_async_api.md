@@ -1,7 +1,7 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.2
-Date: 2014-09-30
+Version: 1.3
+Date: 2014-10-18
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -14,6 +14,9 @@ Authors: Andrey Galkin
     * Added concept of successStep()
     * Added "error_info" convention
     * Changed behavior of as.error() to throw exception (not backward-compatible, but more like a bugfix)
+* v1.3
+    * Documented existing any way as.cancel()
+    * Split AsyncSteps API in logical groups for better understanding
 
 # 1. Concept
 
@@ -365,6 +368,11 @@ For convenience, error() is extended with optional parameter error_info
     
 ## 2.2. Functions
 
+It is assumed that all functions in this section are part of **single AsyncSteps interface**.
+However, they are grouped by semantical scope of use.
+
+### 2.2.1. Common API - can be used in any context
+
 1. *AsyncSteps add( execute_callback func[, error_callback onerror] )*
     * add step, executor callback gets async interface as parameter
     * can be called multiple times to add sub-steps of the same level (sequential execution)
@@ -376,6 +384,20 @@ For convenience, error() is extended with optional parameter error_info
         * the next step in current level is executed only when all parallel steps complete
         * sub-steps of parallel steps follow normal sequential semantics
         * success() does not allow any arguments - use state() to pass results
+1. *Map state()*
+    * returns reference to map/object, which can be populated with arbitrary state values
+1. *get/set/exists/unset* wildcard accessor, which map to state() variables
+    * only if supported by language/platform
+1. *AsyncSteps copyFrom( AsyncSteps other )*
+    * Copy steps and state variables not present in current state
+    from other(model) AsyncSteps object
+    * See cloning concept
+1. *clone*/*copy c-tor* - implementation-defined way of cloning AsyncSteps object
+
+### 2.2.2. Execution API - can be used only inside execute_callback
+
+*Note: success() and error() can be used in error_callback as well*
+
 1. *void success( [result_arg, ...] )*
     * successfully complete current step execution. Should be called from func()
 1. *void successStep()*
@@ -387,8 +409,6 @@ For convenience, error() is extended with optional parameter error_info
     * throws FutoIn.Error exception
     * calls onerror( async_iface, name ) after returning to execution engine
     * *error_info* - assigned to "error_info" state field
-1. *Map state()*
-    * returns reference to map/object, which can be populated with arbitrary state values
 1. *void setTimeout( timeout_ms )*
     * inform execution engine to wait for either success() or error()
     for specified timeout in ms. On timeout, error("Timeout") is called
@@ -396,15 +416,13 @@ For convenience, error() is extended with optional parameter error_info
     * if supported by language/platform, alias for success()
 1. *void setCancel( cancel_callback oncancel )*
     * set callback, to be used to cancel execution
-1. *get/set/exists/unset* wildcard accessor, which map to state() variables
-    * only if supported by language/platform
-1. *execute()* - must be called only once after Level 0 steps are configured.
+
+### 2.2.3. Control API - can be used only on Root AsyncSteps object
+
+1. *execute()* - must be called only once after root object steps are configured.
     * Initiates AsyncSteps execution implementation-defined way
-1. *clone*/*copy c-tor* - implementation-defined way of cloning AsyncSteps object
-1. *AsyncSteps copyFrom( AsyncSteps other )*
-    * Copy steps and state variables not present in current state
-    from other(model) AsyncSteps object
-    * See cloning concept
+1. *cancel()* - may be called on root object to asynchronously cancel execution
+
 
     
 # 3. Examples
