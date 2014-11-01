@@ -250,8 +250,8 @@ than requested minor version.</p>
 <li>void _member_call_intercept( AsyncSteps as, param1, param2, param3, ... )<ul>
 <li>Platform/Language-specific interception of undefined method calls, converting to</li>
 <li><em>as</em> - AsyncSteps</li>
-<li><em>name</em> - function name</li>
 <li><em>paramN</em> - unrolled list of parameters in exact sequence as defined in the iface</li>
+<li>NOTE: name is taken from invoker member name and/or stored in proxy function</li>
 </ul>
 </li>
 </ol>
@@ -260,7 +260,8 @@ than requested minor version.</p>
 binds specific DerivedKey for the following call.</p>
 <ol>
 <li>bindDerivedKey( AsyncSteps as )<ul>
-<li>returns though as.success()<ul>
+<li><em>as</em> - AsyncSteps</li>
+<li>results though as.success()<ul>
 <li><em>arg1</em> - NativeInterface instance with predetermined derived key to be used</li>
 <li><em>arg2</em> - DerivedKey instance</li>
 </ul>

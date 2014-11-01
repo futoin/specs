@@ -243,8 +243,8 @@ Advanced CCM:
 1. void _member_call_intercept( AsyncSteps as, param1, param2, param3, ... )
     * Platform/Language-specific interception of undefined method calls, converting to
     * *as* - AsyncSteps
-    * *name* - function name
     * *paramN* - unrolled list of parameters in exact sequence as defined in the iface
+    * NOTE: name is taken from invoker member name and/or stored in proxy function
 
 
 ## 2.3. Derived Key accessing wrapper
@@ -253,7 +253,8 @@ The same interface can be used in parallel. This feature generates and
 binds specific DerivedKey for the following call.
 
 1. bindDerivedKey( AsyncSteps as )
-    * returns though as.success()
+    * *as* - AsyncSteps
+    * results though as.success()
         * *arg1* - NativeInterface instance with predetermined derived key to be used
         * *arg2* - DerivedKey instance
 
