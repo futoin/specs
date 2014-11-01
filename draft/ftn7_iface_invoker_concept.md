@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Invoker Concept
-Version: 1.2
+Version: 1.DV3
 Date: 2014-09-30
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -40,7 +40,7 @@ values.
 There should be a common FutoIn exception type from which Expected and Unexpected
 FutoIn exception types must inherit as defined in FTN3.
 
-By design, most Executor implementation also implement Invoker design as it is required
+By design, most Executor implementations also implement Invoker design as it is required
 for separation of concerns on Service/RPC level, but not single project level.
 
 # 1.1. Reserved interface names
@@ -93,7 +93,7 @@ implementation-defined way, keeping the same behavior between remote and local c
 
 Local calls must never execute if there are Invoker frames on execution stack. It means, Invoker
 function must return before Executor runs or Executor must run in a different thread. Yes, it may have performance
-issues.
+issues, but is natural for async programming.
 
 
 # 2. Invoker interfaces
@@ -105,13 +105,13 @@ Reference Invoker concept is built around [FTN12 Async API](./ftn12\_async\_api.
 
 Simple CCM:
 
-1. void register( AsyncSteps as, name, ifacever, endpoint [, $credentials] )
+1. void register( AsyncSteps as, name, ifacever, endpoint [, credentials] )
     * register standard MasterService end-point (adds steps to *as*)
-    * *as* - AsyncSteps instance as registration may be blocking on external resources
+    * *as* - AsyncSteps instance as registration may be waiting for external resources
     * *name* - unique identifier in scope of CCM instance
     * *ifacever* - iface identifier and its version separated by colon, see note below
     * *endpoint* - URI or any other resource identifier of iface implementing peer, accepted by CCM implementation
-    * *$credentials* - optional, authentication credentials (string)
+    * "credentials* - optional, authentication credentials (string)
         * 'master' - enable MasterService authentication logic (Advanced CCM only)
         * '{user}:{clear-text-password}' - send as is in the 'sec' section
         * NOTE: some more reserved words and/or patterns can appear in the future
@@ -123,11 +123,11 @@ Simple CCM:
     * unregister previously registered interface (should not be used, unless really needed)
     * *name* - see register()
 1. NativeDefenseIface defense() - shortcut to iface( "#defense" )
-1. NativeLogIface log() - returns extended API interface as defined in [FTN9 IF AuditLogService][]
-1. NativeBurstIface burst() - returns extended API interface as defined in [FTN10 Burst Calls][]
-1. NativeCacheIface cache_l1() - returns extended API interface as defined in [FTN14 Cache][]
-1. NativeCacheIface cache_l2() - returns extended API interface as defined in [FTN14 Cache][]
-1. NativeCacheIface cache_l3() - returns extended API interface as defined in [FTN14 Cache][]
+1. NativeLogIface log() - returns native API interface as defined in [FTN9 IF AuditLogService][]
+1. NativeBurstIface burst() - returns native API interface as defined in [FTN10 Burst Calls][]
+1. NativeCacheIface cache_l1() - returns native API interface for Cache Level 1 as defined in [FTN14 Cache][]
+1. NativeCacheIface cache_l2() - returns native API interface for Cache Level 2 as defined in [FTN14 Cache][]
+1. NativeCacheIface cache_l3() - returns native API interface for Cache Level 3 as defined in [FTN14 Cache][]
 1. void assertIface( name, ifacever )
     * Assert that interface registered by name matches major version and minor is not less than required.
     * This function must generate fatal error and forbid any further execution
@@ -140,9 +140,9 @@ Simple CCM:
 
 Advanced CCM extensions:
 
-1. boolean initFromCache( AsyncSteps as, cache_l1_endpoint )
+1. void initFromCache( AsyncSteps as, cache_l1_endpoint )
     * *cache_l1_endpoint* - end-point URL for Cache L1
-    * returns true, if successfully initialized from cache (no need to register interfaces)
+    * as.success(), if successfully initialized from cache (no need to register interfaces)
     * Note: Cache L1 needs to be registered first
 1. void cacheInit( AsyncSteps as )
     * call after all registrations are done to cache them
@@ -201,9 +201,11 @@ than requested minor version.
 The following URL schemes should be supported:
 
 * http://
+    * not secure
 * https://
     * SecureChannel
 * ws:// - with automatic fallback to http://, if not supported by Invoker implementation
+    * not secure
 * wss// - with automatic fallback to https://, if not supported by Invoker implementation 
     * SecureChannel
 * self:// - implemented in scope of the same Executor, when used as CCM for Executor
@@ -221,22 +223,28 @@ The following URL schemes should be supported:
 
 ## 2.2. Native FutoIn interface interface
 
-1. void call( AsyncSteps as, name, params [, upload_data [, download_stream]] )
+1. void call( AsyncSteps as, name, params [, upload_data [, download_stream [, timeout ]]] )
     * generic FutoIn function call interface
     * result is passed through AsyncSteps.success() as a map
-    * upload_data - either raw data or input stream, if provided
-    * download_stream - output stream, if provided
+    * *as* - AsyncSteps
+    * *name* - function name
+    * *params* - map of parameters
+    * *upload_data* - either raw data or input stream, if provided
+    * *download_stream* - output stream, if provided
+    * *timeout* - if provided, overrides the default from CCM configuration, <=0 - disable timeout
     * Note: data transfer requests must not interleave with non-data calls, if parallel processing is possible
-1. InterfaceInfo iface() - return interface to introspect interface information:
+1. InterfaceInfo ifaceInfo() - return interface to introspect interface information:
 1. NativeBurstIface burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
 1. void bindDerivedKey( AsyncSteps as )
     * results with DerivedKeyAccessor through as.success()
 
 Advanced CCM:
 
-1. void _member_call_intercept_( AsyncSteps as, param1, param2, param3 )
+1. void _member_call_intercept( AsyncSteps as, param1, param2, param3, ... )
     * Platform/Language-specific interception of undefined method calls, converting to
-    NativeInterface.call()
+    * *as* - AsyncSteps
+    * *name* - function name
+    * *paramN* - unrolled list of parameters in exact sequence as defined in the iface
 
 
 ## 2.3. Derived Key accessing wrapper
@@ -244,8 +252,10 @@ Advanced CCM:
 The same interface can be used in parallel. This feature generates and
 binds specific DerivedKey for the following call.
 
-1. derivedKey()
-1. *() - any function, calls underlying iface function, ensuring the right derived key in use
+1. bindDerivedKey( AsyncSteps as )
+    * returns though as.success()
+        * *arg1* - NativeInterface instance with predetermined derived key to be used
+        * *arg2* - DerivedKey instance
 
 ## 2.4. Derived Key
 
@@ -262,17 +272,6 @@ See [FTN12 Async API](./ftn12\_async\_api.md)
 1. inherits() - get list of inherited interfaces starting from the most derived, may be null
 1. funcs() - get list of available functions, may be null
 1. constraints() - get list of interface constraints, may be null
-
-
-# 3. Language/Platform-specific notes
-
-## 3.1. native JVM (Java, Groovy, etc.)
-
-## 3.2. Python
-
-## 3.3. PHP
-
-## 3.4. C++
 
 
 [FTN9 IF AuditLogService]: ./ftn9\_if\_auditlog.md "FTN9 Interface - AuditLog"
