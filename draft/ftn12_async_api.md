@@ -1,22 +1,25 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.3
-Date: 2014-10-18
+Version: 1.4DV
+Date: 2014-12-01
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.1
-    * Added cloning concept and requirements
-* v1.2
+* v1.4 - 2014-12-01
+    * Updated 1.6.1 and renamed to "The Safety Rules of AsyncSteps helpers"
+* v1.3 - 2014-10-18
+    * Documented existing any way as.cancel()
+    * Split AsyncSteps API in logical groups for better understanding
+* v1.2 - 2014-09-30
     * Added concept of successStep()
     * Added "error_info" convention
     * Changed behavior of as.error() to throw exception (not backward-compatible, but more like a bugfix)
-* v1.3
-    * Documented existing any way as.cancel()
-    * Split AsyncSteps API in logical groups for better understanding
+* v1.1 - 2014-09-07
+    * Added cloning concept and requirements
+* v1.0 - 2014-08-31
 
 # 1. Concept
 
@@ -321,12 +324,13 @@ As a counterpart for error handling, we must ensure that execution has stopped a
 is triggered in someHelper*() with no enclosing sub-step. The only safe way is to throw exception
 what is now done in as.error()
 
-### 1.6.1. Safety Rules of "Success" and "Error"
+### 1.6.1. The Safety Rules of AsyncSteps helpers
 
 1. as.success() should be called only in top-most function of the
     step (the one passed to as.add() directly)
 1. if top-most functions calls abstract helpers then it should call as.successStep()
     for safe and efficient successful termination
+1. setCancel() and/or setTimeout() must be called only in top most function
 
 
 ## 1.7. Error Info
