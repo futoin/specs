@@ -10,6 +10,7 @@ Authors: Andrey Galkin
 
 * v1.4 - 2014-12-01
     * Updated 1.6.1 and renamed to "The Safety Rules of AsyncSteps helpers"
+    * Added .util() specification
 * v1.3 - 2014-10-18
     * Documented existing any way as.cancel()
     * Split AsyncSteps API in logical groups for better understanding
@@ -420,6 +421,8 @@ However, they are grouped by semantical scope of use.
     * if supported by language/platform, alias for success()
 1. *void setCancel( cancel_callback oncancel )*
     * set callback, to be used to cancel execution
+1. *Utils utils()*
+    * Returns advanced utility interface
 
 ### 2.2.3. Control API - can be used only on Root AsyncSteps object
 
@@ -427,6 +430,26 @@ However, they are grouped by semantical scope of use.
     * Initiates AsyncSteps execution implementation-defined way
 1. *cancel()* - may be called on root object to asynchronously cancel execution
 
+### 2.2.4. Utils API - advanced, but not essential tools
+1. *void while( cond, func, [, label] )*
+    * while *cond( as )* execute *func( as )*  returns true
+    * *func* - loop body
+    * *cond* - condition to check before each execution
+    * *label* - optional label to use for *break()* and *continue()* in inner loops
+1. *void forEach( map|list, func [, label] )*
+    * for each *map* or *list* element call *func( as, key, value )*
+    * *label* - optional label to use for *break()* and *continue()* in inner loops
+1. *void repeat( count, func [, label] )*
+    * Call *func(as, i)* for *count* times
+    * *count* - how many times to call the *func*
+    * *func( as, i )* - loop body, i - current iteration starting from 0
+    * *label* - optional label to use for *break()* and *continue()* in inner loops
+1. *void break( [label] )*
+    * break execution of current loop
+    * *label* - unwind loops, until *label* named loop is exited
+1. *void continue( [label] )*
+    * continue loop execution from the next iteration
+    * *label* - break loops, until *label* named loop is found
 
     
 # 3. Examples

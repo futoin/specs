@@ -16,6 +16,7 @@ Authors: Andrey Galkin
 <ul>
 <li>v1.4 - 2014-12-01<ul>
 <li>Updated 1.6.1 and renamed to "The Safety Rules of AsyncSteps helpers"</li>
+<li>Added .util() specification</li>
 </ul>
 </li>
 <li>v1.3 - 2014-10-18<ul>
@@ -414,6 +415,10 @@ for specified timeout in ms. On timeout, error("Timeout") is called</li>
 <li>set callback, to be used to cancel execution</li>
 </ul>
 </li>
+<li><em>Utils utils()</em><ul>
+<li>Returns advanced utility interface</li>
+</ul>
+</li>
 </ol>
 <h3>2.2.3. Control API - can be used only on Root AsyncSteps object</h3>
 <ol>
@@ -422,6 +427,38 @@ for specified timeout in ms. On timeout, error("Timeout") is called</li>
 </ul>
 </li>
 <li><em>cancel()</em> - may be called on root object to asynchronously cancel execution</li>
+</ol>
+<h3>2.2.4. Utils API - advanced, but not essential tools</h3>
+<ol>
+<li><em>void while( cond, func, [, label] )</em><ul>
+<li>while <em>cond( as )</em> execute <em>func( as )</em>  returns true</li>
+<li><em>func</em> - loop body</li>
+<li><em>cond</em> - condition to check before each execution</li>
+<li><em>label</em> - optional label to use for <em>break()</em> and <em>continue()</em> in inner loops</li>
+</ul>
+</li>
+<li><em>void forEach( map|list, func [, label] )</em><ul>
+<li>for each <em>map</em> or <em>list</em> element call <em>func( as, key, value )</em></li>
+<li><em>label</em> - optional label to use for <em>break()</em> and <em>continue()</em> in inner loops</li>
+</ul>
+</li>
+<li><em>void repeat( count, func [, label] )</em><ul>
+<li>Call <em>func(as, i)</em> for <em>count</em> times</li>
+<li><em>count</em> - how many times to call the <em>func</em></li>
+<li><em>func( as, i )</em> - loop body, i - current iteration starting from 0</li>
+<li><em>label</em> - optional label to use for <em>break()</em> and <em>continue()</em> in inner loops</li>
+</ul>
+</li>
+<li><em>void break( [label] )</em><ul>
+<li>break execution of current loop</li>
+<li><em>label</em> - unwind loops, until <em>label</em> named loop is exited</li>
+</ul>
+</li>
+<li><em>void continue( [label] )</em><ul>
+<li>continue loop execution from the next iteration</li>
+<li><em>label</em> - break loops, until <em>label</em> named loop is found</li>
+</ul>
+</li>
 </ol>
 <h1>3. Examples</h1>
 <p>In pseudo-code.</p>
