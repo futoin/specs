@@ -1,14 +1,14 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.4DV
-Date: 2014-12-08
+Version: 1.4
+Date: 2014-12-09
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.4 - 2014-12-08
+* v1.4 - 2014-12-09
     * Updated 1.6.1 and renamed to "The Safety Rules of AsyncSteps helpers"
     * Added 1.8 "Async Loops" and extended interface
 * v1.3 - 2014-10-18
