@@ -1,16 +1,16 @@
 <pre>
 FTN12: FutoIn Async API
 Version: 1.4DV
-Date: 2014-12-01
+Date: 2014-12-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.4 - 2014-12-01
+* v1.4 - 2014-12-08
     * Updated 1.6.1 and renamed to "The Safety Rules of AsyncSteps helpers"
-    * Added .util() specification
+    * Added 1.8 "Async Loops" and extended interface
 * v1.3 - 2014-10-18
     * Documented existing any way as.cancel()
     * Split AsyncSteps API in logical groups for better understanding
@@ -342,6 +342,74 @@ As a convention special "error_info" state field should hold descriptive informa
 For convenience, error() is extended with optional parameter error_info
 
 
+## 1.8. Async Loops
+
+Almost always, async program flow is not linear. Sometimes, loops are required.
+
+Basic principals of async loops:
+
+        as.loop( func( as ){
+            call_some_library( as );
+            as.add( func( as, result ){
+                if ( !result )
+                {
+                    // exit loop
+                    as.break();
+                }
+            } );
+        } )
+        
+Inner loops and identifiers:
+
+        // start loop
+        as.loop( 
+            func( as ){
+                as.loop( func( as ){
+                    call_some_library( as );
+                    as.add( func( as, result ){
+                        if ( !result )
+                        {
+                            // exit loop
+                            as.continue( "OUTER" );
+                        }
+
+                        as.success( result );
+                    } );
+                } );
+                
+                as.add( func( as, result ){
+                    // use it somehow
+                    as.success();
+                } );
+            },
+            "OUTER"
+        )
+        
+Loop n times.
+
+        as.repeat( 3, func( as, i ){
+            print( 'Iteration: ' + i )
+        } )
+        
+Traverse through list or map:
+
+        as.forEach(
+            [ 'apple', 'banana' ],
+            func( as, k, v ){
+                print( k + " = " + v )
+            }
+        )
+        
+### 1.8.1. Termination
+
+Normal loop termination is performed either by loop condition (e.g. as.forEach(), as.repeat())
+or by as.break() call. Normal termination is seen as as.success() call.
+
+Abnormal termination is possible through as.error(), including timeout, or external as.cancel().
+Abnormal termination is seen as as.error() call.
+
+
+
 # 2. Async Steps API
 
 ## 2.1. Types
@@ -430,26 +498,28 @@ However, they are grouped by semantical scope of use.
     * Initiates AsyncSteps execution implementation-defined way
 1. *cancel()* - may be called on root object to asynchronously cancel execution
 
-### 2.2.4. Utils API - advanced, but not essential tools
-1. *void while( cond, func, [, label] )*
-    * while *cond( as )* execute *func( as )*  returns true
-    * *func* - loop body
-    * *cond* - condition to check before each execution
-    * *label* - optional label to use for *break()* and *continue()* in inner loops
+### 2.2.4. Execution Loop API - can be used only inside execute_callback
+
+1. *void loop( func, [, label] )*
+    * execute loop until *as.break()* is called
+    * *func( as )* - loop body
+    * *label* - optional label to use for *as.break()* and *as.continue()* in inner loops
 1. *void forEach( map|list, func [, label] )*
     * for each *map* or *list* element call *func( as, key, value )*
-    * *label* - optional label to use for *break()* and *continue()* in inner loops
+    * *func( as, key, value )* - loop body
+    * *label* - optional label to use for *as.break()* and *as.continue()* in inner loops
 1. *void repeat( count, func [, label] )*
     * Call *func(as, i)* for *count* times
     * *count* - how many times to call the *func*
     * *func( as, i )* - loop body, i - current iteration starting from 0
-    * *label* - optional label to use for *break()* and *continue()* in inner loops
+    * *label* - optional label to use for *as.break()* and *as.continue()* in inner loops
 1. *void break( [label] )*
-    * break execution of current loop
+    * break execution of current loop, throws exception
     * *label* - unwind loops, until *label* named loop is exited
 1. *void continue( [label] )*
-    * continue loop execution from the next iteration
+    * continue loop execution from the next iteration, throws exception
     * *label* - break loops, until *label* named loop is found
+
 
     
 # 3. Examples
