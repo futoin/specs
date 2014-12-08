@@ -1,22 +1,26 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.3
-Date: 2014-10-18
+Version: 1.4
+Date: 2014-12-09
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.1
-    * Added cloning concept and requirements
-* v1.2
+* v1.4 - 2014-12-09
+    * Updated 1.6.1 and renamed to "The Safety Rules of AsyncSteps helpers"
+    * Added 1.8 "Async Loops" and extended interface
+* v1.3 - 2014-10-18
+    * Documented existing any way as.cancel()
+    * Split AsyncSteps API in logical groups for better understanding
+* v1.2 - 2014-09-30
     * Added concept of successStep()
     * Added "error_info" convention
     * Changed behavior of as.error() to throw exception (not backward-compatible, but more like a bugfix)
-* v1.3
-    * Documented existing any way as.cancel()
-    * Split AsyncSteps API in logical groups for better understanding
+* v1.1 - 2014-09-07
+    * Added cloning concept and requirements
+* v1.0 - 2014-08-31
 
 # 1. Concept
 
@@ -321,12 +325,13 @@ As a counterpart for error handling, we must ensure that execution has stopped a
 is triggered in someHelper*() with no enclosing sub-step. The only safe way is to throw exception
 what is now done in as.error()
 
-### 1.6.1. Safety Rules of "Success" and "Error"
+### 1.6.1. The Safety Rules of AsyncSteps helpers
 
 1. as.success() should be called only in top-most function of the
     step (the one passed to as.add() directly)
 1. if top-most functions calls abstract helpers then it should call as.successStep()
     for safe and efficient successful termination
+1. setCancel() and/or setTimeout() must be called only in top most function
 
 
 ## 1.7. Error Info
@@ -335,6 +340,74 @@ Error code is not always descriptive enough, especially, if it can be generated 
 As a convention special "error_info" state field should hold descriptive information of the last error.
 
 For convenience, error() is extended with optional parameter error_info
+
+
+## 1.8. Async Loops
+
+Almost always, async program flow is not linear. Sometimes, loops are required.
+
+Basic principals of async loops:
+
+        as.loop( func( as ){
+            call_some_library( as );
+            as.add( func( as, result ){
+                if ( !result )
+                {
+                    // exit loop
+                    as.break();
+                }
+            } );
+        } )
+        
+Inner loops and identifiers:
+
+        // start loop
+        as.loop( 
+            func( as ){
+                as.loop( func( as ){
+                    call_some_library( as );
+                    as.add( func( as, result ){
+                        if ( !result )
+                        {
+                            // exit loop
+                            as.continue( "OUTER" );
+                        }
+
+                        as.success( result );
+                    } );
+                } );
+                
+                as.add( func( as, result ){
+                    // use it somehow
+                    as.success();
+                } );
+            },
+            "OUTER"
+        )
+        
+Loop n times.
+
+        as.repeat( 3, func( as, i ){
+            print( 'Iteration: ' + i )
+        } )
+        
+Traverse through list or map:
+
+        as.forEach(
+            [ 'apple', 'banana' ],
+            func( as, k, v ){
+                print( k + " = " + v )
+            }
+        )
+        
+### 1.8.1. Termination
+
+Normal loop termination is performed either by loop condition (e.g. as.forEach(), as.repeat())
+or by as.break() call. Normal termination is seen as as.success() call.
+
+Abnormal termination is possible through as.error(), including timeout, or external as.cancel().
+Abnormal termination is seen as as.error() call.
+
 
 
 # 2. Async Steps API
@@ -416,12 +489,36 @@ However, they are grouped by semantical scope of use.
     * if supported by language/platform, alias for success()
 1. *void setCancel( cancel_callback oncancel )*
     * set callback, to be used to cancel execution
+1. *Utils utils()*
+    * Returns advanced utility interface
 
 ### 2.2.3. Control API - can be used only on Root AsyncSteps object
 
 1. *execute()* - must be called only once after root object steps are configured.
     * Initiates AsyncSteps execution implementation-defined way
 1. *cancel()* - may be called on root object to asynchronously cancel execution
+
+### 2.2.4. Execution Loop API - can be used only inside execute_callback
+
+1. *void loop( func, [, label] )*
+    * execute loop until *as.break()* is called
+    * *func( as )* - loop body
+    * *label* - optional label to use for *as.break()* and *as.continue()* in inner loops
+1. *void forEach( map|list, func [, label] )*
+    * for each *map* or *list* element call *func( as, key, value )*
+    * *func( as, key, value )* - loop body
+    * *label* - optional label to use for *as.break()* and *as.continue()* in inner loops
+1. *void repeat( count, func [, label] )*
+    * Call *func(as, i)* for *count* times
+    * *count* - how many times to call the *func*
+    * *func( as, i )* - loop body, i - current iteration starting from 0
+    * *label* - optional label to use for *as.break()* and *as.continue()* in inner loops
+1. *void break( [label] )*
+    * break execution of current loop, throws exception
+    * *label* - unwind loops, until *label* named loop is exited
+1. *void continue( [label] )*
+    * continue loop execution from the next iteration, throws exception
+    * *label* - break loops, until *label* named loop is found
 
 
     
