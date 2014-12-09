@@ -1,6 +1,6 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.4
+Version: 1.5
 Date: 2014-12-09
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -8,6 +8,11 @@ Authors: Andrey Galkin
 
 # CHANGES
 
+* v1.5 - 2014-12-09
+    * Added concept of implicit as.success()
+    * Deprecated as.successStep()
+    * Updated examples
+    * Updated "The Safety Rules of libraries with AsyncSteps interface"
 * v1.4 - 2014-12-09
     * Updated 1.6.1 and renamed to "The Safety Rules of AsyncSteps helpers"
     * Added 1.8 "Async Loops" and extended interface
@@ -293,46 +298,14 @@ Example:
 
 However, this approach only make sense for deep performance optimizations.
 
-## 1.6. "Success Step" and Throw
+## 1.6. Implicit as.success()
 
-During development, when step flow is not known at coding time, but dynamically resolved
-based on configuration, internal state, etc., it is common to see the following logic:
-
-    as.add(func( as ){
-        someHelperA( as ); // adds sub-step
-        someHelperB( as ); // does nothing
-        
-        // Not effective
-        as.add(func( as ){
-            as->success();
-        })
-    })
-    
-The idea is that is it not known in advance if someHelper*() adds sub-steps or not. However, we must ensure
-that a) only one success() call is yield b) there are no sub-steps. 
-
-To make this elegant and efficient, a "success step" concept can be introduced:
+If there are no sub-steps added, no timeout set and no cancel handler set then
+implicit as.success() call is assumed to simplify code and increase efficiency.
 
     as.add(func( as ){
-        someHelperA( as ); // adds sub-step
-        someHelperB( as ); // does nothing
-        
-        // Runtime optimized
-        as.successStep();
+        doSomeStuff( as );
     })
-    
-As a counterpart for error handling, we must ensure that execution has stopped after error
-is triggered in someHelper*() with no enclosing sub-step. The only safe way is to throw exception
-what is now done in as.error()
-
-### 1.6.1. The Safety Rules of AsyncSteps helpers
-
-1. as.success() should be called only in top-most function of the
-    step (the one passed to as.add() directly)
-1. if top-most functions calls abstract helpers then it should call as.successStep()
-    for safe and efficient successful termination
-1. setCancel() and/or setTimeout() must be called only in top most function
-
 
 ## 1.7. Error Info
 
@@ -409,6 +382,13 @@ Abnormal termination is possible through as.error(), including timeout, or exter
 Abnormal termination is seen as as.error() call.
 
 
+## 1.9. The Safety Rules of libraries with AsyncSteps interface
+
+1. as.success() should be called only in top-most function of the
+    step (the one passed to as.add() directly)
+1. setCancel() and/or setTimeout() must be called only in top most function
+    as repeated call overrides in scope of step
+
 
 # 2. Async Steps API
 
@@ -421,9 +401,11 @@ Abnormal termination is seen as as.error() call.
     * behavior:
         * either set completion status through as.success() or as.error()
         * or add sub-steps through as.add() and/or as.parallel()
-        * any violation is reported as as.error( InternalError )
+        * Optionally, set set time limit through as.setTimeout() and/or
+            set cancel handler through as.setCancel()
+        * any violation is reported as as.error( InternalError ). Not
+            applicable to implicit success.
     * can use as.state() for global current job state data
-    * can limit time for sub-step processing with setTimeout()
 * *void error_callback( AsyncSteps as, error )*
     * the first argument is always AsyncSteps object
     * the second argument comes from the previous as.error() call
@@ -473,7 +455,7 @@ However, they are grouped by semantical scope of use.
 
 1. *void success( [result_arg, ...] )*
     * successfully complete current step execution. Should be called from func()
-1. *void successStep()*
+1. DEPRECATED: *void successStep()*
     * efficiently add as.success() call or a sub-step with as.success()
         call, if there are other sub-steps added
     * run-time should optimize the sub-step case
@@ -543,7 +525,6 @@ In pseudo-code.
     ).add(
         function( inner_as, res1, res2 ){
             externalSuccess( res1, res2 );
-            inner_as.success()
         },
     )
 
@@ -578,7 +559,6 @@ In pseudo-code.
     ).add(
         function( inner_as, res1, res2 ){
             externalSuccess( res1, res2 );
-            inner_as.success()
         },
     )
     
@@ -591,7 +571,6 @@ In pseudo-code.
             inner_as.parallel().add(
                 function( inner2_as ){
                     inner2_as.state().parallel_1 = 1;
-                    inner2_as.success()
                 },
                 function( inner2_as, error )
                 {
@@ -601,12 +580,10 @@ In pseudo-code.
             ).add(
                 function( inner2_as ){
                     inner2_as.state().parallel_2 = 2;
-                    inner2_as.success()
                 },
                 function( inner2_as, error )
                 {
                     inner2_as.state().parallel_2 = 0;
-                    inner2_as.success()
                     // ignore error
                 }
             )
@@ -620,8 +597,28 @@ In pseudo-code.
                 as.state().parallel_1,
                 as.state().parallel_2
             );
-            inner_as.success()
         },
     )
+    
+## 3.4. loops
+
+    AsyncStepsImpl as;
+    
+    as.add(
+        function( as ){
+            as.repeat( 3, function( as, i ) {
+                print i;
+            } );
+            
+            as.forEach( [ 1, 3, 3 ], function( as, k, v ) {
+                print k "=" v;
+            } );
+            
+            as.forEach( as.state(), function( as, k, v ) {
+                print k "=" v;
+            } );
+        },
+    )
+        
     
 =END OF SPEC=
