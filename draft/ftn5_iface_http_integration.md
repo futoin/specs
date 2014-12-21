@@ -1,10 +1,16 @@
 <pre>
 FTN5: FutoIn HTTP integration
-Version: 1.0
-Date: 2014-10-11
+Version: 1.1DV
+Date: 2014-12-21
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
+
+# CHANGES
+
+* v1.1 - 2014-12-21
+    * Simplified error response when raw result is expected
+* v1.0 - 2014-10-11
 
 # 1. Intro
 
@@ -33,7 +39,7 @@ with no multiplexing on communication channel level.
 
 # 2. Use case auto-detection
 
-* If request URI exactly matches Executor's end-point URI:
+* If request URI exactly matches Executor's end-point URI:rawresult
     * case if POST
         * *Use Case #1*
         * read request body as JSON FutoIn request
@@ -70,20 +76,7 @@ with no multiplexing on communication channel level.
     * else
         * JSON FutoIn response (even with empty result variables)
 * on error,
-    * if raw data response expected (by spec)
-        * map errors to HTTP error codes
-            * UnknownInterface -> 501 Not Implemented
-            * NotSupportedVersion -> 501 Not Implemented
-            * NotImplemented -> 501 Not Implemented
-            * Unauthorized -> 401 Unauthorized
-            * InternalError -> 500 Internal Server Error
-            * InvalidRequest -> 400 Bad Request
-            * DefenseRejected -> 403 Forbidden
-            * PleaseReauth -> 403 Forbidden
-            * SecurityError -> 403 Forbidden
-            * {Function Throw} -> 409 Conflict (this code should not match any of the standard errors)
-    * else
-        * JSON FutoIn response
+    * JSON FutoIn response (even with raw result is expected)
 
 # 2.2. MIME-type
 
