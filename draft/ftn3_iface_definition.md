@@ -1,6 +1,6 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.0
+Version: 1.1DV
 Date: 2014-09-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -184,6 +184,10 @@ Using [JSON-SCHEMA][]:
                 "e" : {
                     "type" : "string",
                     "description" : "Exception/error name. Either r or e must be present"
+                },
+                "edesc" : {
+                    "type" : "string",
+                    "description" : "Optional. Error description, if e is present"
                 },
                 "rid" : {
                     "type" : "string",
