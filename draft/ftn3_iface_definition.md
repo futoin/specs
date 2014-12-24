@@ -1,10 +1,16 @@
 <pre>
 FTN3: FutoIn Interface Definition
 Version: 1.1DV
-Date: 2014-09-08
+Date: 2014-12-25
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
+
+# CHANGES
+
+* v1.1 - 2014-12-25
+    * Added response.edesc optional field
+* v1.0 - 2014-09-08
 
 # 1. Basic concept
 
