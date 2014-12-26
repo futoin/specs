@@ -10,6 +10,7 @@ Authors: Andrey Galkin
 
 * v1.2 - 2014-12-26
     * More precise executor function result return
+    * Updated rawInput() / rawOutput() to throw error, instead of returning null on error
 * v1.1 - 2014-10-11
     * Dropped INFO_COOKIES and INFO_USER_AGENT (were not used)
     * Added concept of ChannelContext/INFO_CHANNEL_CONTEXT
@@ -159,8 +160,8 @@ are assumed.
 1. map result() - return reference to response parameter map
 1. map info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
     * Note: info() is not merged to AsyncSteps only for minor security reasons
-1. stream rawInput() - return raw input stream or null, if FutoIn request comes in that stream
-1. stream rawOutput() - return raw output stream (no result variables are expected)
+1. stream rawInput() - return raw input stream or throws error
+1. stream rawOutput() - return raw output stream (no result variables are expected) or throws error
 1. Excutor executor() - get reference to Executor
 1. Language-specic get accessor for info properties
 
