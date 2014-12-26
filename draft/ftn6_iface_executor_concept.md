@@ -1,14 +1,16 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.1
-Date: 2014-10-11
+Version: 1.2DV
+Date: 2014-12-26
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.1
+* v1.2 - 2014-12-26
+    * More precise executor function result return
+* v1.1 - 2014-10-11
     * Dropped INFO_COOKIES and INFO_USER_AGENT (were not used)
     * Added concept of ChannelContext/INFO_CHANNEL_CONTEXT
         * HTTPChannelContext is defined in scope of FTN5: HTTP Integration
@@ -17,6 +19,7 @@ Authors: Andrey Galkin
         (would be broken backward compatibility, if used somewhere)
     * Changed context() to executor() to avoid ambiguity
         (would be broken backward compatibility, if used somewhere)
+* v1.0 - 2014-10-03
 
 # Warning
 
@@ -115,7 +118,7 @@ are assumed.
 1. Each FutoIn interfaces is represented as simple native
     interface type with only abstract methods for each
     FutoIn interface function
-2. Each abstract method must return no value and take exactly one
+2. Each abstract method should return no value and take exactly one
     Request Info object as argument for blocking implementation. Or
     AsyncSteps and RequestInfo objects as arguments for asynchronous
     implementation.
@@ -216,7 +219,16 @@ associated RequestInfo instance.
 
 ## 2.9. Interface Implementation
 
-No public members
+No public members, except for members of the implemented spec.
+
+Each call can set result variables the following way:
+
+1. through reqinfo.result() map
+2. by returning a map from the function
+3. by returning a map through as.success() call
+
+*Note: Executor implementation must merge all possible ways to set result variables
+in the strict order as listed above.*
 
 ## 2.10. Channel Context
 
