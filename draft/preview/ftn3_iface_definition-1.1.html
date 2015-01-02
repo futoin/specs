@@ -7,7 +7,7 @@
 <pre>
 FTN3: FutoIn Interface Definition
 Version: 1.1DV
-Date: 2014-12-25
+Date: 2015-01-02
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -16,6 +16,11 @@ Authors: Andrey Galkin
 <ul>
 <li>v1.1 - 2014-12-25<ul>
 <li>Added response.edesc optional field</li>
+<li>Added iface.ftn3rev field</li>
+<li>Added custom types concept</li>
+<li>Added import/mixin concept</li>
+<li>Added "any" type</li>
+<li>Added clarification of inheritance feature purpose compared to import</li>
 </ul>
 </li>
 <li>v1.0 - 2014-09-08</li>
@@ -189,6 +194,7 @@ in message multiplexing mode.</p>
     }
 </code></pre>
 <h2>1.8. Parameter and result types</h2>
+<p>The standard FutoIn interface types:</p>
 <ul>
 <li>boolean - true or false</li>
 <li>integer - signed integer with 32-bit precision</li>
@@ -203,8 +209,44 @@ in message multiplexing mode.</p>
 <li>value - any type defined in this section</li>
 </ul>
 </li>
+<li>any - field type is not checked</li>
+<li><em>CustomType</em> - any pre-defined custom type defined, inherited or imported
+    in the same iface</li>
 </ul>
 <p><em>Note: <strong>null</strong> can be used only as placeholder in "default" values.</em></p>
+<h3>1.8.1. Custom types</h3>
+<p>Each iface can define own types in the optional "types" fields.</p>
+<p>The types are inherited and imported. It is an error to redefine type in such case.</p>
+<p>Each custom type must be based on one of the standard types, but can define
+various <em>optional</em> constraints:</p>
+<ul>
+<li>integer and number:<ul>
+<li>min - minimal allowed value (inclusive).</li>
+<li>max - maximal allowed value (inclusive).</li>
+</ul>
+</li>
+<li>string:<ul>
+<li>regex - ECMAScript regular expression. Please use it to impose length constraints.</li>
+</ul>
+</li>
+<li>array:<ul>
+<li>minlen - minimal array length (inclusive).</li>
+<li>maxlen - maximal array length (inclusive).</li>
+<li>elemtype - required element type.</li>
+</ul>
+</li>
+<li>map:<ul>
+<li>fields - a map of field_name to:<ul>
+<li>type - required field type</li>
+<li>optional - optional. boolean. True, if the field can be omitted.</li>
+<li>desc - optional. string, Description of the field</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><em>NOTE: omitted optional field of custom map type must be set to null on incoming message (request
+for Executor and response for Invoker case)</em></p>
 <h2>1.9. Errors and exceptions</h2>
 <p>Any functional call can result in expected or unexpected errors. This concept
 is similar to checked/unchecked exceptions in Java language.</p>
@@ -266,7 +308,7 @@ structure for interface definition below.</p>
 <pre><code>    {
         "title" : "FutoIn interface definition schema",
         "type" : "object",
-        "required" : [ "iface", "version" ],
+        "required" : [ "iface", "version", "ftn3rev" ],
         "additionalProperties" : false,
         "properties" : {
             "iface" : {
@@ -278,6 +320,67 @@ structure for interface definition below.</p>
                 "type" : "string",
                 "pattern" : "^[0-9]+\\.[0-9]+$",
                 "description" : "Version of the given interface"
+            },
+            "ftn3rev" : {
+                "type" : "string",
+                "pattern" : "^[0-9]+\\.[0-9]+$",
+                "description" : "Version of the FTN3 spec, according to which the iface is defined"
+            },
+            "types" : {
+                "type" : "object",
+                "description" : "iface types. Must start with Capital",
+                "patternProperties" : {
+                    "^[A-Z][a-zA-Z0-9]*$" : {
+                        "type" : "object",
+                        "additionalProperties" : false,
+                        "properties" : {
+                            "type" :  {
+                                "type" : "string",
+                                "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                            },
+                            "min" : {
+                                "type": "number"
+                            },
+                            "max" : {
+                                "type": "number"
+                            },
+                            "minlen" : {
+                                "type": "number"
+                            },
+                            "maxlen" : {
+                                "type": "number"
+                            },
+                            "regex" : {
+                                "type": "string"
+                            },
+                            "elemtype" : {
+                                "type": "string"
+                            },
+                            "fields" : {
+                                "type": "object",
+                                "additionalProperties" : false,
+                                "properties" : {
+                                    "type" :  {
+                                        "type" : "string",
+                                        "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                                    },
+                                    "optional" : {
+                                        "type" : "boolean",
+                                        "description" : "If true the field is optional. Defaults to null"
+                                    },
+                                    "desc" : {
+                                        "type" : "string",
+                                        "description" : "Result variable description"
+                                    }
+                                }
+                            },
+                            "desc" : {
+                                "type" : "string",
+                                "description" : "Custom type description"
+                            }
+                        }
+                    }
+                }
             },
             "funcs" : {
                 "type" : "object",
@@ -296,7 +399,7 @@ structure for interface definition below.</p>
                                         "properties" : {
                                             "type" :  {
                                                 "type" : "string",
-                                                "pattern" : "^boolean|integer|number|string|map|array$"
+                                                "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                                             },
                                             "default" : {
                                                 "type" : [ "boolean", "integer", "number", "string", "object", "array", "null" ]
@@ -318,7 +421,7 @@ structure for interface definition below.</p>
                                         "properties" : {
                                             "type" :  {
                                                 "type" : "string",
-                                                "pattern" : "^boolean|integer|number|string|map|array$"
+                                                "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                                             },
                                             "desc" : {
                                                 "type" : "string",
@@ -358,6 +461,11 @@ structure for interface definition below.</p>
             "inherit" : {
                 "type" : "string",
                 "description" : "Name:version of interface to be inherited"
+            },
+            "imports" : {
+                "type" : "array",
+                "uniqueItems": true,
+                "description" : "Name:version of interface to be imported as a mixin"
             },
             "requires" : {
                 "type" : "array",
@@ -449,6 +557,12 @@ is called through parent interface (it should ignore additional result variable 
 </li>
 </ul>
 <p><em>Note: multiple interface inheritance is not supported at the moment</em></p>
+<p>Unfortunately, due to Executor's interface selection logic. The same base iface must not
+be used for inheritance of more than one derived interface within the same Executor instance.
+<em>The primary use of inheritance feature is to create reusable <strong>base implementation logic</strong>
+with customized extensions possible through derived interface.</em></p>
+<p>If only the interface itself, but not the implementation logic needs to be re-used then
+mixin/import feature is appropriate solution.</p>
 <h2>2.4. Interface operation requirements</h2>
 <p>Some interfaces must be restricted to certain conditions. This can be defined on interface level
 through "requires" attribute.</p>
@@ -486,5 +600,17 @@ two identical in structure folder trees "<strong>draft</strong>" and "<strong>fi
 application source will not need to be changed during development of new spec and after release of the spec. However,
 all draft specs are subject to change without version update. So, all draft specs should be cached with small
 Time-To-Live or not cached at all.</p>
+<h2>2.6. Iface definition spec version</h2>
+<p>Each interface must define "ftn3rev" field in standard MAJOR.MINOR version format.
+When the field is missing, FTN3 revision 1.0 is assumed.</p>
+<p>Invoker part must allow loading interface definition only if major version is supported,
+regardless of minor version.</p>
+<p>Executor part must allow loading interface only if specified FTN3 spec revision is fully
+supported.</p>
+<h2>2.7. Interface mixin</h2>
+<p>Interface mixin is appropriate solution when only <strong>interface definition</strong> needs to be re-used,
+but the logic behind is absolutely different. Example: CRUDL-like interface.</p>
+<p>Mixin interfaces are defined using "imports" field - an array of imported "iface:version"
+identifiers.</p>
 <p>=END OF SPEC=</p>
 </body></html>
