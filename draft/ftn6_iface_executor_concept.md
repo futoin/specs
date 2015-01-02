@@ -1,13 +1,15 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.2DV
-Date: 2014-12-26
+Version: 1.3DV
+Date: 2015-01-02
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.3 - 2015-01-02
+    * added RequestInfo.cancelAfter()
 * v1.2 - 2014-12-26
     * More precise executor function result return
     * Updated rawInput() / rawOutput() to throw error, instead of returning null on error
@@ -162,7 +164,11 @@ are assumed.
     * Note: info() is not merged to AsyncSteps only for minor security reasons
 1. stream rawInput() - return raw input stream or throws error
 1. stream rawOutput() - return raw output stream (no result variables are expected) or throws error
-1. Excutor executor() - get reference to Executor
+1. Executor executor() - get reference to Executor
+1. void cancelAfter( timeout_ms ) - set to abort request after specified timeout_ms from the
+    moment of call. It must override any previous cancelAfter() call.
+    *Note: it is different from as.setTimeout() as inner step timeout does not override outer step
+    timeout.*
 1. Language-specic get accessor for info properties
 
 
