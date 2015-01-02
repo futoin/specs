@@ -1,18 +1,24 @@
 <pre>
 FTN6: FutoIn Invoker Concept
 Version: 1.DV3
-Date: 2014-09-30
+Date: 2015-01-02
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.1
+* v1.3 - 2015-01-02
+    * Synchronized actual API changes with documentation
+* v1.2 - 2014-10-03
+    * Updated initialization cache API
+    * Updated endpoitn schemes
+* v1.1 - 2014-09-30
     * Added FTN14 Cache support
     * Clarified "credentials" parameter
     * Clarified "self://" scheme
     * Added AdvancedCCM-specific startup optimization extensions
+* v1.0 - 2014-09-26
 
 
 # Warning
