@@ -1,13 +1,15 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.5
-Date: 2014-12-09
+Version: 1.6
+Date: 2015-01-02
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.6 - 2015-01-02
+    * Added last_exception state variable
 * v1.5 - 2014-12-09
     * Added concept of implicit as.success()
     * Deprecated as.successStep()
@@ -307,12 +309,19 @@ implicit as.success() call is assumed to simplify code and increase efficiency.
         doSomeStuff( as );
     })
 
-## 1.7. Error Info
+## 1.7. Error Info and Last Exception
+
+Pre-defined state variables:
+
+* **error_info** - value of the second parameter passed to the last *as.error()* call
+* **last_exception** - the last exception caught, if feasible
 
 Error code is not always descriptive enough, especially, if it can be generated in multiple ways.
 As a convention special "error_info" state field should hold descriptive information of the last error.
+Therefore, *as.error()* is extended with optional parameter error_info.
 
-For convenience, error() is extended with optional parameter error_info
+"last_exception" state variables may hold the last exception object caught, if feasible
+to implement. It should be populated with FutoIn errors as well.
 
 
 ## 1.8. Async Loops
