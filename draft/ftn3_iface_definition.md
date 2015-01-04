@@ -273,7 +273,7 @@ various *optional* constraints:
         * desc - optional. string, Description of the field
 
 *NOTE: omitted optional field of custom map type must be set to null on incoming message (request
-for Executor and response for Invoker case)*
+for Executor and response for Invoker case). Optional fields should be allowed to be sent as null.*
 
 ## 1.9. Errors and exceptions
 
@@ -691,6 +691,9 @@ but the logic behind is absolutely different. Example: CRUDL-like interface.
 
 Mixin interfaces are defined using "imports" field - an array of imported "iface:version"
 identifiers.
+
+Import procedure must act exactly as inheritance in scope of processing "types", "funcs"
+and "requires" fields. However, imported interface must never be listed as inherited.
 
 
 [json]: http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "JSON"

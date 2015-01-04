@@ -246,7 +246,7 @@ various <em>optional</em> constraints:</p>
 </li>
 </ul>
 <p><em>NOTE: omitted optional field of custom map type must be set to null on incoming message (request
-for Executor and response for Invoker case)</em></p>
+for Executor and response for Invoker case). Optional fields should be allowed to be sent as null.</em></p>
 <h2>1.9. Errors and exceptions</h2>
 <p>Any functional call can result in expected or unexpected errors. This concept
 is similar to checked/unchecked exceptions in Java language.</p>
@@ -612,5 +612,7 @@ supported.</p>
 but the logic behind is absolutely different. Example: CRUDL-like interface.</p>
 <p>Mixin interfaces are defined using "imports" field - an array of imported "iface:version"
 identifiers.</p>
+<p>Import procedure must act exactly as inheritance in scope of processing "types", "funcs"
+and "requires" fields. However, imported interface must never be listed as inherited.</p>
 <p>=END OF SPEC=</p>
 </body></html>
