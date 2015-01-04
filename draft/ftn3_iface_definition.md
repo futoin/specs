@@ -15,6 +15,7 @@ Authors: Andrey Galkin
     * Added import/mixin concept
     * Added "any" type
     * Added clarification of inheritance feature purpose compared to import
+    * Added "BiDirectChannel" constraint
 * v1.0 - 2014-09-08
 
 # 1. Basic concept
@@ -515,7 +516,7 @@ Using [JSON-SCHEMA][]:
                     "description" : "List of conditions for interface operation",
                     "items" : {
                         "type" : "string",
-                        "pattern" : "^AllowAnonymous|SecureChannel|[a-zA-Z0-9]+$"
+                        "pattern" : "^AllowAnonymous|SecureChannel|BiDirectChannel|[a-zA-Z0-9]+$"
                     },
                     "uniqueItems": true
                 }
@@ -638,6 +639,8 @@ Standard requirement type:
 * SecureChannel - message exchange must be done through secure channel as it contains
     not encrypted sensitive information. Channel security control is both Client and Service
     implementation responsibility
+* BiDirectChannel - communication channel must allow bi-directional message exchange (both
+    peers should be able to act as invoker and executor)
 
 
 For safety reasons, inheriting interface must re-define all "requires" items from
