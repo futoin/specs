@@ -10,6 +10,7 @@ Authors: Andrey Galkin
 
 * v1.3 - 2015-01-02
     * added RequestInfo.cancelAfter()
+    * added security notes
 * v1.2 - 2014-12-26
     * More precise executor function result return
     * Updated rawInput() / rawOutput() to throw error, instead of returning null on error
@@ -107,6 +108,24 @@ Interfaces must get converted according to language/platform-specific
 convention into native interfaces, which can depend only on
 standard runtime and native language/platform-specific interfaces
 of Executor and related objects.
+
+## 1.2. Executor security
+
+Besides standard authentication and authorization mechanisms, peer with executor capabilities
+must create separate Executor objects to minimize risk of security flaws in such mechanisms.
+Example:
+
+* A single process implements:
+    * public services with Master/Slave key exchange authentication
+    * private services with Basic login/password authentication
+    * internal services like Logger DB access
+* The correct way would be:
+    1. Create a single CCM object
+    1. Create bare Executor for internal service implementation
+    1. Create HTTP/WS Executor for public services
+    1. Create Executor for private services
+        * Either local-transport Executor in scope of single operating system
+        * Or HTTP/WS Executor, but accessible from private network only
 
 
 # 2. Native Executor interface requirements
