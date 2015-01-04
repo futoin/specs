@@ -163,32 +163,37 @@ prior to using the specific component.</p>
 <pre><code>// Init
 AsyncSteps as;
 
-ccm.register( as, "some_id', "some.iface:1.3", "https://..." )
-ccm.alias( "some_id', "componentA.ifaceA" )
-ccm.alias( "some_id', "componentB.ifaceB" )
+as.add( function( as ){
+    ccm.register( as, "some_id', "some.iface:1.3", "https://..." )
+} )
 
-as.add( ComponentA.init )
-as.add( ComponentB.init )
+.add( function( as ){
+    // register must complete, before the interface can be aliased
+    ccm.alias( "some_id', "componentA.ifaceA" )
+    ccm.alias( "some_id', "componentB.ifaceB" )
 
-as.add( startService )
+    ComponentA.init( as );
+    ComponentB.init( as );
+    startService( as );
+} )
 
 // start actual execution
-as.execute();
+.execute();
 
 // in Component A (note minor version less than registered)
-ComponentA.init()
+ComponentA.init( as )
 {
     ccm.assertIface( "componentA.iface", "some.iface:1.0" )
     iface = ccm.iface( "componentA.iface" )
-    iface.someFunc()
+    iface.someFunc( as )
 }
 
 // in Component B (note different minor version)
-ComponentB.init()
+ComponentB.init( as )
 {
     ccm.assertIface( "componentB.iface", "some.iface:1.1" )
     iface = ccm.iface( "componentB.iface" )
-    iface.someFunc()
+    iface.someFunc( as )
 }
 </code></pre>
 <h3>2.1.2. Interface and version</h3>
