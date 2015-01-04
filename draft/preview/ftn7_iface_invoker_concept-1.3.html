@@ -242,7 +242,7 @@ than requested minor version.</p>
 <li><em>options.targetOrigin</em> of ccm.register() - the value for <em>targetOrigin</em> parameter of <em>window.postMessage()</em></li>
 <li><em>name</em><ul>
 <li>Either <strong>"parent"</strong> - send to current frame's parent window</li>
-<li>Or associative index in <strong>window.internal_futoin_endpoints</strong> object (to be created by user)</li>
+<li>Or global variable name (must have postMessage() property)</li>
 <li>Or unique HTML id of target iframe element</li>
 </ul>
 </li>

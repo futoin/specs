@@ -236,7 +236,7 @@ The following URL schemes should be supported:
     * *options.targetOrigin* of ccm.register() - the value for *targetOrigin* parameter of *window.postMessage()*
     * *name*
         * Either **"parent"** - send to current frame's parent window
-        * Or associative index in **window.internal_futoin_endpoints** object (to be created by user)
+        * Or global variable name (must have postMessage() property)
         * Or unique HTML id of target iframe element
     * Note: messages are sent as-is using HTML5 structured cloning algorithm, but not JSON representation
 * secure+{anyscheme}:// - force any scheme to be seen as secure (e.g. in controlled LAN)
