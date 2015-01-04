@@ -17,6 +17,7 @@ Authors: Andrey Galkin
 <li>v1.3 - 2015-01-04<ul>
 <li>Synchronized actual API changes with documentation</li>
 <li>Added internal web browser communication channel based on HTML5 Web Messaging specification</li>
+<li>Documented optional "options" parameter of ccm.register()</li>
 </ul>
 </li>
 <li>v1.2 - 2014-10-03<ul>
@@ -97,7 +98,7 @@ issues, but is natural for async programming.</p>
 <h2>2.1. Connection and Credentials Manager</h2>
 <p>Simple CCM:</p>
 <ol>
-<li>void register( AsyncSteps as, name, ifacever, endpoint [, credentials] )<ul>
+<li>void register( AsyncSteps as, name, ifacever, endpoint [, credentials [, options] ] )<ul>
 <li>register standard MasterService end-point (adds steps to <em>as</em>)</li>
 <li><em>as</em> - AsyncSteps instance as registration may be waiting for external resources</li>
 <li><em>name</em> - unique identifier in scope of CCM instance</li>
@@ -109,6 +110,7 @@ issues, but is natural for async programming.</p>
 <li>NOTE: some more reserved words and/or patterns can appear in the future</li>
 </ul>
 </li>
+<li><em>options</em> - optional, override global options of CCM</li>
 </ul>
 </li>
 <li>NativeIface iface( name )<ul>
@@ -235,14 +237,15 @@ than requested minor version.</p>
 </ul>
 </li>
 <li>browser://{name} - Web Browser communication channel<ul>
-<li>SecureChannel, if <em>credentials</em> parameter is set set</li>
+<li>SecureChannel, if <em>options.targetOrigin</em> parameter is set set</li>
 <li>Communication to be done through <a href="http://dev.w3.org/html5/postmsg/#dom-window-postmessage">HTML5 Web Messaging</a></li>
-<li><em>credentials</em> of ccm.register() - the value for <em>targetOrigin</em> parameter of <em>window.postMessage()</em></li>
+<li><em>options.targetOrigin</em> of ccm.register() - the value for <em>targetOrigin</em> parameter of <em>window.postMessage()</em></li>
 <li><em>name</em><ul>
 <li>Either <strong>"parent"</strong> - send to current frame's parent window</li>
 <li>Or associative index in <strong>window.internal_futoin_endpoints</strong> object (to be created by user)</li>
 </ul>
 </li>
+<li>Note: messages are sent as-is using HTML5 structured cloning algorithm, but not JSON representation</li>
 </ul>
 </li>
 <li>secure+{anyscheme}:// - force any scheme to be seen as secure (e.g. in controlled LAN)<ul>

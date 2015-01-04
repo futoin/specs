@@ -11,6 +11,7 @@ Authors: Andrey Galkin
 * v1.3 - 2015-01-04
     * Synchronized actual API changes with documentation
     * Added internal web browser communication channel based on HTML5 Web Messaging specification
+    * Documented optional "options" parameter of ccm.register()
 * v1.2 - 2014-10-03
     * Updated initialization cache API
     * Updated endpoitn schemes
@@ -112,7 +113,7 @@ Reference Invoker concept is built around [FTN12 Async API](./ftn12\_async\_api.
 
 Simple CCM:
 
-1. void register( AsyncSteps as, name, ifacever, endpoint [, credentials] )
+1. void register( AsyncSteps as, name, ifacever, endpoint [, credentials [, options] ] )
     * register standard MasterService end-point (adds steps to *as*)
     * *as* - AsyncSteps instance as registration may be waiting for external resources
     * *name* - unique identifier in scope of CCM instance
@@ -122,6 +123,7 @@ Simple CCM:
         * 'master' - enable MasterService authentication logic (Advanced CCM only)
         * '{user}:{clear-text-password}' - send as is in the 'sec' section
         * NOTE: some more reserved words and/or patterns can appear in the future
+    * *options* - optional, override global options of CCM
 1. NativeIface iface( name )
     * Get native interface wrapper for invocation of iface methods
     * *name* - see register()
@@ -229,12 +231,13 @@ The following URL schemes should be supported:
         * websocket
         * eot
 * browser://{name} - Web Browser communication channel
-    * SecureChannel, if *credentials* parameter is set set
+    * SecureChannel, if *options.targetOrigin* parameter is set set
     * Communication to be done through [HTML5 Web Messaging](http://dev.w3.org/html5/postmsg/#dom-window-postmessage)
-    * *credentials* of ccm.register() - the value for *targetOrigin* parameter of *window.postMessage()*
+    * *options.targetOrigin* of ccm.register() - the value for *targetOrigin* parameter of *window.postMessage()*
     * *name*
         * Either **"parent"** - send to current frame's parent window
         * Or associative index in **window.internal_futoin_endpoints** object (to be created by user)
+    * Note: messages are sent as-is using HTML5 structured cloning algorithm, but not JSON representation
 * secure+{anyscheme}:// - force any scheme to be seen as secure (e.g. in controlled LAN)
     * SecureChannel
     * Example: secure+http://, secure+ws://

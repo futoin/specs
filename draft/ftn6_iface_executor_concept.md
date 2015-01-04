@@ -205,7 +205,7 @@ are assumed.
 1. string host() - numeric, no name lookup
 1. string port() - IP port or local path/identifier
 1. string type() - IPv4, IPv6, LOCAL
-1. string asString() "Type:Host:Port"
+1. string asString() "Type:Host:Port" or "Type:Port"
 
 
 ## 2.5. Derived Key

@@ -204,7 +204,7 @@ are assumed.</p>
 <li>string host() - numeric, no name lookup</li>
 <li>string port() - IP port or local path/identifier</li>
 <li>string type() - IPv4, IPv6, LOCAL</li>
-<li>string asString() "Type:Host:Port"</li>
+<li>string asString() "Type:Host:Port" or "Type:Port"</li>
 </ol>
 <h2>2.5. Derived Key</h2>
 <ol>
@@ -259,9 +259,11 @@ in the strict order as listed above.</em></p>
 <ul>
 <li>string type() - get type of channel<ul>
 <li>HTTP (including HTTPS)</li>
-<li>LOCAL</li>
+<li>WS</li>
+<li>BROWSER</li>
 <li>TCP</li>
 <li>UDP</li>
+<li>UNIX</li>
 <li>any other - as non-standard extension</li>
 </ul>
 </li>
