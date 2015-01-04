@@ -1,15 +1,16 @@
 <pre>
 FTN6: FutoIn Invoker Concept
 Version: 1.DV3
-Date: 2015-01-02
+Date: 2015-01-04
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.3 - 2015-01-02
+* v1.3 - 2015-01-04
     * Synchronized actual API changes with documentation
+    * Added internal web browser communication channel based on HTML5 Web Messaging specification
 * v1.2 - 2014-10-03
     * Updated initialization cache API
     * Updated endpoitn schemes
@@ -212,7 +213,7 @@ The following URL schemes should be supported:
     * SecureChannel
 * ws:// - with automatic fallback to http://, if not supported by Invoker implementation
     * not secure
-* wss// - with automatic fallback to https://, if not supported by Invoker implementation 
+* wss:// - with automatic fallback to https://, if not supported by Invoker implementation 
     * SecureChannel
 * self:// - implemented in scope of the same Executor, when used as CCM for Executor
     * SecureChannel
@@ -222,6 +223,13 @@ The following URL schemes should be supported:
     * Framing Type:
         * websocket
         * eot
+* browser://{name} - Web Browser communication channel
+    * SecureChannel, if *credentials* parameter is set set
+    * Communication to be done through [HTML5 Web Messaging](http://dev.w3.org/html5/postmsg/#dom-window-postmessage)
+    * *credentials* of ccm.register() - the value for *targetOrigin* parameter of *window.postMessage()*
+    * *name*
+        * Either **"parent"** - send to current frame's parent window
+        * Or associative index in **window.internal_futoin_endpoints** object (to be created by user)
 * secure+{anyscheme}:// - force any scheme to be seen as secure (e.g. in controlled LAN)
     * SecureChannel
     * Example: secure+http://, secure+ws://
@@ -266,11 +274,11 @@ binds specific DerivedKey for the following call.
 
 ## 2.4. Derived Key
 
-See [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)
+See [FTN6 Interface Executor Concept](./ftn6_iface_executor_concept.md)
 
 ## 2.5. AsyncSteps interface
 
-See [FTN12 Async API](./ftn12\_async\_api.md)
+See [FTN12 Async API](./ftn12_async_api.md)
 
 ## 2.5. InterfaceInfo
 
@@ -281,9 +289,9 @@ See [FTN12 Async API](./ftn12\_async\_api.md)
 1. constraints() - get list of interface constraints, may be null
 
 
-[FTN9 IF AuditLogService]: ./ftn9\_if\_auditlog.md "FTN9 Interface - AuditLog"
-[FTN10 Burst Calls]: ./ftn10\_burst\_calls.md "FTN10 Burst Calls"
-[FTN14 Cache]: ./ftn14\_cache.md "FTN14 Cache"
+[FTN9 IF AuditLogService]: ./ftn9_if_auditlog.md "FTN9 Interface - AuditLog"
+[FTN10 Burst Calls]: ./ftn10_burst_calls.md "FTN10 Burst Calls"
+[FTN14 Cache]: ./ftn14_cache.md "FTN14 Cache"
 
 
 =END OF SPEC=

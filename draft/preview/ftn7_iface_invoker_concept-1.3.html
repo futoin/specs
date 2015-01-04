@@ -7,15 +7,16 @@
 <pre>
 FTN6: FutoIn Invoker Concept
 Version: 1.DV3
-Date: 2015-01-02
+Date: 2015-01-04
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.3 - 2015-01-02<ul>
+<li>v1.3 - 2015-01-04<ul>
 <li>Synchronized actual API changes with documentation</li>
+<li>Added internal web browser communication channel based on HTML5 Web Messaging specification</li>
 </ul>
 </li>
 <li>v1.2 - 2014-10-03<ul>
@@ -122,11 +123,11 @@ issues, but is natural for async programming.</p>
 </ul>
 </li>
 <li>NativeDefenseIface defense() - shortcut to iface( "#defense" )</li>
-<li>NativeLogIface log() - returns native API interface as defined in <a href="./ftn9\_if\_auditlog.html" title="FTN9 Interface - AuditLog">FTN9 IF AuditLogService</a></li>
-<li>NativeBurstIface burst() - returns native API interface as defined in <a href="./ftn10\_burst\_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
-<li>NativeCacheIface cache_l1() - returns native API interface for Cache Level 1 as defined in <a href="./ftn14\_cache.html" title="FTN14 Cache">FTN14 Cache</a></li>
-<li>NativeCacheIface cache_l2() - returns native API interface for Cache Level 2 as defined in <a href="./ftn14\_cache.html" title="FTN14 Cache">FTN14 Cache</a></li>
-<li>NativeCacheIface cache_l3() - returns native API interface for Cache Level 3 as defined in <a href="./ftn14\_cache.html" title="FTN14 Cache">FTN14 Cache</a></li>
+<li>NativeLogIface log() - returns native API interface as defined in <a href="./ftn9_if_auditlog.html" title="FTN9 Interface - AuditLog">FTN9 IF AuditLogService</a></li>
+<li>NativeBurstIface burst() - returns native API interface as defined in <a href="./ftn10_burst_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
+<li>NativeCacheIface cache_l1() - returns native API interface for Cache Level 1 as defined in <a href="./ftn14_cache.html" title="FTN14 Cache">FTN14 Cache</a></li>
+<li>NativeCacheIface cache_l2() - returns native API interface for Cache Level 2 as defined in <a href="./ftn14_cache.html" title="FTN14 Cache">FTN14 Cache</a></li>
+<li>NativeCacheIface cache_l3() - returns native API interface for Cache Level 3 as defined in <a href="./ftn14_cache.html" title="FTN14 Cache">FTN14 Cache</a></li>
 <li>void assertIface( name, ifacever )<ul>
 <li>Assert that interface registered by name matches major version and minor is not less than required.</li>
 <li>This function must generate fatal error and forbid any further execution</li>
@@ -210,7 +211,7 @@ than requested minor version.</p>
 <li>not secure</li>
 </ul>
 </li>
-<li>wss// - with automatic fallback to https://, if not supported by Invoker implementation <ul>
+<li>wss:// - with automatic fallback to https://, if not supported by Invoker implementation <ul>
 <li>SecureChannel</li>
 </ul>
 </li>
@@ -224,6 +225,17 @@ than requested minor version.</p>
 <li>Framing Type:<ul>
 <li>websocket</li>
 <li>eot</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>browser://{name} - Web Browser communication channel<ul>
+<li>SecureChannel, if <em>credentials</em> parameter is set set</li>
+<li>Communication to be done through <a href="http://dev.w3.org/html5/postmsg/#dom-window-postmessage">HTML5 Web Messaging</a></li>
+<li><em>credentials</em> of ccm.register() - the value for <em>targetOrigin</em> parameter of <em>window.postMessage()</em></li>
+<li><em>name</em><ul>
+<li>Either <strong>"parent"</strong> - send to current frame's parent window</li>
+<li>Or associative index in <strong>window.internal_futoin_endpoints</strong> object (to be created by user)</li>
 </ul>
 </li>
 </ul>
@@ -249,7 +261,7 @@ than requested minor version.</p>
 </ul>
 </li>
 <li>InterfaceInfo ifaceInfo() - return interface to introspect interface information:</li>
-<li>NativeBurstIface burst() - returns extended API interfaces defined in <a href="./ftn10\_burst\_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
+<li>NativeBurstIface burst() - returns extended API interfaces defined in <a href="./ftn10_burst_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
 <li>void bindDerivedKey( AsyncSteps as )<ul>
 <li>results with DerivedKeyAccessor through as.success()</li>
 </ul>
