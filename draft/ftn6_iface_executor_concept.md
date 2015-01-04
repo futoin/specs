@@ -262,9 +262,11 @@ in the strict order as listed above.*
 
 * string type() - get type of channel
     * HTTP (including HTTPS)
-    * LOCAL
+    * WS
+    * BROWSER
     * TCP
     * UDP
+    * UNIX
     * any other - as non-standard extension
 * boolean isStateful()
     * check if current communication channel between Invoker and Executor is stateful
