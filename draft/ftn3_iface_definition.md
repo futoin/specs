@@ -16,6 +16,7 @@ Authors: Andrey Galkin
     * Added "any" type
     * Added clarification of inheritance feature purpose compared to import
     * Added "BiDirectChannel" constraint
+    * Added "heavy" function property
 * v1.0 - 2014-09-08
 
 # 1. Basic concept
@@ -489,6 +490,10 @@ Using [JSON-SCHEMA][]:
                                     "uniqueItems": true,
                                     "description" : "List of associative error names, which can be triggered by function execution"
                                 },
+                                "heavy" : {
+                                    "type" : "boolean",
+                                    "desc" : "Mark request as \"heavy\" in terms processing"
+                                },
                                 "desc" : {
                                     "type" : "string",
                                     "description" : "Interface Function description"
@@ -697,6 +702,12 @@ identifiers.
 
 Import procedure must act exactly as inheritance in scope of processing "types", "funcs"
 and "requires" fields. However, imported interface must never be listed as inherited.
+
+## 2.8. "Heavy" requests
+
+Some request functions can be marked as "heavy". Executor implementation may use this meta-
+information to limit number of concurrent "heavy" requests for stability and performance
+reasons. Heavy requests may also get a different default timeout value.
 
 
 [json]: http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "JSON"

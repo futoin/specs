@@ -188,6 +188,7 @@ are assumed.
     moment of call. It must override any previous cancelAfter() call.
     *Note: it is different from as.setTimeout() as inner step timeout does not override outer step
     timeout.*
+    * *timeout_ms* - timeout in miliseconds to cancel after. 0 - disable timeout
 1. Language-specic get accessor for info properties
 
 

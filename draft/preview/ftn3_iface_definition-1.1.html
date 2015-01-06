@@ -22,6 +22,7 @@ Authors: Andrey Galkin
 <li>Added "any" type</li>
 <li>Added clarification of inheritance feature purpose compared to import</li>
 <li>Added "BiDirectChannel" constraint</li>
+<li>Added "heavy" function property</li>
 </ul>
 </li>
 <li>v1.0 - 2014-09-08</li>
@@ -446,6 +447,10 @@ structure for interface definition below.</p>
                                 "uniqueItems": true,
                                 "description" : "List of associative error names, which can be triggered by function execution"
                             },
+                            "heavy" : {
+                                "type" : "boolean",
+                                "desc" : "Mark request as \"heavy\" in terms processing"
+                            },
                             "desc" : {
                                 "type" : "string",
                                 "description" : "Interface Function description"
@@ -617,5 +622,9 @@ but the logic behind is absolutely different. Example: CRUDL-like interface.</p>
 identifiers.</p>
 <p>Import procedure must act exactly as inheritance in scope of processing "types", "funcs"
 and "requires" fields. However, imported interface must never be listed as inherited.</p>
+<h2>2.8. "Heavy" requests</h2>
+<p>Some request functions can be marked as "heavy". Executor implementation may use this meta-
+information to limit number of concurrent "heavy" requests for stability and performance
+reasons. Heavy requests may also get a different default timeout value.</p>
 <p>=END OF SPEC=</p>
 </body></html>

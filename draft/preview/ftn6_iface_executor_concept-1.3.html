@@ -186,7 +186,10 @@ are assumed.</p>
 <li>void cancelAfter( timeout_ms ) - set to abort request after specified timeout_ms from the
     moment of call. It must override any previous cancelAfter() call.
     <em>Note: it is different from as.setTimeout() as inner step timeout does not override outer step
-    timeout.</em></li>
+    timeout.</em><ul>
+<li><em>timeout_ms</em> - timeout in miliseconds to cancel after. 0 - disable timeout</li>
+</ul>
+</li>
 <li>Language-specic get accessor for info properties</li>
 </ol>
 <h2>2.3. User info</h2>
