@@ -17,6 +17,7 @@ Authors: Andrey Galkin
     * Added clarification of inheritance feature purpose compared to import
     * Added "BiDirectChannel" constraint
     * Added "heavy" function property
+    * Officially documented payload size safety limits
 * v1.0 - 2014-09-08
 
 # 1. Basic concept
@@ -323,6 +324,13 @@ for all excepted errors.
 * **Timeout** - Timeout occurred in any stage
     *Must be used only internally*.
 
+## 1.10. Payload size safety limits
+
+It is assumed that both request and response messages are relatively small. All heavy data should be
+transfered as raw HTTP or other lower level protocol payload. Therefore, a **safety limit
+of 64 KBytes is imposed for any type of payload**. Both Invoker and Executor should control
+this limit, unless there is efficient mechanism with O(1) complexity to transfer message
+from peer to peer (e.g. shared memory).
 
 
 # 2. Interface concept

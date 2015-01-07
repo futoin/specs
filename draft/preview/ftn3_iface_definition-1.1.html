@@ -23,6 +23,7 @@ Authors: Andrey Galkin
 <li>Added clarification of inheritance feature purpose compared to import</li>
 <li>Added "BiDirectChannel" constraint</li>
 <li>Added "heavy" function property</li>
+<li>Officially documented payload size safety limits</li>
 </ul>
 </li>
 <li>v1.0 - 2014-09-08</li>
@@ -290,6 +291,12 @@ for all excepted errors.</p>
 <li><strong>Timeout</strong> - Timeout occurred in any stage
     <em>Must be used only internally</em>.</li>
 </ul>
+<h2>1.10. Payload size safety limits</h2>
+<p>It is assumed that both request and response messages are relatively small. All heavy data should be
+transfered as raw HTTP or other lower level protocol payload. Therefore, a <strong>safety limit
+of 64 KBytes is imposed for any type of payload</strong>. Both Invoker and Executor should control
+this limit, unless there is efficient mechanism with O(1) complexity to transfer message
+from peer to peer (e.g. shared memory).</p>
 <h1>2. Interface concept</h1>
 <p>Executor side functions identifiers are grouped into interfaces, which must have
 a specifications in FutoIn format. Further, those will be named "<em>spec</em>" for singular
