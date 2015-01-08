@@ -185,6 +185,7 @@ are assumed.
 1. stream rawInput() - return raw input stream or throws error
 1. stream rawOutput() - return raw output stream (no result variables are expected) or throws error
 1. Executor executor() - get reference to Executor
+1. ChannelContext channel() - get reference to ChannelContext
 1. void cancelAfter( timeout_ms ) - set to abort request after specified timeout_ms from the
     moment of call. It must override any previous cancelAfter() call.
     *Note: it is different from as.setTimeout() as inner step timeout does not override outer step
