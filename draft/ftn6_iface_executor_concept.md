@@ -1,16 +1,17 @@
 <pre>
 FTN6: FutoIn Executor Concept
 Version: 1.3DV
-Date: 2015-01-02
+Date: 2015-01-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.3 - 2015-01-02
+* v1.3 - 2015-01-08
     * added RequestInfo.cancelAfter()
     * added security notes
+    * added ChannelContext.iface()
 * v1.2 - 2014-12-26
     * More precise executor function result return
     * Updated rawInput() / rawOutput() to throw error, instead of returning null on error
@@ -274,6 +275,12 @@ in the strict order as listed above.*
 * map state() - get channel state variables
     * state is persistent only for stateful protocols
 * void onInvokerAbort( callable( AsyncSteps as, user_data ), user_data=null )
+* void register( as, ifacever )
+    * Register interface as implemented by client peer
+    * *ifacever* - iface identifier and its version separated by colon
+* NativeIface iface( ifacever )
+    * Get native interface wrapper for invocation of iface methods on client peer
+    * *ifacever* - iface identifier and its version separated by colon
 * Language/Platform-specific get/set/remove/check accessors to state variables
 
 Various specification can extend this interface with additional functionality.
