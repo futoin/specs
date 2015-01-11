@@ -18,6 +18,7 @@ Authors: Andrey Galkin
 <li>Synchronized actual API changes with documentation</li>
 <li>Added internal web browser communication channel based on HTML5 Web Messaging specification</li>
 <li>Documented optional "options" parameter of ccm.register()</li>
+<li>Added standard option definition</li>
 </ul>
 </li>
 <li>v1.2 - 2014-10-03<ul>
@@ -254,6 +255,12 @@ than requested minor version.</p>
 <li>Example: secure+http://, secure+ws://</li>
 </ul>
 </li>
+</ul>
+<h3>2.1.4. End point options</h3>
+<ul>
+<li><em>specDirs</em> - Search dirs for spec definition or spec instance directly</li>
+<li><em>executor</em> - pass client-side executor for bi-directional communication channels</li>
+<li><em>targetOrigin</em> - browser-only. Origin of target for <em>window.postMessage()</em></li>
 </ul>
 <h2>2.2. Native FutoIn interface interface</h2>
 <ol>

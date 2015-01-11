@@ -12,6 +12,7 @@ Authors: Andrey Galkin
     * Synchronized actual API changes with documentation
     * Added internal web browser communication channel based on HTML5 Web Messaging specification
     * Documented optional "options" parameter of ccm.register()
+    * Added standard option definition
 * v1.2 - 2014-10-03
     * Updated initialization cache API
     * Updated endpoitn schemes
@@ -243,6 +244,11 @@ The following URL schemes should be supported:
     * SecureChannel
     * Example: secure+http://, secure+ws://
 
+### 2.1.4. End point options
+
+* *specDirs* - Search dirs for spec definition or spec instance directly
+* *executor* - pass client-side executor for bi-directional communication channels
+* *targetOrigin* - browser-only. Origin of target for *window.postMessage()*
 
 ## 2.2. Native FutoIn interface interface
 
