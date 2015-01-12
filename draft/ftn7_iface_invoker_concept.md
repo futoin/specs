@@ -1,18 +1,19 @@
 <pre>
-FTN6: FutoIn Invoker Concept
+FTN7: FutoIn Invoker Concept
 Version: 1.DV3
-Date: 2015-01-04
+Date: 2015-01-13
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.3 - 2015-01-04
+* v1.3 - 2015-01-13
     * Synchronized actual API changes with documentation
     * Added internal web browser communication channel based on HTML5 Web Messaging specification
     * Documented optional "options" parameter of ccm.register()
     * Added standard option definition
+    * Added Communication Errors notes
 * v1.2 - 2014-10-03
     * Updated initialization cache API
     * Updated endpoitn schemes
@@ -103,6 +104,10 @@ implementation-defined way, keeping the same behavior between remote and local c
 Local calls must never execute if there are Invoker frames on execution stack. It means, Invoker
 function must return before Executor runs or Executor must run in a different thread. Yes, it may have performance
 issues, but is natural for async programming.
+
+# 1.3. Communication Errors
+
+Invoker should transparently handle transitional communication errors with implicit retries.
 
 
 # 2. Invoker interfaces
@@ -249,6 +254,8 @@ The following URL schemes should be supported:
 * *specDirs* - Search dirs for spec definition or spec instance directly
 * *executor* - pass client-side executor for bi-directional communication channels
 * *targetOrigin* - browser-only. Origin of target for *window.postMessage()*
+* *retryCount*=1 - how many times to retry the call on CommError
+* *callTimeoutMS* - Overall call timeout (int)
 
 ## 2.2. Native FutoIn interface interface
 
