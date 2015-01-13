@@ -234,8 +234,7 @@ The following URL schemes should be supported:
 * unix://{framing_type}/{file_path} - UNIX stream socket file with specified framing type
     * SecureChannel
     * Framing Type:
-        * websocket
-        * eot
+        * TBD
 * browser://{name} - Web Browser communication channel
     * SecureChannel, if *options.targetOrigin* parameter is set set
     * Communication to be done through [HTML5 Web Messaging](http://dev.w3.org/html5/postmsg/#dom-window-postmessage)
