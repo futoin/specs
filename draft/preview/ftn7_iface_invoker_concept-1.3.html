@@ -20,6 +20,8 @@ Authors: Andrey Galkin
 <li>Documented optional "options" parameter of ccm.register()</li>
 <li>Added standard option definition</li>
 <li>Added Communication Errors notes</li>
+<li>Removed never implemented burst() calls</li>
+<li>Changed never implemented cache_lN() to cache( bucket )</li>
 </ul>
 </li>
 <li>v1.2 - 2014-10-03<ul>
@@ -67,9 +69,7 @@ Invoker implementation concept.</p>
 <li>"#defense" - Defense system v1.x</li>
 <li>"#acl" - Access Control system v1.x</li>
 <li>"#log" - Audit Logging v1.x</li>
-<li>"#cachel1" - cache v1.x (fast local, but small)</li>
-<li>"#cachel2" - cache v1.x (slower local, but large)</li>
-<li>"#cachel3" - cache v1.x (much slower and much larger)</li>
+<li>"#cache.{bucket}" - cache v1.x for "{bucket}"</li>
 </ul>
 <h1>1.2. Type and identifier safety</h1>
 <p>There should be a Simple CCM, which is lightweight and designed for small memory
@@ -130,10 +130,7 @@ issues, but is natural for async programming.</p>
 </li>
 <li>NativeDefenseIface defense() - shortcut to iface( "#defense" )</li>
 <li>NativeLogIface log() - returns native API interface as defined in <a href="./ftn9_if_auditlog.html" title="FTN9 Interface - AuditLog">FTN9 IF AuditLogService</a></li>
-<li>NativeBurstIface burst() - returns native API interface as defined in <a href="./ftn10_burst_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
-<li>NativeCacheIface cache_l1() - returns native API interface for Cache Level 1 as defined in <a href="./ftn14_cache.html" title="FTN14 Cache">FTN14 Cache</a></li>
-<li>NativeCacheIface cache_l2() - returns native API interface for Cache Level 2 as defined in <a href="./ftn14_cache.html" title="FTN14 Cache">FTN14 Cache</a></li>
-<li>NativeCacheIface cache_l3() - returns native API interface for Cache Level 3 as defined in <a href="./ftn14_cache.html" title="FTN14 Cache">FTN14 Cache</a></li>
+<li>NativeCacheIface cache( [bucket="default"] ) - returns native API interface for Cache as defined in <a href="./ftn14_cache.html" title="FTN14 Cache">FTN14 Cache</a></li>
 <li>void assertIface( name, ifacever )<ul>
 <li>Assert that interface registered by name matches major version and minor is not less than required.</li>
 <li>This function must generate fatal error and forbid any further execution</li>
@@ -281,7 +278,6 @@ than requested minor version.</p>
 </ul>
 </li>
 <li>InterfaceInfo ifaceInfo() - return interface to introspect interface information:</li>
-<li>NativeBurstIface burst() - returns extended API interfaces defined in <a href="./ftn10_burst_calls.html" title="FTN10 Burst Calls">FTN10 Burst Calls</a></li>
 <li>void bindDerivedKey( AsyncSteps as )<ul>
 <li>results with DerivedKeyAccessor through as.success()</li>
 </ul>

@@ -14,6 +14,8 @@ Authors: Andrey Galkin
     * Documented optional "options" parameter of ccm.register()
     * Added standard option definition
     * Added Communication Errors notes
+    * Removed never implemented burst() calls
+    * Changed never implemented cache_lN() to cache( bucket )
 * v1.2 - 2014-10-03
     * Updated initialization cache API
     * Updated endpoitn schemes
@@ -68,9 +70,7 @@ Invoker implementation concept.
 * "#defense" - Defense system v1.x
 * "#acl" - Access Control system v1.x
 * "#log" - Audit Logging v1.x
-* "#cachel1" - cache v1.x (fast local, but small)
-* "#cachel2" - cache v1.x (slower local, but large)
-* "#cachel3" - cache v1.x (much slower and much larger)
+* "#cache.{bucket}" - cache v1.x for "{bucket}"
 
 # 1.2. Type and identifier safety
 
@@ -139,10 +139,7 @@ Simple CCM:
     * *name* - see register()
 1. NativeDefenseIface defense() - shortcut to iface( "#defense" )
 1. NativeLogIface log() - returns native API interface as defined in [FTN9 IF AuditLogService][]
-1. NativeBurstIface burst() - returns native API interface as defined in [FTN10 Burst Calls][]
-1. NativeCacheIface cache_l1() - returns native API interface for Cache Level 1 as defined in [FTN14 Cache][]
-1. NativeCacheIface cache_l2() - returns native API interface for Cache Level 2 as defined in [FTN14 Cache][]
-1. NativeCacheIface cache_l3() - returns native API interface for Cache Level 3 as defined in [FTN14 Cache][]
+1. NativeCacheIface cache( [bucket="default"] ) - returns native API interface for Cache as defined in [FTN14 Cache][]
 1. void assertIface( name, ifacever )
     * Assert that interface registered by name matches major version and minor is not less than required.
     * This function must generate fatal error and forbid any further execution
@@ -269,7 +266,6 @@ The following URL schemes should be supported:
     * *timeout* - if provided, overrides the default from CCM configuration, <=0 - disable timeout
     * Note: data transfer requests must not interleave with non-data calls, if parallel processing is possible
 1. InterfaceInfo ifaceInfo() - return interface to introspect interface information:
-1. NativeBurstIface burst() - returns extended API interfaces defined in [FTN10 Burst Calls][]
 1. void bindDerivedKey( AsyncSteps as )
     * results with DerivedKeyAccessor through as.success()
 
@@ -311,7 +307,6 @@ See [FTN12 Async API](./ftn12_async_api.md)
 
 
 [FTN9 IF AuditLogService]: ./ftn9_if_auditlog.md "FTN9 Interface - AuditLog"
-[FTN10 Burst Calls]: ./ftn10_burst_calls.md "FTN10 Burst Calls"
 [FTN14 Cache]: ./ftn14_cache.md "FTN14 Cache"
 
 
