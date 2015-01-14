@@ -6,7 +6,10 @@ Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
+# CHANGES
+
 * v1.0 - 2015-01-14
+
 
 # 1. Concept
 

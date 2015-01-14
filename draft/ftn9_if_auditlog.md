@@ -1,9 +1,15 @@
 <pre>
 FTN9: FutoIn Interface - AuditLog
-Version: 0.1
+Version: 1.0DV
+Date: 2015-01-14
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
+
+# CHANGES
+
+* v1.0 - 2015-01-14
+
 
 # 1. Intro
 
@@ -20,7 +26,8 @@ with handy shortcuts and formatting.
 
         {
             "iface" : "futoin.log",
-            "version" : "0.1",
+            "version" : "1.0",
+            "ftn3rev" : "1.1",
             "funcs" : {
                 "msg" : {
                     "params" : {
@@ -80,7 +87,7 @@ feateres are desired.
     * lvl*f*( tpl, args ) - printf() or similar style
     * lvl*s*() - language/platform-specific stream object
 * Functions:
-    * msgf( lvl, tpl, args ) / msgs( lvl ) - formatting enabled msg functions
+    * msg( lvl, msg ) / msgf( lvl, tpl, args ) / msgs( lvl ) - formatting enabled msg functions
     * debug( msg ) / debugf( tpl, args ) / debugs() - equal to msg/msgf/msgs with "debug" lvl
     * info( msg ) / infof( tpl, args ) / infos() - equal to msg/msgf/msgs with "info" lvl
     * warn( msg ) / warnf( tpl, args ) / warns() - equal to msg/msgf/msgs with "warn" lvl
@@ -108,3 +115,4 @@ feateres are desired.
 
 [RAII]: http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization "Resource Acquisition Is Initialization"
 
+=END OF SPEC=
