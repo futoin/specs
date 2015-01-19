@@ -106,7 +106,7 @@ issues, but is natural for async programming.</p>
 <p>Simple CCM:</p>
 <ol>
 <li>event 'register' ( name, ifacever, rawinfo ) - when new interface get registered</li>
-<li>event 'unregister' ( name, ifacever, rawinfo ) - when interface get unregistered</li>
+<li>event 'unregister' ( name, rawinfo ) - when interface get unregistered</li>
 <li>event 'close' - when CCM is shutdown</li>
 <li>void register( AsyncSteps as, name, ifacever, endpoint [, credentials [, options] ] )<ul>
 <li>register standard MasterService end-point (adds steps to <em>as</em>)</li>
@@ -277,7 +277,7 @@ than requested minor version.</p>
 <ol>
 <li>event 'connect' - called on bi-directional channels when connection is established</li>
 <li>event 'close' - called when interface is unregistered or CCM shutdown</li>
-<li>event 'disconnect' - called on bi-directional channel on disconnect, but not 'close' condition</li>
+<li>event 'disconnect' - called on bi-directional channel on disconnect</li>
 <li>void call( AsyncSteps as, name, params [, upload_data [, download_stream [, timeout ]]] )<ul>
 <li>generic FutoIn function call interface</li>
 <li>result is passed through AsyncSteps.success() as a map</li>

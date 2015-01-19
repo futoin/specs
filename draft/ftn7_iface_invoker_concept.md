@@ -124,7 +124,7 @@ Reference Invoker concept is built around [FTN12 Async API](./ftn12\_async\_api.
 Simple CCM:
 
 1. event 'register' ( name, ifacever, rawinfo ) - when new interface get registered
-1. event 'unregister' ( name, ifacever, rawinfo ) - when interface get unregistered
+1. event 'unregister' ( name, rawinfo ) - when interface get unregistered
 1. event 'close' - when CCM is shutdown
 1. void register( AsyncSteps as, name, ifacever, endpoint [, credentials [, options] ] )
     * register standard MasterService end-point (adds steps to *as*)
@@ -266,7 +266,7 @@ The following URL schemes should be supported:
 
 1. event 'connect' - called on bi-directional channels when connection is established
 1. event 'close' - called when interface is unregistered or CCM shutdown
-1. event 'disconnect' - called on bi-directional channel on disconnect, but not 'close' condition
+1. event 'disconnect' - called on bi-directional channel on disconnect
 1. void call( AsyncSteps as, name, params [, upload_data [, download_stream [, timeout ]]] )
     * generic FutoIn function call interface
     * result is passed through AsyncSteps.success() as a map
