@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn15_native_event.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN7: FutoIn Invoker Concept
+Version: 1.DV0
+Date: 2015-01-19
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.0 - 2015-01-19</li>
+</ul>
+<h1>1. Concept</h1>
+<p>There is nothing new in this specification, but a formalization for
+referencing of a well known API pattern in JavaScript world.</p>
+<p>Any object may have on(), off(), once() and emit() methods to
+register event handler, unregister event handler, register event
+handler to catch only once and emit events.</p>
+<p>Event handler must get executed with no emit() call in function stack.</p>
+<h1>2. API</h1>
+<ul>
+<li>void on( event, handler )<ul>
+<li>register event handler</li>
+<li><em>event</em> - event name (string)</li>
+<li><em>handler</em> - callable, receiving optional emit() arguments</li>
+</ul>
+</li>
+<li>void once( event, handler )<ul>
+<li>the same as on(), but handler is fired only on first event</li>
+</ul>
+</li>
+<li>void off( event, handler )<ul>
+<li>unregister handler from the event</li>
+<li><em>event</em> - event name (string)</li>
+<li><em>handler</em> - the handler originally passed to on() or once()</li>
+</ul>
+</li>
+<li>void emit( event [, arg1, arg2, ...] )<ul>
+<li>Fire an event</li>
+<li><em>event</em> - event name (string)</li>
+<li><em>args</em> - optional arguments to be passed to event handler</li>
+</ul>
+</li>
+</ul>
+<p>=END OF SPEC=</p>
+</body></html>

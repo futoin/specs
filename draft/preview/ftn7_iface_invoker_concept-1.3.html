@@ -7,14 +7,14 @@
 <pre>
 FTN7: FutoIn Invoker Concept
 Version: 1.DV3
-Date: 2015-01-13
+Date: 2015-01-19
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.3 - 2015-01-13<ul>
+<li>v1.3 - 2015-01-19<ul>
 <li>Synchronized actual API changes with documentation</li>
 <li>Added internal web browser communication channel based on HTML5 Web Messaging specification</li>
 <li>Documented optional "options" parameter of ccm.register()</li>
@@ -22,6 +22,8 @@ Authors: Andrey Galkin
 <li>Added Communication Errors notes</li>
 <li>Removed never implemented burst() calls</li>
 <li>Changed never implemented cache_lN() to cache( bucket )</li>
+<li>Added close and disconnect events</li>
+<li>Added CCM close and register, unregister, close events</li>
 </ul>
 </li>
 <li>v1.2 - 2014-10-03<ul>
@@ -57,6 +59,7 @@ values.</p>
 FutoIn exception types must inherit as defined in FTN3.</p>
 <p>By design, most Executor implementations also implement Invoker design as it is required
 for separation of concerns on Service/RPC level, but not single project level.</p>
+<p>There are several native events supported using <a href="./ftn15_native_event.html" title="FTN15 Native Event">FTN15 Native Event</a> interface</p>
 <h1>1.1. Reserved interface names</h1>
 <p>Some of interface names can be reserved for internal semantics, like runtime
 resolving service interface.</p>
@@ -102,6 +105,9 @@ issues, but is natural for async programming.</p>
 <h2>2.1. Connection and Credentials Manager</h2>
 <p>Simple CCM:</p>
 <ol>
+<li>event 'register' ( name, ifacever, rawinfo ) - when new interface get registered</li>
+<li>event 'unregister' ( name, ifacever, rawinfo ) - when interface get unregistered</li>
+<li>event 'close' - when CCM is shutdown</li>
 <li>void register( AsyncSteps as, name, ifacever, endpoint [, credentials [, options] ] )<ul>
 <li>register standard MasterService end-point (adds steps to <em>as</em>)</li>
 <li><em>as</em> - AsyncSteps instance as registration may be waiting for external resources</li>
@@ -142,6 +148,10 @@ issues, but is natural for async programming.</p>
 <li>Alias interface name with another name</li>
 <li><em>name</em> - as provided in register()</li>
 <li><em>alias</em> - register alias for <em>name</em></li>
+</ul>
+</li>
+<li>void close()<ul>
+<li>Shutdown CCM processing</li>
 </ul>
 </li>
 </ol>
@@ -265,6 +275,8 @@ than requested minor version.</p>
 </ul>
 <h2>2.2. Native FutoIn interface interface</h2>
 <ol>
+<li>event 'close' - call when interface is unregistered or CCM shutdown</li>
+<li>event 'disconnect' - call on interface disconnect, but not 'close' condition</li>
 <li>void call( AsyncSteps as, name, params [, upload_data [, download_stream [, timeout ]]] )<ul>
 <li>generic FutoIn function call interface</li>
 <li>result is passed through AsyncSteps.success() as a map</li>

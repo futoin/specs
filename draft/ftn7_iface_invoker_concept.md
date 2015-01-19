@@ -1,14 +1,14 @@
 <pre>
 FTN7: FutoIn Invoker Concept
 Version: 1.DV3
-Date: 2015-01-13
+Date: 2015-01-19
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.3 - 2015-01-13
+* v1.3 - 2015-01-19
     * Synchronized actual API changes with documentation
     * Added internal web browser communication channel based on HTML5 Web Messaging specification
     * Documented optional "options" parameter of ccm.register()
@@ -16,6 +16,8 @@ Authors: Andrey Galkin
     * Added Communication Errors notes
     * Removed never implemented burst() calls
     * Changed never implemented cache_lN() to cache( bucket )
+    * Added close and disconnect events
+    * Added CCM close and register, unregister, close events
 * v1.2 - 2014-10-03
     * Updated initialization cache API
     * Updated endpoitn schemes
@@ -54,6 +56,8 @@ FutoIn exception types must inherit as defined in FTN3.
 
 By design, most Executor implementations also implement Invoker design as it is required
 for separation of concerns on Service/RPC level, but not single project level.
+
+There are several native events supported using [FTN15 Native Event][] interface
 
 # 1.1. Reserved interface names
 
@@ -119,6 +123,9 @@ Reference Invoker concept is built around [FTN12 Async API](./ftn12\_async\_api.
 
 Simple CCM:
 
+1. event 'register' ( name, ifacever, rawinfo ) - when new interface get registered
+1. event 'unregister' ( name, ifacever, rawinfo ) - when interface get unregistered
+1. event 'close' - when CCM is shutdown
 1. void register( AsyncSteps as, name, ifacever, endpoint [, credentials [, options] ] )
     * register standard MasterService end-point (adds steps to *as*)
     * *as* - AsyncSteps instance as registration may be waiting for external resources
@@ -149,6 +156,8 @@ Simple CCM:
     * Alias interface name with another name
     * *name* - as provided in register()
     * *alias* - register alias for *name*
+1. void close()
+    * Shutdown CCM processing
 
 Advanced CCM extensions:
 
@@ -255,6 +264,8 @@ The following URL schemes should be supported:
 
 ## 2.2. Native FutoIn interface interface
 
+1. event 'close' - call when interface is unregistered or CCM shutdown
+1. event 'disconnect' - call on interface disconnect, but not 'close' condition
 1. void call( AsyncSteps as, name, params [, upload_data [, download_stream [, timeout ]]] )
     * generic FutoIn function call interface
     * result is passed through AsyncSteps.success() as a map
@@ -308,6 +319,7 @@ See [FTN12 Async API](./ftn12_async_api.md)
 
 [FTN9 IF AuditLogService]: ./ftn9_if_auditlog.md "FTN9 Interface - AuditLog"
 [FTN14 Cache]: ./ftn14_cache.md "FTN14 Cache"
+[FTN15 Native Event]: ./ftn15_native_event.md "FTN15 Native Event"
 
 
 =END OF SPEC=
