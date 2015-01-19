@@ -16,8 +16,8 @@ Authors: Andrey Galkin
     * Added Communication Errors notes
     * Removed never implemented burst() calls
     * Changed never implemented cache_lN() to cache( bucket )
-    * Added close and disconnect events
-    * Added CCM close and register, unregister, close events
+    * Added native event support
+    * Added CCM close()
 * v1.2 - 2014-10-03
     * Updated initialization cache API
     * Updated endpoitn schemes
@@ -264,8 +264,9 @@ The following URL schemes should be supported:
 
 ## 2.2. Native FutoIn interface interface
 
-1. event 'close' - call when interface is unregistered or CCM shutdown
-1. event 'disconnect' - call on interface disconnect, but not 'close' condition
+1. event 'connect' - called on bi-directional channels when connection is established
+1. event 'close' - called when interface is unregistered or CCM shutdown
+1. event 'disconnect' - called on bi-directional channel on disconnect, but not 'close' condition
 1. void call( AsyncSteps as, name, params [, upload_data [, download_stream [, timeout ]]] )
     * generic FutoIn function call interface
     * result is passed through AsyncSteps.success() as a map
