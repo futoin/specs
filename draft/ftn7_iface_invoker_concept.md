@@ -261,6 +261,7 @@ The following URL schemes should be supported:
 * *targetOrigin* - browser-only. Origin of target for *window.postMessage()*
 * *retryCount*=1 - how many times to retry the call on CommError
 * *callTimeoutMS* - Overall call timeout (int)
+* *nativeImpl* - Native iface implementation class
 
 ## 2.2. Native FutoIn interface interface
 

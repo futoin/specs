@@ -28,6 +28,13 @@ with handy shortcuts and formatting.
             "iface" : "futoin.log",
             "version" : "1.0",
             "ftn3rev" : "1.1",
+            "types" : {
+                "LogTimeStamp" : {
+                    "type" : "string",
+                    "regex" : "^[0-9]{14}\\.[0-9]+$",
+                    "desc" : "Original timestamp in YYYYMMDDhhmmss.frac format"
+                }
+            },
             "funcs" : {
                 "msg" : {
                     "params" : {
@@ -40,8 +47,7 @@ with handy shortcuts and formatting.
                             "desc" : "Text message, may include new lines"
                         },
                         "ts" : {
-                            "type" : "string",
-                            "desc" : "Original timestamp in YYYYMMDDhhmmss.frac format"
+                            "type" : "LogTimeStamp"
                         }
                     },
                     "desc" : "Trivial log message"
@@ -57,8 +63,7 @@ with handy shortcuts and formatting.
                             "desc" : "Text message, may include new lines"
                         },
                         "ts" : {
-                            "type" : "string",
-                            "desc" : "Original timestamp in YYYYMMDDhhmmss.frac format"
+                            "type" : "LogTimeStamp"
                         },
                         "data" : {
                             "type" : "string",
