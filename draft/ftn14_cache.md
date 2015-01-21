@@ -1,20 +1,23 @@
 <pre>
-FTN13: FutoIn Cache
+FTN14: FutoIn Cache
 Version: 1.0DV
-Date: 2015-01-14
+Date: 2015-01-22
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2015-01-14
+* v1.0 - 2015-01-22
 
 
 # 1. Concept
 
 This spec is trying to be as simple as possible to
 meet very basic needs of caching.
+
+It it expected that Service implementation handles cache hammering
+mitigation (e.g. by "expiring" ttl for some get requests 10% earlier).
 
 # 2. Interface schema
 
@@ -32,6 +35,15 @@ meet very basic needs of caching.
                             "desc" : "Unique cache key"
                         }
                     },
+                    "result" : {
+                        "value" : {
+                            "type" : "any",
+                            "desc" : "Any previously cached value"
+                        }
+                    },
+                    "throws" : [
+                        "CacheMiss"
+                    ],
                     "desc" : "Trivial cached value retrieval"
                 },
                 "set" : {
@@ -76,14 +88,14 @@ meet very basic needs of caching.
 
 * Extend "futoin.cache"
 * Functions:
-    * void getOrSet( as, key_prefix, params, callable, ttl )
+    * void getOrSet( as, key_prefix, callable, params, ttl )
         * *key_prefix* - unique key prefix
+        * *callable( as, params.. )* - a callable which is called to generated value on cache miss
         * *params* - parameters to be passed to *callable*
-        * *callable( params.. )* - a callable which is called to generated value on cache miss
         * *tt* - time to live to use, if value is set on cache miss
         * NOTE: the actual cache key is formed with concatenation of *key_prefix* and join
             of *params* values
-        * NOTE: implementation should mitigate cache hammering to achieve single execution
-            of callable per cache miss
+        * NOTE: cache hammering mitigation logic should be implemented on Service side
+            to achieve single execution of callable per cache miss
 
 =END OF SPEC=
