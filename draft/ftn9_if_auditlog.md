@@ -29,9 +29,14 @@ with handy shortcuts and formatting.
             "version" : "1.0",
             "ftn3rev" : "1.1",
             "types" : {
+                "LogLevel" : {
+                    "type" : "string",
+                    "regex" : "^(debug|info|warn|error|security)$",
+                    "desc" : "Severity level"
+                },
                 "LogTimeStamp" : {
                     "type" : "string",
-                    "regex" : "^[0-9]{14}\\.[0-9]+$",
+                    "regex" : "^[0-9]{14}(\\.[0-9]+)?$",
                     "desc" : "Original timestamp in YYYYMMDDhhmmss.frac format"
                 }
             },
@@ -39,8 +44,7 @@ with handy shortcuts and formatting.
                 "msg" : {
                     "params" : {
                         "lvl" : {
-                            "type" : "string",
-                            "desc" : "Severity level: debug|info|warn|error|security"
+                            "type" : "LogLevel"
                         },
                         "txt" : {
                             "type" : "string",
@@ -55,8 +59,7 @@ with handy shortcuts and formatting.
                 "hexdump" : {
                     "params" : {
                         "lvl" : {
-                            "type" : "string",
-                            "desc" : "Severity level: debug|info|warn|error|security"
+                            "type" : "LogLevel"
                         },
                         "txt" : {
                             "type" : "string",
@@ -74,6 +77,7 @@ with handy shortcuts and formatting.
                 }
             },
             "requires" : [
+                "AllowAnonymous",
                 "SecureChannel"
             ],
             "desc" : "Audit Log interface"
