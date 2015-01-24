@@ -1,0 +1,1 @@
+{"iface": "futoin.ping", "version": "1.0", "ftn3rev": "1.1", "funcs": {"ping": {"params": {"echo": {"type": "string", "desc": "Any string"}}, "result": {"echo": {"type": "string", "desc": "See params"}}, "desc": "Check if peer is accessible"}}, "requires": ["AllowAnonymous"], "desc": "Ping-pong interface"}
