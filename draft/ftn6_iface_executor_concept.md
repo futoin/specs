@@ -12,6 +12,7 @@ Authors: Andrey Galkin
     * added RequestInfo.cancelAfter()
     * added security notes
     * added ChannelContext.register() & ChannelContext.iface()
+    * added onEndpointRequest() & onInternalRequest()
 * v1.2 - 2014-12-26
     * More precise executor function result return
     * Updated rawInput() / rawOutput() to throw error, instead of returning null on error
@@ -238,6 +239,16 @@ associated RequestInfo instance.
     * impl is object derived from native interface or associative name for lazy loading
 1. void process( AsyncSteps as ) - do full cycle of request processing, including all security checks
     * as->reqinfo must point to instance of RequestInfo
+1. void onEndpointRequest( info, ftnreq, send_executor_rsp )
+    * Entry point for Server-originated requests
+    * *info* - internal CCM interface info
+    * *ftnreq* - incoming FutoIn request object
+    * *send_executor_rsp( rsp )* - callback to send response
+1. void onInternalRequest( as, info, ftnreq )
+    * Entry point for in-program originated requests. Process with maximum efficiency
+    * *info* - internal CCM interface info
+    * *ftnreq* - incoming FutoIn request object
+    * returns ftnrsp through as.success() or fails through as.error()
 1. void checkAccess( AsyncSteps as, acd ) - shortcut to check access through #acl interface
     * as->reqinfo must point to instance of RequestInfo
 1. void initFromCache( AsyncSteps as )
