@@ -1,11 +1,19 @@
 <pre>
 FTN3: FutoIn Security Concept
 Version: 0.1
+Date: 2014-06-03
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
+# CHANGES
+
+* v1.0 - 2014-06-03
+
+
 # Warning
+
+**!!! THIS ONE IS HEAVILY OUTDATED. IT NEEDS TO BE REWRITTEN AND REDESIGNED !!!**
 
 This document is not actually a specification, but more an overview as it requires
 a LOT of polishing first.
@@ -1188,3 +1196,4 @@ to the same OS instance as running Service.
 [base64]: http://www.ietf.org/rfc/rfc2045.txt "RFC2045 section 6.8"
 [ssh-pubkey]: http://www.ietf.org/rfc/rfc4716.txt "RFC4716 The Secure Shell (SSH) Public Key File Format"
 
+=END OF SPEC=
