@@ -1,14 +1,14 @@
 <pre>
 FTN7: FutoIn Invoker Concept
-Version: 1.DV3
-Date: 2015-01-19
+Version: 1.3
+Date: 2015-01-21
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.3 - 2015-01-19
+* v1.3 - 2015-01-21
     * Synchronized actual API changes with documentation
     * Added internal web browser communication channel based on HTML5 Web Messaging specification
     * Documented optional "options" parameter of ccm.register()

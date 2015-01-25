@@ -1,14 +1,14 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.3DV
-Date: 2015-01-12
+Version: 1.3
+Date: 2015-01-25
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.3 - 2015-01-12
+* v1.3 - 2015-01-25
     * added RequestInfo.cancelAfter()
     * added security notes
     * added ChannelContext.register() & ChannelContext.iface()

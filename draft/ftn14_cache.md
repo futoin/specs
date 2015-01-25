@@ -1,6 +1,6 @@
 <pre>
 FTN14: FutoIn Cache
-Version: 1.0DV
+Version: 1.0
 Date: 2015-01-22
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin

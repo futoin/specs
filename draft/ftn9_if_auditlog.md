@@ -1,14 +1,14 @@
 <pre>
 FTN9: FutoIn Interface - AuditLog
-Version: 1.0DV
-Date: 2015-01-14
+Version: 1.0
+Date: 2015-01-21
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2015-01-14
+* v1.0 - 2015-01-21
 
 
 # 1. Intro

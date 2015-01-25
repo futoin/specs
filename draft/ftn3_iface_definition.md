@@ -1,6 +1,6 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.1DV
+Version: 1.1
 Date: 2015-01-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin

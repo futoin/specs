@@ -1,6 +1,6 @@
 <pre>
 FTN5: FutoIn HTTP integration
-Version: 1.1DV
+Version: 1.1
 Date: 2014-12-21
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
