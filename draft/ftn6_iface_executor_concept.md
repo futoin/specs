@@ -13,6 +13,7 @@ Authors: Andrey Galkin
     * added security notes
     * added ChannelContext.register() & ChannelContext.iface()
     * added onEndpointRequest() & onInternalRequest()
+    * added Executor close()
 * v1.2 - 2014-12-26
     * More precise executor function result return
     * Updated rawInput() / rawOutput() to throw error, instead of returning null on error
@@ -255,6 +256,8 @@ associated RequestInfo instance.
     * load initialization from cache
 1. void cacheInit( AsyncSteps as )
     * store initialization to cache
+1. void close()
+    * Shutdown Executor processing
 
 
 ## 2.9. Interface Implementation
