@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn6_iface_executor_concept.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN6: FutoIn Executor Concept
+Version: 1.3
+Date: 2015-01-25
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.3 - 2015-01-25<ul>
+<li>added RequestInfo.cancelAfter()</li>
+<li>added security notes</li>
+<li>added ChannelContext.register() &amp; ChannelContext.iface()</li>
+<li>added onEndpointRequest() &amp; onInternalRequest()</li>
+<li>added Executor close()</li>
+</ul>
+</li>
+<li>v1.2 - 2014-12-26<ul>
+<li>More precise executor function result return</li>
+<li>Updated rawInput() / rawOutput() to throw error, instead of returning null on error</li>
+</ul>
+</li>
+<li>v1.1 - 2014-10-11<ul>
+<li>Dropped INFO_COOKIES and INFO_USER_AGENT (were not used)</li>
+<li>Added concept of ChannelContext/INFO_CHANNEL_CONTEXT<ul>
+<li>HTTPChannelContext is defined in scope of FTN5: HTTP Integration</li>
+</ul>
+</li>
+<li>Added INFO_HAVE_RAW_RESULT</li>
+<li>Dropped ignoreInvokerAbort() and replaced with ChannelContext.onInvokerAbort()
+    (would be broken backward compatibility, if used somewhere)</li>
+<li>Changed context() to executor() to avoid ambiguity
+    (would be broken backward compatibility, if used somewhere)</li>
+</ul>
+</li>
+<li>v1.0 - 2014-10-03</li>
+</ul>
+<h1>Warning</h1>
+<p>This specification IS NOT mandatory. It is just a reference model.
+Any implementation IS ALLOWED to provide own architecture with
+drawback of breaking easy migration from one to another.</p>
+<h1>1. Concept</h1>
+<p>There must be a generic object type, which can represent both
+request and response message data and/or communication channels.</p>
+<p>There must be a wrapper, which holds current request-response info
+and potentially a set of standard utilities.</p>
+<p>There must be a generic request Executor, which knows all registered
+interfaces and their implementations.</p>
+<p>Executor implementation is not limited in internal behavior, but should
+have standardized interface even for helper tools, like FutoIn interface
+compilers and/or converters.</p>
+<p>Executor is responsible for (actions are done in AsyncSteps):</p>
+<ol>
+<li>converting request from transport-level representation to internal message format</li>
+<li>gathering basic request-response info</li>
+<li>checking interface constraints</li>
+<li>checking message security (HMAC) or authenticating user by credentials</li>
+<li>passing control to implementation of specific interfaces with required major version</li>
+<li>catching exceptions or normal result</li>
+<li>converting response to transport-level representation</li>
+<li>maintaining persistent communication channel, if needed<pre><code>            Firewall
+Client          ||  Executor           Implementation
+   .            || [Register]                 .
+   .            ||      |                     .
+   |----- Request -----&gt;|                     .
+   |            ||  [Unpack]                  .
+   |            ||   [Info]                   .
+   |            || [Constraints]              .
+   |            ||  [Security]                .
+   |            ||      |---- Invoke --------&gt;|
+   |            ||      |&lt;-- Except/Result ---|
+   |            ||   [Pack]                   .
+   |&lt;---- Response -----|                     .
+   .            ||      |                     .
+   .            ||      |                     .
+</code></pre>
+</li>
+</ol>
+<p>Executor should be tighly integrated with MasterService implementation, if supported.
+General FutoIn message verification should be based on HMAC checking.</p>
+<p>Executor should also integrate with AuthService as consumer, if real human users expected to use the service.</p>
+<p><em>Note: Executor is allowed to pass control to implementation only if requested major version of
+interfaces exactly matches implemented version and minor version is greater than or equal
+to requested minor version.</em></p>
+<p>All actions are implemented through AsyncSteps interface (<a href="./ftn12_async_api.html">FTN12: Async API</a>).
+For backward compatibility with pre-FutoIn code and/or complex logic, it is possible to make blocking
+implementation. Such implementations run in dedicated worker threads/processes and receive only RequestInfo
+object reference.</p>
+<p>All true asynchronous implementations must implement special FutoIn AsyncImplementation interface to
+clearly distinguish more advanced one.</p>
+<p>Method signatures:</p>
+<pre><code>void AsyncMethod( AsyncSteps as, RequestInfo reqinfo );
+Result BlockingMethod( RequestInfo reqinfo );
+</code></pre>
+<p><em>Note: if BlockingMethod or AsyncMethod returns result then its fields are added to already existing
+result fields in reqinfo object.</em></p>
+<h2>1.1. FutoIn interfaces</h2>
+<p>Interfaces must get converted according to language/platform-specific
+convention into native interfaces, which can depend only on
+standard runtime and native language/platform-specific interfaces
+of Executor and related objects.</p>
+<h2>1.2. Executor security</h2>
+<p>Besides standard authentication and authorization mechanisms, peer with executor capabilities
+must create separate Executor objects to minimize risk of security flaws in such mechanisms.
+Example:</p>
+<ul>
+<li>A single process implements:<ul>
+<li>public services with Master/Slave key exchange authentication</li>
+<li>private services with Basic login/password authentication</li>
+<li>internal services like Logger DB access</li>
+</ul>
+</li>
+<li>The correct way would be:<ol>
+<li>Create a single CCM object</li>
+<li>Create bare Executor for internal service implementation</li>
+<li>Create HTTP/WS Executor for public services</li>
+<li>Create Executor for private services<ul>
+<li>Either local-transport Executor in scope of single operating system</li>
+<li>Or HTTP/WS Executor, but accessible from private network only</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h1>2. Native Executor interface requirements</h1>
+<p>Language/platform should support runtime introspection and
+exceptions. For other cases, platform/language-specific workarounds
+are assumed.</p>
+<h2>2.1. FutoIn interface</h2>
+<ol>
+<li>Each FutoIn interfaces is represented as simple native
+    interface type with only abstract methods for each
+    FutoIn interface function</li>
+<li>Each abstract method should return no value and take exactly one
+    Request Info object as argument for blocking implementation. Or
+    AsyncSteps and RequestInfo objects as arguments for asynchronous
+    implementation.</li>
+<li>Implementation method can assume that all request parameters defined
+    in spec can be accessed from request data</li>
+<li>Access to unexpected request and/or response parameters
+    should raise InternalError</li>
+<li>Throw of unexpected error should raise InternalError</li>
+<li>Each implementation method should have public access</li>
+<li>There must be no public method which is not part of the
+    specific FutoIn interface definition</li>
+<li>All native interfaces should inherit from single
+    native interface with no public abstract methods</li>
+</ol>
+<h2>2.2. Request Info</h2>
+<ol>
+<li>constants:<ul>
+<li>SL_ANONYMOUS = "Anonymous"</li>
+<li>SL_INFO = "Info"</li>
+<li>SL_SAFEOPS = "SafeOps"</li>
+<li>SL_PRIVLEGED_OPS = "PrivilegedOps"</li>
+<li>SL_EXCEPTIONAL_OPS = "ExceptionalOps"</li>
+<li>INFO_X509_CN - validated x509 certificate CN field</li>
+<li>INFO_PUBKEY - public key, if present</li>
+<li>INFO_CLIENT_ADDR - SourceAddress object of request external to current system
+    (e.g. without <em>trusted</em> reverse proxies, gateways, etc.)</li>
+<li>INFO_SECURE_CHANNEL - boolean - is request coming through secure channel?</li>
+<li>INFO_REQUEST_TIME_FLOAT - platform-specific timestamp of request processing start</li>
+<li>INFO_SECURITY_LEVEL - one of pre-defined security levels of current processing</li>
+<li>INFO_USER_INFO - user information object</li>
+<li>INFO_RAW_REQUEST - raw request object</li>
+<li>INFO_RAW_RESPONSE - raw response object</li>
+<li>INFO_DERIVED_KEY - derived key object</li>
+<li>INFO_HAVE_RAW_UPLOAD - boolean - have raw upload (e.g. can open rawInput())</li>
+<li>INFO_HAVE_RAW_RESULT - boolean - have raw result (e.g. should open rawOutput())</li>
+<li>INFO_CHANNEL_CONTEXT - persistent channel context (e.g. WebSockets</li>
+</ul>
+</li>
+<li>map params() - return reference to request parameter map</li>
+<li>map result() - return reference to response parameter map</li>
+<li>map info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):<ul>
+<li>Note: info() is not merged to AsyncSteps only for minor security reasons</li>
+</ul>
+</li>
+<li>stream rawInput() - return raw input stream or throws error</li>
+<li>stream rawOutput() - return raw output stream (no result variables are expected) or throws error</li>
+<li>Executor executor() - get reference to Executor</li>
+<li>ChannelContext channel() - get reference to ChannelContext</li>
+<li>void cancelAfter( timeout_ms ) - set to abort request after specified timeout_ms from the
+    moment of call. It must override any previous cancelAfter() call.
+    <em>Note: it is different from as.setTimeout() as inner step timeout does not override outer step
+    timeout.</em><ul>
+<li><em>timeout_ms</em> - timeout in miliseconds to cancel after. 0 - disable timeout</li>
+</ul>
+</li>
+<li>Language-specic get accessor for info properties</li>
+</ol>
+<h2>2.3. User info</h2>
+<ol>
+<li>string localID() - get user ID as seen by trusted AuthService</li>
+<li>string globalID() - get globally unique user ID</li>
+<li>void details( AsyncSteps as, array user_field_identifiers )<ul>
+<li>Request more detailed user information gets available</li>
+<li>Note: executor implementation should cache it at least in scope of current request processing</li>
+</ul>
+</li>
+</ol>
+<h2>2.4. Source Address</h2>
+<ol>
+<li>string host() - numeric, no name lookup</li>
+<li>string port() - IP port or local path/identifier</li>
+<li>string type() - IPv4, IPv6, LOCAL</li>
+<li>string asString() "Type:Host:Port" or "Type:Port"</li>
+</ol>
+<h2>2.5. Derived Key</h2>
+<ol>
+<li>string baseID()</li>
+<li>string sequenceID()</li>
+<li>void encrypt( AsyncSteps as, data ) - return Base64 data</li>
+<li>void decrypt( AsyncSteps as, data ) - decrypt Base64 data</li>
+</ol>
+<h2>2.6. General Async Step interface</h2>
+<p>See <a href="./ftn12_async_api.html">FTN12 Async API</a></p>
+<h2>2.7. Async completion interface</h2>
+<p>There is little use of extended AsyncSteps to provide additional API.
+Instead, by convention, "reqinfo" AsyncSteps state field must point to
+associated RequestInfo instance.</p>
+<h2>2.8. Executor</h2>
+<ol>
+<li>AdvancedCCM ccm() - get reference to Invoker CCM, if any</li>
+<li>void register( AsyncSteps as, ifacever, impl ) - add interface implementation<ul>
+<li>ifacever must be represented as FutoIn interface identifier and version, separated by colon ":"</li>
+<li>impl is object derived from native interface or associative name for lazy loading</li>
+</ul>
+</li>
+<li>void process( AsyncSteps as ) - do full cycle of request processing, including all security checks<ul>
+<li>as-&gt;reqinfo must point to instance of RequestInfo</li>
+</ul>
+</li>
+<li>void onEndpointRequest( info, ftnreq, send_executor_rsp )<ul>
+<li>Entry point for Server-originated requests</li>
+<li><em>info</em> - internal CCM interface info</li>
+<li><em>ftnreq</em> - incoming FutoIn request object</li>
+<li><em>send_executor_rsp( rsp )</em> - callback to send response</li>
+</ul>
+</li>
+<li>void onInternalRequest( as, info, ftnreq )<ul>
+<li>Entry point for in-program originated requests. Process with maximum efficiency</li>
+<li><em>info</em> - internal CCM interface info</li>
+<li><em>ftnreq</em> - incoming FutoIn request object</li>
+<li>returns ftnrsp through as.success() or fails through as.error()</li>
+</ul>
+</li>
+<li>void checkAccess( AsyncSteps as, acd ) - shortcut to check access through #acl interface<ul>
+<li>as-&gt;reqinfo must point to instance of RequestInfo</li>
+</ul>
+</li>
+<li>void initFromCache( AsyncSteps as )<ul>
+<li>load initialization from cache</li>
+</ul>
+</li>
+<li>void cacheInit( AsyncSteps as )<ul>
+<li>store initialization to cache</li>
+</ul>
+</li>
+<li>void close()<ul>
+<li>Shutdown Executor processing</li>
+</ul>
+</li>
+</ol>
+<h2>2.9. Interface Implementation</h2>
+<p>No public members, except for members of the implemented spec.</p>
+<p>Each call can set result variables the following way:</p>
+<ol>
+<li>through reqinfo.result() map</li>
+<li>by returning a map from the function</li>
+<li>by returning a map through as.success() call</li>
+</ol>
+<p><em>Note: Executor implementation must merge all possible ways to set result variables
+in the strict order as listed above.</em></p>
+<h2>2.10. Channel Context</h2>
+<p><em>ChannelContext</em> interface</p>
+<ul>
+<li>string type() - get type of channel<ul>
+<li>HTTP (including HTTPS)</li>
+<li>WS</li>
+<li>BROWSER</li>
+<li>TCP</li>
+<li>UDP</li>
+<li>UNIX</li>
+<li>any other - as non-standard extension</li>
+</ul>
+</li>
+<li>boolean isStateful()<ul>
+<li>check if current communication channel between Invoker and Executor is stateful</li>
+</ul>
+</li>
+<li>map state() - get channel state variables<ul>
+<li>state is persistent only for stateful protocols</li>
+</ul>
+</li>
+<li>void onInvokerAbort( callable( AsyncSteps as, user_data ), user_data=null )</li>
+<li>void register( as, ifacever, options )<ul>
+<li>Register interface as implemented by client peer</li>
+<li><em>ifacever</em> - iface identifier and its version separated by colon</li>
+<li><em>options</em> - options to pass to AdvancedCCM.register()</li>
+</ul>
+</li>
+<li>NativeIface iface( ifacever )<ul>
+<li>Get native interface wrapper for invocation of iface methods on client peer</li>
+<li><em>ifacever</em> - iface identifier and its version separated by colon</li>
+</ul>
+</li>
+<li>Language/Platform-specific get/set/remove/check accessors to state variables</li>
+</ul>
+<p>Various specification can extend this interface with additional functionality.</p>
+<h1>3. Language/Platform-specific notes</h1>
+<h2>3.1. native JVM (Java, Groovy, etc.)</h2>
+<h2>3.2. Python</h2>
+<h2>3.3. PHP</h2>
+<h2>3.4. C++</h2>
+<p>=END OF SPEC=</p>
+</body></html>

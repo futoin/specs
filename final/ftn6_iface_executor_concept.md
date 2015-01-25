@@ -1,14 +1,23 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.1
-Date: 2014-10-11
+Version: 1.3
+Date: 2015-01-25
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.1
+* v1.3 - 2015-01-25
+    * added RequestInfo.cancelAfter()
+    * added security notes
+    * added ChannelContext.register() & ChannelContext.iface()
+    * added onEndpointRequest() & onInternalRequest()
+    * added Executor close()
+* v1.2 - 2014-12-26
+    * More precise executor function result return
+    * Updated rawInput() / rawOutput() to throw error, instead of returning null on error
+* v1.1 - 2014-10-11
     * Dropped INFO_COOKIES and INFO_USER_AGENT (were not used)
     * Added concept of ChannelContext/INFO_CHANNEL_CONTEXT
         * HTTPChannelContext is defined in scope of FTN5: HTTP Integration
@@ -17,6 +26,7 @@ Authors: Andrey Galkin
         (would be broken backward compatibility, if used somewhere)
     * Changed context() to executor() to avoid ambiguity
         (would be broken backward compatibility, if used somewhere)
+* v1.0 - 2014-10-03
 
 # Warning
 
@@ -102,6 +112,24 @@ convention into native interfaces, which can depend only on
 standard runtime and native language/platform-specific interfaces
 of Executor and related objects.
 
+## 1.2. Executor security
+
+Besides standard authentication and authorization mechanisms, peer with executor capabilities
+must create separate Executor objects to minimize risk of security flaws in such mechanisms.
+Example:
+
+* A single process implements:
+    * public services with Master/Slave key exchange authentication
+    * private services with Basic login/password authentication
+    * internal services like Logger DB access
+* The correct way would be:
+    1. Create a single CCM object
+    1. Create bare Executor for internal service implementation
+    1. Create HTTP/WS Executor for public services
+    1. Create Executor for private services
+        * Either local-transport Executor in scope of single operating system
+        * Or HTTP/WS Executor, but accessible from private network only
+
 
 # 2. Native Executor interface requirements
 
@@ -115,7 +143,7 @@ are assumed.
 1. Each FutoIn interfaces is represented as simple native
     interface type with only abstract methods for each
     FutoIn interface function
-2. Each abstract method must return no value and take exactly one
+2. Each abstract method should return no value and take exactly one
     Request Info object as argument for blocking implementation. Or
     AsyncSteps and RequestInfo objects as arguments for asynchronous
     implementation.
@@ -156,9 +184,15 @@ are assumed.
 1. map result() - return reference to response parameter map
 1. map info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
     * Note: info() is not merged to AsyncSteps only for minor security reasons
-1. stream rawInput() - return raw input stream or null, if FutoIn request comes in that stream
-1. stream rawOutput() - return raw output stream (no result variables are expected)
-1. Excutor executor() - get reference to Executor
+1. stream rawInput() - return raw input stream or throws error
+1. stream rawOutput() - return raw output stream (no result variables are expected) or throws error
+1. Executor executor() - get reference to Executor
+1. ChannelContext channel() - get reference to ChannelContext
+1. void cancelAfter( timeout_ms ) - set to abort request after specified timeout_ms from the
+    moment of call. It must override any previous cancelAfter() call.
+    *Note: it is different from as.setTimeout() as inner step timeout does not override outer step
+    timeout.*
+    * *timeout_ms* - timeout in miliseconds to cancel after. 0 - disable timeout
 1. Language-specic get accessor for info properties
 
 
@@ -176,7 +210,7 @@ are assumed.
 1. string host() - numeric, no name lookup
 1. string port() - IP port or local path/identifier
 1. string type() - IPv4, IPv6, LOCAL
-1. string asString() "Type:Host:Port"
+1. string asString() "Type:Host:Port" or "Type:Port"
 
 
 ## 2.5. Derived Key
@@ -206,17 +240,38 @@ associated RequestInfo instance.
     * impl is object derived from native interface or associative name for lazy loading
 1. void process( AsyncSteps as ) - do full cycle of request processing, including all security checks
     * as->reqinfo must point to instance of RequestInfo
+1. void onEndpointRequest( info, ftnreq, send_executor_rsp )
+    * Entry point for Server-originated requests
+    * *info* - internal CCM interface info
+    * *ftnreq* - incoming FutoIn request object
+    * *send_executor_rsp( rsp )* - callback to send response
+1. void onInternalRequest( as, info, ftnreq )
+    * Entry point for in-program originated requests. Process with maximum efficiency
+    * *info* - internal CCM interface info
+    * *ftnreq* - incoming FutoIn request object
+    * returns ftnrsp through as.success() or fails through as.error()
 1. void checkAccess( AsyncSteps as, acd ) - shortcut to check access through #acl interface
     * as->reqinfo must point to instance of RequestInfo
 1. void initFromCache( AsyncSteps as )
     * load initialization from cache
 1. void cacheInit( AsyncSteps as )
     * store initialization to cache
+1. void close()
+    * Shutdown Executor processing
 
 
 ## 2.9. Interface Implementation
 
-No public members
+No public members, except for members of the implemented spec.
+
+Each call can set result variables the following way:
+
+1. through reqinfo.result() map
+2. by returning a map from the function
+3. by returning a map through as.success() call
+
+*Note: Executor implementation must merge all possible ways to set result variables
+in the strict order as listed above.*
 
 ## 2.10. Channel Context
 
@@ -224,15 +279,24 @@ No public members
 
 * string type() - get type of channel
     * HTTP (including HTTPS)
-    * LOCAL
+    * WS
+    * BROWSER
     * TCP
     * UDP
+    * UNIX
     * any other - as non-standard extension
 * boolean isStateful()
     * check if current communication channel between Invoker and Executor is stateful
 * map state() - get channel state variables
     * state is persistent only for stateful protocols
 * void onInvokerAbort( callable( AsyncSteps as, user_data ), user_data=null )
+* void register( as, ifacever, options )
+    * Register interface as implemented by client peer
+    * *ifacever* - iface identifier and its version separated by colon
+    * *options* - options to pass to AdvancedCCM.register()
+* NativeIface iface( ifacever )
+    * Get native interface wrapper for invocation of iface methods on client peer
+    * *ifacever* - iface identifier and its version separated by colon
 * Language/Platform-specific get/set/remove/check accessors to state variables
 
 Various specification can extend this interface with additional functionality.

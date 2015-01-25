@@ -1,10 +1,24 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.0
-Date: 2014-09-08
+Version: 1.1
+Date: 2015-01-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
+
+# CHANGES
+
+* v1.1 - 2015-01-08
+    * Added response.edesc optional field
+    * Added iface.ftn3rev field
+    * Added custom types concept
+    * Added import/mixin concept
+    * Added "any" type
+    * Added clarification of inheritance feature purpose compared to import
+    * Added "BiDirectChannel" constraint
+    * Added "heavy" function property
+    * Officially documented payload size safety limits
+* v1.0 - 2014-09-08
 
 # 1. Basic concept
 
@@ -185,6 +199,10 @@ Using [JSON-SCHEMA][]:
                     "type" : "string",
                     "description" : "Exception/error name. Either r or e must be present"
                 },
+                "edesc" : {
+                    "type" : "string",
+                    "description" : "Optional. Error description, if e is present"
+                },
                 "rid" : {
                     "type" : "string",
                     "pattern" : "^(C|S)[0-9]+$",
@@ -216,6 +234,8 @@ Using [JSON-SCHEMA][]:
 
 ## 1.8. Parameter and result types
 
+The standard FutoIn interface types:
+
 * boolean - true or false
 * integer - signed integer with 32-bit precision
 * number - float value with 32-bit precision
@@ -225,9 +245,38 @@ Using [JSON-SCHEMA][]:
     * value - any type defined in this section
 * array - ordered list of values
     * value - any type defined in this section
+* any - field type is not checked
+* *CustomType* - any pre-defined custom type defined, inherited or imported
+    in the same iface
 
 *Note: **null** can be used only as placeholder in "default" values.*
 
+### 1.8.1. Custom types
+
+Each iface can define own types in the optional "types" fields.
+
+The types are inherited and imported. It is an error to redefine type in such case.
+
+Each custom type must be based on one of the standard types, but can define
+various *optional* constraints:
+
+* integer and number:
+    * min - minimal allowed value (inclusive).
+    * max - maximal allowed value (inclusive).
+* string:
+    * regex - ECMAScript regular expression. Please use it to impose length constraints.
+* array:
+    * minlen - minimal array length (inclusive).
+    * maxlen - maximal array length (inclusive).
+    * elemtype - required element type.
+* map:
+    * fields - a map of field_name to:
+        * type - required field type
+        * optional - optional. boolean. True, if the field can be omitted.
+        * desc - optional. string, Description of the field
+
+*NOTE: omitted optional field of custom map type must be set to null on incoming message (request
+for Executor and response for Invoker case). Optional fields should be allowed to be sent as null.*
 
 ## 1.9. Errors and exceptions
 
@@ -275,7 +324,13 @@ for all excepted errors.
 * **Timeout** - Timeout occurred in any stage
     *Must be used only internally*.
 
+## 1.10. Payload size safety limits
 
+It is assumed that both request and response messages are relatively small. All heavy data should be
+transfered as raw HTTP or other lower level protocol payload. Therefore, a **safety limit
+of 64 KBytes is imposed for any type of payload**. Both Invoker and Executor should control
+this limit, unless there is efficient mechanism with O(1) complexity to transfer message
+from peer to peer (e.g. shared memory).
 
 
 # 2. Interface concept
@@ -306,7 +361,7 @@ Using [JSON-SCHEMA][]:
         {
             "title" : "FutoIn interface definition schema",
             "type" : "object",
-            "required" : [ "iface", "version" ],
+            "required" : [ "iface", "version", "ftn3rev" ],
             "additionalProperties" : false,
             "properties" : {
                 "iface" : {
@@ -318,6 +373,67 @@ Using [JSON-SCHEMA][]:
                     "type" : "string",
                     "pattern" : "^[0-9]+\\.[0-9]+$",
                     "description" : "Version of the given interface"
+                },
+                "ftn3rev" : {
+                    "type" : "string",
+                    "pattern" : "^[0-9]+\\.[0-9]+$",
+                    "description" : "Version of the FTN3 spec, according to which the iface is defined"
+                },
+                "types" : {
+                    "type" : "object",
+                    "description" : "iface types. Must start with Capital",
+                    "patternProperties" : {
+                        "^[A-Z][a-zA-Z0-9]*$" : {
+                            "type" : "object",
+                            "additionalProperties" : false,
+                            "properties" : {
+                                "type" :  {
+                                    "type" : "string",
+                                    "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                                },
+                                "min" : {
+                                    "type": "number"
+                                },
+                                "max" : {
+                                    "type": "number"
+                                },
+                                "minlen" : {
+                                    "type": "number"
+                                },
+                                "maxlen" : {
+                                    "type": "number"
+                                },
+                                "regex" : {
+                                    "type": "string"
+                                },
+                                "elemtype" : {
+                                    "type": "string"
+                                },
+                                "fields" : {
+                                    "type": "object",
+                                    "additionalProperties" : false,
+                                    "properties" : {
+                                        "type" :  {
+                                            "type" : "string",
+                                            "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                                        },
+                                        "optional" : {
+                                            "type" : "boolean",
+                                            "description" : "If true the field is optional. Defaults to null"
+                                        },
+                                        "desc" : {
+                                            "type" : "string",
+                                            "description" : "Result variable description"
+                                        }
+                                    }
+                                },
+                                "desc" : {
+                                    "type" : "string",
+                                    "description" : "Custom type description"
+                                }
+                            }
+                        }
+                    }
                 },
                 "funcs" : {
                     "type" : "object",
@@ -336,7 +452,7 @@ Using [JSON-SCHEMA][]:
                                             "properties" : {
                                                 "type" :  {
                                                     "type" : "string",
-                                                    "pattern" : "^boolean|integer|number|string|map|array$"
+                                                    "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                                                 },
                                                 "default" : {
                                                     "type" : [ "boolean", "integer", "number", "string", "object", "array", "null" ]
@@ -358,7 +474,7 @@ Using [JSON-SCHEMA][]:
                                             "properties" : {
                                                 "type" :  {
                                                     "type" : "string",
-                                                    "pattern" : "^boolean|integer|number|string|map|array$"
+                                                    "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                                                 },
                                                 "desc" : {
                                                     "type" : "string",
@@ -382,6 +498,10 @@ Using [JSON-SCHEMA][]:
                                     "uniqueItems": true,
                                     "description" : "List of associative error names, which can be triggered by function execution"
                                 },
+                                "heavy" : {
+                                    "type" : "boolean",
+                                    "desc" : "Mark request as \"heavy\" in terms processing"
+                                },
                                 "desc" : {
                                     "type" : "string",
                                     "description" : "Interface Function description"
@@ -399,12 +519,17 @@ Using [JSON-SCHEMA][]:
                     "type" : "string",
                     "description" : "Name:version of interface to be inherited"
                 },
+                "imports" : {
+                    "type" : "array",
+                    "uniqueItems": true,
+                    "description" : "Name:version of interface to be imported as a mixin"
+                },
                 "requires" : {
                     "type" : "array",
                     "description" : "List of conditions for interface operation",
                     "items" : {
                         "type" : "string",
-                        "pattern" : "^AllowAnonymous|SecureChannel|[a-zA-Z0-9]+$"
+                        "pattern" : "^AllowAnonymous|SecureChannel|BiDirectChannel|[a-zA-Z0-9]+$"
                     },
                     "uniqueItems": true
                 }
@@ -507,6 +632,15 @@ Inheritance is limited to:
 
 *Note: multiple interface inheritance is not supported at the moment*
 
+Unfortunately, due to Executor's interface selection logic. The same base iface must not
+be used for inheritance of more than one derived interface within the same Executor instance.
+*The primary use of inheritance feature is to create reusable **base implementation logic**
+with customized extensions possible through derived interface.*
+
+If only the interface itself, but not the implementation logic needs to be re-used then
+mixin/import feature is appropriate solution.
+
+
 ## 2.4. Interface operation requirements
 
 Some interfaces must be restricted to certain conditions. This can be defined on interface level
@@ -518,6 +652,8 @@ Standard requirement type:
 * SecureChannel - message exchange must be done through secure channel as it contains
     not encrypted sensitive information. Channel security control is both Client and Service
     implementation responsibility
+* BiDirectChannel - communication channel must allow bi-directional message exchange (both
+    peers should be able to act as invoker and executor)
 
 
 For safety reasons, inheriting interface must re-define all "requires" items from
@@ -553,7 +689,33 @@ application source will not need to be changed during development of new spec an
 all draft specs are subject to change without version update. So, all draft specs should be cached with small
 Time-To-Live or not cached at all.
 
+## 2.6. Iface definition spec version
 
+Each interface must define "ftn3rev" field in standard MAJOR.MINOR version format.
+When the field is missing, FTN3 revision 1.0 is assumed.
+
+Invoker part must allow loading interface definition only if major version is supported,
+regardless of minor version.
+
+Executor part must allow loading interface only if specified FTN3 spec revision is fully
+supported.
+
+## 2.7. Interface mixin
+
+Interface mixin is appropriate solution when only **interface definition** needs to be re-used,
+but the logic behind is absolutely different. Example: CRUDL-like interface.
+
+Mixin interfaces are defined using "imports" field - an array of imported "iface:version"
+identifiers.
+
+Import procedure must act exactly as inheritance in scope of processing "types", "funcs"
+and "requires" fields. However, imported interface must never be listed as inherited.
+
+## 2.8. "Heavy" requests
+
+Some request functions can be marked as "heavy". Executor implementation may use this meta-
+information to limit number of concurrent "heavy" requests for stability and performance
+reasons. Heavy requests may also get a different default timeout value.
 
 
 [json]: http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "JSON"
