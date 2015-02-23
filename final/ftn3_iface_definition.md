@@ -1,13 +1,16 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.1
-Date: 2015-01-08
+Version: 1.2
+Date: 2015-02-22
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.2 - 2015-02-22
+    * Extended 'rid' field regex to support custom prefix part
+    * Added "MessageSignature" interface constraint
 * v1.1 - 2015-01-08
     * Added response.edesc optional field
     * Added iface.ftn3rev field
@@ -147,7 +150,7 @@ Using [JSON-SCHEMA][]:
                 },
                 "rid" : {
                     "type" : "string",
-                    "pattern" : "^(C|S)[0-9]+$",
+                    "pattern" : "^(C|S)[a-zA-Z0-9_\\-]*[0-9]+$",
                     "description" : "Optional request ID for multiplexing"
                 },
                 "forcersp" : {
@@ -529,7 +532,7 @@ Using [JSON-SCHEMA][]:
                     "description" : "List of conditions for interface operation",
                     "items" : {
                         "type" : "string",
-                        "pattern" : "^AllowAnonymous|SecureChannel|BiDirectChannel|[a-zA-Z0-9]+$"
+                        "pattern" : "^AllowAnonymous|SecureChannel|BiDirectChannel|MessageSignature|[a-zA-Z0-9]+$"
                     },
                     "uniqueItems": true
                 }
@@ -654,6 +657,7 @@ Standard requirement type:
     implementation responsibility
 * BiDirectChannel - communication channel must allow bi-directional message exchange (both
     peers should be able to act as invoker and executor)
+* MessageSignature - requires full message signing (e.g. HMAC)
 
 
 For safety reasons, inheriting interface must re-define all "requires" items from

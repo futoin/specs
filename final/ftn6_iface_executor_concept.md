@@ -1,13 +1,15 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.3
-Date: 2015-01-25
+Version: 1.4
+Date: 2015-02-22
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.4 - 2015-02-22
+    * Added HMAC support
 * v1.3 - 2015-01-25
     * added RequestInfo.cancelAfter()
     * added security notes
@@ -130,6 +132,58 @@ Example:
         * Either local-transport Executor in scope of single operating system
         * Or HTTP/WS Executor, but accessible from private network only
 
+## 1.3. HMAC generation
+
+See [HMAC][] for details
+
+### 1.3.1 Rules of HMAC generation for payload
+
+* Payload has a tree structure and coded in JSON or any alternative format
+* All keys and fields are feed to HMAC generator in text representation
+* Top level "sec" field is skipped, if present (in case of request validation)
+* For each nested level, starting from the very root of tree-like payload structure:
+    * Key-value pairs are processing in ascending order based on Unicode comparison rules
+    * Key is feed into HMAC generator
+    * ':' separator is feed into HMAC generator
+    * If value is subtree then recurse this algorithm
+    * else if value is string then feed into HMAC generator
+    * Otherwise, feed textual JSON representation to HMAC generator
+    * ';' separator is feed into HMAC generator
+
+### 1.3.2. Request "sec" field coding with HMAC data
+
+The "sec" field is normally used for Basic Auth in "{user}:{password}" format.
+However, a special "-hmac" user name is reserved for HMAC message signature.
+
+The HMAC signature has the following format:
+```
+"-hmac:{user}:{algo}:{signature}"
+```
+
+Where:
+
+* {user} - user name
+* {algo} - on of pre-defined algorithms identifiers or custom extension
+* {signature} - Base64 encoded hash
+
+### 1.3.3. Predefined HMAC algorithms
+
+* "MD5" - MD5 128-bit (acceptably secure, even though MD5 itself is weak)
+* "SHA224" - SHA v2 224-bit (acceptably secure)
+* "SHA256" - SHA v2 256-bit (acceptably secure)
+* "SHA384" - SHA v2 384-bit (acceptably secure)
+* "SHA512" - SHA v2 512-bit (acceptably secure)
+* "SHA3-*" - SHA v3 224/256/384/512-bit (high secure at the moment)
+
+*Note: MD5 and SHA2 are mandatory to be implemented on server, SHA3 - if supported by runtime.
+However, server may reject unsupported algorithms through configuration*
+
+### 1.3.4. Response "sec" field with HMAC
+
+If request comes signed with HMAC then response must also be signed
+with HMAC using exactly the same secret key and hashing algorithm.
+
+Only Base64-encoded signature in sent back in the "sec" field.
 
 # 2. Native Executor interface requirements
 
@@ -301,19 +355,8 @@ in the strict order as listed above.*
 
 Various specification can extend this interface with additional functionality.
 
-
-
-# 3. Language/Platform-specific notes
-
-## 3.1. native JVM (Java, Groovy, etc.)
-
-## 3.2. Python
-
-## 3.3. PHP
-
-## 3.4. C++
-
-
+[hmac]: http://www.ietf.org/rfc/rfc2104.txt "RFC2104 HMAC"
+[base64]: http://www.ietf.org/rfc/rfc2045.txt "RFC2045 section 6.8"
 [RAII]: http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization "Resource Acquisition Is Initialization"
 
 =END OF SPEC=
