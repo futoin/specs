@@ -1,13 +1,15 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.6
-Date: 2015-01-02
+Version: 1.7DV
+Date: 2015-02-22
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.7 - 2015-02-22
+    * Removed .utils() artifact
 * v1.6 - 2015-01-02
     * Added last_exception state variable
 * v1.5 - 2014-12-09
@@ -480,8 +482,6 @@ However, they are grouped by semantical scope of use.
     * if supported by language/platform, alias for success()
 1. *void setCancel( cancel_callback oncancel )*
     * set callback, to be used to cancel execution
-1. *Utils utils()*
-    * Returns advanced utility interface
 
 ### 2.2.3. Control API - can be used only on Root AsyncSteps object
 

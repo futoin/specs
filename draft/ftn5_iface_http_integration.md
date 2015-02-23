@@ -1,13 +1,15 @@
 <pre>
 FTN5: FutoIn HTTP integration
-Version: 1.1
-Date: 2014-12-21
+Version: 1.2
+Date: 2015-02-22
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.2 - 2015-02-22
+    * Clarified query string parameter coding
 * v1.1 - 2014-12-21
     * Simplified error response when raw result is expected
 * v1.0 - 2014-10-11
@@ -113,14 +115,14 @@ Query string starts with question mark "?". Parameters are separated with ampers
 
 ## 3.3. Objects and arrays in query string and multi-part form data
 
-GET method and multi-part form data do no provide ability to code all possible FutoIn request parameters.
-Only string parameters can be passed through this way.
+There are the following rules for query string coding:
 
+1. String values are added as is
+2. All others value types are respresented as raw JSON
 
-## 3.4. Conflicts in passed parameters
+## 3.4. {empty}
 
-In case if the same request parameter tree node is used in different contexts
-(as leaf, as object or as array). Executor must rise InvalidRequest.
+Reserved.
 
 ## 3.5. File upload
 

@@ -1,6 +1,6 @@
 <pre>
 FTN7: FutoIn Invoker Concept
-Version: 1.3
+Version: 1.4
 Date: 2015-01-21
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -8,6 +8,8 @@ Authors: Andrey Galkin
 
 # CHANGES
 
+* v1.4 - 2015-02-22
+    * Added HMAC support
 * v1.3 - 2015-01-21
     * Synchronized actual API changes with documentation
     * Added internal web browser communication channel based on HTML5 Web Messaging specification
@@ -59,7 +61,7 @@ for separation of concerns on Service/RPC level, but not single project level.
 
 There are several native events supported using [FTN15 Native Event][] interface
 
-# 1.1. Reserved interface names
+## 1.1. Reserved interface names
 
 Some of interface names can be reserved for internal semantics, like runtime
 resolving service interface.
@@ -76,7 +78,7 @@ Invoker implementation concept.
 * "#log" - Audit Logging v1.x
 * "#cache.{bucket}" - cache v1.x for "{bucket}"
 
-# 1.2. Type and identifier safety
+## 1.2. Type and identifier safety
 
 There should be a Simple CCM, which is lightweight and designed for small memory
 footprint and/or high performance cases. Advanced CCM interface should inherit
@@ -100,7 +102,7 @@ as request message is scheduled to be sent without waiting for reply.
 Note: Simple CCM is not expected to parse interfaces. Therefore, all request
 messages must have "forcersp" flag and Simple CCM must expect response for every call.
 
-# 1.2. Invoker calls to Executor in scope of the same process
+## 1.3. Invoker calls to Executor in scope of the same process
 
 FutoIn implementations are allowed to optimize calls within single process in
 implementation-defined way, keeping the same behavior between remote and local calls.
@@ -109,10 +111,14 @@ Local calls must never execute if there are Invoker frames on execution stack. I
 function must return before Executor runs or Executor must run in a different thread. Yes, it may have performance
 issues, but is natural for async programming.
 
-# 1.3. Communication Errors
+## 1.4. Communication Errors
 
 Invoker should transparently handle transitional communication errors with implicit retries.
 
+## 1.5. HMAC signature support
+
+Please referer to [FTN6 Interface Executor Concept](./ftn6_iface_executor_concept.md) for details.
+**HMAC is supported only by AdvancedCCM.**
 
 # 2. Invoker interfaces
 
@@ -135,6 +141,7 @@ Simple CCM:
     * "credentials* - optional, authentication credentials (string)
         * 'master' - enable MasterService authentication logic (Advanced CCM only)
         * '{user}:{clear-text-password}' - send as is in the 'sec' section
+        * '-hmac:{user}' - HMAC generation, see *options.hmacKey* and *options.hmacAlgo* for details
         * NOTE: some more reserved words and/or patterns can appear in the future
     * *options* - optional, override global options of CCM
 1. NativeIface iface( name )
@@ -262,6 +269,8 @@ The following URL schemes should be supported:
 * *retryCount*=1 - how many times to retry the call on CommError
 * *callTimeoutMS* - Overall call timeout (int)
 * *nativeImpl* - Native iface implementation class
+* *hmacKey* - Base64-encoded key for HMAC
+* *hmacAlgo* - one of pre-defined or custom hash algorithms for use with HMAC
 
 ## 2.2. Native FutoIn interface interface
 
