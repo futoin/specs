@@ -1,13 +1,16 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.4
-Date: 2015-02-22
+Version: 1.5
+Date: 2015-03-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.5 - 2015-03-08
+    * Added "System" security level for internal communications
+    * Fixed SL_SAFEOPS -> SL_SAFE_OPS, SL_PRIVLEGED_OPS -> SL_PRIVILEGED_OPS
 * v1.4 - 2015-02-22
     * Added HMAC support
 * v1.3 - 2015-01-25
@@ -217,9 +220,10 @@ are assumed.
 1. constants:
     * SL_ANONYMOUS = "Anonymous"
     * SL_INFO = "Info"
-    * SL_SAFEOPS = "SafeOps"
-    * SL_PRIVLEGED_OPS = "PrivilegedOps"
+    * SL_SAFE_OPS = "SafeOps"
+    * SL_PRIVILEGED_OPS = "PrivilegedOps"
     * SL_EXCEPTIONAL_OPS = "ExceptionalOps"
+    * SL_SYSTEM = "System"
     * INFO_X509_CN - validated x509 certificate CN field
     * INFO_PUBKEY - public key, if present
     * INFO_CLIENT_ADDR - SourceAddress object of request external to current system

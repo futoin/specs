@@ -1,13 +1,15 @@
 <pre>
 FTN7: FutoIn Invoker Concept
-Version: 1.4
-Date: 2015-01-21
+Version: 1.5
+Date: 2015-03-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.5 - 2015-03-08
+    * Added FTN3 v1.3 on-behalf-of feature mandated interface option "sendOnBehalfOf"
 * v1.4 - 2015-02-22
     * Added HMAC support
 * v1.3 - 2015-01-21
@@ -271,6 +273,8 @@ The following URL schemes should be supported:
 * *nativeImpl* - Native iface implementation class
 * *hmacKey* - Base64-encoded key for HMAC
 * *hmacAlgo* - one of pre-defined or custom hash algorithms for use with HMAC
+* *sendOnBehalfOf*=true - control, if on-behalf-of field should be sent with user information
+    when interface is used from Executor's request processing task
 
 ## 2.2. Native FutoIn interface interface
 
