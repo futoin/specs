@@ -1,13 +1,16 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.2
-Date: 2015-02-22
+Version: 1.3DV
+Date: 2015-03-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.3 - 2015-03-08
+    * Added "obf" - on behalf field support
+    * Added "seclvl" - user authentication security level minimum
 * v1.2 - 2015-02-22
     * Extended 'rid' field regex to support custom prefix part
     * Added "MessageSignature" interface constraint
@@ -160,6 +163,25 @@ Using [JSON-SCHEMA][]:
                 "sec" : {
                     "type" : "object",
                     "description" : "Security-defined extension"
+                },
+                "obf" : {
+                    "type" : "object",
+                    "description" : "On-Behalf-oF user info",
+                    "additionalProperties" : false,
+                    "properties" : {
+                        "lid" : {
+                            "type" : "string",
+                            "description" : "Local User ID"
+                        },
+                        "gid" : {
+                            "type" : "string",
+                            "description" : "Global User ID"
+                        },
+                        "slvl" : {
+                            "type" : "string",
+                            "description" : "User authentication security level"
+                        }
+                    }
                 }
             }
         }
@@ -335,6 +357,24 @@ of 64 KBytes is imposed for any type of payload**. Both Invoker and Executor sho
 this limit, unless there is efficient mechanism with O(1) complexity to transfer message
 from peer to peer (e.g. shared memory).
 
+## 1.11. On Behalf Of calls
+
+It is expected that Executor passes authenticated user information in sub-calls, so
+all security checks are done against user, but not Executor itself. It is a 
+simple security measure to avoid error-prone access control implementation in sub-calls.
+If call is expected to be done on behalf of system then it should be controlled by
+System's Invoker iface option.
+
+## 1.12. Minimum user authentication security level
+
+Each function can have *seclvl* defined to control minimum security level of user
+authentication. It is not related to access control, but user validation, e.g.
+important functionality may require dual factor or public key based authentication.
+**PleaseReauth** is to be triggered on security level mismatch with the first word
+in description containing required security level.
+
+All unknown security levels are to be treated as maximum level of security.
+
 
 # 2. Interface concept
 
@@ -504,6 +544,10 @@ Using [JSON-SCHEMA][]:
                                 "heavy" : {
                                     "type" : "boolean",
                                     "desc" : "Mark request as \"heavy\" in terms processing"
+                                },
+                                "seclvl" : {
+                                    "type" : "string",
+                                    "desc" : "Minimum user authentication security level"
                                 },
                                 "desc" : {
                                     "type" : "string",
