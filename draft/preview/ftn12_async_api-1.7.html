@@ -6,16 +6,17 @@
 </head><body>
 <pre>
 FTN12: FutoIn Async API
-Version: 1.7DV
-Date: 2015-02-22
+Version: 1.7
+Date: 2015-05-04
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.7 - 2015-02-22<ul>
+<li>v1.7 - 2015-06-01<ul>
 <li>Removed .utils() artifact</li>
+<li>Added 1.10 "Reserved keyword name clash"</li>
 </ul>
 </li>
 <li>v1.6 - 2015-01-02<ul>
@@ -365,6 +366,20 @@ Abnormal termination is seen as as.error() call.</p>
 <li>setCancel() and/or setTimeout() must be called only in top most function
     as repeated call overrides in scope of step</li>
 </ol>
+<h2>1.10. Reserved keyword name clash</h2>
+<p>If any of API identifiers clashes with reserved word or has illegal symbols then
+implementation-defined name mangling is allowed, but with the following guidelines
+in priority.</p>
+<p>Pre-defined alternative method names, if the default matches language-specific reserved keywords:</p>
+<ul>
+<li><em>loop</em> -&gt; makeLoop</li>
+<li><em>forEach</em> -&gt; loopForEach</li>
+<li><em>repeat</em> -&gt; repeatLoop</li>
+<li><em>break</em> -&gt; breakLoop</li>
+<li><em>continue</em> -&gt; continueLoop</li>
+<li>Otherwise, - try adding underscore to the end of the
+    identifier (e.g. do -&gt; do_)</li>
+</ul>
 <h1>2. Async Steps API</h1>
 <h2>2.1. Types</h2>
 <ul>
