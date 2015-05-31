@@ -1,13 +1,16 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.6
-Date: 2015-01-02
+Version: 1.7DV
+Date: 2015-05-04
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.7 - 2015-06-01
+    * Removed .utils() artifact
+    * Added 1.10 "Reserved keyword name clash"
 * v1.6 - 2015-01-02
     * Added last_exception state variable
 * v1.5 - 2014-12-09
@@ -398,6 +401,22 @@ Abnormal termination is seen as as.error() call.
 1. setCancel() and/or setTimeout() must be called only in top most function
     as repeated call overrides in scope of step
 
+## 1.10. Reserved keyword name clash
+
+If any of API identifiers clashes with reserved word or has illegal symbols then
+implementation-defined name mangling is allowed, but with the following guidelines
+in priority.
+
+Pre-defined alternative method names, if the default matches language-specific reserved keywords:
+
+* *loop* -> makeLoop
+* *forEach* -> loopForEach
+* *repeat* -> repeatLoop
+* *break* -> breakLoop
+* *continue* -> continueLoop
+* Otherwise, - try adding underscore to the end of the
+    identifier (e.g. do -> do_)
+
 
 # 2. Async Steps API
 
@@ -480,8 +499,6 @@ However, they are grouped by semantical scope of use.
     * if supported by language/platform, alias for success()
 1. *void setCancel( cancel_callback oncancel )*
     * set callback, to be used to cancel execution
-1. *Utils utils()*
-    * Returns advanced utility interface
 
 ### 2.2.3. Control API - can be used only on Root AsyncSteps object
 
@@ -511,8 +528,6 @@ However, they are grouped by semantical scope of use.
     * continue loop execution from the next iteration, throws exception
     * *label* - break loops, until *label* named loop is found
 
-
-    
 # 3. Examples
 
 In pseudo-code.
