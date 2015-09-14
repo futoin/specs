@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn16_citool.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN16: FutoIn - Continuous Integration Tool
+Version: 0.1
+Date: 2015-09-14
+Copyright: 2014 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.0 - 2015-09-14</li>
+</ul>
+<h1>1. Intro</h1>
+<p>There are many continuous integration tools, but they are primarily targeted at own
+infrastructure. The demand for a new tool is to merge many different technologies
+like npm, composer, bundle, bower and others under a single tools for project development,
+build, deployment and running.</p>
+<p><em>NOTE: current focus is on web projects, but support of other types is a far target.</em></p>
+<h1>2. Concept</h1>
+<p>A command line tool must be available through shell search path or called via absolute path.
+The command name is "citool" - Continuous Integration Tool.</p>
+<p>"citool" must work on existing projects with no modifications, but with extra parameters required.
+If special "futoin.json" configuration file is present in project root then extra parameters'
+default values should be taken from the configuration file.</p>
+<p>It should possible to specify any of the actions manually through configuration file. Otherwise,
+the tool should auto-detect action implementation.</p>
+<p>The tool should support the following actions:
+<em> tag
+</em> prepare
+<em> build
+</em> package
+<em> promote
+</em> deploy
+* run</p>
+<h2>2.1. Tag</h2>
+<p>A standard procedure for updating for release and tagging source code.</p>
+<h2>2.2. Preparation</h2>
+<p>A standard procedure for project development or release is source checkout, dependency checkout
+and workspace configuration.</p>
+<h2>2.3. Building</h2>
+<p>A standard procedure for detecting available build systems and executing them in predefined order.
+Binary artifact may be a product of such action.</p>
+<h2>2.4. Packaging</h2>
+<p>A standard procedure for detecting packaging method to create a single
+binary artifact for deployment.</p>
+<h2>2.5. Promotion</h2>
+<p>A standard procedure for promoting a binary package into predefined release
+management chains:</p>
+<ul>
+<li>Build -&gt; CI Builds</li>
+<li>Build -&gt; Release Builds -&gt; Production Builds</li>
+<li>Build -&gt; <em>{Arbitrary}</em></li>
+<li><em>{Arbitrary}</em> -&gt; <em>{Arbitrary}</em> [-&gt; <em>{Arbitrary}</em>]+</li>
+</ul>
+<p>Where:</p>
+<ul>
+<li>Build - binary artifact, product of clean build process</li>
+<li>CI Builds - pool with development builds without source tagging</li>
+<li>Release Builds - pool with builds from source tags</li>
+<li>Production Builds - QA validated and Management approved Release Builds</li>
+<li><em>{Arbitrary}</em> - any custom binary artifact pool</li>
+</ul>
+<p><em>Note: promotion from pool to pool must not modify binary artifacts. Otherwise,
+a separate project must exist, which uses original project binary artifact as
+dependency for input and own binary artifact promotion chains</em></p>
+<h2>2.6. Deployment</h2>
+<p>A standard implementation of this action should be implemented only for web projects
+with quite specific requirements on target environment. Target environment
+may have a global configuration file "/etc/futoin/futoin.json" to override
+the default settings.</p>
+<h2>2.7. Running</h2>
+<p>A standard implementation of project execution depends on the deployment procedure.
+The deployment procedure must leave clear artifacts in operating system
+service management for proper startup, control and supervision.</p>
+<h3>2.7.1. Execution in Development</h3>
+<p>A special case when project is run from source build folder during development.
+This case must be auto-detected.</p>
+<h1>3. Detailed business logic definition</h1>
+<h2>3.1. Configuration file</h2>
+<p>Name: futoin.json
+Format: strict JSON
+Location (project): project root folder
+Location (user): ${HOME}/.futoin/ (only .env part)
+Location (global): /etc/futoin/ (only .env part)</p>
+<h3>3.1.1. JSON tree definition in dot notation.</h3>
+<p>The same identifiers should be used in command line options. All configuration nodes are optional
+and auto-detectable in most cases.</p>
+<ul>
+<li>.name - project's full unique name</li>
+<li>.version - project's version</li>
+<li>.target - (dynamic variable) current build target</li>
+<li>.vcsRepo - source repository</li>
+<li>.vcs - version control system type:<ul>
+<li>"svn"</li>
+<li>"git"</li>
+<li>"hg"</li>
+</ul>
+</li>
+<li>.vcsBranch - (dynamic variable) current branch name</li>
+<li>.rmsRepo - binary artifact Release Management System location</li>
+<li>.rms - release management system type:<ul>
+<li>"svn" - use Subversion as binary artifact repository</li>
+<li>"sftp" - use SSHv2 FTP</li>
+<li>"artifactory" - use JFrog Artifactory</li>
+<li>"nexus" - use Sonatype Nexus</li>
+</ul>
+</li>
+<li>.tools - [], list of tools supported by the project with possible values:<ul>
+<li>"php"</li>
+<li>"nodejs"</li>
+<li>"npm"</li>
+<li>"bower"</li>
+<li>"grunt"</li>
+<li>"gulp"</li>
+<li>"composer"</li>
+</ul>
+</li>
+<li>.package - [], content of package relative to project root. Default: [ "." ]</li>
+<li>.writeable - [], list of read-write paths (must be empty/missing in deployment package)</li>
+<li>.main - {], list of named entry points {}<ul>
+<li>.type - "php-fpm", "nodejs", "python" and "php-cli" (auto-detect by default)</li>
+<li>.path - file (not required in some cases, e.g. php-fpm)</li>
+<li>.tune - {}, type-specific configuration options</li>
+</ul>
+</li>
+<li>.configenv - {} - list of environment variables to be set in deployment<ul>
+<li>type - FutoIn variable type</li>
+<li>desc - variable description</li>
+</ul>
+</li>
+<li>.webcfg - additional web server configuration<ul>
+<li>.root - web root folder relative to project root</li>
+<li>.index - default index handler</li>
+<li>.nginx - path to nginx vhost config include relative to project root</li>
+<li>.apache - path to apache vhost config include relative to project root</li>
+</ul>
+</li>
+<li>.actions - {}, optional override of auto-detect commands<ul>
+<li>.tag - custom shell command for tagging</li>
+<li>.prepare - custom shell command for source preparation</li>
+<li>.build - custom shell command for building from source</li>
+<li>.package - custom shell command for binary artifact creation</li>
+<li>.promote - custom shell command for binary artifact promotion</li>
+<li>.deploy - custom shell command for deployment from binary artifact</li>
+<li>.run - custom shell command to run after deployment</li>
+<li>.runDev - custom shell command to run from source</li>
+</ul>
+</li>
+<li>.env - {}, the only part allowed to be defined in user or system configs<ul>
+<li>.type - "prod", "uat", "qa" and "dev" (default - "dev")</li>
+<li>.init - startup script type:<ul>
+<li>"systemd"</li>
+<li>"sysv"</li>
+<li>"cron" - user's cron</li>
+</ul>
+</li>
+<li>.webServer:<ul>
+<li>"nginx"</li>
+<li>"apache"</li>
+</ul>
+</li>
+<li>.webConfigDir - root directory for virtual host configuration,
+    default:  "/etc/{.env.webServer}/sites-enabled"</li>
+<li>.createUsers=false - auto create users on deployment</li>
+<li>.vars - arbitrary environment variables to set on execution</li>
+<li>.phpBin - path to "php" command line tool</li>
+<li>.pythonBin - path to "python" command line tool</li>
+<li>.nodejsBin - path to "nodejs" command line tool</li>
+<li>.svnBin - path to "svn" command line tool</li>
+<li>.gitBin - path to "git" command line tool</li>
+<li>.hgBin - path to "hg" command line tool</li>
+<li>.composerBin - path to "composer" command line tool</li>
+<li>.npmBin - path to "npm" command line tool</li>
+<li>.gruntBin - path to "grunt" command line tool</li>
+<li>.gulpBin - path to "gulp" command line tool</li>
+</ul>
+</li>
+</ul>
+<h2>3.2. Commands</h2>
+<p>Prior to each command run:</p>
+<ul>
+<li>Read user and system locations for .env configuration</li>
+<li>Setup .env.vars</li>
+<li>Read project's futoin.json, if present</li>
+<li>For each composer.json, package.json, bower.json (in strict order):<ul>
+<li>set .name, if not set yet</li>
+<li>set .version, if not set yet</li>
+<li>set .vcsRepo, if not set yet</li>
+<li>set .rmsRepo, if not set yet</li>
+</ul>
+</li>
+<li>if .name is set (run in project root):<ul>
+<li>If .tools is not set yet, configure based on file presence in project root:<ul>
+<li>composer.json -&gt; composer, php</li>
+<li>package.json -&gt; npm, nodejs</li>
+<li>bower.json -&gt; bower, nodejs</li>
+<li>Gruntfile.js, Gruntfile.coffee -&gt; grunt, nodejs</li>
+<li>gulpfile.js -&gt; gulp, nodejs</li>
+</ul>
+</li>
+<li>For each .tools detect related .env.*Bin, if not set<ul>
+<li>Execute install procedures, if tool is missing</li>
+</ul>
+</li>
+<li>Detect .vcs and related .env.*Bin, if not set</li>
+<li>Detect .vcsRepo, if not set yet</li>
+<li>Detect current .vcsBranch</li>
+</ul>
+</li>
+</ul>
+<p>Standard parameter processing:</p>
+<ul>
+<li>if --vcsRepo is provided<ul>
+<li>set .vcsRepo and .vcs</li>
+<li>verify we are in the correct working copy</li>
+</ul>
+</li>
+<li>else auto-detect based on VCS working copy or use .vcsRepo</li>
+<li>if --rmsRepo is provided<ul>
+<li>set .rmsRepo</li>
+</ul>
+</li>
+</ul>
+<p>Standard checkout process:</p>
+<ul>
+<li>if svn: switch or checkout .vcsBranch</li>
+<li>otherwise: clone &amp; checkout or fetch &amp; checkout .vcsBranch</li>
+<li>re-init configuration</li>
+</ul>
+<h3>3.2.1. citool tag {branch} [--version=next_increment] [--vcsRepo=from futoin.json]</h3>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>Set .vcsBranch={branch}</li>
+<li>standard checkout process</li>
+<li>if --version is set then set .version</li>
+<li>otherwise, increment the very last part of .version</li>
+<li>Update (or create) futoin.json with release version</li>
+<li>Update tool configuration files with release version</li>
+<li>Commit updated files with "Updated for release {.name} {.version}" comment</li>
+<li>Create [annotated] tag "v{.version} with "Release {.name} {.version}" comment</li>
+<li>Push changes and tags, if applicable based on .vcs</li>
+</ul>
+<h3>3.2.2. citool prepare [--ref=working copy, master or trunk] [--vcsRepo=from futoin.json]</h3>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>if --ref is supplied then set .vcsBranch and make standard checkout process</li>
+<li>depending on .vcs and .tools:<ul>
+<li>svn -&gt; {.env.svnBin} update</li>
+<li>git -&gt; {.env.gitBin} pull --rebase [&amp;&amp; {.env.gitBin} submodule update]</li>
+<li>hg -&gt; {.env.hgBin} pull --update</li>
+<li>composer -&gt; {.env.composerBin} install</li>
+<li>npm -&gt; {.env.npmBin} install</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.3. citool build</h3>
+<p>Default:</p>
+<ul>
+<li>depending on .tools:<ul>
+<li>grunt -&gt; {.env.gruntBin}</li>
+<li>gulp -&gt; {.env.gulpBin}</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.4. citool package</h3>
+<p>Default:</p>
+<ul>
+<li>if package is product of the build process then exit</li>
+<li>for each .tools<ul>
+<li>remove related external dependencies for development</li>
+</ul>
+</li>
+<li>create .tar.xz package based .package list</li>
+</ul>
+<h4>3.2.3.1. Package name convention:</h4>
+<ul>
+<li>Release build: {.name}-{.version}-{YYYY-MM-DD}[-{target}].ext</li>
+<li>CI build: {.name}-CI-{.version}-{.ref}-{YYYY-MM-DD}[-{target}].ext</li>
+<li>where:<ul>
+<li>.name &amp; .version - from configuration</li>
+<li>.ref - revision from VCS</li>
+<li>target, if no neutral to Arch/OS execution environment</li>
+<li>all forbidden symbols must get replaced with underscore</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.5. citool promote {package} {pool} [--rmsRepo=from futoin.json] [--hash={TYPE:value}]</h3>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>if {package} file exists use it</li>
+<li>otherwise, use one from .rmsRepo</li>
+<li>if --hash is given<ul>
+<li>verify {package} against it</li>
+</ul>
+</li>
+<li>otherwise<ul>
+<li>get/calc {package} hash and prompt for confirmation</li>
+</ul>
+</li>
+<li>if local package<ul>
+<li>upload {package} to {.rmsrepo}/{pool}</li>
+</ul>
+</li>
+<li>otherwise<ul>
+<li>RMS-specific promote {package} to {.rmsrepo}/{pool}</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.6. citool deploy {package} {location=[deployuser:]runuser@host} [--rmsRepo=from futoin.json] [--hash={TYPE:value}]</h3>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>if {package} file exists use it</li>
+<li>otherwise, use one from .rmsRepo</li>
+<li>if --hash is given<ul>
+<li>verify {package} against it</li>
+</ul>
+</li>
+<li>otherwise<ul>
+<li>get/calc {package} hash and prompt for confirmation</li>
+</ul>
+</li>
+<li>parse {location}, deployuser=runuser by default</li>
+<li>retrieve {package} from RMS</li>
+<li>upload {package} and generated {package}.sh to deployuser@host:/tmp</li>
+<li>execute remote deployuser@host:/tmp/{package}.sh</li>
+</ul>
+<h4>3.2.5.1. {package}.sh deployment script generation assumptions</h4>
+<ol>
+<li>Each web application should have own user</li>
+<li>Each user should have home folder </li>
+<li>Each {package} should get unpacked to ${HOME}/{package}</li>
+<li>Each ${HOME}/{package} should get proper ownership and read-only permissions</li>
+<li>Each read-write path should get symlink to ${HOME}/persistent/{path} and survive across deployments</li>
+<li>Pre-deployment must run and successfully complete</li>
+<li>${HOME}/vhost.{.env.webServer} must be generated including packages-specified extensions</li>
+<li>Automatic startup must get enabled</li>
+<li>${HOME}/current symlink must get changed to ${HOME}/{package}</li>
+<li>Web server and related daemons must get reloaded</li>
+</ol>
+<h4>3.2.7. citool run {package}</h4>
+<p>Default:</p>
+<ul>
+<li>if deployment environment:<ul>
+<li>start services according to configuration</li>
+</ul>
+</li>
+<li>if development environment:<ul>
+<li>start services and webserver</li>
+<li>make them available on the first available port starting from localhost:8080</li>
+</ul>
+</li>
+</ul>
+<p>=END OF SPEC=</p>
+</body></html>
