@@ -4,14 +4,13 @@
 <title>ftn16_citool.md</title>
 <link rel="stylesheet" type="text/css" href="../../css/specs.css">
 </head><body>
-<pre>
+<p>&lt;pre&gt;
 FTN16: FutoIn - Continuous Integration Tool
 Version: 0.1
 Date: 2015-09-14
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
-</pre>
-
+&lt;/pre&gt;</p>
 <h1>CHANGES</h1>
 <ul>
 <li>v1.0 - 2015-09-14</li>
@@ -53,17 +52,17 @@ binary artifact for deployment.</p>
 <p>A standard procedure for promoting a binary package into predefined release
 management chains:</p>
 <ul>
-<li>Build -&gt; CI Builds</li>
-<li>Build -&gt; Release Builds -&gt; Production Builds</li>
+<li>Build -&gt; CIBuilds</li>
+<li>Build -&gt; ReleaseBuilds -&gt; ProductionBuilds</li>
 <li>Build -&gt; <em>{Arbitrary}</em></li>
 <li><em>{Arbitrary}</em> -&gt; <em>{Arbitrary}</em> [-&gt; <em>{Arbitrary}</em>]+</li>
 </ul>
 <p>Where:</p>
 <ul>
 <li>Build - binary artifact, product of clean build process</li>
-<li>CI Builds - pool with development builds without source tagging</li>
-<li>Release Builds - pool with builds from source tags</li>
-<li>Production Builds - QA validated and Management approved Release Builds</li>
+<li>CIBuilds - RMS pool with development builds without source tagging</li>
+<li>ReleaseBuilds - RMS pool with builds from source tags</li>
+<li>ProductionBuilds - QA validated and Management approved Release Builds</li>
 <li><em>{Arbitrary}</em> - any custom binary artifact pool</li>
 </ul>
 <p><em>Note: promotion from pool to pool must not modify binary artifacts. Otherwise,
@@ -141,12 +140,15 @@ and auto-detectable in most cases.</p>
 <li>.apache - path to apache vhost config include relative to project root</li>
 </ul>
 </li>
-<li>.actions - {}, optional override of auto-detect commands<ul>
+<li>.actions - {}, optional override of auto-detect commands.
+    Each either a string or list of strings. Use '&lt;default&gt;' in [] to run the
+    default auto-detected tasks too.<ul>
 <li>.tag - custom shell command for tagging</li>
 <li>.prepare - custom shell command for source preparation</li>
 <li>.build - custom shell command for building from source</li>
 <li>.package - custom shell command for binary artifact creation</li>
 <li>.promote - custom shell command for binary artifact promotion</li>
+<li>.migrate - custom shell command in deployment procedure</li>
 <li>.deploy - custom shell command for deployment from binary artifact</li>
 <li>.run - custom shell command to run after deployment</li>
 <li>.runDev - custom shell command to run from source</li>
@@ -205,7 +207,8 @@ and auto-detectable in most cases.</p>
 </ul>
 </li>
 <li>For each .tools detect related .env.*Bin, if not set<ul>
-<li>Execute install procedures, if tool is missing</li>
+<li>Ask to execute install procedures, if tool is missing</li>
+<li>Fail, if not interactive prompt (e.g. automatic deployment)</li>
 </ul>
 </li>
 <li>Detect .vcs and related .env.*Bin, if not set</li>
@@ -233,7 +236,7 @@ and auto-detectable in most cases.</p>
 <li>otherwise: clone &amp; checkout or fetch &amp; checkout .vcsBranch</li>
 <li>re-init configuration</li>
 </ul>
-<h3>3.2.1. citool tag {branch} [--version=next_increment] [--vcsRepo=from futoin.json]</h3>
+<h3>3.2.1. citool tag &lt;branch&gt; [&lt;next_version&gt;] [--vcsRepo=&lt;vcs:url&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -247,7 +250,7 @@ and auto-detectable in most cases.</p>
 <li>Create [annotated] tag "v{.version} with "Release {.name} {.version}" comment</li>
 <li>Push changes and tags, if applicable based on .vcs</li>
 </ul>
-<h3>3.2.2. citool prepare [--ref=working copy, master or trunk] [--vcsRepo=from futoin.json]</h3>
+<h3>3.2.2. citool prepare [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -278,7 +281,8 @@ and auto-detectable in most cases.</p>
 <li>remove related external dependencies for development</li>
 </ul>
 </li>
-<li>create .tar.xz package based .package list</li>
+<li>create sorted sha256 checksums file based on .package list</li>
+<li>create .tar.xz package based on .package list and include the checksums file</li>
 </ul>
 <h4>3.2.3.1. Package name convention:</h4>
 <ul>
@@ -292,7 +296,7 @@ and auto-detectable in most cases.</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.5. citool promote {package} {pool} [--rmsRepo=from futoin.json] [--hash={TYPE:value}]</h3>
+<h3>3.2.5. citool promote &lt;package&gt; &lt;rms_pool&gt; [--rmsRepo=&lt;vcs:url&gt;] [--hash=&lt;type:value&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -315,7 +319,7 @@ and auto-detectable in most cases.</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.6. citool deploy {package} {location=[deployuser:]runuser@host} [--rmsRepo=from futoin.json] [--hash={TYPE:value}]</h3>
+<h3>3.2.6. citool deploy &lt;package&gt; &lt;location=[deployuser:]runuser@host&gt; [--rmsRepo=&lt;rms:url&gt;] [--hash=&lt;type:value&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -341,13 +345,13 @@ and auto-detectable in most cases.</p>
 <li>Each {package} should get unpacked to ${HOME}/{package}</li>
 <li>Each ${HOME}/{package} should get proper ownership and read-only permissions</li>
 <li>Each read-write path should get symlink to ${HOME}/persistent/{path} and survive across deployments</li>
-<li>Pre-deployment must run and successfully complete</li>
+<li>.action.migrate must run and successfully complete</li>
 <li>${HOME}/vhost.{.env.webServer} must be generated including packages-specified extensions</li>
 <li>Automatic startup must get enabled</li>
 <li>${HOME}/current symlink must get changed to ${HOME}/{package}</li>
 <li>Web server and related daemons must get reloaded</li>
 </ol>
-<h4>3.2.7. citool run {package}</h4>
+<h3>3.2.7. citool run [&lt;package&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>if deployment environment:<ul>
@@ -359,6 +363,13 @@ and auto-detectable in most cases.</p>
 <li>make them available on the first available port starting from localhost:8080</li>
 </ul>
 </li>
+</ul>
+<h3>3.2.8. citool ci_build &lt;vcs_ref&gt; &lt;rms_pool&gt; [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;]</h3>
+<p>Default:</p>
+<ul>
+<li>citool prepare</li>
+<li>citool build</li>
+<li>citool promote &lt;package&gt; &lt;rms_pool&gt;</li>
 </ul>
 <p>=END OF SPEC=</p>
 </body></html>

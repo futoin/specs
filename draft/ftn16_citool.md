@@ -1,10 +1,10 @@
-<pre>
+&lt;pre>
 FTN16: FutoIn - Continuous Integration Tool
 Version: 0.1
 Date: 2015-09-14
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
-</pre>
+&lt;/pre>
 
 # CHANGES
 
@@ -65,17 +65,17 @@ binary artifact for deployment.
 A standard procedure for promoting a binary package into predefined release
 management chains:
 
-* Build -> CI Builds
-* Build -> Release Builds -> Production Builds
+* Build -> CIBuilds
+* Build -> ReleaseBuilds -> ProductionBuilds
 * Build -> *{Arbitrary}*
 * *{Arbitrary}* -> *{Arbitrary}* [-> *{Arbitrary}*]+
 
 Where:
 
 * Build - binary artifact, product of clean build process
-* CI Builds - pool with development builds without source tagging
-* Release Builds - pool with builds from source tags
-* Production Builds - QA validated and Management approved Release Builds
+* CIBuilds - RMS pool with development builds without source tagging
+* ReleaseBuilds - RMS pool with builds from source tags
+* ProductionBuilds - QA validated and Management approved Release Builds
 * *{Arbitrary}* - any custom binary artifact pool
 
 *Note: promotion from pool to pool must not modify binary artifacts. Otherwise,
@@ -152,12 +152,15 @@ and auto-detectable in most cases.
     * .index - default index handler
     * .nginx - path to nginx vhost config include relative to project root
     * .apache - path to apache vhost config include relative to project root
-* .actions - {}, optional override of auto-detect commands
+* .actions - {}, optional override of auto-detect commands.
+    Each either a string or list of strings. Use '&lt;default>' in [] to run the
+    default auto-detected tasks too.
     * .tag - custom shell command for tagging
     * .prepare - custom shell command for source preparation
     * .build - custom shell command for building from source
     * .package - custom shell command for binary artifact creation
     * .promote - custom shell command for binary artifact promotion
+    * .migrate - custom shell command in deployment procedure
     * .deploy - custom shell command for deployment from binary artifact
     * .run - custom shell command to run after deployment
     * .runDev - custom shell command to run from source
@@ -206,7 +209,8 @@ Prior to each command run:
         * Gruntfile.js, Gruntfile.coffee -> grunt, nodejs
         * gulpfile.js -> gulp, nodejs
     * For each .tools detect related .env.*Bin, if not set
-        * Execute install procedures, if tool is missing
+        * Ask to execute install procedures, if tool is missing
+        * Fail, if not interactive prompt (e.g. automatic deployment)
     * Detect .vcs and related .env.*Bin, if not set
     * Detect .vcsRepo, if not set yet
     * Detect current .vcsBranch
@@ -228,7 +232,7 @@ Standard checkout process:
 
 
 
-### 3.2.1. citool tag {branch} [--version=next_increment] [--vcsRepo=from futoin.json]
+### 3.2.1. citool tag &lt;branch> [&lt;next_version>] [--vcsRepo=&lt;vcs:url>]
 
 Default:
 
@@ -243,7 +247,7 @@ Default:
 * Create [annotated] tag "v{.version} with "Release {.name} {.version}" comment
 * Push changes and tags, if applicable based on .vcs
 
-### 3.2.2. citool prepare [--ref=working copy, master or trunk] [--vcsRepo=from futoin.json]
+### 3.2.2. citool prepare [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>]
 
 Default:
 
@@ -271,7 +275,8 @@ Default:
 * if package is product of the build process then exit
 * for each .tools
     * remove related external dependencies for development
-* create .tar.xz package based .package list
+* create sorted sha256 checksums file based on .package list
+* create .tar.xz package based on .package list and include the checksums file
 
 #### 3.2.3.1. Package name convention:
 
@@ -284,7 +289,7 @@ Default:
     * all forbidden symbols must get replaced with underscore
 
 
-### 3.2.5. citool promote {package} {pool} [--rmsRepo=from futoin.json] [--hash={TYPE:value}]
+### 3.2.5. citool promote &lt;package> &lt;rms_pool> [--rmsRepo=&lt;vcs:url>] [--hash=&lt;type:value>]
 
 Default:
 
@@ -300,7 +305,7 @@ Default:
 * otherwise
     * RMS-specific promote {package} to {.rmsrepo}/{pool}
 
-### 3.2.6. citool deploy {package} {location=[deployuser:]runuser@host} [--rmsRepo=from futoin.json] [--hash={TYPE:value}]
+### 3.2.6. citool deploy &lt;package> &lt;location=[deployuser:]runuser@host> [--rmsRepo=&lt;rms:url>] [--hash=&lt;type:value>]
 
 Default:
 
@@ -323,13 +328,13 @@ Default:
 3. Each {package} should get unpacked to ${HOME}/{package}
 4. Each ${HOME}/{package} should get proper ownership and read-only permissions
 5. Each read-write path should get symlink to ${HOME}/persistent/{path} and survive across deployments
-6. Pre-deployment must run and successfully complete
+6. .action.migrate must run and successfully complete
 7. ${HOME}/vhost.{.env.webServer} must be generated including packages-specified extensions
 8. Automatic startup must get enabled
 9. ${HOME}/current symlink must get changed to ${HOME}/{package}
 10. Web server and related daemons must get reloaded
 
-#### 3.2.7. citool run {package}
+### 3.2.7. citool run [&lt;package>]
 
 Default:
 
@@ -338,5 +343,13 @@ Default:
 * if development environment:
     * start services and webserver
     * make them available on the first available port starting from localhost:8080
+
+### 3.2.8. citool ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]
+
+Default:
+
+* citool prepare
+* citool build
+* citool promote &lt;package> &lt;rms_pool>
 
 =END OF SPEC=
