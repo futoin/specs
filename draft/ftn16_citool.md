@@ -1,10 +1,10 @@
-&lt;pre>
+<pre>
 FTN16: FutoIn - Continuous Integration Tool
 Version: 0.1
 Date: 2015-09-14
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
-&lt;/pre>
+</pre>
 
 # CHANGES
 
@@ -173,9 +173,6 @@ and auto-detectable in most cases.
     * .webServer:
         * "nginx"
         * "apache"
-    * .webConfigDir - root directory for virtual host configuration,
-        default:  "/etc/{.env.webServer}/sites-enabled"
-    * .createUsers=false - auto create users on deployment
     * .vars - arbitrary environment variables to set on execution
     * .phpBin - path to "php" command line tool
     * .pythonBin - path to "python" command line tool
