@@ -124,20 +124,26 @@ and auto-detectable in most cases.
     * "git"
     * "hg"
 * .vcsBranch - (dynamic variable) current branch name
+* .wcDir - (dynamic variable) working directory name for fresh clone/checkout
 * .rmsRepo - binary artifact Release Management System location
 * .rms - release management system type:
     * "svn" - use Subversion as binary artifact repository
     * "sftp" - use SSHv2 FTP
+    * "archiva" - use Apache Archiva
     * "artifactory" - use JFrog Artifactory
     * "nexus" - use Sonatype Nexus
-* .tools - [], list of tools supported by the project with possible values:
-    * "php"
-    * "nodejs"
-    * "npm"
-    * "bower"
-    * "grunt"
-    * "gulp"
-    * "composer"
+* .tools - [], list of required tools with possible standard values:
+    * 'nvm'
+    * 'rvm'
+    * 'php'
+    * 'python'
+    * 'nodejs'
+    * 'ruby'
+    * 'composer'
+    * 'npm'
+    * 'grunt'
+    * 'gulp'
+    * 'bower'
 * .package - [], content of package relative to project root. Default: [ "." ]
 * .writeable - [], list of read-write paths (must be empty/missing in deployment package)
 * .main - {], list of named entry points {}
@@ -174,16 +180,8 @@ and auto-detectable in most cases.
         * "nginx"
         * "apache"
     * .vars - arbitrary environment variables to set on execution
-    * .phpBin - path to "php" command line tool
-    * .pythonBin - path to "python" command line tool
-    * .nodejsBin - path to "nodejs" command line tool
-    * .svnBin - path to "svn" command line tool
-    * .gitBin - path to "git" command line tool
-    * .hgBin - path to "hg" command line tool
-    * .composerBin - path to "composer" command line tool
-    * .npmBin - path to "npm" command line tool
-    * .gruntBin - path to "grunt" command line tool
-    * .gulpBin - path to "gulp" command line tool
+    * .plugins - {}, custom plugins $tool:$module_name pairs
+    * .{tool}Bin - path to "$tool" command line binary
 
 
 ## 3.2. Commands
@@ -229,7 +227,7 @@ Standard checkout process:
 
 
 
-### 3.2.1. citool tag &lt;branch> [&lt;next_version>] [--vcsRepo=&lt;vcs:url>]
+### 3.2.1. citool tag &lt;branch> [&lt;next_version>] [--vcsRepo=&lt;vcs:url>] [--wcDir wc_dir]
 
 Default:
 
@@ -244,7 +242,7 @@ Default:
 * Create [annotated] tag "v{.version} with "Release {.name} {.version}" comment
 * Push changes and tags, if applicable based on .vcs
 
-### 3.2.2. citool prepare [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>]
+### 3.2.2. citool prepare [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--wcDir wc_dir]
 
 Default:
 

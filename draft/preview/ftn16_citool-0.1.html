@@ -103,22 +103,28 @@ and auto-detectable in most cases.</p>
 </ul>
 </li>
 <li>.vcsBranch - (dynamic variable) current branch name</li>
+<li>.wcDir - (dynamic variable) working directory name for fresh clone/checkout</li>
 <li>.rmsRepo - binary artifact Release Management System location</li>
 <li>.rms - release management system type:<ul>
 <li>"svn" - use Subversion as binary artifact repository</li>
 <li>"sftp" - use SSHv2 FTP</li>
+<li>"archiva" - use Apache Archiva</li>
 <li>"artifactory" - use JFrog Artifactory</li>
 <li>"nexus" - use Sonatype Nexus</li>
 </ul>
 </li>
-<li>.tools - [], list of tools supported by the project with possible values:<ul>
-<li>"php"</li>
-<li>"nodejs"</li>
-<li>"npm"</li>
-<li>"bower"</li>
-<li>"grunt"</li>
-<li>"gulp"</li>
-<li>"composer"</li>
+<li>.tools - [], list of required tools with possible standard values:<ul>
+<li>'nvm'</li>
+<li>'rvm'</li>
+<li>'php'</li>
+<li>'python'</li>
+<li>'nodejs'</li>
+<li>'ruby'</li>
+<li>'composer'</li>
+<li>'npm'</li>
+<li>'grunt'</li>
+<li>'gulp'</li>
+<li>'bower'</li>
 </ul>
 </li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
@@ -168,20 +174,9 @@ and auto-detectable in most cases.</p>
 <li>"apache"</li>
 </ul>
 </li>
-<li>.webConfigDir - root directory for virtual host configuration,
-    default:  "/etc/{.env.webServer}/sites-enabled"</li>
-<li>.createUsers=false - auto create users on deployment</li>
 <li>.vars - arbitrary environment variables to set on execution</li>
-<li>.phpBin - path to "php" command line tool</li>
-<li>.pythonBin - path to "python" command line tool</li>
-<li>.nodejsBin - path to "nodejs" command line tool</li>
-<li>.svnBin - path to "svn" command line tool</li>
-<li>.gitBin - path to "git" command line tool</li>
-<li>.hgBin - path to "hg" command line tool</li>
-<li>.composerBin - path to "composer" command line tool</li>
-<li>.npmBin - path to "npm" command line tool</li>
-<li>.gruntBin - path to "grunt" command line tool</li>
-<li>.gulpBin - path to "gulp" command line tool</li>
+<li>.plugins - {}, custom plugins $tool:$module_name pairs</li>
+<li>.{tool}Bin - path to "$tool" command line binary</li>
 </ul>
 </li>
 </ul>
@@ -237,7 +232,7 @@ and auto-detectable in most cases.</p>
 <li>otherwise: clone &amp; checkout or fetch &amp; checkout .vcsBranch</li>
 <li>re-init configuration</li>
 </ul>
-<h3>3.2.1. citool tag &lt;branch&gt; [&lt;next_version&gt;] [--vcsRepo=&lt;vcs:url&gt;]</h3>
+<h3>3.2.1. citool tag &lt;branch&gt; [&lt;next_version&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -251,7 +246,7 @@ and auto-detectable in most cases.</p>
 <li>Create [annotated] tag "v{.version} with "Release {.name} {.version}" comment</li>
 <li>Push changes and tags, if applicable based on .vcs</li>
 </ul>
-<h3>3.2.2. citool prepare [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;]</h3>
+<h3>3.2.2. citool prepare [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
