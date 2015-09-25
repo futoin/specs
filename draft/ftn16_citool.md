@@ -86,8 +86,8 @@ dependency for input and own binary artifact promotion chains*
 
 A standard implementation of this action should be implemented only for web projects
 with quite specific requirements on target environment. Target environment
-may have a global configuration file "/etc/futoin/futoin.json" to override
-the default settings.
+may have a global and user configuration files to override
+the default settings, tune limits and provide configuration.
 
 ## 2.7. Running
 
@@ -107,6 +107,7 @@ This case must be auto-detected.
 Name: futoin.json
 Format: strict JSON
 Location (project): project root folder
+Location (deployment): ${DEPLOY_ROOT} (only .env part)
 Location (user): ${HOME}/.futoin/ (only .env part)
 Location (global): /etc/futoin/ (only .env part)
 
@@ -123,12 +124,13 @@ and auto-detectable in most cases.
     * "svn"
     * "git"
     * "hg"
-* .vcsBranch - (dynamic variable) current branch name
+* .vcsRef - (dynamic variable) current branch name
 * .wcDir - (dynamic variable) working directory name for fresh clone/checkout
+* .deployDir - (dynamic variable) root for current package deployment
 * .rmsRepo - binary artifact Release Management System location
 * .rms - release management system type:
     * "svn" - use Subversion as binary artifact repository
-    * "sftp" - use SSHv2 FTP
+    * "scp" - use SSHv2 FTP
     * "archiva" - use Apache Archiva
     * "artifactory" - use JFrog Artifactory
     * "nexus" - use Sonatype Nexus
@@ -147,7 +149,7 @@ and auto-detectable in most cases.
 * .package - [], content of package relative to project root. Default: [ "." ]
 * .writeable - [], list of read-write paths (must be empty/missing in deployment package)
 * .main - {], list of named entry points {}
-    * .type - "php-fpm", "nodejs", "python" and "php-cli" (auto-detect by default)
+    * .type - "php", "node", "python" and "php-cli" (auto-detect by default)
     * .path - file (not required in some cases, e.g. php-fpm)
     * .tune - {}, type-specific configuration options
 * .configenv - {} - list of environment variables to be set in deployment
@@ -155,7 +157,7 @@ and auto-detectable in most cases.
     * desc - variable description
 * .webcfg - additional web server configuration
     * .root - web root folder relative to project root
-    * .index - default index handler
+    * .index - default index handler from .main
     * .nginx - path to nginx vhost config include relative to project root
     * .apache - path to apache vhost config include relative to project root
 * .actions - {}, optional override of auto-detect commands.
@@ -172,13 +174,11 @@ and auto-detectable in most cases.
     * .runDev - custom shell command to run from source
 * .env - {}, the only part allowed to be defined in user or system configs
     * .type - "prod", "uat", "qa" and "dev" (default - "dev")
-    * .init - startup script type:
-        * "systemd"
-        * "sysv"
-        * "cron" - user's cron
     * .webServer:
         * "nginx"
-        * "apache"
+        * "apache" - no supported yet
+    * .mainConfig: {}
+        * .main-specific deployment configurations
     * .vars - arbitrary environment variables to set on execution
     * .plugins - {}, custom plugins $tool:$module_name pairs
     * .{tool}Bin - path to "$tool" command line binary
@@ -208,7 +208,7 @@ Prior to each command run:
         * Fail, if not interactive prompt (e.g. automatic deployment)
     * Detect .vcs and related .env.*Bin, if not set
     * Detect .vcsRepo, if not set yet
-    * Detect current .vcsBranch
+    * Detect current .vcsRef
 
 Standard parameter processing:
 
@@ -221,8 +221,8 @@ Standard parameter processing:
 
 Standard checkout process:
 
-* if svn: switch or checkout .vcsBranch
-* otherwise: clone & checkout or fetch & checkout .vcsBranch
+* if svn: switch or checkout .vcsRef
+* otherwise: clone & checkout or fetch & checkout .vcsRef
 * re-init configuration
 
 
@@ -232,7 +232,7 @@ Standard checkout process:
 Default:
 
 * process standard parameters
-* Set .vcsBranch={branch}
+* Set .vcsRef={branch}
 * standard checkout process
 * if --version is set then set .version
 * otherwise, increment the very last part of .version
@@ -247,13 +247,14 @@ Default:
 Default:
 
 * process standard parameters
-* if --ref is supplied then set .vcsBranch and make standard checkout process
+* if vcs_ref is supplied then set .vcsRef and make standard checkout process
 * depending on .vcs and .tools:
     * svn -> {.env.svnBin} update
     * git -> {.env.gitBin} pull --rebase [&& {.env.gitBin} submodule update]
     * hg -> {.env.hgBin} pull --update
     * composer -> {.env.composerBin} install
     * npm -> {.env.npmBin} install
+    * bower -> {.env.bowerBin> install
 
 ### 3.2.3. citool build
 
@@ -270,13 +271,15 @@ Default:
 * if package is product of the build process then exit
 * for each .tools
     * remove related external dependencies for development
+* if .webcfg.root
+    * create nginx optimized *.gz files for static content (.js, .json, .css, .svg)
 * create sorted sha256 checksums file based on .package list
 * create .tar.xz package based on .package list and include the checksums file
 
 #### 3.2.3.1. Package name convention:
 
-* Release build: {.name}-{.version}-{YYYY-MM-DD}[-{target}].ext
-* CI build: {.name}-CI-{.version}-{.ref}-{YYYY-MM-DD}[-{target}].ext
+* Release build: {.name}-{.version}-{YYYYMMDD_hhmmss}[-{target}].ext
+* CI build: {.name}-CI-{.version}-{.ref}-{YYYYMMDD_hhmmss}[-{target}].ext
 * where:
     * .name & .version - from configuration
     * .ref - revision from VCS
@@ -284,14 +287,14 @@ Default:
     * all forbidden symbols must get replaced with underscore
 
 
-### 3.2.5. citool promote &lt;package> &lt;rms_pool> [--rmsRepo=&lt;vcs:url>] [--hash=&lt;type:value>]
+### 3.2.5. citool promote &lt;package> &lt;rms_pool> [--rmsRepo=&lt;vcs:url>] [--rmsHash=&lt;type:value>]
 
 Default:
 
 * process standard parameters
 * if {package} file exists use it
 * otherwise, use one from .rmsRepo
-* if --hash is given
+* if --rmsHash is given
     * verify {package} against it
 * otherwise
     * get/calc {package} hash and prompt for confirmation
@@ -300,44 +303,61 @@ Default:
 * otherwise
     * RMS-specific promote {package} to {.rmsrepo}/{pool}
 
-### 3.2.6. citool deploy &lt;package> &lt;location=[deployuser:]runuser@host> [--rmsRepo=&lt;rms:url>] [--hash=&lt;type:value>]
+### 3.2.6. citool deploy &lt;location=[[deployuser:]runuser@host:]deployDir> &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--redeploy]
 
 Default:
 
 * process standard parameters
-* if {package} file exists use it
-* otherwise, use one from .rmsRepo
-* if --hash is given
-    * verify {package} against it
-* otherwise
-    * get/calc {package} hash and prompt for confirmation
 * parse {location}, deployuser=runuser by default
-* retrieve {package} from RMS
-* upload {package} and generated {package}.sh to deployuser@host:/tmp
-* execute remote deployuser@host:/tmp/{package}.sh
+* if remote:
+    * if deployuser != runuser:
+        * execute "sudo -u runuser citool deploy ..." remotely
+    * else
+        * execute "citool deploy ..." remotely
+    * exit
+* find out currently deployed package
+* if not package specified
+    * find out the latest from RMS
+* if current matches target package and --redeploy is not set then exit
+* if {package} file exists then use it
+* otherwise, download one from .rmsRepo
+* unpack package to {deployDir}/{package_no_ext}
+* setup read-only permissions
+* according to .writable:
+    * create symlinks {deployDir}/{package_no_ext}/{subpath} -> {deployDir}/persistent/{subpath}
+* run .action.migrate
+* setup runtime according to .main config
+* setup per-user web server (nginx)
+* create/change symlink {deployDir}/current -> {deployDir}/{package_no_ext}
+* reload web server and runtime according to .main
+* remove all old {deployDir}/{package_no_ext} and {deployDir}/{package} folders
 
-#### 3.2.5.1. {package}.sh deployment script generation assumptions
 
-1. Each web application should have own user
-2. Each user should have home folder 
-3. Each {package} should get unpacked to ${HOME}/{package}
-4. Each ${HOME}/{package} should get proper ownership and read-only permissions
-5. Each read-write path should get symlink to ${HOME}/persistent/{path} and survive across deployments
+#### 3.2.5.1. {package}.sh deployment assumptions
+
+1. Each web application must have own deployment root folder
+2. Each web application should have own user
+3. Each web application should get proper ownership and read-only permissions
+4. Application package must not have modifiable content
+5. Each read-write path should get symlink to {deployDir}/persistent/{path} and survive across deployments
 6. .action.migrate must run and successfully complete
-7. ${HOME}/vhost.{.env.webServer} must be generated including packages-specified extensions
+7. ${deployDir}/vhost.{.env.webServer}.subconf must be generated including packages-specified extensions
 8. Automatic startup must get enabled
-9. ${HOME}/current symlink must get changed to ${HOME}/{package}
-10. Web server and related daemons must get reloaded
+9. ${deployDir}/current must always point to fully configured deployment
+10. For security reasons it is not possible to include project-specific config
+    for web server running as root user. Also, sensitive data like TLS private
+    keys must not be available to application user. Thefore a performance
+    penalty of reverse proxy may apply, but large high available deployments should
+    have load balancer/reverse proxy any way.
 
 ### 3.2.7. citool run [&lt;package>]
 
 Default:
 
 * if deployment environment:
-    * start services according to configuration
+    * start services according to deployment configuration
 * if development environment:
-    * start services and webserver
-    * make them available on the first available port starting from localhost:8080
+    * start services according to project configuration
 
 ### 3.2.8. citool ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]
 
@@ -345,6 +365,7 @@ Default:
 
 * citool prepare
 * citool build
+* citool package
 * citool promote &lt;package> &lt;rms_pool>
 
 =END OF SPEC=

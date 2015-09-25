@@ -72,8 +72,8 @@ dependency for input and own binary artifact promotion chains</em></p>
 <h2>2.6. Deployment</h2>
 <p>A standard implementation of this action should be implemented only for web projects
 with quite specific requirements on target environment. Target environment
-may have a global configuration file "/etc/futoin/futoin.json" to override
-the default settings.</p>
+may have a global and user configuration files to override
+the default settings, tune limits and provide configuration.</p>
 <h2>2.7. Running</h2>
 <p>A standard implementation of project execution depends on the deployment procedure.
 The deployment procedure must leave clear artifacts in operating system
@@ -86,6 +86,7 @@ This case must be auto-detected.</p>
 <p>Name: futoin.json
 Format: strict JSON
 Location (project): project root folder
+Location (deployment): ${DEPLOY_ROOT} (only .env part)
 Location (user): ${HOME}/.futoin/ (only .env part)
 Location (global): /etc/futoin/ (only .env part)</p>
 <h3>3.1.1. JSON tree definition in dot notation.</h3>
@@ -102,12 +103,13 @@ and auto-detectable in most cases.</p>
 <li>"hg"</li>
 </ul>
 </li>
-<li>.vcsBranch - (dynamic variable) current branch name</li>
+<li>.vcsRef - (dynamic variable) current branch name</li>
 <li>.wcDir - (dynamic variable) working directory name for fresh clone/checkout</li>
+<li>.deployDir - (dynamic variable) root for current package deployment</li>
 <li>.rmsRepo - binary artifact Release Management System location</li>
 <li>.rms - release management system type:<ul>
 <li>"svn" - use Subversion as binary artifact repository</li>
-<li>"sftp" - use SSHv2 FTP</li>
+<li>"scp" - use SSHv2 FTP</li>
 <li>"archiva" - use Apache Archiva</li>
 <li>"artifactory" - use JFrog Artifactory</li>
 <li>"nexus" - use Sonatype Nexus</li>
@@ -130,7 +132,7 @@ and auto-detectable in most cases.</p>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
 <li>.writeable - [], list of read-write paths (must be empty/missing in deployment package)</li>
 <li>.main - {], list of named entry points {}<ul>
-<li>.type - "php-fpm", "nodejs", "python" and "php-cli" (auto-detect by default)</li>
+<li>.type - "php", "node", "python" and "php-cli" (auto-detect by default)</li>
 <li>.path - file (not required in some cases, e.g. php-fpm)</li>
 <li>.tune - {}, type-specific configuration options</li>
 </ul>
@@ -142,7 +144,7 @@ and auto-detectable in most cases.</p>
 </li>
 <li>.webcfg - additional web server configuration<ul>
 <li>.root - web root folder relative to project root</li>
-<li>.index - default index handler</li>
+<li>.index - default index handler from .main</li>
 <li>.nginx - path to nginx vhost config include relative to project root</li>
 <li>.apache - path to apache vhost config include relative to project root</li>
 </ul>
@@ -163,15 +165,13 @@ and auto-detectable in most cases.</p>
 </li>
 <li>.env - {}, the only part allowed to be defined in user or system configs<ul>
 <li>.type - "prod", "uat", "qa" and "dev" (default - "dev")</li>
-<li>.init - startup script type:<ul>
-<li>"systemd"</li>
-<li>"sysv"</li>
-<li>"cron" - user's cron</li>
-</ul>
-</li>
 <li>.webServer:<ul>
 <li>"nginx"</li>
-<li>"apache"</li>
+<li>"apache" - no supported yet</li>
+</ul>
+</li>
+<li>.mainConfig: {}<ul>
+<li>.main-specific deployment configurations</li>
 </ul>
 </li>
 <li>.vars - arbitrary environment variables to set on execution</li>
@@ -209,7 +209,7 @@ and auto-detectable in most cases.</p>
 </li>
 <li>Detect .vcs and related .env.*Bin, if not set</li>
 <li>Detect .vcsRepo, if not set yet</li>
-<li>Detect current .vcsBranch</li>
+<li>Detect current .vcsRef</li>
 </ul>
 </li>
 </ul>
@@ -228,15 +228,15 @@ and auto-detectable in most cases.</p>
 </ul>
 <p>Standard checkout process:</p>
 <ul>
-<li>if svn: switch or checkout .vcsBranch</li>
-<li>otherwise: clone &amp; checkout or fetch &amp; checkout .vcsBranch</li>
+<li>if svn: switch or checkout .vcsRef</li>
+<li>otherwise: clone &amp; checkout or fetch &amp; checkout .vcsRef</li>
 <li>re-init configuration</li>
 </ul>
 <h3>3.2.1. citool tag &lt;branch&gt; [&lt;next_version&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
-<li>Set .vcsBranch={branch}</li>
+<li>Set .vcsRef={branch}</li>
 <li>standard checkout process</li>
 <li>if --version is set then set .version</li>
 <li>otherwise, increment the very last part of .version</li>
@@ -250,13 +250,14 @@ and auto-detectable in most cases.</p>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
-<li>if --ref is supplied then set .vcsBranch and make standard checkout process</li>
+<li>if vcs_ref is supplied then set .vcsRef and make standard checkout process</li>
 <li>depending on .vcs and .tools:<ul>
 <li>svn -&gt; {.env.svnBin} update</li>
 <li>git -&gt; {.env.gitBin} pull --rebase [&amp;&amp; {.env.gitBin} submodule update]</li>
 <li>hg -&gt; {.env.hgBin} pull --update</li>
 <li>composer -&gt; {.env.composerBin} install</li>
 <li>npm -&gt; {.env.npmBin} install</li>
+<li>bower -&gt; {.env.bowerBin&gt; install</li>
 </ul>
 </li>
 </ul>
@@ -277,13 +278,17 @@ and auto-detectable in most cases.</p>
 <li>remove related external dependencies for development</li>
 </ul>
 </li>
+<li>if .webcfg.root<ul>
+<li>create nginx optimized *.gz files for static content (.js, .json, .css, .svg)</li>
+</ul>
+</li>
 <li>create sorted sha256 checksums file based on .package list</li>
 <li>create .tar.xz package based on .package list and include the checksums file</li>
 </ul>
 <h4>3.2.3.1. Package name convention:</h4>
 <ul>
-<li>Release build: {.name}-{.version}-{YYYY-MM-DD}[-{target}].ext</li>
-<li>CI build: {.name}-CI-{.version}-{.ref}-{YYYY-MM-DD}[-{target}].ext</li>
+<li>Release build: {.name}-{.version}-{YYYYMMDD_hhmmss}[-{target}].ext</li>
+<li>CI build: {.name}-CI-{.version}-{.ref}-{YYYYMMDD_hhmmss}[-{target}].ext</li>
 <li>where:<ul>
 <li>.name &amp; .version - from configuration</li>
 <li>.ref - revision from VCS</li>
@@ -292,13 +297,13 @@ and auto-detectable in most cases.</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.5. citool promote &lt;package&gt; &lt;rms_pool&gt; [--rmsRepo=&lt;vcs:url&gt;] [--hash=&lt;type:value&gt;]</h3>
+<h3>3.2.5. citool promote &lt;package&gt; &lt;rms_pool&gt; [--rmsRepo=&lt;vcs:url&gt;] [--rmsHash=&lt;type:value&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
 <li>if {package} file exists use it</li>
 <li>otherwise, use one from .rmsRepo</li>
-<li>if --hash is given<ul>
+<li>if --rmsHash is given<ul>
 <li>verify {package} against it</li>
 </ul>
 </li>
@@ -315,48 +320,70 @@ and auto-detectable in most cases.</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.6. citool deploy &lt;package&gt; &lt;location=[deployuser:]runuser@host&gt; [--rmsRepo=&lt;rms:url&gt;] [--hash=&lt;type:value&gt;]</h3>
+<h3>3.2.6. citool deploy &lt;location=[[deployuser:]runuser@host:]deployDir&gt; &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--redeploy]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
-<li>if {package} file exists use it</li>
-<li>otherwise, use one from .rmsRepo</li>
-<li>if --hash is given<ul>
-<li>verify {package} against it</li>
-</ul>
-</li>
-<li>otherwise<ul>
-<li>get/calc {package} hash and prompt for confirmation</li>
-</ul>
-</li>
 <li>parse {location}, deployuser=runuser by default</li>
-<li>retrieve {package} from RMS</li>
-<li>upload {package} and generated {package}.sh to deployuser@host:/tmp</li>
-<li>execute remote deployuser@host:/tmp/{package}.sh</li>
+<li>if remote:<ul>
+<li>if deployuser != runuser:<ul>
+<li>execute "sudo -u runuser citool deploy ..." remotely</li>
 </ul>
-<h4>3.2.5.1. {package}.sh deployment script generation assumptions</h4>
+</li>
+<li>else<ul>
+<li>execute "citool deploy ..." remotely</li>
+</ul>
+</li>
+<li>exit</li>
+</ul>
+</li>
+<li>find out currently deployed package</li>
+<li>if not package specified<ul>
+<li>find out the latest from RMS</li>
+</ul>
+</li>
+<li>if current matches target package and --redeploy is not set then exit</li>
+<li>if {package} file exists then use it</li>
+<li>otherwise, download one from .rmsRepo</li>
+<li>unpack package to {deployDir}/{package_no_ext}</li>
+<li>setup read-only permissions</li>
+<li>according to .writable:<ul>
+<li>create symlinks {deployDir}/{package_no_ext}/{subpath} -&gt; {deployDir}/persistent/{subpath}</li>
+</ul>
+</li>
+<li>run .action.migrate</li>
+<li>setup runtime according to .main config</li>
+<li>setup per-user web server (nginx)</li>
+<li>create/change symlink {deployDir}/current -&gt; {deployDir}/{package_no_ext}</li>
+<li>reload web server and runtime according to .main</li>
+<li>remove all old {deployDir}/{package_no_ext} and {deployDir}/{package} folders</li>
+</ul>
+<h4>3.2.5.1. {package}.sh deployment assumptions</h4>
 <ol>
+<li>Each web application must have own deployment root folder</li>
 <li>Each web application should have own user</li>
-<li>Each user should have home folder </li>
-<li>Each {package} should get unpacked to ${HOME}/{package}</li>
-<li>Each ${HOME}/{package} should get proper ownership and read-only permissions</li>
-<li>Each read-write path should get symlink to ${HOME}/persistent/{path} and survive across deployments</li>
+<li>Each web application should get proper ownership and read-only permissions</li>
+<li>Application package must not have modifiable content</li>
+<li>Each read-write path should get symlink to {deployDir}/persistent/{path} and survive across deployments</li>
 <li>.action.migrate must run and successfully complete</li>
-<li>${HOME}/vhost.{.env.webServer} must be generated including packages-specified extensions</li>
+<li>${deployDir}/vhost.{.env.webServer}.subconf must be generated including packages-specified extensions</li>
 <li>Automatic startup must get enabled</li>
-<li>${HOME}/current symlink must get changed to ${HOME}/{package}</li>
-<li>Web server and related daemons must get reloaded</li>
+<li>${deployDir}/current must always point to fully configured deployment</li>
+<li>For security reasons it is not possible to include project-specific config
+    for web server running as root user. Also, sensitive data like TLS private
+    keys must not be available to application user. Thefore a performance
+    penalty of reverse proxy may apply, but large high available deployments should
+    have load balancer/reverse proxy any way.</li>
 </ol>
 <h3>3.2.7. citool run [&lt;package&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>if deployment environment:<ul>
-<li>start services according to configuration</li>
+<li>start services according to deployment configuration</li>
 </ul>
 </li>
 <li>if development environment:<ul>
-<li>start services and webserver</li>
-<li>make them available on the first available port starting from localhost:8080</li>
+<li>start services according to project configuration</li>
 </ul>
 </li>
 </ul>
@@ -365,6 +392,7 @@ and auto-detectable in most cases.</p>
 <ul>
 <li>citool prepare</li>
 <li>citool build</li>
+<li>citool package</li>
 <li>citool promote &lt;package&gt; &lt;rms_pool&gt;</li>
 </ul>
 <p>=END OF SPEC=</p>
