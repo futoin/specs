@@ -106,6 +106,7 @@ and auto-detectable in most cases.</p>
 <li>.vcsRef - (dynamic variable) current branch name</li>
 <li>.wcDir - (dynamic variable) working directory name for fresh clone/checkout</li>
 <li>.deployDir - (dynamic variable) root for current package deployment</li>
+<li>.reDeploy - (dynamic variable) force deploy, if true</li>
 <li>.rmsRepo - binary artifact Release Management System location</li>
 <li>.rms - release management system type:<ul>
 <li>"svn" - use Subversion as binary artifact repository</li>
@@ -115,7 +116,7 @@ and auto-detectable in most cases.</p>
 <li>"nexus" - use Sonatype Nexus</li>
 </ul>
 </li>
-<li>.tools - [], list of required tools with possible standard values:<ul>
+<li>.tools - {}, list of required tool=&gt;version pairs with possible standard keys:<ul>
 <li>'nvm'</li>
 <li>'rvm'</li>
 <li>'php'</li>
@@ -130,7 +131,7 @@ and auto-detectable in most cases.</p>
 </ul>
 </li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
-<li>.writeable - [], list of read-write paths (must be empty/missing in deployment package)</li>
+<li>.writeable - [], list of read-write dirctory paths (must be empty/missing in deployment package)</li>
 <li>.main - {], list of named entry points {}<ul>
 <li>.type - "php", "node", "python" and "php-cli" (auto-detect by default)</li>
 <li>.path - file (not required in some cases, e.g. php-fpm)</li>
@@ -320,23 +321,10 @@ and auto-detectable in most cases.</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.6. citool deploy &lt;location=[[deployuser:]runuser@host:]deployDir&gt; &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--redeploy]</h3>
+<h3>3.2.6. citool deploy &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--redeploy] [--deployDir deploy_dir]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
-<li>parse {location}, deployuser=runuser by default</li>
-<li>if remote:<ul>
-<li>if deployuser != runuser:<ul>
-<li>execute "sudo -u runuser citool deploy ..." remotely</li>
-</ul>
-</li>
-<li>else<ul>
-<li>execute "citool deploy ..." remotely</li>
-</ul>
-</li>
-<li>exit</li>
-</ul>
-</li>
 <li>find out currently deployed package</li>
 <li>if not package specified<ul>
 <li>find out the latest from RMS</li>
@@ -345,18 +333,19 @@ and auto-detectable in most cases.</p>
 <li>if current matches target package and --redeploy is not set then exit</li>
 <li>if {package} file exists then use it</li>
 <li>otherwise, download one from .rmsRepo</li>
-<li>unpack package to {deployDir}/{package_no_ext}</li>
+<li>unpack package to {.deployDir}/{package_no_ext}.tmp</li>
 <li>setup read-only permissions</li>
-<li>according to .writable:<ul>
-<li>create symlinks {deployDir}/{package_no_ext}/{subpath} -&gt; {deployDir}/persistent/{subpath}</li>
+<li>according to .writeable:<ul>
+<li>create symlinks {.deployDir}/{package_no_ext}.tmp/{subpath} -&gt; {.deployDir}/persistent/{subpath}</li>
 </ul>
 </li>
 <li>run .action.migrate</li>
 <li>setup runtime according to .main config</li>
 <li>setup per-user web server (nginx)</li>
-<li>create/change symlink {deployDir}/current -&gt; {deployDir}/{package_no_ext}</li>
+<li>atomic move {.deployDir}/{package_no_ext}.tmp {.deployDir}/{package_no_ext}</li>
+<li>create/change symlink {.deployDir}/current -&gt; {.deployDir}/{package_no_ext}</li>
 <li>reload web server and runtime according to .main</li>
-<li>remove all old {deployDir}/{package_no_ext} and {deployDir}/{package} folders</li>
+<li>remove all old {.deployDir}/{package_no_ext}[.tmp] and {.deployDir}/{package} folders</li>
 </ul>
 <h4>3.2.5.1. {package}.sh deployment assumptions</h4>
 <ol>
@@ -364,26 +353,39 @@ and auto-detectable in most cases.</p>
 <li>Each web application should have own user</li>
 <li>Each web application should get proper ownership and read-only permissions</li>
 <li>Application package must not have modifiable content</li>
-<li>Each read-write path should get symlink to {deployDir}/persistent/{path} and survive across deployments</li>
+<li>Each read-write path should get symlink to {.deployDir}/persistent/{path} and survive across deployments</li>
 <li>.action.migrate must run and successfully complete</li>
-<li>${deployDir}/vhost.{.env.webServer}.subconf must be generated including packages-specified extensions</li>
+<li>${.deployDir}/vhost.{.env.webServer}.subconf must be generated including packages-specified extensions</li>
 <li>Automatic startup must get enabled</li>
-<li>${deployDir}/current must always point to fully configured deployment</li>
+<li>${.deployDir}/current must always point to fully configured deployment</li>
 <li>For security reasons it is not possible to include project-specific config
     for web server running as root user. Also, sensitive data like TLS private
     keys must not be available to application user. Thefore a performance
     penalty of reverse proxy may apply, but large high available deployments should
     have load balancer/reverse proxy any way.</li>
 </ol>
-<h3>3.2.7. citool run [&lt;package&gt;]</h3>
-<p>Default:</p>
+<h3>3.2.7. citool run &lt;command=start&gt;</h3>
+<p>Default per command:</p>
 <ul>
+<li>start:<ul>
 <li>if deployment environment:<ul>
 <li>start services according to deployment configuration</li>
 </ul>
 </li>
 <li>if development environment:<ul>
 <li>start services according to project configuration</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>stop:<ul>
+<li>stop all running services (even not configured)</li>
+</ul>
+</li>
+<li>reload:<ul>
+<li>start not running services</li>
+<li>reload other running services</li>
+<li>stop not configured services</li>
 </ul>
 </li>
 </ul>

@@ -127,6 +127,7 @@ and auto-detectable in most cases.
 * .vcsRef - (dynamic variable) current branch name
 * .wcDir - (dynamic variable) working directory name for fresh clone/checkout
 * .deployDir - (dynamic variable) root for current package deployment
+* .reDeploy - (dynamic variable) force deploy, if true
 * .rmsRepo - binary artifact Release Management System location
 * .rms - release management system type:
     * "svn" - use Subversion as binary artifact repository
@@ -134,7 +135,7 @@ and auto-detectable in most cases.
     * "archiva" - use Apache Archiva
     * "artifactory" - use JFrog Artifactory
     * "nexus" - use Sonatype Nexus
-* .tools - [], list of required tools with possible standard values:
+* .tools - {}, list of required tool=>version pairs with possible standard keys:
     * 'nvm'
     * 'rvm'
     * 'php'
@@ -147,7 +148,7 @@ and auto-detectable in most cases.
     * 'gulp'
     * 'bower'
 * .package - [], content of package relative to project root. Default: [ "." ]
-* .writeable - [], list of read-write paths (must be empty/missing in deployment package)
+* .writeable - [], list of read-write dirctory paths (must be empty/missing in deployment package)
 * .main - {], list of named entry points {}
     * .type - "php", "node", "python" and "php-cli" (auto-detect by default)
     * .path - file (not required in some cases, e.g. php-fpm)
@@ -303,34 +304,28 @@ Default:
 * otherwise
     * RMS-specific promote {package} to {.rmsrepo}/{pool}
 
-### 3.2.6. citool deploy &lt;location=[[deployuser:]runuser@host:]deployDir> &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--redeploy]
+### 3.2.6. citool deploy &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--redeploy] [--deployDir deploy_dir]
 
 Default:
 
 * process standard parameters
-* parse {location}, deployuser=runuser by default
-* if remote:
-    * if deployuser != runuser:
-        * execute "sudo -u runuser citool deploy ..." remotely
-    * else
-        * execute "citool deploy ..." remotely
-    * exit
 * find out currently deployed package
 * if not package specified
     * find out the latest from RMS
 * if current matches target package and --redeploy is not set then exit
 * if {package} file exists then use it
 * otherwise, download one from .rmsRepo
-* unpack package to {deployDir}/{package_no_ext}
+* unpack package to {.deployDir}/{package_no_ext}.tmp
 * setup read-only permissions
-* according to .writable:
-    * create symlinks {deployDir}/{package_no_ext}/{subpath} -> {deployDir}/persistent/{subpath}
+* according to .writeable:
+    * create symlinks {.deployDir}/{package_no_ext}.tmp/{subpath} -> {.deployDir}/persistent/{subpath}
 * run .action.migrate
 * setup runtime according to .main config
 * setup per-user web server (nginx)
-* create/change symlink {deployDir}/current -> {deployDir}/{package_no_ext}
+* atomic move {.deployDir}/{package_no_ext}.tmp {.deployDir}/{package_no_ext}
+* create/change symlink {.deployDir}/current -> {.deployDir}/{package_no_ext}
 * reload web server and runtime according to .main
-* remove all old {deployDir}/{package_no_ext} and {deployDir}/{package} folders
+* remove all old {.deployDir}/{package_no_ext}[.tmp] and {.deployDir}/{package} folders
 
 
 #### 3.2.5.1. {package}.sh deployment assumptions
@@ -339,25 +334,32 @@ Default:
 2. Each web application should have own user
 3. Each web application should get proper ownership and read-only permissions
 4. Application package must not have modifiable content
-5. Each read-write path should get symlink to {deployDir}/persistent/{path} and survive across deployments
+5. Each read-write path should get symlink to {.deployDir}/persistent/{path} and survive across deployments
 6. .action.migrate must run and successfully complete
-7. ${deployDir}/vhost.{.env.webServer}.subconf must be generated including packages-specified extensions
+7. ${.deployDir}/vhost.{.env.webServer}.subconf must be generated including packages-specified extensions
 8. Automatic startup must get enabled
-9. ${deployDir}/current must always point to fully configured deployment
+9. ${.deployDir}/current must always point to fully configured deployment
 10. For security reasons it is not possible to include project-specific config
     for web server running as root user. Also, sensitive data like TLS private
     keys must not be available to application user. Thefore a performance
     penalty of reverse proxy may apply, but large high available deployments should
     have load balancer/reverse proxy any way.
 
-### 3.2.7. citool run [&lt;package>]
+### 3.2.7. citool run &lt;command=start>
 
-Default:
+Default per command:
 
-* if deployment environment:
-    * start services according to deployment configuration
-* if development environment:
-    * start services according to project configuration
+* start:
+    * if deployment environment:
+        * start services according to deployment configuration
+    * if development environment:
+        * start services according to project configuration
+* stop:
+    * stop all running services (even not configured)
+* reload:
+    * start not running services
+    * reload other running services
+    * stop not configured services
 
 ### 3.2.8. citool ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]
 
