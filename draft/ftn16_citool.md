@@ -41,6 +41,8 @@ The tool should support the following actions:
 * promote
 * deploy
 * run
+* ci_build
+* tool
 
 ## 2.1. Tag
 
@@ -134,7 +136,7 @@ and auto-detectable in most cases.
     * 'rvm'
     * 'php'
     * 'python'
-    * 'nodejs'
+    * 'node'
     * 'ruby'
     * 'composer'
     * 'npm'
@@ -142,11 +144,12 @@ and auto-detectable in most cases.
     * 'gulp'
     * 'bower'
     * 'puppet'
+* .tool - (dynamic variable) current tool to be used
 * .package - [], content of package relative to project root. Default: [ "." ]
 * .writeable - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.
 * .main - {], list of named entry points {}
-    * .type - "php", "nodejs", "python" and "php-cli" (auto-detect by default)
+    * .type - "php", "node", "python" and "php-cli" (auto-detect by default)
     * .path - file (not required in some cases, e.g. php-fpm)
     * .tune - {}, type-specific configuration options
 * .configenv - {} - list of environment variables to be set in deployment
@@ -204,10 +207,10 @@ Prior to each command run:
 * if .name is set (run in project root):
     * If .tools is not set yet, configure based on file presence in project root:
         * composer.json -> composer, php
-        * package.json -> npm, nodejs
-        * bower.json -> bower, nodejs
-        * Gruntfile.js, Gruntfile.coffee -> grunt, nodejs
-        * gulpfile.js -> gulp, nodejs
+        * package.json -> npm, node
+        * bower.json -> bower, node
+        * Gruntfile.js, Gruntfile.coffee -> grunt, node
+        * gulpfile.js -> gulp, node
         * metadata.json -> puppet
     * For each .tools detect related .env.*Bin, if not set
         * Ask to execute install procedures, if tool is missing
@@ -376,5 +379,17 @@ Default:
 * citool build
 * citool package
 * citool promote &lt;package> &lt;rms_pool>
+
+### 3.2.9. citool tool &lt;action> [&lt;tool_name> -- optional args]
+
+Tools actions:
+
+* *exec* -  execute specified tool with arbitrary arguments passed.
+* *install* - make sure project tools are installed.
+* *install* with tool_name - make sure specified tool is installed even if not used by current project.
+* *update* - make sure the latest versions of tools are used for current project.
+* *update* with tool_name - make sure specified tool is installed of the latest version.
+* *test* - test if required by current project tools are installed
+* *test* with tool_name - check if tool is installed
 
 =END OF SPEC=

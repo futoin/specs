@@ -38,7 +38,9 @@ the tool should auto-detect action implementation.</p>
 </em> package
 <em> promote
 </em> deploy
-* run</p>
+<em> run
+</em> ci_build
+* tool</p>
 <h2>2.1. Tag</h2>
 <p>A standard procedure for updating for release and tagging source code.</p>
 <h2>2.2. Preparation</h2>
@@ -117,7 +119,7 @@ and auto-detectable in most cases.</p>
 <li>'rvm'</li>
 <li>'php'</li>
 <li>'python'</li>
-<li>'nodejs'</li>
+<li>'node'</li>
 <li>'ruby'</li>
 <li>'composer'</li>
 <li>'npm'</li>
@@ -127,11 +129,12 @@ and auto-detectable in most cases.</p>
 <li>'puppet'</li>
 </ul>
 </li>
+<li>.tool - (dynamic variable) current tool to be used</li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
 <li>.writeable - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.</li>
 <li>.main - {], list of named entry points {}<ul>
-<li>.type - "php", "nodejs", "python" and "php-cli" (auto-detect by default)</li>
+<li>.type - "php", "node", "python" and "php-cli" (auto-detect by default)</li>
 <li>.path - file (not required in some cases, e.g. php-fpm)</li>
 <li>.tune - {}, type-specific configuration options</li>
 </ul>
@@ -205,10 +208,10 @@ and auto-detectable in most cases.</p>
 <li>if .name is set (run in project root):<ul>
 <li>If .tools is not set yet, configure based on file presence in project root:<ul>
 <li>composer.json -&gt; composer, php</li>
-<li>package.json -&gt; npm, nodejs</li>
-<li>bower.json -&gt; bower, nodejs</li>
-<li>Gruntfile.js, Gruntfile.coffee -&gt; grunt, nodejs</li>
-<li>gulpfile.js -&gt; gulp, nodejs</li>
+<li>package.json -&gt; npm, node</li>
+<li>bower.json -&gt; bower, node</li>
+<li>Gruntfile.js, Gruntfile.coffee -&gt; grunt, node</li>
+<li>gulpfile.js -&gt; gulp, node</li>
 <li>metadata.json -&gt; puppet</li>
 </ul>
 </li>
@@ -407,6 +410,17 @@ and auto-detectable in most cases.</p>
 <li>citool build</li>
 <li>citool package</li>
 <li>citool promote &lt;package&gt; &lt;rms_pool&gt;</li>
+</ul>
+<h3>3.2.9. citool tool &lt;action&gt; [&lt;tool_name&gt; -- optional args]</h3>
+<p>Tools actions:</p>
+<ul>
+<li><em>exec</em> -  execute specified tool with arbitrary arguments passed.</li>
+<li><em>install</em> - make sure project tools are installed.</li>
+<li><em>install</em> with tool_name - make sure specified tool is installed even if not used by current project.</li>
+<li><em>update</em> - make sure the latest versions of tools are used for current project.</li>
+<li><em>update</em> with tool_name - make sure specified tool is installed of the latest version.</li>
+<li><em>test</em> - test if required by current project tools are installed</li>
+<li><em>test</em> with tool_name - check if tool is installed</li>
 </ul>
 <p>=END OF SPEC=</p>
 </body></html>
