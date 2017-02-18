@@ -1,14 +1,15 @@
 <pre>
 FTN16: FutoIn - Continuous Integration Tool
-Version: 0.1
-Date: 2015-09-14
-Copyright: 2014 FutoIn Project (http://futoin.org)
+Version: 1.0
+Date: 2017-02-18
+Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2015-09-14
+* v1.0 - 2017-02-18
+* Initial draft - 2015-09-14
 
 
 # 1. Intro
@@ -29,7 +30,7 @@ The command name is "citool" - Continuous Integration Tool.
 If special "futoin.json" configuration file is present in project root then extra parameters'
 default values should be taken from the configuration file.
 
-It should possible to specify any of the actions manually through configuration file. Otherwise,
+It should be possible to specify any of the actions manually through configuration file. Otherwise,
 the tool should auto-detect action implementation.
 
 The tool should support the following actions:
@@ -84,21 +85,14 @@ dependency for input and own binary artifact promotion chains*
 
 ## 2.6. Deployment
 
-A standard implementation of this action should be implemented only for web projects
-with quite specific requirements on target environment. Target environment
-may have a global and user configuration files to override
-the default settings, tune limits and provide configuration.
+The primary focus of the action is for setup of web projects. The process should
+properly check requirements, setup file permissions, manage persistent data,
+manage configuration and support rolling deployment with no service interruption.
 
 ## 2.7. Running
 
-A standard implementation of project execution depends on the deployment procedure.
-The deployment procedure must leave clear artifacts in operating system
-service management for proper startup, control and supervision.
-
-### 2.7.1. Execution in Development
-
-A special case when project is run from source build folder during development.
-This case must be auto-detected.
+This action should focused on service execution in development process and
+may not be implemented at all, if not applicable.
 
 # 3. Detailed business logic definition
 
@@ -108,8 +102,8 @@ Name: futoin.json
 Format: strict JSON
 Location (project): project root folder
 Location (deployment): ${DEPLOY_ROOT} (only .env part)
-Location (user): ${HOME}/.futoin/ (only .env part)
-Location (global): /etc/futoin/ (only .env part)
+Location (user): ${HOME}/.futoin.json (only .env part)
+Location (global): /etc/futoin.json (only .env part)
 
 ### 3.1.1. JSON tree definition in dot notation.
 
@@ -147,10 +141,12 @@ and auto-detectable in most cases.
     * 'grunt'
     * 'gulp'
     * 'bower'
+    * 'puppet'
 * .package - [], content of package relative to project root. Default: [ "." ]
-* .writeable - [], list of read-write dirctory paths (must be empty/missing in deployment package)
+* .writeable - [], list of persistent read-write directory paths.
+    The paths must be empty/missing in deployment package.
 * .main - {], list of named entry points {}
-    * .type - "php", "node", "python" and "php-cli" (auto-detect by default)
+    * .type - "php", "nodejs", "python" and "php-cli" (auto-detect by default)
     * .path - file (not required in some cases, e.g. php-fpm)
     * .tune - {}, type-specific configuration options
 * .configenv - {} - list of environment variables to be set in deployment
@@ -175,14 +171,22 @@ and auto-detectable in most cases.
     * .runDev - custom shell command to run from source
 * .env - {}, the only part allowed to be defined in user or system configs
     * .type - "prod", "uat", "qa" and "dev" (default - "dev")
+    * .startup - "cron", "systemd" (default - "cron")
     * .webServer:
         * "nginx"
-        * "apache" - no supported yet
+        * "apache" - not supported yet
     * .mainConfig: {}
         * .main-specific deployment configurations
     * .vars - arbitrary environment variables to set on execution
     * .plugins - {}, custom plugins $tool:$module_name pairs
     * .{tool}Bin - path to "$tool" command line binary
+    * .{tool}Dir - path root "$tool", if applicable
+    * .{tool}Ver - required version of "$tool", if applicable
+    * .externalSetup - {}, custom external setup hooks
+        * .runCmd - command to execute instead of standard "run"
+        * .webServer = false - skip web server setup, if true
+        * .startup = false - skip startup scripts, if true
+        * .installTools = false - skip automatic tools install, if true
 
 
 ## 3.2. Commands
@@ -204,6 +208,7 @@ Prior to each command run:
         * bower.json -> bower, nodejs
         * Gruntfile.js, Gruntfile.coffee -> grunt, nodejs
         * gulpfile.js -> gulp, nodejs
+        * metadata.json -> puppet
     * For each .tools detect related .env.*Bin, if not set
         * Ask to execute install procedures, if tool is missing
         * Fail, if not interactive prompt (e.g. automatic deployment)
@@ -255,7 +260,7 @@ Default:
     * hg -> {.env.hgBin} pull --update
     * composer -> {.env.composerBin} install
     * npm -> {.env.npmBin} install
-    * bower -> {.env.bowerBin> install
+    * bower -> {.env.bowerBin} install
 
 ### 3.2.3. citool build
 
@@ -264,6 +269,7 @@ Default:
 * depending on .tools:
     * grunt -> {.env.gruntBin}
     * gulp -> {.env.gulpBin}
+    * puppet -> {.env.puppetBin} module build
 
 ### 3.2.4. citool package
 
@@ -328,7 +334,7 @@ Default:
 * remove all old {.deployDir}/{package_no_ext}[.tmp] and {.deployDir}/{package} folders
 
 
-#### 3.2.5.1. {package}.sh deployment assumptions
+#### 3.2.6.1. deployment assumptions
 
 1. Each web application must have own deployment root folder
 2. Each web application should have own user
@@ -341,9 +347,10 @@ Default:
 9. ${.deployDir}/current must always point to fully configured deployment
 10. For security reasons it is not possible to include project-specific config
     for web server running as root user. Also, sensitive data like TLS private
-    keys must not be available to application user. Thefore a performance
+    keys must not be available to application user. Therefore a performance
     penalty of reverse proxy may apply, but large high available deployments should
     have load balancer/reverse proxy any way.
+11. Web server configuration may be delegated to external functionality.
 
 ### 3.2.7. citool run &lt;command=start>
 
