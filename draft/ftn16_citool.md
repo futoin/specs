@@ -103,6 +103,7 @@ may not be implemented at all, if not applicable.
 Name: futoin.json
 Format: strict JSON
 Location (project): project root folder
+Process environment: (only whitelisted variables for .env part)
 Location (deployment): ${DEPLOY_ROOT} (only .env part)
 Location (user): ${HOME}/.futoin.json (only .env part)
 Location (global): /etc/futoin.json (only .env part)
@@ -185,12 +186,21 @@ and auto-detectable in most cases.
     * .{tool}Bin - path to "$tool" command line binary
     * .{tool}Dir - path root "$tool", if applicable
     * .{tool}Ver - required version of "$tool", if applicable
+    * .{tool}{misc} - any tool-specific misc. configuration
     * .externalSetup - {}, custom external setup hooks
         * .runCmd - command to execute instead of standard "run"
         * .webServer = false - skip web server setup, if true
         * .startup = false - skip startup scripts, if true
         * .installTools = false - skip automatic tools install, if true
 
+### 3.1.2. Process environment
+
+Each tool may have a whitelist of related environment variables for .env sections.
+This variables may be passed through process environment as well. Example:
+
+```bash
+    rubyVer=2.3.3 citool tool install ruby
+```
 
 ## 3.2. Commands
 
@@ -387,6 +397,8 @@ Tools actions:
 * *exec* -  execute specified tool with arbitrary arguments passed.
 * *install* - make sure project tools are installed.
 * *install* with tool_name - make sure specified tool is installed even if not used by current project.
+* *uninstall* - make sure project tools are uninstalled.
+* *uninstall* with tool_name - make sure specified tool is uninstalled
 * *update* - make sure the latest versions of tools are used for current project.
 * *update* with tool_name - make sure specified tool is installed of the latest version.
 * *test* - test if required by current project tools are installed

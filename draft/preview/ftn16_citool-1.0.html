@@ -84,6 +84,7 @@ may not be implemented at all, if not applicable.</p>
 <p>Name: futoin.json
 Format: strict JSON
 Location (project): project root folder
+Process environment: (only whitelisted variables for .env part)
 Location (deployment): ${DEPLOY_ROOT} (only .env part)
 Location (user): ${HOME}/.futoin.json (only .env part)
 Location (global): /etc/futoin.json (only .env part)</p>
@@ -182,6 +183,7 @@ and auto-detectable in most cases.</p>
 <li>.{tool}Bin - path to "$tool" command line binary</li>
 <li>.{tool}Dir - path root "$tool", if applicable</li>
 <li>.{tool}Ver - required version of "$tool", if applicable</li>
+<li>.{tool}{misc} - any tool-specific misc. configuration</li>
 <li>.externalSetup - {}, custom external setup hooks<ul>
 <li>.runCmd - command to execute instead of standard "run"</li>
 <li>.webServer = false - skip web server setup, if true</li>
@@ -192,6 +194,11 @@ and auto-detectable in most cases.</p>
 </ul>
 </li>
 </ul>
+<h3>3.1.2. Process environment</h3>
+<p>Each tool may have a whitelist of related environment variables for .env sections.
+This variables may be passed through process environment as well. Example:</p>
+<p><code>bash
+    rubyVer=2.3.3 citool tool install ruby</code></p>
 <h2>3.2. Commands</h2>
 <p>Prior to each command run:</p>
 <ul>
@@ -417,6 +424,8 @@ and auto-detectable in most cases.</p>
 <li><em>exec</em> -  execute specified tool with arbitrary arguments passed.</li>
 <li><em>install</em> - make sure project tools are installed.</li>
 <li><em>install</em> with tool_name - make sure specified tool is installed even if not used by current project.</li>
+<li><em>uninstall</em> - make sure project tools are uninstalled.</li>
+<li><em>uninstall</em> with tool_name - make sure specified tool is uninstalled</li>
 <li><em>update</em> - make sure the latest versions of tools are used for current project.</li>
 <li><em>update</em> with tool_name - make sure specified tool is installed of the latest version.</li>
 <li><em>test</em> - test if required by current project tools are installed</li>
