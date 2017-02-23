@@ -7,20 +7,20 @@
 <pre>
 FTN16: FutoIn - Continuous Integration Tool
 Version: 1.0
-Date: 2017-02-18
+Date: 2017-02-23
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-02-18</li>
+<li>v1.0 - 2017-02-23</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
 <p>There are many continuous integration tools, but they are primarily targeted at own
 infrastructure. The demand for a new tool is to merge many different technologies
-like npm, composer, bundle, bower and others under a single tools for project development,
+like npm, composer, bundle, bower and others under a single tool for project development,
 build, deployment and running.</p>
 <p><em>NOTE: current focus is on web projects, but support of other types is a far target.</em></p>
 <h1>2. Concept</h1>
@@ -430,6 +430,8 @@ This variables may be passed through process environment as well. Example:</p>
 <li><em>update</em> with tool_name - make sure specified tool is installed of the latest version.</li>
 <li><em>test</em> - test if required by current project tools are installed</li>
 <li><em>test</em> with tool_name - check if tool is installed</li>
+<li><em>env</em> - get environment variables after processing of current project tools</li>
+<li><em>env</em> with tool name - get environment variables for specified tool</li>
 </ul>
 <p>=END OF SPEC=</p>
 </body></html>
