@@ -38,9 +38,10 @@ the tool should auto-detect action implementation.</p>
 </em> package
 <em> promote
 </em> deploy
-<em> run
-</em> ci_build
-* tool</p>
+<em> vcs_deploy
+</em> run
+<em> ci_build
+</em> tool</p>
 <h2>2.1. Tag</h2>
 <p>A standard procedure for updating for release and tagging source code.</p>
 <h2>2.2. Preparation</h2>
@@ -107,6 +108,7 @@ and auto-detectable in most cases.</p>
 <li>.deployDir - (dynamic variable) root for current package deployment</li>
 <li>.reDeploy - (dynamic variable) force deploy, if true</li>
 <li>.rmsRepo - binary artifact Release Management System location</li>
+<li>.rmsPool - sub-path/pool in .rmsRepo</li>
 <li>.rms - release management system type:<ul>
 <li>"svn" - use Subversion as binary artifact repository</li>
 <li>"scp" - use SSHv2 FTP</li>
@@ -132,7 +134,7 @@ and auto-detectable in most cases.</p>
 </li>
 <li>.tool - (dynamic variable) current tool to be used</li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
-<li>.writeable - [], list of persistent read-write directory paths.
+<li>.persistent - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.</li>
 <li>.main - {], list of named entry points {}<ul>
 <li>.type - "php", "node", "python" and "php-cli" (auto-detect by default)</li>
@@ -178,8 +180,9 @@ and auto-detectable in most cases.</p>
 <li>.main-specific deployment configurations</li>
 </ul>
 </li>
+<li>.persistentDir = {.deployDir}/persistent - root for persistent data</li>
 <li>.vars - arbitrary environment variables to set on execution</li>
-<li>.plugins - {}, custom plugins $tool:$module_name pairs</li>
+<li>.plugins = {} - custom plugins $tool:$module_name pairs</li>
 <li>.{tool}Bin - path to "$tool" command line binary</li>
 <li>.{tool}Dir - path root "$tool", if applicable</li>
 <li>.{tool}Ver - required version of "$tool", if applicable</li>
@@ -318,7 +321,7 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.5. citool promote &lt;package&gt; &lt;rms_pool&gt; [--rmsRepo=&lt;vcs:url&gt;] [--rmsHash=&lt;type:value&gt;]</h3>
+<h3>3.2.5. citool promote &lt;package&gt; &lt;rms_pool&gt; [--rmsRepo=&lt;rms:url&gt;] [--rmsHash=&lt;type:value&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -341,39 +344,51 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.6. citool deploy &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--redeploy] [--deployDir deploy_dir]</h3>
+<h3>3.2.6 citool deploy &lt;deploy_type&gt; ...</h3>
+<h3>3.2.6.1 citool deploy [rms] &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--redeploy] [--deployDir deploy_dir]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
 <li>find out currently deployed package</li>
-<li>if not package specified<ul>
-<li>find out the latest from RMS</li>
-</ul>
-</li>
+<li>find out the latest from RMS, use package as glob hint</li>
 <li>if current matches target package and --redeploy is not set then exit</li>
 <li>if {package} file exists then use it</li>
 <li>otherwise, download one from .rmsRepo</li>
 <li>unpack package to {.deployDir}/{package_no_ext}.tmp</li>
-<li>setup read-only permissions</li>
-<li>according to .writeable:<ul>
-<li>create symlinks {.deployDir}/{package_no_ext}.tmp/{subpath} -&gt; {.deployDir}/persistent/{subpath}</li>
+<li>according to .persistent:<ul>
+<li>create symlinks {.deployDir}/{package_no_ext}.tmp/{subpath} -&gt; {.env.persistentDir}/{subpath}</li>
 </ul>
 </li>
+<li>setup read-only permissions</li>
 <li>run .action.migrate</li>
 <li>setup runtime according to .main config</li>
 <li>setup per-user web server (nginx)</li>
 <li>atomic move {.deployDir}/{package_no_ext}.tmp {.deployDir}/{package_no_ext}</li>
 <li>create/change symlink {.deployDir}/current -&gt; {.deployDir}/{package_no_ext}</li>
 <li>reload web server and runtime according to .main</li>
-<li>remove all old {.deployDir}/{package_no_ext}[.tmp] and {.deployDir}/{package} folders</li>
+<li>remove all not managed or obsolete files in {.deployDir}</li>
 </ul>
-<h4>3.2.6.1. deployment assumptions</h4>
+<h4>3.2.6.2. citool deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>find out the latest tag from VCS, use vcs_ref as glob hint</li>
+<li>export vcs_ref to {.deployDir}/{package_no_ext}.tmp</li>
+</ul>
+<h4>3.2.6.3. citool deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>checkout or update vcs_ref</li>
+<li>export vcs_ref to {.deployDir}/{package_no_ext}.tmp</li>
+</ul>
+<h4>3.2.6.3. deployment assumptions</h4>
 <ol>
 <li>Each web application must have own deployment root folder</li>
 <li>Each web application should have own user</li>
 <li>Each web application should get proper ownership and read-only permissions</li>
 <li>Application package must not have modifiable content</li>
-<li>Each read-write path should get symlink to {.deployDir}/persistent/{path} and survive across deployments</li>
+<li>Each read-write path should get symlink to {.env.persistentDir}/{path} and survive across deployments</li>
 <li>.action.migrate must run and successfully complete</li>
 <li>${.deployDir}/vhost.{.env.webServer}.subconf must be generated including packages-specified extensions</li>
 <li>Automatic startup must get enabled</li>
