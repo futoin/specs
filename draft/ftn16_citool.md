@@ -333,40 +333,69 @@ Default:
 Default:
 
 * process standard parameters
+* find out the latest package:
+    * get list of packages from RMS pool, use package as glob hint
+    * filter package list using "package" as glob filter
+    * naturally sort package list
+    * select the latest
 * find out currently deployed package
-* find out the latest from RMS, use package as glob hint
 * if current matches target package and --redeploy is not set then exit
 * if {package} file exists then use it
 * otherwise, download one from .rmsRepo
 * unpack package to {.deployDir}/{package_no_ext}.tmp
-* according to .persistent:
-    * create symlinks {.deployDir}/{package_no_ext}.tmp/{subpath} -> {.env.persistentDir}/{subpath}
-* setup read-only permissions
-* run .action.migrate
-* setup runtime according to .main config
-* setup per-user web server (nginx)
-* atomic move {.deployDir}/{package_no_ext}.tmp {.deployDir}/{package_no_ext}
-* create/change symlink {.deployDir}/current -> {.deployDir}/{package_no_ext}
-* reload web server and runtime according to .main
-* remove all not managed or obsolete files in {.deployDir}
+* common deploy procedure, package_dir = {package_no_ext}
 
 #### 3.2.6.2. citool deploy vcstag [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
 
 Default:
 
 * process standard parameters
-* find out the latest tag from VCS, use vcs_ref as glob hint
-* export vcs_ref to {.deployDir}/{package_no_ext}.tmp
+* find out the latest tag:
+    * get list of packages from RMS pool, use vcs_ref as glob hint
+    * filter tags list using vcs_ref as glob filter
+    * naturally sort tag list
+    * select the latest
+* if {.deployDir}/vcs exists:
+    * reset all change
+    * fetch/update to vcs_ref
+* otherwise:
+    * fresh clone/checkout vcs_ref
+* find out currently deployed tag
+* if current matches target tag and --redeploy is not set then exit
+* export vcs_ref to {.deployDir}/{vcs_ref}.tmp
+* common deploy procedure, package_dir = {vcs_ref}
 
 #### 3.2.6.3. citool deploy vcsref &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
 
 Default:
 
 * process standard parameters
-* checkout or update vcs_ref
-* export vcs_ref to {.deployDir}/{package_no_ext}.tmp
+* if {.deployDir}/vcs exists:
+    * reset all change
+    * fetch/update to vcs_ref
+* otherwise:
+    * fresh clone/checkout vcs_ref
+* find out the latest revision of vcs_ref as vcs_rev
+* find out currently deployed vcs_ref and vcs_rev
+* if current matches target and --redeploy is not set then exit
+* export vcs_ref to {.deployDir}/{vcs_ref}_{vcs_rev}.tmp
+* common deploy procedure, package_dir = {vcs_ref}_{vcs_rev}
 
-#### 3.2.6.3. deployment assumptions
+#### 3.2.6.3. common deploy procedure
+
+* {package_dir} - depend on deployment method
+* according to .persistent:
+    * create symlinks {.deployDir}/{package_dir}.tmp/{subpath} -> {.env.persistentDir}/{subpath}
+* setup read-only permissions
+* run .action.migrate
+* setup runtime according to .main config
+* setup per-user web server (nginx)
+* atomic move {.deployDir}/{package_dir}.tmp {.deployDir}/{package_dir}
+* create/change symlink {.deployDir}/current -> {.deployDir}/{package_dir}
+* reload web server and runtime according to .main
+* remove all not managed or obsolete files in {.deployDir}
+
+#### 3.2.6.4. deployment assumptions
 
 1. Each web application must have own deployment root folder
 2. Each web application should have own user

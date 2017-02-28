@@ -349,40 +349,81 @@ This variables may be passed through process environment as well. Example:</p>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
+<li>find out the latest package:<ul>
+<li>get list of packages from RMS pool, use package as glob hint</li>
+<li>filter package list using "package" as glob filter</li>
+<li>naturally sort package list</li>
+<li>select the latest</li>
+</ul>
+</li>
 <li>find out currently deployed package</li>
-<li>find out the latest from RMS, use package as glob hint</li>
 <li>if current matches target package and --redeploy is not set then exit</li>
 <li>if {package} file exists then use it</li>
 <li>otherwise, download one from .rmsRepo</li>
 <li>unpack package to {.deployDir}/{package_no_ext}.tmp</li>
+<li>common deploy procedure, package_dir = {package_no_ext}</li>
+</ul>
+<h4>3.2.6.2. citool deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>find out the latest tag:<ul>
+<li>get list of packages from RMS pool, use vcs_ref as glob hint</li>
+<li>filter tags list using vcs_ref as glob filter</li>
+<li>naturally sort tag list</li>
+<li>select the latest</li>
+</ul>
+</li>
+<li>if {.deployDir}/vcs exists:<ul>
+<li>reset all change</li>
+<li>fetch/update to vcs_ref</li>
+</ul>
+</li>
+<li>otherwise:<ul>
+<li>fresh clone/checkout vcs_ref</li>
+</ul>
+</li>
+<li>find out currently deployed tag</li>
+<li>if current matches target tag and --redeploy is not set then exit</li>
+<li>export vcs_ref to {.deployDir}/{vcs_ref}.tmp</li>
+<li>common deploy procedure, package_dir = {vcs_ref}</li>
+</ul>
+<h4>3.2.6.3. citool deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>if {.deployDir}/vcs exists:<ul>
+<li>reset all change</li>
+<li>fetch/update to vcs_ref</li>
+</ul>
+</li>
+<li>otherwise:<ul>
+<li>fresh clone/checkout vcs_ref</li>
+</ul>
+</li>
+<li>find out the latest revision of vcs_ref as vcs_rev</li>
+<li>find out currently deployed vcs_ref and vcs_rev</li>
+<li>if current matches target and --redeploy is not set then exit</li>
+<li>export vcs_ref to {.deployDir}/{vcs_ref}_{vcs_rev}.tmp</li>
+<li>common deploy procedure, package_dir = {vcs_ref}_{vcs_rev}</li>
+</ul>
+<h4>3.2.6.3. common deploy procedure</h4>
+<ul>
+<li>{package_dir} - depend on deployment method</li>
 <li>according to .persistent:<ul>
-<li>create symlinks {.deployDir}/{package_no_ext}.tmp/{subpath} -&gt; {.env.persistentDir}/{subpath}</li>
+<li>create symlinks {.deployDir}/{package_dir}.tmp/{subpath} -&gt; {.env.persistentDir}/{subpath}</li>
 </ul>
 </li>
 <li>setup read-only permissions</li>
 <li>run .action.migrate</li>
 <li>setup runtime according to .main config</li>
 <li>setup per-user web server (nginx)</li>
-<li>atomic move {.deployDir}/{package_no_ext}.tmp {.deployDir}/{package_no_ext}</li>
-<li>create/change symlink {.deployDir}/current -&gt; {.deployDir}/{package_no_ext}</li>
+<li>atomic move {.deployDir}/{package_dir}.tmp {.deployDir}/{package_dir}</li>
+<li>create/change symlink {.deployDir}/current -&gt; {.deployDir}/{package_dir}</li>
 <li>reload web server and runtime according to .main</li>
 <li>remove all not managed or obsolete files in {.deployDir}</li>
 </ul>
-<h4>3.2.6.2. citool deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
-<p>Default:</p>
-<ul>
-<li>process standard parameters</li>
-<li>find out the latest tag from VCS, use vcs_ref as glob hint</li>
-<li>export vcs_ref to {.deployDir}/{package_no_ext}.tmp</li>
-</ul>
-<h4>3.2.6.3. citool deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
-<p>Default:</p>
-<ul>
-<li>process standard parameters</li>
-<li>checkout or update vcs_ref</li>
-<li>export vcs_ref to {.deployDir}/{package_no_ext}.tmp</li>
-</ul>
-<h4>3.2.6.3. deployment assumptions</h4>
+<h4>3.2.6.4. deployment assumptions</h4>
 <ol>
 <li>Each web application must have own deployment root folder</li>
 <li>Each web application should have own user</li>
