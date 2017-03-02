@@ -5,7 +5,7 @@
 <link rel="stylesheet" type="text/css" href="../../css/specs.css">
 </head><body>
 <pre>
-FTN16: FutoIn - Continuous Integration Tool
+FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
 Date: 2017-02-23
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
@@ -25,8 +25,8 @@ build, deployment and running.</p>
 <p><em>NOTE: current focus is on web projects, but support of other types is a far target.</em></p>
 <h1>2. Concept</h1>
 <p>A command line tool must be available through shell search path or called via absolute path.
-The command name is "citool" - Continuous Integration Tool.</p>
-<p>"citool" must work on existing projects with no modifications, but with extra parameters required.
+The command name is "cid" - Continuous Integration &amp; Delivery Tool.</p>
+<p>"cid" must work on existing projects with no modifications, but with extra parameters required.
 If special "futoin.json" configuration file is present in project root then extra parameters'
 default values should be taken from the configuration file.</p>
 <p>It should be possible to specify any of the actions manually through configuration file. Otherwise,
@@ -201,7 +201,7 @@ and auto-detectable in most cases.</p>
 <p>Each tool may have a whitelist of related environment variables for .env sections.
 This variables may be passed through process environment as well. Example:</p>
 <p><code>bash
-    rubyVer=2.3.3 citool tool install ruby</code></p>
+    rubyVer=2.3.3 cid tool install ruby</code></p>
 <h2>3.2. Commands</h2>
 <p>Prior to each command run:</p>
 <ul>
@@ -255,7 +255,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>otherwise: clone &amp; checkout or fetch &amp; checkout .vcsRef</li>
 <li>re-init configuration</li>
 </ul>
-<h3>3.2.1. citool tag &lt;branch&gt; [&lt;next_version&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
+<h3>3.2.1. cid tag &lt;branch&gt; [&lt;next_version&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -269,7 +269,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>Create [annotated] tag "v{.version} with "Release {.name} {.version}" comment</li>
 <li>Push changes and tags, if applicable based on .vcs</li>
 </ul>
-<h3>3.2.2. citool prepare [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
+<h3>3.2.2. cid prepare [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -284,7 +284,7 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.3. citool build</h3>
+<h3>3.2.3. cid build</h3>
 <p>Default:</p>
 <ul>
 <li>depending on .tools:<ul>
@@ -294,7 +294,7 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.4. citool package</h3>
+<h3>3.2.4. cid package</h3>
 <p>Default:</p>
 <ul>
 <li>if package is product of the build process then exit</li>
@@ -321,7 +321,7 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.5. citool promote &lt;package&gt; &lt;rms_pool&gt; [--rmsRepo=&lt;rms:url&gt;] [--rmsHash=&lt;type:value&gt;]</h3>
+<h3>3.2.5. cid promote &lt;package&gt; &lt;rms_pool&gt; [--rmsRepo=&lt;rms:url&gt;] [--rmsHash=&lt;type:value&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -344,8 +344,8 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.6 citool deploy &lt;deploy_type&gt; ...</h3>
-<h3>3.2.6.1 citool deploy [rms] &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--redeploy] [--deployDir deploy_dir]</h3>
+<h3>3.2.6 cid deploy &lt;deploy_type&gt; ...</h3>
+<h3>3.2.6.1 cid deploy [rms] &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--redeploy] [--deployDir deploy_dir]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -363,7 +363,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>unpack package to {.deployDir}/{package_no_ext}.tmp</li>
 <li>common deploy procedure, package_dir = {package_no_ext}</li>
 </ul>
-<h4>3.2.6.2. citool deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
+<h4>3.2.6.2. cid deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -388,7 +388,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>export vcs_ref to {.deployDir}/{vcs_ref}.tmp</li>
 <li>common deploy procedure, package_dir = {vcs_ref}</li>
 </ul>
-<h4>3.2.6.3. citool deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
+<h4>3.2.6.3. cid deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -441,7 +441,7 @@ This variables may be passed through process environment as well. Example:</p>
     have load balancer/reverse proxy any way.</li>
 <li>Web server configuration may be delegated to external functionality.</li>
 </ol>
-<h3>3.2.7. citool run &lt;command=start&gt;</h3>
+<h3>3.2.7. cid run &lt;command=start&gt;</h3>
 <p>Default per command:</p>
 <ul>
 <li>start:<ul>
@@ -466,15 +466,15 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.8. citool ci_build &lt;vcs_ref&gt; &lt;rms_pool&gt; [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;]</h3>
+<h3>3.2.8. cid ci_build &lt;vcs_ref&gt; &lt;rms_pool&gt; [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;]</h3>
 <p>Default:</p>
 <ul>
-<li>citool prepare</li>
-<li>citool build</li>
-<li>citool package</li>
-<li>citool promote &lt;package&gt; &lt;rms_pool&gt;</li>
+<li>cid prepare</li>
+<li>cid build</li>
+<li>cid package</li>
+<li>cid promote &lt;package&gt; &lt;rms_pool&gt;</li>
 </ul>
-<h3>3.2.9. citool tool &lt;action&gt; [&lt;tool_name&gt; -- optional args]</h3>
+<h3>3.2.9. cid tool &lt;action&gt; [&lt;tool_name&gt; -- optional args]</h3>
 <p>Tools actions:</p>
 <ul>
 <li><em>exec</em> -  execute specified tool with arbitrary arguments passed.</li>

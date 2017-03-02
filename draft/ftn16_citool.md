@@ -1,5 +1,5 @@
 <pre>
-FTN16: FutoIn - Continuous Integration Tool
+FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
 Date: 2017-02-23
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
@@ -24,9 +24,9 @@ build, deployment and running.
 # 2. Concept
 
 A command line tool must be available through shell search path or called via absolute path.
-The command name is "citool" - Continuous Integration Tool.
+The command name is "cid" - Continuous Integration & Delivery Tool.
 
-"citool" must work on existing projects with no modifications, but with extra parameters required.
+"cid" must work on existing projects with no modifications, but with extra parameters required.
 If special "futoin.json" configuration file is present in project root then extra parameters'
 default values should be taken from the configuration file.
 
@@ -202,7 +202,7 @@ Each tool may have a whitelist of related environment variables for .env section
 This variables may be passed through process environment as well. Example:
 
 ```bash
-    rubyVer=2.3.3 citool tool install ruby
+    rubyVer=2.3.3 cid tool install ruby
 ```
 
 ## 3.2. Commands
@@ -249,7 +249,7 @@ Standard checkout process:
 
 
 
-### 3.2.1. citool tag &lt;branch> [&lt;next_version>] [--vcsRepo=&lt;vcs:url>] [--wcDir wc_dir]
+### 3.2.1. cid tag &lt;branch> [&lt;next_version>] [--vcsRepo=&lt;vcs:url>] [--wcDir wc_dir]
 
 Default:
 
@@ -264,7 +264,7 @@ Default:
 * Create [annotated] tag "v{.version} with "Release {.name} {.version}" comment
 * Push changes and tags, if applicable based on .vcs
 
-### 3.2.2. citool prepare [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--wcDir wc_dir]
+### 3.2.2. cid prepare [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--wcDir wc_dir]
 
 Default:
 
@@ -278,7 +278,7 @@ Default:
     * npm -> {.env.npmBin} install
     * bower -> {.env.bowerBin} install
 
-### 3.2.3. citool build
+### 3.2.3. cid build
 
 Default:
 
@@ -287,7 +287,7 @@ Default:
     * gulp -> {.env.gulpBin}
     * puppet -> {.env.puppetBin} module build
 
-### 3.2.4. citool package
+### 3.2.4. cid package
 
 Default:
 
@@ -310,7 +310,7 @@ Default:
     * all forbidden symbols must get replaced with underscore
 
 
-### 3.2.5. citool promote &lt;package> &lt;rms_pool> [--rmsRepo=&lt;rms:url>] [--rmsHash=&lt;type:value>]
+### 3.2.5. cid promote &lt;package> &lt;rms_pool> [--rmsRepo=&lt;rms:url>] [--rmsHash=&lt;type:value>]
 
 Default:
 
@@ -326,9 +326,9 @@ Default:
 * otherwise
     * RMS-specific promote {package} to {.rmsrepo}/{pool}
 
-### 3.2.6 citool deploy &lt;deploy_type> ...
+### 3.2.6 cid deploy &lt;deploy_type> ...
 
-### 3.2.6.1 citool deploy [rms] &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--redeploy] [--deployDir deploy_dir]
+### 3.2.6.1 cid deploy [rms] &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--redeploy] [--deployDir deploy_dir]
 
 Default:
 
@@ -345,7 +345,7 @@ Default:
 * unpack package to {.deployDir}/{package_no_ext}.tmp
 * common deploy procedure, package_dir = {package_no_ext}
 
-#### 3.2.6.2. citool deploy vcstag [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
+#### 3.2.6.2. cid deploy vcstag [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
 
 Default:
 
@@ -365,7 +365,7 @@ Default:
 * export vcs_ref to {.deployDir}/{vcs_ref}.tmp
 * common deploy procedure, package_dir = {vcs_ref}
 
-#### 3.2.6.3. citool deploy vcsref &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
+#### 3.2.6.3. cid deploy vcsref &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
 
 Default:
 
@@ -413,7 +413,7 @@ Default:
     have load balancer/reverse proxy any way.
 11. Web server configuration may be delegated to external functionality.
 
-### 3.2.7. citool run &lt;command=start>
+### 3.2.7. cid run &lt;command=start>
 
 Default per command:
 
@@ -429,16 +429,16 @@ Default per command:
     * reload other running services
     * stop not configured services
 
-### 3.2.8. citool ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]
+### 3.2.8. cid ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]
 
 Default:
 
-* citool prepare
-* citool build
-* citool package
-* citool promote &lt;package> &lt;rms_pool>
+* cid prepare
+* cid build
+* cid package
+* cid promote &lt;package> &lt;rms_pool>
 
-### 3.2.9. citool tool &lt;action> [&lt;tool_name> -- optional args]
+### 3.2.9. cid tool &lt;action> [&lt;tool_name> -- optional args]
 
 Tools actions:
 
