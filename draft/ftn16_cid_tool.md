@@ -14,10 +14,10 @@ Authors: Andrey Galkin
 
 # 1. Intro
 
-There are many continuous integration tools, but they are primarily targeted at own
-infrastructure. The demand for a new tool is to merge many different technologies
-like npm, composer, bundle, bower and others under a single tool for project development,
-build, deployment and running.
+There are many continuous integration & delivery tools, but they are primarily targeted at own
+infrastructure. The demand for a new meta-tool is to merge many operation of different
+technologies like npm, composer, bundle, nvm, rvm, php-build and others under a single tool for
+runtime setup, project development, build, deployment and running.
 
 *NOTE: current focus is on web projects, but support of other types is a far target.*
 
