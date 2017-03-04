@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-02-23
+Date: 2017-03-04
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-02-23
+* v1.0 - 2017-03-04
 * Initial draft - 2015-09-14
 
 
@@ -175,6 +175,7 @@ and auto-detectable in most cases.
     * .deploy - custom shell command for deployment from binary artifact
     * .run - custom shell command to run after deployment
     * .runDev - custom shell command to run from source
+* .plugins = {} - optional custom plugins $tool:$module_name pairs
 * .env - {}, the only part allowed to be defined in user or system configs
     * .type - "prod", "uat", "qa" and "dev" (default - "dev")
     * .startup - "cron", "systemd" (default - "cron")

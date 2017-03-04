@@ -7,14 +7,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-02-23
+Date: 2017-03-04
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-02-23</li>
+<li>v1.0 - 2017-03-04</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
@@ -168,6 +168,7 @@ and auto-detectable in most cases.</p>
 <li>.runDev - custom shell command to run from source</li>
 </ul>
 </li>
+<li>.plugins = {} - optional custom plugins $tool:$module_name pairs</li>
 <li>.env - {}, the only part allowed to be defined in user or system configs<ul>
 <li>.type - "prod", "uat", "qa" and "dev" (default - "dev")</li>
 <li>.startup - "cron", "systemd" (default - "cron")</li>
