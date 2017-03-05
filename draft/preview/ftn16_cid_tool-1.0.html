@@ -36,12 +36,13 @@ the tool should auto-detect action implementation.</p>
 </em> prepare
 <em> build
 </em> package
-<em> promote
-</em> deploy
-<em> vcs_deploy
-</em> run
-<em> ci_build
-</em> tool</p>
+<em> check
+</em> promote
+<em> deploy
+</em> vcs_deploy
+<em> run
+</em> ci_build
+* tool</p>
 <h2>2.1. Tag</h2>
 <p>A standard procedure for updating for release and tagging source code.</p>
 <h2>2.2. Preparation</h2>
@@ -108,6 +109,7 @@ and auto-detectable in most cases.</p>
 <li>.deployDir - (dynamic variable) root for current package deployment</li>
 <li>.reDeploy - (dynamic variable) force deploy, if true</li>
 <li>.deployBuild - force build on deploy, if true</li>
+<li>.permissiveChecks - allows check failure, if true</li>
 <li>.rmsRepo - binary artifact Release Management System location</li>
 <li>.rmsPool - sub-path/pool in .rmsRepo</li>
 <li>.rms - release management system type:<ul>
@@ -283,6 +285,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>composer -&gt; {.env.composerBin} install</li>
 <li>npm -&gt; {.env.npmBin} install</li>
 <li>bower -&gt; {.env.bowerBin} install</li>
+<li>etc.</li>
 </ul>
 </li>
 </ul>
@@ -293,6 +296,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>grunt -&gt; {.env.gruntBin}</li>
 <li>gulp -&gt; {.env.gulpBin}</li>
 <li>puppet -&gt; {.env.puppetBin} module build</li>
+<li>etc.</li>
 </ul>
 </li>
 </ul>
@@ -323,7 +327,15 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.5. cid promote &lt;package&gt; &lt;rms_pool&gt; [--rmsRepo=&lt;rms:url&gt;] [--rmsHash=&lt;type:value&gt;]</h3>
+<h3>3.2.5. cid check [--permissive]</h3>
+<ul>
+<li>depending on .tools:<ul>
+<li>run code checks, unit tests, static analysis &amp; misc.</li>
+</ul>
+</li>
+<li>allow failures, if --permissive</li>
+</ul>
+<h3>3.2.6. cid promote &lt;package&gt; &lt;rms_pool&gt; [--rmsRepo=&lt;rms:url&gt;] [--rmsHash=&lt;type:value&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -346,8 +358,8 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.6 cid deploy &lt;deploy_type&gt; ...</h3>
-<h3>3.2.6.1 cid deploy [rms] &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--redeploy] [--deployDir deploy_dir] [--build]</h3>
+<h3>3.2.7 cid deploy &lt;deploy_type&gt; ...</h3>
+<h3>3.2.7.1 cid deploy [rms] &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--redeploy] [--deployDir deploy_dir] [--build]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -366,7 +378,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>if --build then prepare &amp; build</li>
 <li>common deploy procedure, package_dir = {package_no_ext}</li>
 </ul>
-<h4>3.2.6.2. cid deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
+<h4>3.2.7.2. cid deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -392,7 +404,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>prepare &amp; build</li>
 <li>common deploy procedure, package_dir = {vcs_ref}</li>
 </ul>
-<h4>3.2.6.3. cid deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
+<h4>3.2.7.3. cid deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -412,7 +424,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>prepare &amp; build</li>
 <li>common deploy procedure, package_dir = {vcs_ref}_{vcs_rev}</li>
 </ul>
-<h4>3.2.6.3. common deploy procedure</h4>
+<h4>3.2.7.3. common deploy procedure</h4>
 <ul>
 <li>{package_dir} - depend on deployment method</li>
 <li>according to .persistent:<ul>
@@ -428,7 +440,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>reload web server and runtime according to .main</li>
 <li>remove all not managed or obsolete files in {.deployDir}</li>
 </ul>
-<h4>3.2.6.4. deployment assumptions</h4>
+<h4>3.2.7.4. deployment assumptions</h4>
 <ol>
 <li>Each web application must have own deployment root folder</li>
 <li>Each web application should have own user</li>
@@ -447,7 +459,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>Web server configuration may be delegated to external functionality.</li>
 <li>Lock file must be acquired during deployment procedure</li>
 </ol>
-<h3>3.2.7. cid run &lt;command=start&gt;</h3>
+<h3>3.2.8. cid run &lt;command=start&gt;</h3>
 <p>Default per command:</p>
 <ul>
 <li>start:<ul>
@@ -472,7 +484,7 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.8. cid ci_build &lt;vcs_ref&gt; &lt;rms_pool&gt; [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;]</h3>
+<h3>3.2.9. cid ci_build &lt;vcs_ref&gt; &lt;rms_pool&gt; [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>cid prepare</li>
@@ -480,7 +492,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>cid package</li>
 <li>cid promote &lt;package&gt; &lt;rms_pool&gt;</li>
 </ul>
-<h3>3.2.9. cid tool &lt;action&gt; [&lt;tool_name&gt; -- optional args]</h3>
+<h3>3.2.10. cid tool &lt;action&gt; [&lt;tool_name&gt; -- optional args]</h3>
 <p>Tools actions:</p>
 <ul>
 <li><em>exec</em> -  execute specified tool with arbitrary arguments passed.</li>

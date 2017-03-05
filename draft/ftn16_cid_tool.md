@@ -38,6 +38,7 @@ The tool should support the following actions:
 * prepare
 * build
 * package
+* check
 * promote
 * deploy
 * vcs_deploy
@@ -127,6 +128,7 @@ and auto-detectable in most cases.
 * .deployDir - (dynamic variable) root for current package deployment
 * .reDeploy - (dynamic variable) force deploy, if true
 * .deployBuild - force build on deploy, if true
+* .permissiveChecks - allows check failure, if true
 * .rmsRepo - binary artifact Release Management System location
 * .rmsPool - sub-path/pool in .rmsRepo
 * .rms - release management system type:
@@ -279,6 +281,7 @@ Default:
     * composer -> {.env.composerBin} install
     * npm -> {.env.npmBin} install
     * bower -> {.env.bowerBin} install
+    * etc.
 
 ### 3.2.3. cid build
 
@@ -288,6 +291,7 @@ Default:
     * grunt -> {.env.gruntBin}
     * gulp -> {.env.gulpBin}
     * puppet -> {.env.puppetBin} module build
+    * etc.
 
 ### 3.2.4. cid package
 
@@ -311,8 +315,13 @@ Default:
     * target, if no neutral to Arch/OS execution environment
     * all forbidden symbols must get replaced with underscore
 
+### 3.2.5. cid check [--permissive]
 
-### 3.2.5. cid promote &lt;package> &lt;rms_pool> [--rmsRepo=&lt;rms:url>] [--rmsHash=&lt;type:value>]
+* depending on .tools:
+    * run code checks, unit tests, static analysis & misc.
+* allow failures, if --permissive
+
+### 3.2.6. cid promote &lt;package> &lt;rms_pool> [--rmsRepo=&lt;rms:url>] [--rmsHash=&lt;type:value>]
 
 Default:
 
@@ -328,9 +337,9 @@ Default:
 * otherwise
     * RMS-specific promote {package} to {.rmsrepo}/{pool}
 
-### 3.2.6 cid deploy &lt;deploy_type> ...
+### 3.2.7 cid deploy &lt;deploy_type> ...
 
-### 3.2.6.1 cid deploy [rms] &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--redeploy] [--deployDir deploy_dir] [--build]
+### 3.2.7.1 cid deploy [rms] &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--redeploy] [--deployDir deploy_dir] [--build]
 
 Default:
 
@@ -348,7 +357,7 @@ Default:
 * if --build then prepare & build
 * common deploy procedure, package_dir = {package_no_ext}
 
-#### 3.2.6.2. cid deploy vcstag [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
+#### 3.2.7.2. cid deploy vcstag [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
 
 Default:
 
@@ -369,7 +378,7 @@ Default:
 * prepare & build
 * common deploy procedure, package_dir = {vcs_ref}
 
-#### 3.2.6.3. cid deploy vcsref &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
+#### 3.2.7.3. cid deploy vcsref &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
 
 Default:
 
@@ -386,7 +395,7 @@ Default:
 * prepare & build
 * common deploy procedure, package_dir = {vcs_ref}_{vcs_rev}
 
-#### 3.2.6.3. common deploy procedure
+#### 3.2.7.3. common deploy procedure
 
 * {package_dir} - depend on deployment method
 * according to .persistent:
@@ -400,7 +409,7 @@ Default:
 * reload web server and runtime according to .main
 * remove all not managed or obsolete files in {.deployDir}
 
-#### 3.2.6.4. deployment assumptions
+#### 3.2.7.4. deployment assumptions
 
 1. Each web application must have own deployment root folder
 2. Each web application should have own user
@@ -419,7 +428,7 @@ Default:
 11. Web server configuration may be delegated to external functionality.
 12. Lock file must be acquired during deployment procedure
 
-### 3.2.7. cid run &lt;command=start>
+### 3.2.8. cid run &lt;command=start>
 
 Default per command:
 
@@ -435,7 +444,7 @@ Default per command:
     * reload other running services
     * stop not configured services
 
-### 3.2.8. cid ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]
+### 3.2.9. cid ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]
 
 Default:
 
@@ -444,7 +453,7 @@ Default:
 * cid package
 * cid promote &lt;package> &lt;rms_pool>
 
-### 3.2.9. cid tool &lt;action> [&lt;tool_name> -- optional args]
+### 3.2.10. cid tool &lt;action> [&lt;tool_name> -- optional args]
 
 Tools actions:
 
