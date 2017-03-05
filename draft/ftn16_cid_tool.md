@@ -126,6 +126,7 @@ and auto-detectable in most cases.
 * .wcDir - (dynamic variable) working directory name for fresh clone/checkout
 * .deployDir - (dynamic variable) root for current package deployment
 * .reDeploy - (dynamic variable) force deploy, if true
+* .deployBuild - force build on deploy, if true
 * .rmsRepo - binary artifact Release Management System location
 * .rmsPool - sub-path/pool in .rmsRepo
 * .rms - release management system type:
@@ -329,7 +330,7 @@ Default:
 
 ### 3.2.6 cid deploy &lt;deploy_type> ...
 
-### 3.2.6.1 cid deploy [rms] &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--redeploy] [--deployDir deploy_dir]
+### 3.2.6.1 cid deploy [rms] &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--redeploy] [--deployDir deploy_dir] [--build]
 
 Default:
 
@@ -344,6 +345,7 @@ Default:
 * if {package} file exists then use it
 * otherwise, download one from .rmsRepo
 * unpack package to {.deployDir}/{package_no_ext}.tmp
+* if --build then prepare & build
 * common deploy procedure, package_dir = {package_no_ext}
 
 #### 3.2.6.2. cid deploy vcstag [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
@@ -364,6 +366,7 @@ Default:
 * find out currently deployed tag
 * if current matches target tag and --redeploy is not set then exit
 * export vcs_ref to {.deployDir}/{vcs_ref}.tmp
+* prepare & build
 * common deploy procedure, package_dir = {vcs_ref}
 
 #### 3.2.6.3. cid deploy vcsref &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--redeploy] [--deployDir deploy_dir]
@@ -380,6 +383,7 @@ Default:
 * find out currently deployed vcs_ref and vcs_rev
 * if current matches target and --redeploy is not set then exit
 * export vcs_ref to {.deployDir}/{vcs_ref}_{vcs_rev}.tmp
+* prepare & build
 * common deploy procedure, package_dir = {vcs_ref}_{vcs_rev}
 
 #### 3.2.6.3. common deploy procedure
@@ -413,6 +417,7 @@ Default:
     penalty of reverse proxy may apply, but large high available deployments should
     have load balancer/reverse proxy any way.
 11. Web server configuration may be delegated to external functionality.
+12. Lock file must be acquired during deployment procedure
 
 ### 3.2.7. cid run &lt;command=start>
 
