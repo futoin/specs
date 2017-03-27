@@ -51,10 +51,12 @@ and workspace configuration.</p>
 <h2>2.3. Building</h2>
 <p>A standard procedure for detecting available build systems and executing them in predefined order.
 Binary artifact may be a product of such action.</p>
-<h2>2.4. Packaging</h2>
+<h2>2.4. Checking</h2>
+<p>A standard procedure for detecting available test systems and executing them in predefined order.</p>
+<h2>2.5. Packaging</h2>
 <p>A standard procedure for detecting packaging method to create a single
 binary artifact for deployment.</p>
-<h2>2.5. Promotion</h2>
+<h2>2.6. Promotion</h2>
 <p>A standard procedure for promoting a binary package into predefined release
 management chains:</p>
 <ul>
@@ -74,11 +76,11 @@ management chains:</p>
 <p><em>Note: promotion from pool to pool must not modify binary artifacts. Otherwise,
 a separate project must exist, which uses original project binary artifact as
 dependency for input and own binary artifact promotion chains</em></p>
-<h2>2.6. Deployment</h2>
+<h2>2.7. Deployment</h2>
 <p>The primary focus of the action is for setup of web projects. The process should
 properly check requirements, setup file permissions, manage persistent data,
 manage configuration and support rolling deployment with no service interruption.</p>
-<h2>2.7. Running</h2>
+<h2>2.8. Running</h2>
 <p>This action should focused on service execution in development process and
 may not be implemented at all, if not applicable.</p>
 <h1>3. Detailed business logic definition</h1>
@@ -506,6 +508,11 @@ This variables may be passed through process environment as well. Example:</p>
 <li><em>test</em> with tool_name - check if tool is installed</li>
 <li><em>env</em> - get environment variables after processing of current project tools</li>
 <li><em>env</em> with tool name - get environment variables for specified tool</li>
+<li><em>prepare</em> with tool name - run tool prepare procedure</li>
+<li><em>build</em> with tool name - run tool's build procedure</li>
+<li><em>check</em> with tool name - run tool's check procedure</li>
+<li><em>package</em> with tool name - run tool's package procedure</li>
+<li><em>migrate</em> with tool name - run tool's migrate procedure</li>
 </ul>
 <p>=END OF SPEC=</p>
 </body></html>

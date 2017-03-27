@@ -60,12 +60,16 @@ and workspace configuration.
 A standard procedure for detecting available build systems and executing them in predefined order.
 Binary artifact may be a product of such action.
 
-## 2.4. Packaging
+## 2.4. Checking
+
+A standard procedure for detecting available test systems and executing them in predefined order.
+
+## 2.5. Packaging
 
 A standard procedure for detecting packaging method to create a single
 binary artifact for deployment.
 
-## 2.5. Promotion
+## 2.6. Promotion
 
 A standard procedure for promoting a binary package into predefined release
 management chains:
@@ -87,13 +91,13 @@ Where:
 a separate project must exist, which uses original project binary artifact as
 dependency for input and own binary artifact promotion chains*
 
-## 2.6. Deployment
+## 2.7. Deployment
 
 The primary focus of the action is for setup of web projects. The process should
 properly check requirements, setup file permissions, manage persistent data,
 manage configuration and support rolling deployment with no service interruption.
 
-## 2.7. Running
+## 2.8. Running
 
 This action should focused on service execution in development process and
 may not be implemented at all, if not applicable.
@@ -468,5 +472,10 @@ Tools actions:
 * *test* with tool_name - check if tool is installed
 * *env* - get environment variables after processing of current project tools
 * *env* with tool name - get environment variables for specified tool
+* *prepare* with tool name - run tool prepare procedure
+* *build* with tool name - run tool's build procedure
+* *check* with tool name - run tool's check procedure
+* *package* with tool name - run tool's package procedure
+* *migrate* with tool name - run tool's migrate procedure
 
 =END OF SPEC=
