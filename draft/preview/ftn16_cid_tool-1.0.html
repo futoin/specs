@@ -7,14 +7,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-03-04
+Date: 2017-03-27
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-03-04</li>
+<li>v1.0 - 2017-03-27</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
@@ -22,7 +22,7 @@ Authors: Andrey Galkin
 infrastructure. The demand for a new meta-tool is to merge many operation of different
 technologies like npm, composer, bundle, nvm, rvm, php-build and others under a single tool for
 runtime setup, project development, build, deployment and running.</p>
-<p><em>NOTE: current focus is on web projects, but support of other types is a far target.</em></p>
+<p><em>NOTE: current primary focus is on web projects, but other cases like Puppet modules are supported.</em></p>
 <h1>2. Concept</h1>
 <p>A command line tool must be available through shell search path or called via absolute path.
 The command name is "cid" - Continuous Integration &amp; Delivery Tool.</p>
@@ -58,13 +58,12 @@ Binary artifact may be a product of such action.</p>
 binary artifact for deployment.</p>
 <h2>2.6. Promotion</h2>
 <p>A standard procedure for promoting a binary package into predefined release
-management chains:</p>
-<ul>
-<li>Build -&gt; CIBuilds</li>
-<li>Build -&gt; ReleaseBuilds -&gt; ProductionBuilds</li>
-<li>Build -&gt; <em>{Arbitrary}</em></li>
-<li><em>{Arbitrary}</em> -&gt; <em>{Arbitrary}</em> [-&gt; <em>{Arbitrary}</em>]+</li>
-</ul>
+management systems (RMS).</p>
+<p>Suggested name conventions:
+<em> Build -&gt; CIBuilds
+</em> Build -&gt; ReleaseBuilds -&gt; ProductionBuilds
+<em> Build -&gt; </em>{Arbitrary}<em>
+</em> <em>{Arbitrary}</em> -&gt; <em>{Arbitrary}</em> [-&gt; <em>{Arbitrary}</em>]+</p>
 <p>Where:</p>
 <ul>
 <li>Build - binary artifact, product of clean build process</li>
@@ -95,6 +94,8 @@ Location (global): /etc/futoin.json (only .env part)</p>
 <h3>3.1.1. JSON tree definition in dot notation.</h3>
 <p>The same identifiers should be used in command line options. All configuration nodes are optional
 and auto-detectable in most cases.</p>
+<p><em>Note: this tree represents actual state CID works with. All internal API either work with full
+configuration root or only with its .env part. There should be no other configuration data.</em></p>
 <ul>
 <li>.name - project's full unique name</li>
 <li>.version - project's version</li>
@@ -123,17 +124,55 @@ and auto-detectable in most cases.</p>
 </ul>
 </li>
 <li>.tools - {}, list of required tool=&gt;version pairs with possible standard keys:<ul>
-<li>'nvm'</li>
-<li>'rvm'</li>
-<li>'php'</li>
-<li>'python'</li>
-<li>'node'</li>
-<li>'ruby'</li>
-<li>'composer'</li>
-<li>'npm'</li>
+<li>generic helpers:<ul>
+<li>'bash'</li>
+<li>'cid' - CID itself</li>
+<li>'futoin' - futoin.json processing</li>
+<li>'cmake'</li>
+<li>'curl'</li>
+<li>'gpg'</li>
+<li>'make'</li>
+<li>'ssh'</li>
+<li>'tar'</li>
+<li>'unzip'</li>
+<li>'zip'</li>
+</ul>
+</li>
+<li>'docker'<ul>
+<li>'dockercompose'</li>
+</ul>
+</li>
+<li>'java'<ul>
+<li>'gradle'</li>
+<li>'jdk'</li>
+<li>'maven'</li>
+</ul>
+</li>
+<li>'node'<ul>
+<li>'bower'</li>
 <li>'grunt'</li>
 <li>'gulp'</li>
-<li>'bower'</li>
+<li>'npm'</li>
+<li>'nvm'</li>
+</ul>
+</li>
+<li>'php'<ul>
+<li>'composer'</li>
+<li>'phpbuild'</li>
+</ul>
+</li>
+<li>'python'<ul>
+<li>'pip'</li>
+<li>'setuptools'</li>
+<li>'virtualenv'</li>
+</ul>
+</li>
+<li>'ruby'<ul>
+<li>'bundler'</li>
+<li>'gem'</li>
+<li>'rvm'</li>
+</ul>
+</li>
 <li>'puppet'</li>
 </ul>
 </li>
@@ -207,7 +246,8 @@ and auto-detectable in most cases.</p>
 <p>Each tool may have a whitelist of related environment variables for .env sections.
 This variables may be passed through process environment as well. Example:</p>
 <p><code>bash
-    rubyVer=2.3.3 cid tool install ruby</code></p>
+    rubyVer=2.3.3 cid tool install ruby
+    rubyVer=2.3.3 cid tool exec ruby -- ruby-specific-args</code></p>
 <h2>3.2. Commands</h2>
 <p>Prior to each command run:</p>
 <ul>
@@ -222,15 +262,7 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 <li>if .name is set (run in project root):<ul>
-<li>If .tools is not set yet, configure based on file presence in project root:<ul>
-<li>composer.json -&gt; composer, php</li>
-<li>package.json -&gt; npm, node</li>
-<li>bower.json -&gt; bower, node</li>
-<li>Gruntfile.js, Gruntfile.coffee -&gt; grunt, node</li>
-<li>gulpfile.js -&gt; gulp, node</li>
-<li>metadata.json -&gt; puppet</li>
-</ul>
-</li>
+<li>If .tools is not set yet, configure based on file presence in project root:</li>
 <li>For each .tools detect related .env.*Bin, if not set<ul>
 <li>Ask to execute install procedures, if tool is missing</li>
 <li>Fail, if not interactive prompt (e.g. automatic deployment)</li>

@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-03-04
+Date: 2017-03-27
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-03-04
+* v1.0 - 2017-03-27
 * Initial draft - 2015-09-14
 
 
@@ -19,7 +19,7 @@ infrastructure. The demand for a new meta-tool is to merge many operation of dif
 technologies like npm, composer, bundle, nvm, rvm, php-build and others under a single tool for
 runtime setup, project development, build, deployment and running.
 
-*NOTE: current focus is on web projects, but support of other types is a far target.*
+*NOTE: current primary focus is on web projects, but other cases like Puppet modules are supported.*
 
 # 2. Concept
 
@@ -72,8 +72,9 @@ binary artifact for deployment.
 ## 2.6. Promotion
 
 A standard procedure for promoting a binary package into predefined release
-management chains:
+management systems (RMS).
 
+Suggested name conventions:
 * Build -> CIBuilds
 * Build -> ReleaseBuilds -> ProductionBuilds
 * Build -> *{Arbitrary}*
@@ -119,6 +120,9 @@ Location (global): /etc/futoin.json (only .env part)
 The same identifiers should be used in command line options. All configuration nodes are optional
 and auto-detectable in most cases.
 
+*Note: this tree represents actual state CID works with. All internal API either work with full
+configuration root or only with its .env part. There should be no other configuration data.*
+
 * .name - project's full unique name
 * .version - project's version
 * .target - (dynamic variable) current build target
@@ -142,17 +146,41 @@ and auto-detectable in most cases.
     * "artifactory" - use JFrog Artifactory
     * "nexus" - use Sonatype Nexus
 * .tools - {}, list of required tool=>version pairs with possible standard keys:
-    * 'nvm'
-    * 'rvm'
-    * 'php'
-    * 'python'
+    * generic helpers:
+        * 'bash'
+        * 'cid' - CID itself
+        * 'futoin' - futoin.json processing
+        * 'cmake'
+        * 'curl'
+        * 'gpg'
+        * 'make'
+        * 'ssh'
+        * 'tar'
+        * 'unzip'
+        * 'zip'
+    * 'docker'
+        * 'dockercompose'
+    * 'java'
+        * 'gradle'
+        * 'jdk'
+        * 'maven'
     * 'node'
+        * 'bower'
+        * 'grunt'
+        * 'gulp'
+        * 'npm'
+        * 'nvm'
+    * 'php'
+        * 'composer'
+        * 'phpbuild'
+    * 'python'
+        * 'pip'
+        * 'setuptools'
+        * 'virtualenv'
     * 'ruby'
-    * 'composer'
-    * 'npm'
-    * 'grunt'
-    * 'gulp'
-    * 'bower'
+        * 'bundler'
+        * 'gem'
+        * 'rvm'
     * 'puppet'
 * .tool - (dynamic variable) current tool to be used
 * .package - [], content of package relative to project root. Default: [ "." ]
@@ -211,6 +239,7 @@ This variables may be passed through process environment as well. Example:
 
 ```bash
     rubyVer=2.3.3 cid tool install ruby
+    rubyVer=2.3.3 cid tool exec ruby -- ruby-specific-args
 ```
 
 ## 3.2. Commands
@@ -227,12 +256,6 @@ Prior to each command run:
     * set .rmsRepo, if not set yet
 * if .name is set (run in project root):
     * If .tools is not set yet, configure based on file presence in project root:
-        * composer.json -> composer, php
-        * package.json -> npm, node
-        * bower.json -> bower, node
-        * Gruntfile.js, Gruntfile.coffee -> grunt, node
-        * gulpfile.js -> gulp, node
-        * metadata.json -> puppet
     * For each .tools detect related .env.*Bin, if not set
         * Ask to execute install procedures, if tool is missing
         * Fail, if not interactive prompt (e.g. automatic deployment)
