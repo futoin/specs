@@ -504,6 +504,5 @@ Tools actions:
 * *migrate* with tool name - run tool's migrate procedure
 * *describe* with tool name - show tool's description
 * *list* - list supported tools
-* *list describe* - list supported tools with their description
 
 =END OF SPEC=
