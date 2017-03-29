@@ -1,21 +1,21 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-03-27
+Date: 2017-03-28
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-03-27
+* v1.0 - 2017-03-28
 * Initial draft - 2015-09-14
 
 
 # 1. Intro
 
 There are many continuous integration & delivery tools, but they are primarily targeted at own
-infrastructure. The demand for a new meta-tool is to merge many operation of different
+infrastructure. The demand for a new meta-tool is to merge many operations of different
 technologies like npm, composer, bundle, nvm, rvm, php-build and others under a single tool for
 runtime setup, project development, build, deployment and running.
 
@@ -54,6 +54,8 @@ A standard procedure for updating for release and tagging source code.
 
 A standard procedure for project development or release is source checkout, dependency checkout
 and workspace configuration.
+
+For build tools, working copy clean up is expected.
 
 ## 2.3. Building
 
@@ -500,5 +502,8 @@ Tools actions:
 * *check* with tool name - run tool's check procedure
 * *package* with tool name - run tool's package procedure
 * *migrate* with tool name - run tool's migrate procedure
+* *describe* with tool name - show tool's description
+* *list* - list supported tools
+* *list describe* - list supported tools with their description
 
 =END OF SPEC=

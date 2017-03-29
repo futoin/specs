@@ -7,19 +7,19 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-03-27
+Date: 2017-03-28
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-03-27</li>
+<li>v1.0 - 2017-03-28</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
 <p>There are many continuous integration &amp; delivery tools, but they are primarily targeted at own
-infrastructure. The demand for a new meta-tool is to merge many operation of different
+infrastructure. The demand for a new meta-tool is to merge many operations of different
 technologies like npm, composer, bundle, nvm, rvm, php-build and others under a single tool for
 runtime setup, project development, build, deployment and running.</p>
 <p><em>NOTE: current primary focus is on web projects, but other cases like Puppet modules are supported.</em></p>
@@ -48,6 +48,7 @@ the tool should auto-detect action implementation.</p>
 <h2>2.2. Preparation</h2>
 <p>A standard procedure for project development or release is source checkout, dependency checkout
 and workspace configuration.</p>
+<p>For build tools, working copy clean up is expected.</p>
 <h2>2.3. Building</h2>
 <p>A standard procedure for detecting available build systems and executing them in predefined order.
 Binary artifact may be a product of such action.</p>
@@ -545,6 +546,9 @@ This variables may be passed through process environment as well. Example:</p>
 <li><em>check</em> with tool name - run tool's check procedure</li>
 <li><em>package</em> with tool name - run tool's package procedure</li>
 <li><em>migrate</em> with tool name - run tool's migrate procedure</li>
+<li><em>describe</em> with tool name - show tool's description</li>
+<li><em>list</em> - list supported tools</li>
+<li><em>list describe</em> - list supported tools with their description</li>
 </ul>
 <p>=END OF SPEC=</p>
 </body></html>
