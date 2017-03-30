@@ -138,6 +138,7 @@ configuration root or only with its .env part. There should be no other configur
 * .deployDir - (dynamic variable) root for current package deployment
 * .reDeploy - (dynamic variable) force deploy, if true
 * .deployBuild - force build on deploy, if true
+* .debugBuild - (dynamic variable) build in debug mode
 * .permissiveChecks - allows check failure, if true
 * .rmsRepo - binary artifact Release Management System location
 * .rmsPool - sub-path/pool in .rmsRepo
@@ -147,7 +148,9 @@ configuration root or only with its .env part. There should be no other configur
     * "archiva" - use Apache Archiva
     * "artifactory" - use JFrog Artifactory
     * "nexus" - use Sonatype Nexus
-* .tools - {}, list of required tool=>version pairs with possible standard keys:
+* .tools - {}, list of required tool=>version pairs.
+    Default version is marked as `true` or `'*'`.
+    Possible standard keys:
     * generic helpers:
         * 'bash'
         * 'cid' - CID itself
@@ -162,10 +165,13 @@ configuration root or only with its .env part. There should be no other configur
         * 'zip'
     * 'docker'
         * 'dockercompose'
+    * 'go'
+        * 'gvm'
     * 'java'
         * 'gradle'
         * 'jdk'
         * 'maven'
+        * 'sdkman'
     * 'node'
         * 'bower'
         * 'grunt'
@@ -183,13 +189,19 @@ configuration root or only with its .env part. There should be no other configur
         * 'bundler'
         * 'gem'
         * 'rvm'
+    * 'rust'
+        * 'rustup'
+        * 'cargo'
     * 'puppet'
+    * 'scala'
+        * 'sbt'
 * .tool - (dynamic variable) current tool to be used
+* .toolOrder - (dynamic variable) full ordered by dependency list of active tools
 * .package - [], content of package relative to project root. Default: [ "." ]
 * .persistent - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.
 * .main - {], list of named entry points {}
-    * .type - "php", "node", "python" and "php-cli" (auto-detect by default)
+    * .tool - name of the tool
     * .path - file (not required in some cases, e.g. php-fpm)
     * .tune - {}, type-specific configuration options
 * .configenv - {} - list of environment variables to be set in deployment
@@ -198,8 +210,6 @@ configuration root or only with its .env part. There should be no other configur
 * .webcfg - additional web server configuration
     * .root - web root folder relative to project root
     * .index - default index handler from .main
-    * .nginx - path to nginx vhost config include relative to project root
-    * .apache - path to apache vhost config include relative to project root
 * .actions - {}, optional override of auto-detect commands.
     Each either a string or list of strings. Use '&lt;default>' in [] to run the
     default auto-detected tasks too.
@@ -312,7 +322,7 @@ Default:
     * bower -> {.env.bowerBin} install
     * etc.
 
-### 3.2.3. cid build
+### 3.2.3. cid build [--debug]
 
 Default:
 
@@ -473,7 +483,7 @@ Default per command:
     * reload other running services
     * stop not configured services
 
-### 3.2.9. cid ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]
+### 3.2.9. cid ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]  [--permissive] [--debug]
 
 Default:
 

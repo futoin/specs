@@ -113,6 +113,7 @@ configuration root or only with its .env part. There should be no other configur
 <li>.deployDir - (dynamic variable) root for current package deployment</li>
 <li>.reDeploy - (dynamic variable) force deploy, if true</li>
 <li>.deployBuild - force build on deploy, if true</li>
+<li>.debugBuild - (dynamic variable) build in debug mode</li>
 <li>.permissiveChecks - allows check failure, if true</li>
 <li>.rmsRepo - binary artifact Release Management System location</li>
 <li>.rmsPool - sub-path/pool in .rmsRepo</li>
@@ -124,7 +125,9 @@ configuration root or only with its .env part. There should be no other configur
 <li>"nexus" - use Sonatype Nexus</li>
 </ul>
 </li>
-<li>.tools - {}, list of required tool=&gt;version pairs with possible standard keys:<ul>
+<li>.tools - {}, list of required tool=&gt;version pairs.
+    Default version is marked as <code>true</code> or <code>'*'</code>.
+    Possible standard keys:<ul>
 <li>generic helpers:<ul>
 <li>'bash'</li>
 <li>'cid' - CID itself</li>
@@ -143,10 +146,15 @@ configuration root or only with its .env part. There should be no other configur
 <li>'dockercompose'</li>
 </ul>
 </li>
+<li>'go'<ul>
+<li>'gvm'</li>
+</ul>
+</li>
 <li>'java'<ul>
 <li>'gradle'</li>
 <li>'jdk'</li>
 <li>'maven'</li>
+<li>'sdkman'</li>
 </ul>
 </li>
 <li>'node'<ul>
@@ -174,15 +182,25 @@ configuration root or only with its .env part. There should be no other configur
 <li>'rvm'</li>
 </ul>
 </li>
+<li>'rust'<ul>
+<li>'rustup'</li>
+<li>'cargo'</li>
+</ul>
+</li>
 <li>'puppet'</li>
+<li>'scala'<ul>
+<li>'sbt'</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>.tool - (dynamic variable) current tool to be used</li>
+<li>.toolOrder - (dynamic variable) full ordered by dependency list of active tools</li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
 <li>.persistent - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.</li>
 <li>.main - {], list of named entry points {}<ul>
-<li>.type - "php", "node", "python" and "php-cli" (auto-detect by default)</li>
+<li>.tool - name of the tool</li>
 <li>.path - file (not required in some cases, e.g. php-fpm)</li>
 <li>.tune - {}, type-specific configuration options</li>
 </ul>
@@ -195,8 +213,6 @@ configuration root or only with its .env part. There should be no other configur
 <li>.webcfg - additional web server configuration<ul>
 <li>.root - web root folder relative to project root</li>
 <li>.index - default index handler from .main</li>
-<li>.nginx - path to nginx vhost config include relative to project root</li>
-<li>.apache - path to apache vhost config include relative to project root</li>
 </ul>
 </li>
 <li>.actions - {}, optional override of auto-detect commands.
@@ -324,7 +340,7 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.3. cid build</h3>
+<h3>3.2.3. cid build [--debug]</h3>
 <p>Default:</p>
 <ul>
 <li>depending on .tools:<ul>
@@ -519,7 +535,7 @@ This variables may be passed through process environment as well. Example:</p>
 </ul>
 </li>
 </ul>
-<h3>3.2.9. cid ci_build &lt;vcs_ref&gt; &lt;rms_pool&gt; [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;]</h3>
+<h3>3.2.9. cid ci_build &lt;vcs_ref&gt; &lt;rms_pool&gt; [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;]  [--permissive] [--debug]</h3>
 <p>Default:</p>
 <ul>
 <li>cid prepare</li>
