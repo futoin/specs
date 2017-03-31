@@ -102,7 +102,7 @@ manage configuration and support rolling deployment with no service interruption
 
 ## 2.8. Running
 
-This action should focused on service execution in development process and
+This action should focused on execution in development and testing process and
 may not be implemented at all, if not applicable.
 
 # 3. Detailed business logic definition
@@ -200,9 +200,9 @@ configuration root or only with its .env part. There should be no other configur
 * .package - [], content of package relative to project root. Default: [ "." ]
 * .persistent - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.
-* .main - {], list of named entry points {}
+* .entryPoints - {], list of named entry points {}
     * .tool - name of the tool
-    * .path - file (not required in some cases, e.g. php-fpm)
+    * .path - file
     * .tune - {}, type-specific configuration options
 * .configenv - {} - list of environment variables to be set in deployment
     * type - FutoIn variable type
@@ -220,9 +220,8 @@ configuration root or only with its .env part. There should be no other configur
     * .promote - custom shell command for binary artifact promotion
     * .migrate - custom shell command in deployment procedure
     * .deploy - custom shell command for deployment from binary artifact
-    * .run - custom shell command to run after deployment
-    * .runDev - custom shell command to run from source
-* .plugins = {} - optional custom plugins $tool:$module_name pairs
+    * .{custom} - any arbitrary user-defined extension to use with "cid run"
+* .plugins = {} - optional custom plugins tool=>module_name pairs
 * .env - {}, the only part allowed to be defined in user or system configs
     * .type - "prod", "uat", "qa" and "dev" (default - "dev")
     * .startup - "cron", "systemd" (default - "cron")
@@ -467,21 +466,11 @@ Default:
 11. Web server configuration may be delegated to external functionality.
 12. Lock file must be acquired during deployment procedure
 
-### 3.2.8. cid run &lt;command=start>
+### 3.2.8. cid run [&lt;command> [-- &lt;command_args..>]]
 
-Default per command:
-
-* start:
-    * if deployment environment:
-        * start services according to deployment configuration
-    * if development environment:
-        * start services according to project configuration
-* stop:
-    * stop all running services (even not configured)
-* reload:
-    * start not running services
-    * reload other running services
-    * stop not configured services
+* If command is missing then execute all .entryPoints in parallel
+* Else if command is present in .entryPoints then execute as related tool
+* Else if command is present in .actions then execute that in shell
 
 ### 3.2.9. cid ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]  [--permissive] [--debug]
 

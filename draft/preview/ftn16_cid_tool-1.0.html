@@ -81,7 +81,7 @@ dependency for input and own binary artifact promotion chains</em></p>
 properly check requirements, setup file permissions, manage persistent data,
 manage configuration and support rolling deployment with no service interruption.</p>
 <h2>2.8. Running</h2>
-<p>This action should focused on service execution in development process and
+<p>This action should focused on execution in development and testing process and
 may not be implemented at all, if not applicable.</p>
 <h1>3. Detailed business logic definition</h1>
 <h2>3.1. Configuration file</h2>
@@ -199,9 +199,9 @@ configuration root or only with its .env part. There should be no other configur
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
 <li>.persistent - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.</li>
-<li>.main - {], list of named entry points {}<ul>
+<li>.entryPoints - {], list of named entry points {}<ul>
 <li>.tool - name of the tool</li>
-<li>.path - file (not required in some cases, e.g. php-fpm)</li>
+<li>.path - file</li>
 <li>.tune - {}, type-specific configuration options</li>
 </ul>
 </li>
@@ -225,11 +225,10 @@ configuration root or only with its .env part. There should be no other configur
 <li>.promote - custom shell command for binary artifact promotion</li>
 <li>.migrate - custom shell command in deployment procedure</li>
 <li>.deploy - custom shell command for deployment from binary artifact</li>
-<li>.run - custom shell command to run after deployment</li>
-<li>.runDev - custom shell command to run from source</li>
+<li>.{custom} - any arbitrary user-defined extension to use with "cid run"</li>
 </ul>
 </li>
-<li>.plugins = {} - optional custom plugins $tool:$module_name pairs</li>
+<li>.plugins = {} - optional custom plugins tool=&gt;module_name pairs</li>
 <li>.env - {}, the only part allowed to be defined in user or system configs<ul>
 <li>.type - "prod", "uat", "qa" and "dev" (default - "dev")</li>
 <li>.startup - "cron", "systemd" (default - "cron")</li>
@@ -510,30 +509,11 @@ This variables may be passed through process environment as well. Example:</p>
 <li>Web server configuration may be delegated to external functionality.</li>
 <li>Lock file must be acquired during deployment procedure</li>
 </ol>
-<h3>3.2.8. cid run &lt;command=start&gt;</h3>
-<p>Default per command:</p>
+<h3>3.2.8. cid run [&lt;command&gt; [-- &lt;command_args..&gt;]]</h3>
 <ul>
-<li>start:<ul>
-<li>if deployment environment:<ul>
-<li>start services according to deployment configuration</li>
-</ul>
-</li>
-<li>if development environment:<ul>
-<li>start services according to project configuration</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>stop:<ul>
-<li>stop all running services (even not configured)</li>
-</ul>
-</li>
-<li>reload:<ul>
-<li>start not running services</li>
-<li>reload other running services</li>
-<li>stop not configured services</li>
-</ul>
-</li>
+<li>If command is missing then execute all .entryPoints in parallel</li>
+<li>Else if command is present in .entryPoints then execute as related tool</li>
+<li>Else if command is present in .actions then execute that in shell</li>
 </ul>
 <h3>3.2.9. cid ci_build &lt;vcs_ref&gt; &lt;rms_pool&gt; [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;]  [--permissive] [--debug]</h3>
 <p>Default:</p>
