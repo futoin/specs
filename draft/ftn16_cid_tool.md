@@ -45,6 +45,7 @@ The tool should support the following actions:
 * run
 * ci_build
 * tool
+* init
 
 ## 2.1. Tag
 
@@ -504,5 +505,11 @@ Tools actions:
 * *migrate* with tool name - run tool's migrate procedure
 * *describe* with tool name - show tool's description
 * *list* - list supported tools
+
+### 3.2.11. cid init [&lt;project_name>] [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>] [--permissive]
+
+Initialize futoin.json. Automatically add already known information to it.
+
+If project name is not provided and not auto-detected then use working copy folder basename.
 
 =END OF SPEC=

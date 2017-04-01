@@ -42,7 +42,8 @@ the tool should auto-detect action implementation.</p>
 </em> vcs_deploy
 <em> run
 </em> ci_build
-* tool</p>
+<em> tool
+</em> init</p>
 <h2>2.1. Tag</h2>
 <p>A standard procedure for updating for release and tagging source code.</p>
 <h2>2.2. Preparation</h2>
@@ -546,5 +547,8 @@ This variables may be passed through process environment as well. Example:</p>
 <li><em>describe</em> with tool name - show tool's description</li>
 <li><em>list</em> - list supported tools</li>
 </ul>
+<h3>3.2.11. cid init [&lt;project_name&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;] [--permissive]</h3>
+<p>Initialize futoin.json. Automatically add already known information to it.</p>
+<p>If project name is not provided and not auto-detected then use working copy folder basename.</p>
 <p>=END OF SPEC=</p>
 </body></html>
