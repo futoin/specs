@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-03-28
+Date: 2017-04-01
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-03-28
+* v1.0 - 2017-04-01
 * Initial draft - 2015-09-14
 
 
@@ -148,7 +148,7 @@ configuration root or only with its .env part. There should be no other configur
     * "archiva" - use Apache Archiva
     * "artifactory" - use JFrog Artifactory
     * "nexus" - use Sonatype Nexus
-* .tools - {}, list of required tool=>version pairs.
+* .tools - {}, map of required tool=>version pairs.
     Default version is marked as `true` or `'*'`.
     Possible standard keys:
     * generic helpers:
@@ -197,6 +197,7 @@ configuration root or only with its .env part. There should be no other configur
         * 'sbt'
 * .tool - (dynamic variable) current tool to be used
 * .toolOrder - (dynamic variable) full ordered by dependency list of active tools
+* .toolTune - {}, map of maps tool=>settings=>value for fine tuning of tool behavior
 * .package - [], content of package relative to project root. Default: [ "." ]
 * .persistent - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.

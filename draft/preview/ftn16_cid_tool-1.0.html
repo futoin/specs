@@ -7,14 +7,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-03-28
+Date: 2017-04-01
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-03-28</li>
+<li>v1.0 - 2017-04-01</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
@@ -125,7 +125,7 @@ configuration root or only with its .env part. There should be no other configur
 <li>"nexus" - use Sonatype Nexus</li>
 </ul>
 </li>
-<li>.tools - {}, list of required tool=&gt;version pairs.
+<li>.tools - {}, map of required tool=&gt;version pairs.
     Default version is marked as <code>true</code> or <code>'*'</code>.
     Possible standard keys:<ul>
 <li>generic helpers:<ul>
@@ -196,6 +196,7 @@ configuration root or only with its .env part. There should be no other configur
 </li>
 <li>.tool - (dynamic variable) current tool to be used</li>
 <li>.toolOrder - (dynamic variable) full ordered by dependency list of active tools</li>
+<li>.toolTune - {}, map of maps tool=&gt;settings=&gt;value for fine tuning of tool behavior</li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
 <li>.persistent - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.</li>
