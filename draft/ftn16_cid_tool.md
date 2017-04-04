@@ -467,6 +467,7 @@ Default:
     have load balancer/reverse proxy any way.
 11. Web server configuration may be delegated to external functionality.
 12. Lock file must be acquired during deployment procedure
+13. Not empty {.deploDir} must contain deploy lock file for safety reasons.
 
 ### 3.2.8. cid run [&lt;command> [-- &lt;command_args..>]]
 
@@ -511,5 +512,12 @@ Tools actions:
 Initialize futoin.json. Automatically add already known information to it.
 
 If project name is not provided and not auto-detected then use working copy folder basename.
+
+### 3.2.12. cid migrate
+
+Runs data migration tasks.
+
+Provided for overriding default procedures in scope of deployment procedure.
+
 
 =END OF SPEC=

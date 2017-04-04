@@ -512,6 +512,7 @@ This variables may be passed through process environment as well. Example:</p>
     have load balancer/reverse proxy any way.</li>
 <li>Web server configuration may be delegated to external functionality.</li>
 <li>Lock file must be acquired during deployment procedure</li>
+<li>Not empty {.deploDir} must contain deploy lock file for safety reasons.</li>
 </ol>
 <h3>3.2.8. cid run [&lt;command&gt; [-- &lt;command_args..&gt;]]</h3>
 <ul>
@@ -552,5 +553,8 @@ This variables may be passed through process environment as well. Example:</p>
 <h3>3.2.11. cid init [&lt;project_name&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;] [--permissive]</h3>
 <p>Initialize futoin.json. Automatically add already known information to it.</p>
 <p>If project name is not provided and not auto-detected then use working copy folder basename.</p>
+<h3>3.2.12. cid migrate</h3>
+<p>Runs data migration tasks.</p>
+<p>Provided for overriding default procedures in scope of deployment procedure.</p>
 <p>=END OF SPEC=</p>
 </body></html>
