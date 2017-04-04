@@ -86,13 +86,15 @@ manage configuration and support rolling deployment with no service interruption
 may not be implemented at all, if not applicable.</p>
 <h1>3. Detailed business logic definition</h1>
 <h2>3.1. Configuration file</h2>
-<p>Name: futoin.json
-Format: strict JSON
-Location (project): project root folder
-Process environment: (only whitelisted variables for .env part)
-Location (deployment): ${DEPLOY_ROOT} (only .env part)
-Location (user): ${HOME}/.futoin.json (only .env part)
-Location (global): /etc/futoin.json (only .env part)</p>
+<ul>
+<li>Name: futoin.json</li>
+<li>Format: strict JSON</li>
+<li>Location (project): project root folder</li>
+<li>Process environment: (only whitelisted variables for .env part)</li>
+<li>Location (deployment): ${DEPLOY_ROOT} (only .env part)</li>
+<li>Location (user): ${HOME}/.futoin.json (only .env part)</li>
+<li>Location (global): /etc/futoin.json (only .env part)</li>
+</ul>
 <h3>3.1.1. JSON tree definition in dot notation.</h3>
 <p>The same identifiers should be used in command line options. All configuration nodes are optional
 and auto-detectable in most cases.</p>

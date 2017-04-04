@@ -110,13 +110,13 @@ may not be implemented at all, if not applicable.
 
 ## 3.1. Configuration file
 
-Name: futoin.json
-Format: strict JSON
-Location (project): project root folder
-Process environment: (only whitelisted variables for .env part)
-Location (deployment): ${DEPLOY_ROOT} (only .env part)
-Location (user): ${HOME}/.futoin.json (only .env part)
-Location (global): /etc/futoin.json (only .env part)
+* Name: futoin.json
+* Format: strict JSON
+* Location (project): project root folder
+* Process environment: (only whitelisted variables for .env part)
+* Location (deployment): ${DEPLOY_ROOT} (only .env part)
+* Location (user): ${HOME}/.futoin.json (only .env part)
+* Location (global): /etc/futoin.json (only .env part)
 
 ### 3.1.1. JSON tree definition in dot notation.
 
