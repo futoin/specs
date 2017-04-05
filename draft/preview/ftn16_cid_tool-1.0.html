@@ -89,9 +89,9 @@ may not be implemented at all, if not applicable.</p>
 <ul>
 <li>Name: futoin.json</li>
 <li>Format: strict JSON</li>
-<li>Location (project): project root folder</li>
+<li>Location (project): project root folder (without .env part)</li>
 <li>Process environment: (only whitelisted variables for .env part)</li>
-<li>Location (deployment): ${DEPLOY_ROOT} (only .env part)</li>
+<li>Location (deployment): ${DEPLOY_ROOT} (both config options and .env part)</li>
 <li>Location (user): ${HOME}/.futoin.json (only .env part)</li>
 <li>Location (global): /etc/futoin.json (only .env part)</li>
 </ul>
@@ -201,6 +201,9 @@ configuration root or only with its .env part. There should be no other configur
 <li>.toolOrder - (dynamic variable) full ordered by dependency list of active tools</li>
 <li>.toolTune - {}, map of maps tool=&gt;settings=&gt;value for fine tuning of tool behavior</li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
+<li>.packageFiles - (dynamic variable), list of packages created by tools</li>
+<li>.packageGzipStatic = True, creates <em>.gz files for found </em>.js, <em>.json, </em>.css, <em>.svg and </em>.txt files</li>
+<li>.packageChecksums = True, creates .package.checksums of files</li>
 <li>.persistent - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.</li>
 <li>.entryPoints - {], list of named entry points {}<ul>

@@ -112,9 +112,9 @@ may not be implemented at all, if not applicable.
 
 * Name: futoin.json
 * Format: strict JSON
-* Location (project): project root folder
+* Location (project): project root folder (without .env part)
 * Process environment: (only whitelisted variables for .env part)
-* Location (deployment): ${DEPLOY_ROOT} (only .env part)
+* Location (deployment): ${DEPLOY_ROOT} (both config options and .env part)
 * Location (user): ${HOME}/.futoin.json (only .env part)
 * Location (global): /etc/futoin.json (only .env part)
 
@@ -200,6 +200,9 @@ configuration root or only with its .env part. There should be no other configur
 * .toolOrder - (dynamic variable) full ordered by dependency list of active tools
 * .toolTune - {}, map of maps tool=>settings=>value for fine tuning of tool behavior
 * .package - [], content of package relative to project root. Default: [ "." ]
+* .packageFiles - (dynamic variable), list of packages created by tools
+* .packageGzipStatic = True, creates *.gz files for found *.js, *.json, *.css, *.svg and *.txt files
+* .packageChecksums = True, creates .package.checksums of files
 * .persistent - [], list of persistent read-write directory paths.
     The paths must be empty/missing in deployment package.
 * .entryPoints - {], list of named entry points {}
