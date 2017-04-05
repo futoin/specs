@@ -348,7 +348,7 @@ Default:
 #### 3.2.3.1. Package name convention:
 
 * Release build: {.name}-{.version}-{YYYYMMDD_hhmmss}[-{target}].ext
-* CI build: {.name}-CI-{.version}-{.ref}-{YYYYMMDD_hhmmss}[-{target}].ext
+* CI build: {.name}-CI-{.version}-{YYYYMMDD_hhmmss}-{.ref}[-{target}].ext
 * where:
     * .name & .version - from configuration
     * .ref - revision from VCS
