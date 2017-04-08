@@ -479,14 +479,15 @@ Default:
 * Else if command is present in .entryPoints then execute as related tool
 * Else if command is present in .actions then execute that in shell
 
-### 3.2.9. cid ci_build &lt;vcs_ref> &lt;rms_pool> [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]  [--permissive] [--debug]
+### 3.2.9. cid ci_build &lt;vcs_ref> [&lt;rms_pool>] [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]  [--permissive] [--debug]
 
 Default:
 
 * cid prepare
 * cid build
 * cid package
-* cid promote &lt;package> &lt;rms_pool>
+* if &lt;rms_pool> is set
+    * cid promote {package(s)} &lt;rms_pool>
 
 ### 3.2.10. cid tool &lt;action> [&lt;tool_name> [&lt;version>] -- optional args]
 
