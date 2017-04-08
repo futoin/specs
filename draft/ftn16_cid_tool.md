@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-04-05
+Date: 2017-04-08
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-04-05
+* v1.0 - 2017-04-08
 * Initial draft - 2015-09-14
 
 
@@ -197,6 +197,7 @@ configuration root or only with its .env part. There should be no other configur
     * 'scala'
         * 'sbt'
 * .tool - (dynamic variable) current tool to be used
+* .toolVer - (dynamic variable) required version for current tool
 * .toolOrder - (dynamic variable) full ordered by dependency list of active tools
 * .toolTune - {}, map of maps tool=>settings=>value for fine tuning of tool behavior
 * .package - [], content of package relative to project root. Default: [ "." ]
@@ -487,7 +488,7 @@ Default:
 * cid package
 * cid promote &lt;package> &lt;rms_pool>
 
-### 3.2.10. cid tool &lt;action> [&lt;tool_name> -- optional args]
+### 3.2.10. cid tool &lt;action> [&lt;tool_name> [&lt;version>] -- optional args]
 
 Tools actions:
 
@@ -509,6 +510,7 @@ Tools actions:
 * *migrate* with tool name - run tool's migrate procedure
 * *describe* with tool name - show tool's description
 * *list* - list supported tools
+* *detect* - list tools detected for current project (with optional "=version")
 
 ### 3.2.11. cid init [&lt;project_name>] [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>] [--permissive]
 

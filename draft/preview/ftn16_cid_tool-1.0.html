@@ -7,14 +7,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-04-05
+Date: 2017-04-08
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-04-05</li>
+<li>v1.0 - 2017-04-08</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
@@ -198,6 +198,7 @@ configuration root or only with its .env part. There should be no other configur
 </ul>
 </li>
 <li>.tool - (dynamic variable) current tool to be used</li>
+<li>.toolVer - (dynamic variable) required version for current tool</li>
 <li>.toolOrder - (dynamic variable) full ordered by dependency list of active tools</li>
 <li>.toolTune - {}, map of maps tool=&gt;settings=&gt;value for fine tuning of tool behavior</li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
@@ -531,7 +532,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li>cid package</li>
 <li>cid promote &lt;package&gt; &lt;rms_pool&gt;</li>
 </ul>
-<h3>3.2.10. cid tool &lt;action&gt; [&lt;tool_name&gt; -- optional args]</h3>
+<h3>3.2.10. cid tool &lt;action&gt; [&lt;tool_name&gt; [&lt;version&gt;] -- optional args]</h3>
 <p>Tools actions:</p>
 <ul>
 <li><em>exec</em> -  execute specified tool with arbitrary arguments passed.</li>
@@ -552,6 +553,7 @@ This variables may be passed through process environment as well. Example:</p>
 <li><em>migrate</em> with tool name - run tool's migrate procedure</li>
 <li><em>describe</em> with tool name - show tool's description</li>
 <li><em>list</em> - list supported tools</li>
+<li><em>detect</em> - list tools detected for current project (with optional "=version")</li>
 </ul>
 <h3>3.2.11. cid init [&lt;project_name&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;] [--permissive]</h3>
 <p>Initialize futoin.json. Automatically add already known information to it.</p>
