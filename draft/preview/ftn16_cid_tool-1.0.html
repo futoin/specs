@@ -7,14 +7,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-04-08
+Date: 2017-04-09
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-04-08</li>
+<li>v1.0 - 2017-04-09</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
@@ -564,5 +564,14 @@ This variables may be passed through process environment as well. Example:</p>
 <h3>3.2.12. cid migrate</h3>
 <p>Runs data migration tasks.</p>
 <p>Provided for overriding default procedures in scope of deployment procedure.</p>
+<h3>3.2.13. cid vcs &lt;action&gt; [optional args]</h3>
+<p>There are helpers for CI environment and should not be used by developer in regular activities.</p>
+<ul>
+<li><em>cid vcs checkout &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--wcDir=<wc_dir>]</em> - checkout specific VCS reference</li>
+<li><em>cid vcs commit &lt;commit_msg&gt; [&lt;%lt;files&gt;]</em> - commit &amp; push all changes [or specific files]</li>
+<li><em>cid vcs merge &lt;vcs_ref&gt;</em> - merge another VCS ref. Abort on conflicts.</li>
+<li><em>cid vcs branch &lt;vcs_ref&gt; &lt;new_vcs_ref&gt;</em> - create new branch from VCS ref</li>
+<li><em>cid vcs delete &lt;vcs_ref&gt;</em> - delete tag or branch</li>
+</ul>
 <p>=END OF SPEC=</p>
 </body></html>

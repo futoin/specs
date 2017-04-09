@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-04-08
+Date: 2017-04-09
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-04-08
+* v1.0 - 2017-04-09
 * Initial draft - 2015-09-14
 
 
@@ -524,6 +524,16 @@ If project name is not provided and not auto-detected then use working copy fold
 Runs data migration tasks.
 
 Provided for overriding default procedures in scope of deployment procedure.
+
+### 3.2.13. cid vcs &lt;action> [optional args]
+
+There are helpers for CI environment and should not be used by developer in regular activities.
+
+* *cid vcs checkout &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--wcDir=<wc_dir>]* - checkout specific VCS reference
+* *cid vcs commit &lt;commit_msg> [<%lt;files>]* - commit & push all changes [or specific files]
+* *cid vcs merge &lt;vcs_ref>* - merge another VCS ref. Abort on conflicts.
+* *cid vcs branch &lt;vcs_ref> &lt;new_vcs_ref>* - create new branch from VCS ref
+* *cid vcs delete &lt;vcs_ref>* - delete tag or branch
 
 
 =END OF SPEC=
