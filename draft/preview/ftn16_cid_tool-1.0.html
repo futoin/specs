@@ -275,10 +275,10 @@ This variables may be passed through process environment as well. Example:</p>
 <h3>3.1.3. Working Directory notes</h3>
 <p>By default working directory (--wcDir) is absolute path of current working directory, except:</p>
 <ol>
-<li>If ci_build command is used with --vcsRepo then absolute path of "./ci_build" is used</li>
+<li>If ci_build command is used with --vcsRepo then absolute path of "./ci_build_{vcs_ref}" is used</li>
 <li>If ci_build command is used without --wcsRepo then:<ul>
 <li>project name is taken as basename of current working directory</li>
-<li>working directory is set to absolute path of "../ci_builds/{project_name}"</li>
+<li>working directory is set to absolute path of "../ci_builds/{project_name}_{vcs_ref}"</li>
 </ul>
 </li>
 </ol>

@@ -263,10 +263,10 @@ This variables may be passed through process environment as well. Example:
 
 By default working directory (--wcDir) is absolute path of current working directory, except:
 
-1. If ci_build command is used with --vcsRepo then absolute path of "./ci_build" is used
+1. If ci_build command is used with --vcsRepo then absolute path of "./ci_build_{vcs_ref}" is used
 2. If ci_build command is used without --wcsRepo then:
     * project name is taken as basename of current working directory
-    * working directory is set to absolute path of "../ci_builds/{project_name}"
+    * working directory is set to absolute path of "../ci_builds/{project_name}_{vcs_ref}"
 
 In all cases working directory must be either empty or contain project without conflicts 
 with --vcsRepo parameter, if supplied.
