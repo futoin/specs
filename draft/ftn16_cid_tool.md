@@ -479,7 +479,7 @@ Default:
 * Else if command is present in .entryPoints then execute as related tool
 * Else if command is present in .actions then execute that in shell
 
-### 3.2.9. cid ci_build &lt;vcs_ref> [&lt;rms_pool>] [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]  [--permissive] [--debug]
+### 3.2.9. cid ci_build &lt;vcs_ref> [&lt;rms_pool>] [--vcsRepo=&lt;vcs:url>] [--rmsRepo=&lt;rms:url>]  [--permissive] [--debug] [--wcDir wc_dir]
 
 Default:
 
