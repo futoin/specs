@@ -259,6 +259,21 @@ This variables may be passed through process environment as well. Example:
     rubyVer=2.3.3 cid tool exec ruby -- ruby-specific-args
 ```
 
+### 3.1.3. Working Directory notes
+
+By default working directory (--wcDir) is absolute path of current working directory, except:
+
+1. If ci_build command is used with --vcsRepo then absolute path of "./ci_build" is used
+2. If ci_build command is used without --wcsRepo then:
+    * project name is taken as basename of current working directory
+    * working directory is set to absolute path of "../ci_builds/{project_name}"
+
+In all cases working directory must be either empty or contain project without conflicts 
+with --vcsRepo parameter, if supplied.
+
+In case of ci_build, it is required to make a clean checkout. Therefore, existing wcDir
+must be removed (renamed for safety).
+    
 ## 3.2. Commands
 
 Prior to each command run:
