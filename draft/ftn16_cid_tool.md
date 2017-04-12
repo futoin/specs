@@ -319,13 +319,23 @@ Default:
 * process standard parameters
 * Set .vcsRef={branch}
 * standard checkout process
-* if --version is set then set .version
+* if &lt;next_version> is set then
+    * if equal to 'major', 'minor' or 'patch' then use special logic
+        * patch: x.y.z -> x.y.(z+1)
+        * minor: x.y.z -> x.(y+1).0
+        * major: x.y.z -> (x+1).0.0
+    * otherwise check valid version & set .version
 * otherwise, increment the very last part of .version
 * Update (or create) futoin.json with release version
 * Update tool configuration files with release version
 * Commit updated files with "Updated for release {.name} {.version}" comment
 * Create [annotated] tag "v{.version} with "Release {.name} {.version}" comment
 * Push changes and tags, if applicable based on .vcs
+
+#### Versioning notes
+
+It is required that version consists of three components: major, minor and patch.
+Generally, [SEMVER](http://semver.org/) is assumed.
 
 ### 3.2.2. cid prepare [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--wcDir wc_dir]
 
@@ -547,8 +557,10 @@ There are helpers for CI environment and should not be used by developer in regu
 * *cid vcs checkout &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--wcDir=<wc_dir>]* - checkout specific VCS reference
 * *cid vcs commit &lt;commit_msg> [<%lt;files>]* - commit & push all changes [or specific files]
 * *cid vcs merge &lt;vcs_ref>* - merge another VCS ref. Abort on conflicts.
-* *cid vcs branch &lt;vcs_ref> &lt;new_vcs_ref>* - create new branch from VCS ref
-* *cid vcs delete &lt;vcs_ref>* - delete tag or branch
+* *cid vcs branch &lt;vcs_ref>*  - create new branch from current checkout
+* *cid vcs delete &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] * - delete branch
+* *cid vcs export &lt;vcs_ref> &lt;dst> [--vcsRepo=&lt;vcs:url>] * - export tag or branch
+* *cid vcs taglist [&lt;tag_pattern>] [--vcsRepo=&lt;vcs:url>] * - list tags
 
 
 =END OF SPEC=

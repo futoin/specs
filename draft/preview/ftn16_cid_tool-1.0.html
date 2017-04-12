@@ -337,7 +337,16 @@ must be removed (renamed for safety).</p>
 <li>process standard parameters</li>
 <li>Set .vcsRef={branch}</li>
 <li>standard checkout process</li>
-<li>if --version is set then set .version</li>
+<li>if &lt;next_version&gt; is set then<ul>
+<li>if equal to 'major', 'minor' or 'patch' then use special logic<ul>
+<li>patch: x.y.z -&gt; x.y.(z+1)</li>
+<li>minor: x.y.z -&gt; x.(y+1).0</li>
+<li>major: x.y.z -&gt; (x+1).0.0</li>
+</ul>
+</li>
+<li>otherwise check valid version &amp; set .version</li>
+</ul>
+</li>
 <li>otherwise, increment the very last part of .version</li>
 <li>Update (or create) futoin.json with release version</li>
 <li>Update tool configuration files with release version</li>
@@ -345,6 +354,9 @@ must be removed (renamed for safety).</p>
 <li>Create [annotated] tag "v{.version} with "Release {.name} {.version}" comment</li>
 <li>Push changes and tags, if applicable based on .vcs</li>
 </ul>
+<h4>Versioning notes</h4>
+<p>It is required that version consists of three components: major, minor and patch.
+Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <h3>3.2.2. cid prepare [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
 <p>Default:</p>
 <ul>
@@ -584,8 +596,10 @@ must be removed (renamed for safety).</p>
 <li><em>cid vcs checkout &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--wcDir=<wc_dir>]</em> - checkout specific VCS reference</li>
 <li><em>cid vcs commit &lt;commit_msg&gt; [&lt;%lt;files&gt;]</em> - commit &amp; push all changes [or specific files]</li>
 <li><em>cid vcs merge &lt;vcs_ref&gt;</em> - merge another VCS ref. Abort on conflicts.</li>
-<li><em>cid vcs branch &lt;vcs_ref&gt; &lt;new_vcs_ref&gt;</em> - create new branch from VCS ref</li>
-<li><em>cid vcs delete &lt;vcs_ref&gt;</em> - delete tag or branch</li>
+<li><em>cid vcs branch &lt;vcs_ref&gt;</em>  - create new branch from current checkout</li>
+<li>*cid vcs delete &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] * - delete branch</li>
+<li>*cid vcs export &lt;vcs_ref&gt; &lt;dst&gt; [--vcsRepo=&lt;vcs:url&gt;] * - export tag or branch</li>
+<li>*cid vcs taglist [&lt;tag_pattern&gt;] [--vcsRepo=&lt;vcs:url&gt;] * - list tags</li>
 </ul>
 <p>=END OF SPEC=</p>
 </body></html>
