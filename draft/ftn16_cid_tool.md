@@ -556,11 +556,13 @@ There are helpers for CI environment and should not be used by developer in regu
 
 * *cid vcs checkout &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--wcDir=<wc_dir>]* - checkout specific VCS reference
 * *cid vcs commit &lt;commit_msg> [<%lt;files>]* - commit & push all changes [or specific files]
-* *cid vcs merge &lt;vcs_ref>* - merge another VCS ref. Abort on conflicts.
+* *cid vcs merge &lt;vcs_ref> [--no-cleanup]* - merge another VCS ref. Abort on conflicts.
 * *cid vcs branch &lt;vcs_ref>*  - create new branch from current checkout
 * *cid vcs delete &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] * - delete branch
 * *cid vcs export &lt;vcs_ref> &lt;dst> [--vcsRepo=&lt;vcs:url>] * - export tag or branch
-* *cid vcs taglist [&lt;tag_pattern>] [--vcsRepo=&lt;vcs:url>] * - list tags
+* *cid vcs tags [&lt;tag_pattern>] [--vcsRepo=&lt;vcs:url>] * - list tags
+* *cid vcs branches [&lt;branch_pattern>] [--vcsRepo=&lt;vcs:url>] * - list branches
+* *cid vcs reset* - revert all local changes, including merge conflicts
 
 
 =END OF SPEC=
