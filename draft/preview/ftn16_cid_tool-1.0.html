@@ -594,14 +594,15 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <p>There are helpers for CI environment and should not be used by developer in regular activities.</p>
 <ul>
 <li><em>cid vcs checkout &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--wcDir=<wc_dir>]</em> - checkout specific VCS reference</li>
-<li><em>cid vcs commit &lt;commit_msg&gt; [&lt;%lt;files&gt;]</em> - commit &amp; push all changes [or specific files]</li>
-<li><em>cid vcs merge &lt;vcs_ref&gt; [--no-cleanup]</em> - merge another VCS ref. Abort on conflicts.</li>
-<li><em>cid vcs branch &lt;vcs_ref&gt;</em>  - create new branch from current checkout</li>
-<li>*cid vcs delete &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] * - delete branch</li>
-<li>*cid vcs export &lt;vcs_ref&gt; &lt;dst&gt; [--vcsRepo=&lt;vcs:url&gt;] * - export tag or branch</li>
-<li>*cid vcs tags [&lt;tag_pattern&gt;] [--vcsRepo=&lt;vcs:url&gt;] * - list tags</li>
-<li>*cid vcs branches [&lt;branch_pattern&gt;] [--vcsRepo=&lt;vcs:url&gt;] * - list branches</li>
-<li><em>cid vcs reset</em> - revert all local changes, including merge conflicts</li>
+<li><em>cid vcs commit &lt;commit_msg&gt; [&lt;%lt;files&gt;] [--wcDir=<wc_dir>]</em> - commit &amp; push all changes [or specific files]</li>
+<li><em>cid vcs merge &lt;vcs_ref&gt; [--no-cleanup] [--wcDir=<wc_dir>]</em> - merge another VCS ref. Abort on conflicts.</li>
+<li><em>cid vcs branch &lt;vcs_ref&gt; [--wcDir=<wc_dir>]</em>  - create new branch from current checkout</li>
+<li><em>cid vcs delete &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]</em> - delete branch</li>
+<li><em>cid vcs export &lt;vcs_ref&gt; &lt;dst&gt; [--vcsRepo=&lt;vcs:url&gt;] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]</em> - export tag or branch</li>
+<li><em>cid vcs tags [&lt;tag_pattern&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]</em> - list tags</li>
+<li><em>cid vcs branches [&lt;branch_pattern&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]</em> - list branches</li>
+<li><em>cid vcs reset [--wcDir=<wc_dir>]</em> - revert all local changes, including merge conflicts</li>
+<li><em>cid vcs ismerged [--wcDir=<wc_dir>]</em> - check if branch is merged</li>
 </ul>
 <p>=END OF SPEC=</p>
 </body></html>

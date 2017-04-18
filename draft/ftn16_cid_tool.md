@@ -555,14 +555,15 @@ Provided for overriding default procedures in scope of deployment procedure.
 There are helpers for CI environment and should not be used by developer in regular activities.
 
 * *cid vcs checkout &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--wcDir=<wc_dir>]* - checkout specific VCS reference
-* *cid vcs commit &lt;commit_msg> [<%lt;files>]* - commit & push all changes [or specific files]
-* *cid vcs merge &lt;vcs_ref> [--no-cleanup]* - merge another VCS ref. Abort on conflicts.
-* *cid vcs branch &lt;vcs_ref>*  - create new branch from current checkout
-* *cid vcs delete &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] * - delete branch
-* *cid vcs export &lt;vcs_ref> &lt;dst> [--vcsRepo=&lt;vcs:url>] * - export tag or branch
-* *cid vcs tags [&lt;tag_pattern>] [--vcsRepo=&lt;vcs:url>] * - list tags
-* *cid vcs branches [&lt;branch_pattern>] [--vcsRepo=&lt;vcs:url>] * - list branches
-* *cid vcs reset* - revert all local changes, including merge conflicts
+* *cid vcs commit &lt;commit_msg> [<%lt;files>] [--wcDir=<wc_dir>]* - commit & push all changes [or specific files]
+* *cid vcs merge &lt;vcs_ref> [--no-cleanup] [--wcDir=<wc_dir>]* - merge another VCS ref. Abort on conflicts.
+* *cid vcs branch &lt;vcs_ref> [--wcDir=<wc_dir>]*  - create new branch from current checkout
+* *cid vcs delete &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]* - delete branch
+* *cid vcs export &lt;vcs_ref> &lt;dst> [--vcsRepo=&lt;vcs:url>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]* - export tag or branch
+* *cid vcs tags [&lt;tag_pattern>] [--vcsRepo=&lt;vcs:url>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]* - list tags
+* *cid vcs branches [&lt;branch_pattern>] [--vcsRepo=&lt;vcs:url>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]* - list branches
+* *cid vcs reset [--wcDir=<wc_dir>]* - revert all local changes, including merge conflicts
+* *cid vcs ismerged [--wcDir=<wc_dir>]* - check if branch is merged
 
 
 =END OF SPEC=
