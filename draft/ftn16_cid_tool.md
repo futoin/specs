@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-04-09
+Date: 2017-04-27
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-04-09
+* v1.0 - 2017-04-27
 * Initial draft - 2015-09-14
 
 
@@ -390,21 +390,23 @@ Default:
     * run code checks, unit tests, static analysis & misc.
 * allow failures, if --permissive
 
-### 3.2.6. cid promote &lt;package> &lt;rms_pool> [--rmsRepo=&lt;rms:url>] [--rmsHash=&lt;type:value>]
+### 3.2.6. cid promote &lt;rms_pool> &lt;packages> [--rmsRepo=&lt;rms:url>]
 
 Default:
 
 * process standard parameters
-* if {package} file exists use it
-* otherwise, use one from .rmsRepo
-* if --rmsHash is given
-    * verify {package} against it
-* otherwise
-    * get/calc {package} hash and prompt for confirmation
-* if local package
-    * upload {package} to {.rmsrepo}/{pool}
-* otherwise
-    * RMS-specific promote {package} to {.rmsrepo}/{pool}
+* if `rms_pool` has colon (':')
+    * act as promotion between pools
+    * split `rms_pool` into `src_pool` and `dst_pool`
+    * for each `package` in `packages`:
+        * format: "base_name[@hash_type:hash]"
+        * if `package` contains "@"
+            * verify the hash in `src_pool`
+        * copy package from `src_pool` to `dst_pool` the most efficient way
+* else:
+    * act as file upload
+    * for each `package` in `packages`:
+        * upload local `package` into `rms_pool`
 
 ### 3.2.7 cid deploy &lt;deploy_type> ...
 
@@ -552,7 +554,7 @@ Provided for overriding default procedures in scope of deployment procedure.
 
 ### 3.2.13. cid vcs &lt;action> [optional args]
 
-There are helpers for CI environment and should not be used by developer in regular activities.
+These are helpers for CI environment and should not be used by developer in regular activities.
 
 * *cid vcs checkout &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--wcDir=<wc_dir>]* - checkout specific VCS reference
 * *cid vcs commit &lt;commit_msg> [<%lt;files>] [--wcDir=<wc_dir>]* - commit & push all changes [or specific files]
@@ -565,5 +567,11 @@ There are helpers for CI environment and should not be used by developer in regu
 * *cid vcs reset [--wcDir=<wc_dir>]* - revert all local changes, including merge conflicts
 * *cid vcs ismerged [--wcDir=<wc_dir>]* - check if branch is merged
 
+### 3.2.14. cid rms &lt;action> [optional args]
+
+This helpers help automate RMS operation neutral way.
+
+* *cid rms list &lt;rms_pool> [<package_pattern>] [--rmsRepo=<rms_repo>]* - list available packages
+* *cid rms retrieve &lt;rms_pool> <package>... [--rmsRepo=<rms_repo>]* - retrieve-only specified packages
 
 =END OF SPEC=

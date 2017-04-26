@@ -7,14 +7,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-04-09
+Date: 2017-04-27
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-04-09</li>
+<li>v1.0 - 2017-04-27</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
@@ -419,26 +419,30 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 </li>
 <li>allow failures, if --permissive</li>
 </ul>
-<h3>3.2.6. cid promote &lt;package&gt; &lt;rms_pool&gt; [--rmsRepo=&lt;rms:url&gt;] [--rmsHash=&lt;type:value&gt;]</h3>
+<h3>3.2.6. cid promote &lt;rms_pool&gt; &lt;packages&gt; [--rmsRepo=&lt;rms:url&gt;]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
-<li>if {package} file exists use it</li>
-<li>otherwise, use one from .rmsRepo</li>
-<li>if --rmsHash is given<ul>
-<li>verify {package} against it</li>
+<li>if <code>rms_pool</code> has colon (':')<ul>
+<li>act as promotion between pools</li>
+<li>split <code>rms_pool</code> into <code>src_pool</code> and <code>dst_pool</code></li>
+<li>for each <code>package</code> in <code>packages</code>:<ul>
+<li>format: "base_name[@hash_type:hash]"</li>
+<li>if <code>package</code> contains "@"<ul>
+<li>verify the hash in <code>src_pool</code></li>
 </ul>
 </li>
-<li>otherwise<ul>
-<li>get/calc {package} hash and prompt for confirmation</li>
+<li>copy package from <code>src_pool</code> to <code>dst_pool</code> the most efficient way</li>
 </ul>
 </li>
-<li>if local package<ul>
-<li>upload {package} to {.rmsrepo}/{pool}</li>
 </ul>
 </li>
-<li>otherwise<ul>
-<li>RMS-specific promote {package} to {.rmsrepo}/{pool}</li>
+<li>else:<ul>
+<li>act as file upload</li>
+<li>for each <code>package</code> in <code>packages</code>:<ul>
+<li>upload local <code>package</code> into <code>rms_pool</code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -591,7 +595,7 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <p>Runs data migration tasks.</p>
 <p>Provided for overriding default procedures in scope of deployment procedure.</p>
 <h3>3.2.13. cid vcs &lt;action&gt; [optional args]</h3>
-<p>There are helpers for CI environment and should not be used by developer in regular activities.</p>
+<p>These are helpers for CI environment and should not be used by developer in regular activities.</p>
 <ul>
 <li><em>cid vcs checkout &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--wcDir=<wc_dir>]</em> - checkout specific VCS reference</li>
 <li><em>cid vcs commit &lt;commit_msg&gt; [&lt;%lt;files&gt;] [--wcDir=<wc_dir>]</em> - commit &amp; push all changes [or specific files]</li>
@@ -603,6 +607,12 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li><em>cid vcs branches [&lt;branch_pattern&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]</em> - list branches</li>
 <li><em>cid vcs reset [--wcDir=<wc_dir>]</em> - revert all local changes, including merge conflicts</li>
 <li><em>cid vcs ismerged [--wcDir=<wc_dir>]</em> - check if branch is merged</li>
+</ul>
+<h3>3.2.14. cid rms &lt;action&gt; [optional args]</h3>
+<p>This helpers help automate RMS operation neutral way.</p>
+<ul>
+<li><em>cid rms list &lt;rms_pool&gt; [<package_pattern>] [--rmsRepo=<rms_repo>]</em> - list available packages</li>
+<li><em>cid rms retrieve &lt;rms_pool&gt; <package>... [--rmsRepo=<rms_repo>]</em> - retrieve-only specified packages</li>
 </ul>
 <p>=END OF SPEC=</p>
 </body></html>
