@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-04-27
+Date: 2017-04-29
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-04-27
+* v1.0 - 2017-04-29
 * Initial draft - 2015-09-14
 
 
@@ -573,5 +573,8 @@ This helpers help automate RMS operation neutral way.
 
 * *cid rms list &lt;rms_pool> [<package_pattern>] [--rmsRepo=<rms_repo>]* - list available packages
 * *cid rms retrieve &lt;rms_pool> <package>... [--rmsRepo=<rms_repo>]* - retrieve-only specified packages
+* *cid rms pool create <rms_pool> [--rmsRepo=<rms_repo>]* - ensure pool exists (may require admin privileges)
+* *cid rms pool list [--rmsRepo=<rms_repo>]* - list available pools
+
 
 =END OF SPEC=
