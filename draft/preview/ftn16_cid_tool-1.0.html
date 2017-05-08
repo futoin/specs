@@ -170,32 +170,35 @@ configuration root or only with its .env part. There should be no other configur
 <li>.{custom} - any arbitrary user-defined extension to use with "cid run"</li>
 </ul>
 </li>
-<li>.plugins = {} - optional custom plugins tool=&gt;module_name pairs</li>
+<li>.plugins = {} - optional custom plugins, see .env counterpart</li>
+<li>.pluginPacks = [] - optional custom plugin packs, see .env counterpart</li>
 <li>.env - {}, the only part allowed to be defined in user or system configs<ul>
-<li>.type - "prod", "uat", "qa" and "dev" (default - "dev")</li>
-<li>.startup - "cron", "systemd" (default - "cron")</li>
-<li>.webServer:<ul>
-<li>"nginx"</li>
-<li>"apache" - not supported yet</li>
-</ul>
-</li>
+<li>.type - "prod", "test" and "dev" (default - "dev")</li>
 <li>.persistentDir = {.deployDir}/persistent - root for persistent data</li>
 <li>.vars - arbitrary environment variables to set on execution</li>
-<li>.plugins = {} - custom plugins $tool:$module_name pairs</li>
+<li>.plugins = {} - custom plugins, implementation defined<ul>
+<li>$tool =&gt; $module_name pair - individual tool</li>
+</ul>
+</li>
+<li>.pluginPacks = [] - custom plugin packs, implementation defined<ul>
+<li>$module_name - define module providing list of plugins</li>
+</ul>
+</li>
+<li>.binDir = ${HOME}/bin - user bin folder</li>
+<li>.externalSetup - false - skip automatic tools install, if true</li>
 <li>.{tool}Bin - path to "$tool" command line binary</li>
 <li>.{tool}Dir - path root "$tool", if applicable</li>
 <li>.{tool}Ver - required version of "$tool", if applicable</li>
 <li>.{tool}{misc} - any tool-specific misc. configuration</li>
-<li>.externalSetup - {}, custom external setup hooks<ul>
-<li>.runCmd - command to execute instead of standard "run"</li>
-<li>.webServer = false - skip web server setup, if true</li>
-<li>.startup = false - skip startup scripts, if true</li>
-<li>.installTools = false - skip automatic tools install, if true</li>
 </ul>
 </li>
 </ul>
-</li>
-</ul>
+<h4>3.1.1.1. Python-based CID implementation notes</h4>
+<ol>
+<li><code>.plugins</code> expects to fully qualified module named with <code>{tool}Tool</code> class.</li>
+<li><code>.pluginPacks</code> expect fully qualified module name with submodules
+    in <code>{tool}tool.py</code> format having <code>{tool}Tool</code> class</li>
+</ol>
 <h3>3.1.2. Process environment</h3>
 <p>Each tool may have a whitelist of related environment variables for .env sections.
 This variables may be passed through process environment as well. Example:</p>

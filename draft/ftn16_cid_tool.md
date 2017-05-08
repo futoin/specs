@@ -183,25 +183,28 @@ configuration root or only with its .env part. There should be no other configur
     * .migrate - custom shell command in deployment procedure
     * .deploy - custom shell command for deployment from binary artifact
     * .{custom} - any arbitrary user-defined extension to use with "cid run"
-* .plugins = {} - optional custom plugins tool=>module_name pairs
+* .plugins = {} - optional custom plugins, see .env counterpart
+* .pluginPacks = [] - optional custom plugin packs, see .env counterpart
 * .env - {}, the only part allowed to be defined in user or system configs
-    * .type - "prod", "uat", "qa" and "dev" (default - "dev")
-    * .startup - "cron", "systemd" (default - "cron")
-    * .webServer:
-        * "nginx"
-        * "apache" - not supported yet
+    * .type - "prod", "test" and "dev" (default - "dev")
     * .persistentDir = {.deployDir}/persistent - root for persistent data
     * .vars - arbitrary environment variables to set on execution
-    * .plugins = {} - custom plugins $tool:$module_name pairs
+    * .plugins = {} - custom plugins, implementation defined
+        * $tool => $module_name pair - individual tool
+    * .pluginPacks = [] - custom plugin packs, implementation defined
+        * $module_name - define module providing list of plugins
+    * .binDir = ${HOME}/bin - user bin folder
+    * .externalSetup - false - skip automatic tools install, if true
     * .{tool}Bin - path to "$tool" command line binary
     * .{tool}Dir - path root "$tool", if applicable
     * .{tool}Ver - required version of "$tool", if applicable
     * .{tool}{misc} - any tool-specific misc. configuration
-    * .externalSetup - {}, custom external setup hooks
-        * .runCmd - command to execute instead of standard "run"
-        * .webServer = false - skip web server setup, if true
-        * .startup = false - skip startup scripts, if true
-        * .installTools = false - skip automatic tools install, if true
+
+#### 3.1.1.1. Python-based CID implementation notes
+
+1. `.plugins` expects to fully qualified module named with `{tool}Tool` class.
+2. `.pluginPacks` expect fully qualified module name with submodules
+    in `{tool}tool.py` format having `{tool}Tool` class
 
 ### 3.1.2. Process environment
 
