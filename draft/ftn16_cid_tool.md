@@ -151,51 +151,7 @@ configuration root or only with its .env part. There should be no other configur
     * "nexus" - use Sonatype Nexus
 * .tools - {}, map of required tool=>version pairs.
     Default version is marked as `true` or `'*'`.
-    Possible standard keys:
-    * generic helpers:
-        * 'bash'
-        * 'cid' - CID itself
-        * 'futoin' - futoin.json processing
-        * 'cmake'
-        * 'curl'
-        * 'gpg'
-        * 'make'
-        * 'ssh'
-        * 'tar'
-        * 'unzip'
-        * 'zip'
-    * 'docker'
-        * 'dockercompose'
-    * 'go'
-        * 'gvm'
-    * 'java'
-        * 'gradle'
-        * 'jdk'
-        * 'maven'
-        * 'sdkman'
-    * 'node'
-        * 'bower'
-        * 'grunt'
-        * 'gulp'
-        * 'npm'
-        * 'nvm'
-    * 'php'
-        * 'composer'
-        * 'phpbuild'
-    * 'python'
-        * 'pip'
-        * 'setuptools'
-        * 'virtualenv'
-    * 'ruby'
-        * 'bundler'
-        * 'gem'
-        * 'rvm'
-    * 'rust'
-        * 'rustup'
-        * 'cargo'
-    * 'puppet'
-    * 'scala'
-        * 'sbt'
+    Tool name is all lower case letters with optional digits (except the first position).
 * .tool - (dynamic variable) current tool to be used
 * .toolVer - (dynamic variable) required version for current tool
 * .toolOrder - (dynamic variable) full ordered by dependency list of active tools
@@ -234,8 +190,6 @@ configuration root or only with its .env part. There should be no other configur
     * .webServer:
         * "nginx"
         * "apache" - not supported yet
-    * .mainConfig: {}
-        * .main-specific deployment configurations
     * .persistentDir = {.deployDir}/persistent - root for persistent data
     * .vars - arbitrary environment variables to set on execution
     * .plugins = {} - custom plugins $tool:$module_name pairs
@@ -255,8 +209,8 @@ Each tool may have a whitelist of related environment variables for .env section
 This variables may be passed through process environment as well. Example:
 
 ```bash
-    rubyVer=2.3.3 cid tool install ruby
-    rubyVer=2.3.3 cid tool exec ruby -- ruby-specific-args
+    rubyVer=2.3 cid tool install ruby
+    rubyVer=2.3 cid tool exec ruby -- ruby-specific-args
 ```
 
 ### 3.1.3. Working Directory notes

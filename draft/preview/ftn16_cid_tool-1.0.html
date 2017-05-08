@@ -130,73 +130,7 @@ configuration root or only with its .env part. There should be no other configur
 </li>
 <li>.tools - {}, map of required tool=&gt;version pairs.
     Default version is marked as <code>true</code> or <code>'*'</code>.
-    Possible standard keys:<ul>
-<li>generic helpers:<ul>
-<li>'bash'</li>
-<li>'cid' - CID itself</li>
-<li>'futoin' - futoin.json processing</li>
-<li>'cmake'</li>
-<li>'curl'</li>
-<li>'gpg'</li>
-<li>'make'</li>
-<li>'ssh'</li>
-<li>'tar'</li>
-<li>'unzip'</li>
-<li>'zip'</li>
-</ul>
-</li>
-<li>'docker'<ul>
-<li>'dockercompose'</li>
-</ul>
-</li>
-<li>'go'<ul>
-<li>'gvm'</li>
-</ul>
-</li>
-<li>'java'<ul>
-<li>'gradle'</li>
-<li>'jdk'</li>
-<li>'maven'</li>
-<li>'sdkman'</li>
-</ul>
-</li>
-<li>'node'<ul>
-<li>'bower'</li>
-<li>'grunt'</li>
-<li>'gulp'</li>
-<li>'npm'</li>
-<li>'nvm'</li>
-</ul>
-</li>
-<li>'php'<ul>
-<li>'composer'</li>
-<li>'phpbuild'</li>
-</ul>
-</li>
-<li>'python'<ul>
-<li>'pip'</li>
-<li>'setuptools'</li>
-<li>'virtualenv'</li>
-</ul>
-</li>
-<li>'ruby'<ul>
-<li>'bundler'</li>
-<li>'gem'</li>
-<li>'rvm'</li>
-</ul>
-</li>
-<li>'rust'<ul>
-<li>'rustup'</li>
-<li>'cargo'</li>
-</ul>
-</li>
-<li>'puppet'</li>
-<li>'scala'<ul>
-<li>'sbt'</li>
-</ul>
-</li>
-</ul>
-</li>
+    Tool name is all lower case letters with optional digits (except the first position).</li>
 <li>.tool - (dynamic variable) current tool to be used</li>
 <li>.toolVer - (dynamic variable) required version for current tool</li>
 <li>.toolOrder - (dynamic variable) full ordered by dependency list of active tools</li>
@@ -245,10 +179,6 @@ configuration root or only with its .env part. There should be no other configur
 <li>"apache" - not supported yet</li>
 </ul>
 </li>
-<li>.mainConfig: {}<ul>
-<li>.main-specific deployment configurations</li>
-</ul>
-</li>
 <li>.persistentDir = {.deployDir}/persistent - root for persistent data</li>
 <li>.vars - arbitrary environment variables to set on execution</li>
 <li>.plugins = {} - custom plugins $tool:$module_name pairs</li>
@@ -270,8 +200,8 @@ configuration root or only with its .env part. There should be no other configur
 <p>Each tool may have a whitelist of related environment variables for .env sections.
 This variables may be passed through process environment as well. Example:</p>
 <p><code>bash
-    rubyVer=2.3.3 cid tool install ruby
-    rubyVer=2.3.3 cid tool exec ruby -- ruby-specific-args</code></p>
+    rubyVer=2.3 cid tool install ruby
+    rubyVer=2.3 cid tool exec ruby -- ruby-specific-args</code></p>
 <h3>3.1.3. Working Directory notes</h3>
 <p>By default working directory (--wcDir) is absolute path of current working directory, except:</p>
 <ol>
