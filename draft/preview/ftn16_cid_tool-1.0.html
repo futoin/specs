@@ -186,6 +186,12 @@ configuration root or only with its .env part. There should be no other configur
 </li>
 <li>.binDir = ${HOME}/bin - user bin folder</li>
 <li>.externalSetup - false - skip automatic tools install, if true</li>
+<li>.timeouts - timeout configuration for various operations (may not be always supported)<ul>
+<li>.connect = 10 - initial connection timeout </li>
+<li>.read = 60 - network timeout for individual read calls</li>
+<li>.total = .read * 60 - network timeout for single request</li>
+</ul>
+</li>
 <li>.{tool}Bin - path to "$tool" command line binary</li>
 <li>.{tool}Dir - path root "$tool", if applicable</li>
 <li>.{tool}Ver - required version of "$tool", if applicable</li>

@@ -195,6 +195,10 @@ configuration root or only with its .env part. There should be no other configur
         * $module_name - define module providing list of plugins
     * .binDir = ${HOME}/bin - user bin folder
     * .externalSetup - false - skip automatic tools install, if true
+    * .timeouts - timeout configuration for various operations (may not be always supported)
+        * .connect = 10 - initial connection timeout 
+        * .read = 60 - network timeout for individual read calls
+        * .total = .read * 60 - network timeout for single request
     * .{tool}Bin - path to "$tool" command line binary
     * .{tool}Dir - path root "$tool", if applicable
     * .{tool}Ver - required version of "$tool", if applicable
