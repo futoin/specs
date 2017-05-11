@@ -31,19 +31,24 @@ If special "futoin.json" configuration file is present in project root then extr
 default values should be taken from the configuration file.</p>
 <p>It should be possible to specify any of the actions manually through configuration file. Otherwise,
 the tool should auto-detect action implementation.</p>
-<p>The tool should support the following actions:
-<em> tag
-</em> prepare
-<em> build
-</em> package
-<em> check
-</em> promote
-<em> deploy
-</em> vcs_deploy
-<em> run
-</em> ci_build
-<em> tool
-</em> init</p>
+<p>The tool should support the following actions:</p>
+<ul>
+<li>tag</li>
+<li>prepare</li>
+<li>build</li>
+<li>package</li>
+<li>check</li>
+<li>promote</li>
+<li>deploy</li>
+<li>run</li>
+<li>ci_build</li>
+<li>tool</li>
+<li>init</li>
+<li>migrate</li>
+<li>vcs</li>
+<li>rms</li>
+<li>service</li>
+</ul>
 <h2>2.1. Tag</h2>
 <p>A standard procedure for updating for release and tagging source code.</p>
 <h2>2.2. Preparation</h2>
@@ -100,10 +105,10 @@ may not be implemented at all, if not applicable.</p>
 and auto-detectable in most cases.</p>
 <p><em>Note: this tree represents actual state CID works with. All internal API either work with full
 configuration root or only with its .env part. There should be no other configuration data.</em></p>
+<h4>3.1.1.1. Project configuration</h4>
 <ul>
 <li>.name - project's full unique name</li>
 <li>.version - project's version</li>
-<li>.target - (dynamic variable) current build target</li>
 <li>.vcsRepo - source repository</li>
 <li>.vcs - version control system type:<ul>
 <li>"svn"</li>
@@ -111,12 +116,7 @@ configuration root or only with its .env part. There should be no other configur
 <li>"hg"</li>
 </ul>
 </li>
-<li>.vcsRef - (dynamic variable) current branch name</li>
-<li>.wcDir - (dynamic variable) working directory name for fresh clone/checkout</li>
-<li>.deployDir - (dynamic variable) root for current package deployment</li>
-<li>.reDeploy - (dynamic variable) force deploy, if true</li>
 <li>.deployBuild - force build on deploy, if true</li>
-<li>.debugBuild - (dynamic variable) build in debug mode</li>
 <li>.permissiveChecks - allows check failure, if true</li>
 <li>.rmsRepo - binary artifact Release Management System location</li>
 <li>.rmsPool - sub-path/pool in .rmsRepo</li>
@@ -131,12 +131,8 @@ configuration root or only with its .env part. There should be no other configur
 <li>.tools - {}, map of required tool=&gt;version pairs.
     Default version is marked as <code>true</code> or <code>'*'</code>.
     Tool name is all lower case letters with optional digits (except the first position).</li>
-<li>.tool - (dynamic variable) current tool to be used</li>
-<li>.toolVer - (dynamic variable) required version for current tool</li>
-<li>.toolOrder - (dynamic variable) full ordered by dependency list of active tools</li>
 <li>.toolTune - {}, map of maps tool=&gt;settings=&gt;value for fine tuning of tool behavior</li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
-<li>.packageFiles - (dynamic variable), list of packages created by tools</li>
 <li>.packageGzipStatic = True, creates <em>.gz files for found </em>.js, <em>.json, </em>.css, <em>.svg and </em>.txt files</li>
 <li>.packageChecksums = True, creates .package.checksums of files</li>
 <li>.persistent - [], list of persistent read-write directory paths.
@@ -144,7 +140,21 @@ configuration root or only with its .env part. There should be no other configur
 <li>.entryPoints - {], list of named entry points {}<ul>
 <li>.tool - name of the tool</li>
 <li>.path - file</li>
-<li>.tune - {}, type-specific configuration options</li>
+<li>.tune - {}, type-specific configuration options (extandable)<ul>
+<li>.minMemory - minimal memory per instance</li>
+<li>.connMemory - memory per one connection</li>
+<li>.scalable = true - if false then it's not allowed to start more than one instance globally</li>
+<li>.reloadable = false -if true then reload is supported</li>
+<li>.cpuWeight = 100 - arbitrary positive integer</li>
+<li>.memWeight = 100 - arbitrary positive integer</li>
+<li>.maxMemory - maximal memory per instance (for very specific cases)</li>
+<li>.maxInstances - limit number of instances per deployment</li>
+<li>.socketTypes = ['unix', 'tcp', 'tcp6'] - supported listen socket types</li>
+<li>.socketProtocols = ['http', 'fcgi', 'wsgi', 'rack', 'jsgi', 'psgi']</li>
+<li>.debugOverhead - extra memory per instance in "dev" deployment</li>
+<li>.debugConnOverhead - extra memory per connection in "dev" deployment</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>.configenv - {} - list of environment variables to be set in deployment<ul>
@@ -152,9 +162,9 @@ configuration root or only with its .env part. There should be no other configur
 <li>desc - variable description</li>
 </ul>
 </li>
-<li>.webcfg - additional web server configuration<ul>
+<li>.webcfg - additional web server configuration (auto-requires web server)<ul>
 <li>.root - web root folder relative to project root</li>
-<li>.index - default index handler from .main</li>
+<li>.main - default index handler from .entryPoints (auto-select, if single one)</li>
 </ul>
 </li>
 <li>.actions - {}, optional override of auto-detect commands.
@@ -172,6 +182,9 @@ configuration root or only with its .env part. There should be no other configur
 </li>
 <li>.plugins = {} - optional custom plugins, see .env counterpart</li>
 <li>.pluginPacks = [] - optional custom plugin packs, see .env counterpart</li>
+</ul>
+<h4>3.1.1.2. Environment configuration</h4>
+<ul>
 <li>.env - {}, the only part allowed to be defined in user or system configs<ul>
 <li>.type - "prod", "test" and "dev" (default - "dev")</li>
 <li>.persistentDir = {.deployDir}/persistent - root for persistent data</li>
@@ -199,7 +212,37 @@ configuration root or only with its .env part. There should be no other configur
 </ul>
 </li>
 </ul>
-<h4>3.1.1.1. Python-based CID implementation notes</h4>
+<h4>3.1.1.3. Deployment configuration</h4>
+<ul>
+<li>.deploy<ul>
+<li>.maxTotalMemory - memory limit for deployment</li>
+<li>.maxCpuCount - CPU count the deployment expected to utilize</li>
+<li>.autoServices - {}, to be auto-generated in deployment process<ul>
+<li>.maxMemory - maximal memory per instance (for deployment config)</li>
+<li>.maxClients - expected number of clients the instance can handle</li>
+<li>.socketType - one of .entryPoints[.entryPoint].socketTypes</li>
+<li>.socketAddr - assigned socket address, if applicable</li>
+<li>.socketPort - assigned socket port, if applicable</li>
+<li>.socketPath - assigned socket path, if applicable</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4>3.1.1.4. Runtime configuration (available to plugins)</h4>
+<ul>
+<li>.target - (dynamic variable) current build target</li>
+<li>.vcsRef - (dynamic variable) current branch name</li>
+<li>.wcDir - (dynamic variable) working directory name for fresh clone/checkout</li>
+<li>.deployDir - (dynamic variable) root for current package deployment</li>
+<li>.reDeploy - (dynamic variable) force deploy, if true</li>
+<li>.debugBuild - (dynamic variable) build in debug mode</li>
+<li>.tool - (dynamic variable) current tool to be used</li>
+<li>.toolVer - (dynamic variable) required version for current tool</li>
+<li>.toolOrder - (dynamic variable) full ordered by dependency list of active tools</li>
+<li>.packageFiles - (dynamic variable), list of packages created by tools</li>
+</ul>
+<h4>3.1.1.5. Python-based CID implementation notes</h4>
 <ol>
 <li><code>.plugins</code> expects to fully qualified module named with <code>{tool}Tool</code> class.</li>
 <li><code>.pluginPacks</code> expect fully qualified module name with submodules
@@ -225,50 +268,59 @@ This variables may be passed through process environment as well. Example:</p>
 with --vcsRepo parameter, if supplied.</p>
 <p>In case of ci_build, it is required to make a clean checkout. Therefore, existing wcDir
 must be removed (renamed for safety).</p>
+<h4>3.1.4. Resource distribution requirements</h4>
+<p>The complexity comes from these facts:</p>
+<ul>
+<li>Some runtimes are single-threaded with async IO.<ul>
+<li>does not scale beyond one CPU - requires multiple instances</li>
+<li>multiple instances - lead to multiple sockets</li>
+</ul>
+</li>
+<li>Some apps are not scalable to multiple instances and lack High-Availability.</li>
+<li>Some runtimes have thread/process per client with single control socket.</li>
+<li>Some runtimes support seamless reload.</li>
+<li>Actual use cases, may require different strategy. Therefore, the specification 
+    does not define a strict algorithm, but adds requirements for it.</li>
+</ul>
+<p>Requirements:</p>
+<ol>
+<li>Minimal and maximal memory requirements per service instance must be obeyed.</li>
+<li>Deployment must fail, if minimal memory requirements are not satisfied.</li>
+<li>All available for deployment memory must be allocated to instances based
+    their weights.</li>
+<li>If one instance is unable to utilize multiple CPU cores then additional
+    instances must be added until it's feasible to distribute available memory.</li>
+<li>If one instance is unable to seamlessly reload then at least one more
+    instance must be added for rolling updates.</li>
+<li>If app is marked as not scalable then no more than one instance is allowed.</li>
+</ol>
 <h2>3.2. Commands</h2>
 <p>Prior to each command run:</p>
 <ul>
 <li>Read user and system locations for .env configuration</li>
 <li>Setup .env.vars</li>
 <li>Read project's futoin.json, if present</li>
-<li>For each composer.json, package.json, bower.json (in strict order):<ul>
+<li>If .tools is not set yet, configure based on file presence in project root</li>
+<li>For each detected tool, read its configuration:<ul>
 <li>set .name, if not set yet</li>
 <li>set .version, if not set yet</li>
-<li>set .vcsRepo, if not set yet</li>
-<li>set .rmsRepo, if not set yet</li>
-</ul>
-</li>
-<li>if .name is set (run in project root):<ul>
-<li>If .tools is not set yet, configure based on file presence in project root:</li>
-<li>For each .tools detect related .env.*Bin, if not set<ul>
-<li>Ask to execute install procedures, if tool is missing</li>
-<li>Fail, if not interactive prompt (e.g. automatic deployment)</li>
-</ul>
-</li>
-<li>Detect .vcs and related .env.*Bin, if not set</li>
-<li>Detect .vcsRepo, if not set yet</li>
-<li>Detect current .vcsRef</li>
+<li>set .vcs and .vcsRepo, if not set yet</li>
+<li>set .rms and .rmsRepo, if not set yet</li>
 </ul>
 </li>
 </ul>
 <p>Standard parameter processing:</p>
 <ul>
 <li>if --vcsRepo is provided<ul>
-<li>set .vcsRepo and .vcs</li>
+<li>set .vcs and .vcsRepo</li>
 <li>verify we are in the correct working copy</li>
 </ul>
 </li>
 <li>else auto-detect based on VCS working copy or use .vcsRepo</li>
 <li>if --rmsRepo is provided<ul>
-<li>set .rmsRepo</li>
+<li>set .rms and .rmsRepo</li>
 </ul>
 </li>
-</ul>
-<p>Standard checkout process:</p>
-<ul>
-<li>if svn: switch or checkout .vcsRef</li>
-<li>otherwise: clone &amp; checkout or fetch &amp; checkout .vcsRef</li>
-<li>re-init configuration</li>
 </ul>
 <h3>3.2.1. cid tag &lt;branch&gt; [&lt;next_version&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
 <p>Default:</p>
@@ -386,7 +438,14 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 </li>
 </ul>
 <h3>3.2.7 cid deploy &lt;deploy_type&gt; ...</h3>
-<h3>3.2.7.1 cid deploy [rms] &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--redeploy] [--deployDir deploy_dir] [--build]</h3>
+<p>Generic options:</p>
+<ul>
+<li>[--redeploy] - force re-deploy</li>
+<li>[--deployDir=&lt;deploy_dir&gt;] - target deployment folder</li>
+<li>[--limit-memory=&lt;mem_limit&gt;] - limit memory</li>
+<li>[--limit-cpus=&lt;cpu_count&gt;] - limit CPU count</li>
+</ul>
+<h3>3.2.7.1 cid deploy [rms] &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--build]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -405,7 +464,7 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>if --build then prepare &amp; build</li>
 <li>common deploy procedure, package_dir = {package_no_ext}</li>
 </ul>
-<h4>3.2.7.2. cid deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
+<h4>3.2.7.2. cid deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;]</h4>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -431,7 +490,7 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>prepare &amp; build</li>
 <li>common deploy procedure, package_dir = {vcs_ref}</li>
 </ul>
-<h4>3.2.7.3. cid deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--redeploy] [--deployDir deploy_dir]</h4>
+<h4>3.2.7.3. cid deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;]</h4>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -451,7 +510,7 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>prepare &amp; build</li>
 <li>common deploy procedure, package_dir = {vcs_ref}_{vcs_rev}</li>
 </ul>
-<h4>3.2.7.3. common deploy procedure</h4>
+<h4>3.2.7.4. common deploy procedure</h4>
 <ul>
 <li>{package_dir} - depend on deployment method</li>
 <li>according to .persistent:<ul>
@@ -460,14 +519,13 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 </li>
 <li>setup read-only permissions</li>
 <li>run .action.migrate</li>
-<li>setup runtime according to .main config</li>
-<li>setup per-user web server (nginx)</li>
+<li>create/update deployment futoin.json</li>
 <li>atomic move {.deployDir}/{package_dir}.tmp {.deployDir}/{package_dir}</li>
 <li>create/change symlink {.deployDir}/current -&gt; {.deployDir}/{package_dir}</li>
-<li>reload web server and runtime according to .main</li>
+<li>trigger external service reload</li>
 <li>remove all not managed or obsolete files in {.deployDir}</li>
 </ul>
-<h4>3.2.7.4. deployment assumptions</h4>
+<h4>3.2.7.5. deployment assumptions</h4>
 <ol>
 <li>Each web application must have own deployment root folder</li>
 <li>Each web application should have own user</li>
@@ -475,21 +533,23 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>Application package must not have modifiable content</li>
 <li>Each read-write path should get symlink to {.env.persistentDir}/{path} and survive across deployments</li>
 <li>.action.migrate must run and successfully complete</li>
-<li>${.deployDir}/vhost.{.env.webServer}.subconf must be generated including packages-specified extensions</li>
-<li>Automatic startup must get enabled</li>
 <li>${.deployDir}/current must always point to fully configured deployment</li>
 <li>For security reasons it is not possible to include project-specific config
     for web server running as root user. Also, sensitive data like TLS private
     keys must not be available to application user. Therefore a performance
     penalty of reverse proxy may apply, but large high available deployments should
     have load balancer/reverse proxy any way.</li>
-<li>Web server configuration may be delegated to external functionality.</li>
-<li>Lock file must be acquired during deployment procedure</li>
+<li>Lock file must be acquired during deployment procedure.</li>
 <li>Not empty {.deploDir} must contain deploy lock file for safety reasons.</li>
 </ol>
-<h3>3.2.8. cid run [&lt;command&gt; [-- &lt;command_args..&gt;]]</h3>
+<h3>3.2.8. cid run [&lt;command&gt; [-- &lt;command_args..&gt;]] [--wcDir wc_dir]</h3>
+<p>Primary case is execution in development and testing environment.</p>
 <ul>
-<li>If command is missing then execute all .entryPoints in parallel</li>
+<li>If command is missing then execute all .entryPoints in parallel<ul>
+<li>Use single instance per entry point</li>
+<li>Use default memory limits</li>
+</ul>
+</li>
 <li>Else if command is present in .entryPoints then execute as related tool</li>
 <li>Else if command is present in .actions then execute that in shell</li>
 </ul>
@@ -554,6 +614,27 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li><em>cid rms retrieve &lt;rms_pool&gt; <package>... [--rmsRepo=<rms_repo>]</em> - retrieve-only specified packages</li>
 <li><em>cid rms pool create <rms_pool> [--rmsRepo=<rms_repo>]</em> - ensure pool exists (may require admin privileges)</li>
 <li><em>cid rms pool list [--rmsRepo=<rms_repo>]</em> - list available pools</li>
+</ul>
+<h3>3.2.15. cid service ...</h3>
+<p>Interface for Continuous Deployment execution control. It is expected to call this commands
+from systemd, sysv-init or other system daemon control functionality.</p>
+<ul>
+<li><em>cid service exec &lt;entry_point&gt; &lt;&lt;instance&gt; [--deployDir deploy_dir]</em> -
+    replace CID with foreground execution of pre-configured instance.</li>
+<li><em>cid service stop &lt;entry_point&gt; &lt;&lt;instance&gt; &lt;&lt;pid&gt; [--deployDir deploy_dir]</em> -
+    stop previously started instance.</li>
+<li><em>cid service reload &lt;entry_point&gt; &lt;&lt;instance&gt; &lt;&lt;pid&gt; [--deployDir deploy_dir]</em> -
+    reload previously started instance.</li>
+</ul>
+<p>In case containers like Docker is used then there is a separate helper command to be used
+as entry point.</p>
+<ul>
+<li><em>cid service run [--deployDir deploy_dir]</em> - run deployment-related services as children and restart on failure.<ul>
+<li>[--adapt] - adapt to newly set limits before execution of services</li>
+<li>[--limit-memory=&lt;mem_limit&gt;] - limit memory, only with --adapt</li>
+<li>[--limit-cpus=&lt;cpu_countt&gt;] - limit CPU count, only with --adapt</li>
+</ul>
+</li>
 </ul>
 <p>=END OF SPEC=</p>
 </body></html>
