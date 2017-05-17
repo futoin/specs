@@ -220,6 +220,7 @@ configuration root or only with its .env part. There should be no other configur
 * .deploy
     * .maxTotalMemory - memory limit for deployment
     * .maxCpuCount - CPU count the deployment expected to utilize
+    * .listenAddress - address to bind services by default
     * .autoServices - {}, to be auto-generated in deployment process
         * .maxMemory - maximal memory per instance (for deployment config)
         * .maxClients - expected number of clients the instance can handle
@@ -427,9 +428,10 @@ Generic options:
 * [--deployDir=&lt;deploy_dir>] - target deployment folder
 * [--limit-memory=&lt;mem_limit>] - limit memory
 * [--limit-cpus=&lt;cpu_count>] - limit CPU count
+* [--listen-addr=&lt;address>] - listen address for started services
 
 
-### 3.2.7.1 cid deploy [rms] &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--build]
+### 3.2.7.1 cid deploy rms &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--build]
 
 Default:
 
@@ -485,7 +487,12 @@ Default:
 * prepare & build
 * common deploy procedure, package_dir = {vcs_ref}_{vcs_rev}
 
-#### 3.2.7.4. common deploy procedure
+#### 3.2.7.4. cid deploy setup
+
+Setup deploy directory to allow futoin.json modifications without deployment being is done.
+
+
+#### 3.2.7.5. common deploy procedure
 
 * {package_dir} - depend on deployment method
 * according to .persistent:
@@ -498,7 +505,7 @@ Default:
 * trigger external service reload
 * remove all not managed or obsolete files in {.deployDir}
 
-#### 3.2.7.5. deployment assumptions
+#### 3.2.7.6. deployment assumptions
 
 1. Each web application must have own deployment root folder
 2. Each web application should have own user

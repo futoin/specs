@@ -217,6 +217,7 @@ configuration root or only with its .env part. There should be no other configur
 <li>.deploy<ul>
 <li>.maxTotalMemory - memory limit for deployment</li>
 <li>.maxCpuCount - CPU count the deployment expected to utilize</li>
+<li>.listenAddress - address to bind services by default</li>
 <li>.autoServices - {}, to be auto-generated in deployment process<ul>
 <li>.maxMemory - maximal memory per instance (for deployment config)</li>
 <li>.maxClients - expected number of clients the instance can handle</li>
@@ -444,8 +445,9 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>[--deployDir=&lt;deploy_dir&gt;] - target deployment folder</li>
 <li>[--limit-memory=&lt;mem_limit&gt;] - limit memory</li>
 <li>[--limit-cpus=&lt;cpu_count&gt;] - limit CPU count</li>
+<li>[--listen-addr=&lt;address&gt;] - listen address for started services</li>
 </ul>
-<h3>3.2.7.1 cid deploy [rms] &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--build]</h3>
+<h3>3.2.7.1 cid deploy rms &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--build]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -510,7 +512,9 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>prepare &amp; build</li>
 <li>common deploy procedure, package_dir = {vcs_ref}_{vcs_rev}</li>
 </ul>
-<h4>3.2.7.4. common deploy procedure</h4>
+<h4>3.2.7.4. cid deploy setup</h4>
+<p>Setup deploy directory to allow futoin.json modifications without deployment being is done.</p>
+<h4>3.2.7.5. common deploy procedure</h4>
 <ul>
 <li>{package_dir} - depend on deployment method</li>
 <li>according to .persistent:<ul>
@@ -525,7 +529,7 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>trigger external service reload</li>
 <li>remove all not managed or obsolete files in {.deployDir}</li>
 </ul>
-<h4>3.2.7.5. deployment assumptions</h4>
+<h4>3.2.7.6. deployment assumptions</h4>
 <ol>
 <li>Each web application must have own deployment root folder</li>
 <li>Each web application should have own user</li>
