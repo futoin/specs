@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-04-29
+Date: 2017-05-19
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-04-29
+* v1.0 - 2017-05-19
 * Initial draft - 2015-09-14
 
 
@@ -165,7 +165,8 @@ configuration root or only with its .env part. There should be no other configur
         * .minMemory - minimal memory per instance
         * .connMemory - memory per one connection
         * .scalable = true - if false then it's not allowed to start more than one instance globally
-        * .reloadable = false -if true then reload is supported
+        * .reloadable = false - if true then reload WITHOUT INTERRUPTION is supported
+        * .exitTimeoutMS = 5000 - how many milliseconds to wait after SIGTERM before sending SIGKILL
         * .cpuWeight = 100 - arbitrary positive integer
         * .memWeight = 100 - arbitrary positive integer
         * .maxMemory - maximal memory per instance (for very specific cases)
@@ -221,7 +222,7 @@ configuration root or only with its .env part. There should be no other configur
     * .maxTotalMemory - memory limit for deployment
     * .maxCpuCount - CPU count the deployment expected to utilize
     * .listenAddress - address to bind services by default
-    * .autoServices - {}, to be auto-generated in deployment process
+    * .autoServices - map of lists, to be auto-generated in deployment process
         * .maxMemory - maximal memory per instance (for deployment config)
         * .maxClients - expected number of clients the instance can handle
         * .socketType - one of .entryPoints[.entryPoint].socketTypes
@@ -613,13 +614,19 @@ from systemd, sysv-init or other system daemon control functionality.
     stop previously started instance.
 * *cid service reload &lt;entry_point> <&lt;instance> <&lt;pid> [--deployDir deploy_dir]* -
     reload previously started instance.
+* *cid service list [args...]* - list services and instance count deployed (to be executed)
+    * [--adapt] - adapt to newly set limits before execution of services
+    * [--limit-memory=&lt;mem_limit>] - limit memory, only with --adapt
+    * [--limit-cpus=&lt;cpu_countt>] - limit CPU count, only with --adapt
+    * [--listen-addr=&lt;address>] - listen address for started services, only with --adapt
 
 In case containers like Docker is used then there is a separate helper command to be used
 as entry point.
 
-* *cid service run [--deployDir deploy_dir]* - run deployment-related services as children and restart on failure.
+* *cid service master [--deployDir deploy_dir]* - run deployment-related services as children and restart on failure.
     * [--adapt] - adapt to newly set limits before execution of services
     * [--limit-memory=&lt;mem_limit>] - limit memory, only with --adapt
     * [--limit-cpus=&lt;cpu_countt>] - limit CPU count, only with --adapt
+    * [--listen-addr=&lt;address>] - listen address for started services, only with --adapt
 
 =END OF SPEC=
