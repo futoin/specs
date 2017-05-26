@@ -7,14 +7,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-05-19
+Date: 2017-05-27
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-05-19</li>
+<li>v1.0 - 2017-05-27</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
@@ -145,15 +145,19 @@ configuration root or only with its .env part. There should be no other configur
 <li>.connMemory - memory per one connection</li>
 <li>.scalable = true - if false then it's not allowed to start more than one instance globally</li>
 <li>.reloadable = false - if true then reload WITHOUT INTERRUPTION is supported</li>
+<li>.multiCore = true - if true then single instance can span multiple CPU cores</li>
 <li>.exitTimeoutMS = 5000 - how many milliseconds to wait after SIGTERM before sending SIGKILL</li>
 <li>.cpuWeight = 100 - arbitrary positive integer</li>
 <li>.memWeight = 100 - arbitrary positive integer</li>
 <li>.maxMemory - maximal memory per instance (for very specific cases)</li>
+<li>.maxTotalMemory - maximal memory for all instances (for very specific cases)</li>
 <li>.maxInstances - limit number of instances per deployment</li>
 <li>.socketTypes = ['unix', 'tcp', 'tcp6'] - supported listen socket types</li>
-<li>.socketProtocols = ['http', 'fcgi', 'wsgi', 'rack', 'jsgi', 'psgi']</li>
+<li>.socketProtocol = one of ['http', 'fcgi', 'wsgi', 'rack', 'jsgi', 'psgi']</li>
 <li>.debugOverhead - extra memory per instance in "dev" deployment</li>
 <li>.debugConnOverhead - extra memory per connection in "dev" deployment</li>
+<li>.socketType - generally, for setup in deployment config</li>
+<li>.socketPort - default/base port to assign to service</li>
 </ul>
 </li>
 </ul>
@@ -199,6 +203,7 @@ configuration root or only with its .env part. There should be no other configur
 </ul>
 </li>
 <li>.binDir = ${HOME}/bin - user bin folder</li>
+<li>.runDir = .deployDir/run - folder for various runtime purposes</li>
 <li>.externalSetup - false - skip automatic tools install, if true</li>
 <li>.timeouts - timeout configuration for various operations (may not be always supported)<ul>
 <li>.connect = 10 - initial connection timeout </li>
@@ -444,8 +449,8 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <ul>
 <li>[--redeploy] - force re-deploy</li>
 <li>[--deployDir=&lt;deploy_dir&gt;] - target deployment folder</li>
-<li>[--limit-memory=&lt;mem_limit&gt;] - limit memory</li>
-<li>[--limit-cpus=&lt;cpu_count&gt;] - limit CPU count</li>
+<li>[--limit-memory=&lt;mem_limit&gt;|auto] - limit memory</li>
+<li>[--limit-cpus=&lt;cpu_count&gt;|auto] - limit CPU count</li>
 <li>[--listen-addr=&lt;address&gt;] - listen address for started services</li>
 </ul>
 <h3>3.2.7.1 cid deploy rms &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--build]</h3>
@@ -624,28 +629,38 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <p>Interface for Continuous Deployment execution control. It is expected to call this commands
 from systemd, sysv-init or other system daemon control functionality.</p>
 <ul>
-<li><em>cid service exec &lt;entry_point&gt; &lt;&lt;instance&gt; [--deployDir deploy_dir]</em> -
+<li><em>cid service exec &lt;entry_point&gt; &lt;&lt;instance&gt; [--deployDir=deploy_dir]</em> -
     replace CID with foreground execution of pre-configured instance.</li>
-<li><em>cid service stop &lt;entry_point&gt; &lt;&lt;instance&gt; &lt;&lt;pid&gt; [--deployDir deploy_dir]</em> -
+<li><em>cid service stop &lt;entry_point&gt; &lt;&lt;instance&gt; &lt;&lt;pid&gt; [--deployDir=deploy_dir]</em> -
     stop previously started instance.</li>
-<li><em>cid service reload &lt;entry_point&gt; &lt;&lt;instance&gt; &lt;&lt;pid&gt; [--deployDir deploy_dir]</em> -
+<li><em>cid service reload &lt;entry_point&gt; &lt;&lt;instance&gt; &lt;&lt;pid&gt; [--deployDir=deploy_dir]</em> -
     reload previously started instance.</li>
 <li><em>cid service list [args...]</em> - list services and instance count deployed (to be executed)<ul>
 <li>[--adapt] - adapt to newly set limits before execution of services</li>
-<li>[--limit-memory=&lt;mem_limit&gt;] - limit memory, only with --adapt</li>
-<li>[--limit-cpus=&lt;cpu_countt&gt;] - limit CPU count, only with --adapt</li>
+<li>[--limit-memory=&lt;mem_limit&gt;|auto] - limit memory, only with --adapt</li>
+<li>[--limit-cpus=&lt;cpu_countt&gt;|auto] - limit CPU count, only with --adapt</li>
 <li>[--listen-addr=&lt;address&gt;] - listen address for started services, only with --adapt</li>
 </ul>
 </li>
 </ul>
 <p>In case containers like Docker is used then there is a separate helper command to be used
-as entry point.</p>
+as entry point:</p>
 <ul>
-<li><em>cid service master [--deployDir deploy_dir]</em> - run deployment-related services as children and restart on failure.<ul>
+<li><em>cid service master [--deployDir=deploy_dir]</em> - run deployment-related services as children and restart on failure.<ul>
 <li>[--adapt] - adapt to newly set limits before execution of services</li>
-<li>[--limit-memory=&lt;mem_limit&gt;] - limit memory, only with --adapt</li>
-<li>[--limit-cpus=&lt;cpu_countt&gt;] - limit CPU count, only with --adapt</li>
+<li>[--limit-memory=&lt;mem_limit&gt;|auto] - limit memory, only with --adapt</li>
+<li>[--limit-cpus=&lt;cpu_countt&gt;|auto] - limit CPU count, only with --adapt</li>
 <li>[--listen-addr=&lt;address&gt;] - listen address for started services, only with --adapt</li>
+</ul>
+</li>
+</ul>
+<p>In case there is no deployment, but service run is desired in development process:</p>
+<ul>
+<li><em>cid devserve [--deployDir=deploy_dir]</em> - run services as children and restart on failure.<ul>
+<li>[--limit-memory=&lt;mem_limit&gt;|auto] - limit memory</li>
+<li>[--limit-cpus=&lt;cpu_countt&gt;|auto] - limit CPU count</li>
+<li>[--listen-addr=&lt;address&gt;] - listen address for started services</li>
+<li>Each run creates a new temporary folder</li>
 </ul>
 </li>
 </ul>

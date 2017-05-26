@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-05-19
+Date: 2017-05-27
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-05-19
+* v1.0 - 2017-05-27
 * Initial draft - 2015-09-14
 
 
@@ -166,15 +166,19 @@ configuration root or only with its .env part. There should be no other configur
         * .connMemory - memory per one connection
         * .scalable = true - if false then it's not allowed to start more than one instance globally
         * .reloadable = false - if true then reload WITHOUT INTERRUPTION is supported
+        * .multiCore = true - if true then single instance can span multiple CPU cores
         * .exitTimeoutMS = 5000 - how many milliseconds to wait after SIGTERM before sending SIGKILL
         * .cpuWeight = 100 - arbitrary positive integer
         * .memWeight = 100 - arbitrary positive integer
         * .maxMemory - maximal memory per instance (for very specific cases)
+        * .maxTotalMemory - maximal memory for all instances (for very specific cases)
         * .maxInstances - limit number of instances per deployment
         * .socketTypes = ['unix', 'tcp', 'tcp6'] - supported listen socket types
-        * .socketProtocols = ['http', 'fcgi', 'wsgi', 'rack', 'jsgi', 'psgi']
+        * .socketProtocol = one of ['http', 'fcgi', 'wsgi', 'rack', 'jsgi', 'psgi']
         * .debugOverhead - extra memory per instance in "dev" deployment
         * .debugConnOverhead - extra memory per connection in "dev" deployment
+        * .socketType - generally, for setup in deployment config
+        * .socketPort - default/base port to assign to service
 * .configenv - {} - list of environment variables to be set in deployment
     * type - FutoIn variable type
     * desc - variable description
@@ -206,6 +210,7 @@ configuration root or only with its .env part. There should be no other configur
     * .pluginPacks = [] - custom plugin packs, implementation defined
         * $module_name - define module providing list of plugins
     * .binDir = ${HOME}/bin - user bin folder
+    * .runDir = .deployDir/run - folder for various runtime purposes
     * .externalSetup - false - skip automatic tools install, if true
     * .timeouts - timeout configuration for various operations (may not be always supported)
         * .connect = 10 - initial connection timeout 
@@ -427,10 +432,9 @@ Generic options:
 
 * [--redeploy] - force re-deploy
 * [--deployDir=&lt;deploy_dir>] - target deployment folder
-* [--limit-memory=&lt;mem_limit>] - limit memory
-* [--limit-cpus=&lt;cpu_count>] - limit CPU count
+* [--limit-memory=&lt;mem_limit>|auto] - limit memory
+* [--limit-cpus=&lt;cpu_count>|auto] - limit CPU count
 * [--listen-addr=&lt;address>] - listen address for started services
-
 
 ### 3.2.7.1 cid deploy rms &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--build]
 
@@ -608,25 +612,33 @@ This helpers help automate RMS operation neutral way.
 Interface for Continuous Deployment execution control. It is expected to call this commands
 from systemd, sysv-init or other system daemon control functionality.
 
-* *cid service exec &lt;entry_point> <&lt;instance> [--deployDir deploy_dir]* -
+* *cid service exec &lt;entry_point> <&lt;instance> [--deployDir=deploy_dir]* -
     replace CID with foreground execution of pre-configured instance.
-* *cid service stop &lt;entry_point> <&lt;instance> <&lt;pid> [--deployDir deploy_dir]* -
+* *cid service stop &lt;entry_point> <&lt;instance> <&lt;pid> [--deployDir=deploy_dir]* -
     stop previously started instance.
-* *cid service reload &lt;entry_point> <&lt;instance> <&lt;pid> [--deployDir deploy_dir]* -
+* *cid service reload &lt;entry_point> <&lt;instance> <&lt;pid> [--deployDir=deploy_dir]* -
     reload previously started instance.
 * *cid service list [args...]* - list services and instance count deployed (to be executed)
     * [--adapt] - adapt to newly set limits before execution of services
-    * [--limit-memory=&lt;mem_limit>] - limit memory, only with --adapt
-    * [--limit-cpus=&lt;cpu_countt>] - limit CPU count, only with --adapt
+    * [--limit-memory=&lt;mem_limit>|auto] - limit memory, only with --adapt
+    * [--limit-cpus=&lt;cpu_countt>|auto] - limit CPU count, only with --adapt
     * [--listen-addr=&lt;address>] - listen address for started services, only with --adapt
 
 In case containers like Docker is used then there is a separate helper command to be used
-as entry point.
+as entry point:
 
-* *cid service master [--deployDir deploy_dir]* - run deployment-related services as children and restart on failure.
+* *cid service master [--deployDir=deploy_dir]* - run deployment-related services as children and restart on failure.
     * [--adapt] - adapt to newly set limits before execution of services
-    * [--limit-memory=&lt;mem_limit>] - limit memory, only with --adapt
-    * [--limit-cpus=&lt;cpu_countt>] - limit CPU count, only with --adapt
+    * [--limit-memory=&lt;mem_limit>|auto] - limit memory, only with --adapt
+    * [--limit-cpus=&lt;cpu_countt>|auto] - limit CPU count, only with --adapt
     * [--listen-addr=&lt;address>] - listen address for started services, only with --adapt
+
+In case there is no deployment, but service run is desired in development process:
+
+* *cid devserve [--deployDir=deploy_dir]* - run services as children and restart on failure.
+    * [--limit-memory=&lt;mem_limit>|auto] - limit memory
+    * [--limit-cpus=&lt;cpu_countt>|auto] - limit CPU count
+    * [--listen-addr=&lt;address>] - listen address for started services
+    * Each run creates a new temporary folder
 
 =END OF SPEC=
