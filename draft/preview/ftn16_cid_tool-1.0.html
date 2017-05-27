@@ -143,6 +143,7 @@ configuration root or only with its .env part. There should be no other configur
 <li>.tune - {}, type-specific configuration options (extandable)<ul>
 <li>.minMemory - minimal memory per instance</li>
 <li>.connMemory - memory per one connection</li>
+<li>.internal = false - if true, then resource is not exposed</li>
 <li>.scalable = true - if false then it's not allowed to start more than one instance globally</li>
 <li>.reloadable = false - if true then reload WITHOUT INTERRUPTION is supported</li>
 <li>.multiCore = true - if true then single instance can span multiple CPU cores</li>
@@ -167,9 +168,10 @@ configuration root or only with its .env part. There should be no other configur
 <li>desc - variable description</li>
 </ul>
 </li>
-<li>.webcfg - additional web server configuration (auto-requires web server)<ul>
+<li>.webcfg - additional web server configuration (to be used by web server)<ul>
 <li>.root - web root folder relative to project root</li>
 <li>.main - default index handler from .entryPoints (auto-select, if single one)</li>
+<li>.mounts - {} - path prefix to .entryPoints mapping</li>
 </ul>
 </li>
 <li>.actions - {}, optional override of auto-detect commands.
@@ -226,6 +228,7 @@ configuration root or only with its .env part. There should be no other configur
 <li>.listenAddress - address to bind services by default</li>
 <li>.autoServices - map of lists, to be auto-generated in deployment process<ul>
 <li>.maxMemory - maximal memory per instance (for deployment config)</li>
+<li>.maxCpuCount - maximal CPU count an instance can use (for multiCore)</li>
 <li>.maxClients - expected number of clients the instance can handle</li>
 <li>.socketType - one of .entryPoints[.entryPoint].socketTypes</li>
 <li>.socketAddr - assigned socket address, if applicable</li>

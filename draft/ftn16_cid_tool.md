@@ -164,6 +164,7 @@ configuration root or only with its .env part. There should be no other configur
     * .tune - {}, type-specific configuration options (extandable)
         * .minMemory - minimal memory per instance
         * .connMemory - memory per one connection
+        * .internal = false - if true, then resource is not exposed
         * .scalable = true - if false then it's not allowed to start more than one instance globally
         * .reloadable = false - if true then reload WITHOUT INTERRUPTION is supported
         * .multiCore = true - if true then single instance can span multiple CPU cores
@@ -182,9 +183,10 @@ configuration root or only with its .env part. There should be no other configur
 * .configenv - {} - list of environment variables to be set in deployment
     * type - FutoIn variable type
     * desc - variable description
-* .webcfg - additional web server configuration (auto-requires web server)
+* .webcfg - additional web server configuration (to be used by web server)
     * .root - web root folder relative to project root
     * .main - default index handler from .entryPoints (auto-select, if single one)
+    * .mounts - {} - path prefix to .entryPoints mapping
 * .actions - {}, optional override of auto-detect commands.
     Each either a string or list of strings. Use '&lt;default>' in [] to run the
     default auto-detected tasks too.
@@ -229,6 +231,7 @@ configuration root or only with its .env part. There should be no other configur
     * .listenAddress - address to bind services by default
     * .autoServices - map of lists, to be auto-generated in deployment process
         * .maxMemory - maximal memory per instance (for deployment config)
+        * .maxCpuCount - maximal CPU count an instance can use (for multiCore)
         * .maxClients - expected number of clients the instance can handle
         * .socketType - one of .entryPoints[.entryPoint].socketTypes
         * .socketAddr - assigned socket address, if applicable
