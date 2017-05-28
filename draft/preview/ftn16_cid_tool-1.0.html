@@ -193,7 +193,7 @@ configuration root or only with its .env part. There should be no other configur
 <h4>3.1.1.2. Environment configuration</h4>
 <ul>
 <li>.env - {}, the only part allowed to be defined in user or system configs<ul>
-<li>.type - "prod", "test" and "dev" (default - "dev")</li>
+<li>.type - "prod", "test" and "dev" (default - "prod")</li>
 <li>.persistentDir = {.deployDir}/persistent - root for persistent data</li>
 <li>.vars - arbitrary environment variables to set on execution</li>
 <li>.plugins = {} - custom plugins, implementation defined<ul>
@@ -205,7 +205,6 @@ configuration root or only with its .env part. There should be no other configur
 </ul>
 </li>
 <li>.binDir = ${HOME}/bin - user bin folder</li>
-<li>.runDir = .deployDir/run - folder for various runtime purposes</li>
 <li>.externalSetup - false - skip automatic tools install, if true</li>
 <li>.timeouts - timeout configuration for various operations (may not be always supported)<ul>
 <li>.connect = 10 - initial connection timeout </li>
@@ -226,12 +225,21 @@ configuration root or only with its .env part. There should be no other configur
 <li>.maxTotalMemory - memory limit for deployment</li>
 <li>.maxCpuCount - CPU count the deployment expected to utilize</li>
 <li>.listenAddress - address to bind services by default</li>
+<li>.user - user for service execution</li>
+<li>.group - group for service execution</li>
+<li>.runtimeDir = {.deployDir}/.runtime - location for temporary files required for runtime:<ul>
+<li>UNIX socket files</li>
+<li>UNIX pipes</li>
+<li>Process ID files</li>
+<li>On-the-fly configuration files</li>
+</ul>
+</li>
 <li>.autoServices - map of lists, to be auto-generated in deployment process<ul>
 <li>.maxMemory - maximal memory per instance (for deployment config)</li>
 <li>.maxCpuCount - maximal CPU count an instance can use (for multiCore)</li>
 <li>.maxClients - expected number of clients the instance can handle</li>
 <li>.socketType - one of .entryPoints[.entryPoint].socketTypes</li>
-<li>.socketAddr - assigned socket address, if applicable</li>
+<li>.socketAddress - assigned socket address, if applicable</li>
 <li>.socketPort - assigned socket port, if applicable</li>
 <li>.socketPath - assigned socket path, if applicable</li>
 </ul>
@@ -450,13 +458,18 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <h3>3.2.7 cid deploy &lt;deploy_type&gt; ...</h3>
 <p>Generic options:</p>
 <ul>
-<li>[--redeploy] - force re-deploy</li>
 <li>[--deployDir=&lt;deploy_dir&gt;] - target deployment folder</li>
+<li>[--runtimeDir=&lt;run_dir&gt;|auto] - override default runtime dir location (e.g. /run/service)<ul>
+<li><em>NOTE: working dir is always "&lt;deploy_dir&gt;/current"</em></li>
+</ul>
+</li>
 <li>[--limit-memory=&lt;mem_limit&gt;|auto] - limit memory</li>
 <li>[--limit-cpus=&lt;cpu_count&gt;|auto] - limit CPU count</li>
-<li>[--listen-addr=&lt;address&gt;] - listen address for started services</li>
+<li>[--listen-addr=&lt;address&gt;|auto] - listen address for started services</li>
+<li>[--user=&amp;ltuser&gt;|auto] - user for service execution</li>
+<li>[--group=&amp;ltuser&gt;|auto] - group for service execution</li>
 </ul>
-<h3>3.2.7.1 cid deploy rms &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--build]</h3>
+<h3>3.2.7.1 cid deploy rms &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--build] [--redeploy]</h3>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -475,7 +488,7 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>if --build then prepare &amp; build</li>
 <li>common deploy procedure, package_dir = {package_no_ext}</li>
 </ul>
-<h4>3.2.7.2. cid deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;]</h4>
+<h4>3.2.7.2. cid deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--redeploy]</h4>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -501,7 +514,7 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>prepare &amp; build</li>
 <li>common deploy procedure, package_dir = {vcs_ref}</li>
 </ul>
-<h4>3.2.7.3. cid deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;]</h4>
+<h4>3.2.7.3. cid deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--redeploy]</h4>
 <p>Default:</p>
 <ul>
 <li>process standard parameters</li>
@@ -555,7 +568,7 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>Lock file must be acquired during deployment procedure.</li>
 <li>Not empty {.deploDir} must contain deploy lock file for safety reasons.</li>
 </ol>
-<h3>3.2.8. cid run [&lt;command&gt; [-- &lt;command_args..&gt;]] [--wcDir wc_dir]</h3>
+<h3>3.2.8. cid run [&lt;command&gt; [-- &lt;command_args..&gt;]]</h3>
 <p>Primary case is execution in development and testing environment.</p>
 <ul>
 <li>If command is missing then execute all .entryPoints in parallel<ul>
@@ -640,29 +653,23 @@ from systemd, sysv-init or other system daemon control functionality.</p>
     reload previously started instance.</li>
 <li><em>cid service list [args...]</em> - list services and instance count deployed (to be executed)<ul>
 <li>[--adapt] - adapt to newly set limits before execution of services</li>
-<li>[--limit-memory=&lt;mem_limit&gt;|auto] - limit memory, only with --adapt</li>
-<li>[--limit-cpus=&lt;cpu_countt&gt;|auto] - limit CPU count, only with --adapt</li>
-<li>[--listen-addr=&lt;address&gt;] - listen address for started services, only with --adapt</li>
+<li>support generic deploy options</li>
 </ul>
 </li>
 </ul>
 <p>In case containers like Docker is used then there is a separate helper command to be used
 as entry point:</p>
 <ul>
-<li><em>cid service master [--deployDir=deploy_dir]</em> - run deployment-related services as children and restart on failure.<ul>
+<li><em>cid service master [args..]</em> - run deployment-related services as children and restart on failure.<ul>
 <li>[--adapt] - adapt to newly set limits before execution of services</li>
-<li>[--limit-memory=&lt;mem_limit&gt;|auto] - limit memory, only with --adapt</li>
-<li>[--limit-cpus=&lt;cpu_countt&gt;|auto] - limit CPU count, only with --adapt</li>
-<li>[--listen-addr=&lt;address&gt;] - listen address for started services, only with --adapt</li>
+<li>support generic deploy options</li>
 </ul>
 </li>
 </ul>
 <p>In case there is no deployment, but service run is desired in development process:</p>
 <ul>
-<li><em>cid devserve [--deployDir=deploy_dir]</em> - run services as children and restart on failure.<ul>
-<li>[--limit-memory=&lt;mem_limit&gt;|auto] - limit memory</li>
-<li>[--limit-cpus=&lt;cpu_countt&gt;|auto] - limit CPU count</li>
-<li>[--listen-addr=&lt;address&gt;] - listen address for started services</li>
+<li><em>cid devserve [args..]</em> - run services as children and restart on failure.<ul>
+<li>support generic deploy options</li>
 <li>Each run creates a new temporary folder</li>
 </ul>
 </li>

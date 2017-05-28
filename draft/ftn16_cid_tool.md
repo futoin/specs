@@ -204,7 +204,7 @@ configuration root or only with its .env part. There should be no other configur
 #### 3.1.1.2. Environment configuration
 
 * .env - {}, the only part allowed to be defined in user or system configs
-    * .type - "prod", "test" and "dev" (default - "dev")
+    * .type - "prod", "test" and "dev" (default - "prod")
     * .persistentDir = {.deployDir}/persistent - root for persistent data
     * .vars - arbitrary environment variables to set on execution
     * .plugins = {} - custom plugins, implementation defined
@@ -212,7 +212,6 @@ configuration root or only with its .env part. There should be no other configur
     * .pluginPacks = [] - custom plugin packs, implementation defined
         * $module_name - define module providing list of plugins
     * .binDir = ${HOME}/bin - user bin folder
-    * .runDir = .deployDir/run - folder for various runtime purposes
     * .externalSetup - false - skip automatic tools install, if true
     * .timeouts - timeout configuration for various operations (may not be always supported)
         * .connect = 10 - initial connection timeout 
@@ -229,12 +228,19 @@ configuration root or only with its .env part. There should be no other configur
     * .maxTotalMemory - memory limit for deployment
     * .maxCpuCount - CPU count the deployment expected to utilize
     * .listenAddress - address to bind services by default
+    * .user - user for service execution
+    * .group - group for service execution
+    * .runtimeDir = {.deployDir}/.runtime - location for temporary files required for runtime:
+        * UNIX socket files
+        * UNIX pipes
+        * Process ID files
+        * On-the-fly configuration files
     * .autoServices - map of lists, to be auto-generated in deployment process
         * .maxMemory - maximal memory per instance (for deployment config)
         * .maxCpuCount - maximal CPU count an instance can use (for multiCore)
         * .maxClients - expected number of clients the instance can handle
         * .socketType - one of .entryPoints[.entryPoint].socketTypes
-        * .socketAddr - assigned socket address, if applicable
+        * .socketAddress - assigned socket address, if applicable
         * .socketPort - assigned socket port, if applicable
         * .socketPath - assigned socket path, if applicable
 
@@ -433,13 +439,16 @@ Default:
 
 Generic options:
 
-* [--redeploy] - force re-deploy
 * [--deployDir=&lt;deploy_dir>] - target deployment folder
+* [--runtimeDir=&lt;run_dir>|auto] - override default runtime dir location (e.g. /run/service)
+    * *NOTE: working dir is always "&lt;deploy_dir>/current"*
 * [--limit-memory=&lt;mem_limit>|auto] - limit memory
 * [--limit-cpus=&lt;cpu_count>|auto] - limit CPU count
-* [--listen-addr=&lt;address>] - listen address for started services
+* [--listen-addr=&lt;address>|auto] - listen address for started services
+* [--user=&ltuser>|auto] - user for service execution
+* [--group=&ltuser>|auto] - group for service execution
 
-### 3.2.7.1 cid deploy rms &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--build]
+### 3.2.7.1 cid deploy rms &lt;rms_pool> [&lt;package>] [--rmsRepo=&lt;rms:url>] [--build] [--redeploy]
 
 Default:
 
@@ -457,7 +466,7 @@ Default:
 * if --build then prepare & build
 * common deploy procedure, package_dir = {package_no_ext}
 
-#### 3.2.7.2. cid deploy vcstag [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>]
+#### 3.2.7.2. cid deploy vcstag [&lt;vcs_ref>] [--vcsRepo=&lt;vcs:url>] [--redeploy]
 
 Default:
 
@@ -478,7 +487,7 @@ Default:
 * prepare & build
 * common deploy procedure, package_dir = {vcs_ref}
 
-#### 3.2.7.3. cid deploy vcsref &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>]
+#### 3.2.7.3. cid deploy vcsref &lt;vcs_ref> [--vcsRepo=&lt;vcs:url>] [--redeploy]
 
 Default:
 
@@ -530,7 +539,7 @@ Setup deploy directory to allow futoin.json modifications without deployment bei
 9. Lock file must be acquired during deployment procedure.
 10. Not empty {.deploDir} must contain deploy lock file for safety reasons.
 
-### 3.2.8. cid run [&lt;command> [-- &lt;command_args..>]] [--wcDir wc_dir]
+### 3.2.8. cid run [&lt;command> [-- &lt;command_args..>]]
 
 Primary case is execution in development and testing environment.
 
@@ -623,25 +632,19 @@ from systemd, sysv-init or other system daemon control functionality.
     reload previously started instance.
 * *cid service list [args...]* - list services and instance count deployed (to be executed)
     * [--adapt] - adapt to newly set limits before execution of services
-    * [--limit-memory=&lt;mem_limit>|auto] - limit memory, only with --adapt
-    * [--limit-cpus=&lt;cpu_countt>|auto] - limit CPU count, only with --adapt
-    * [--listen-addr=&lt;address>] - listen address for started services, only with --adapt
+    * support generic deploy options
 
 In case containers like Docker is used then there is a separate helper command to be used
 as entry point:
 
-* *cid service master [--deployDir=deploy_dir]* - run deployment-related services as children and restart on failure.
+* *cid service master [args..]* - run deployment-related services as children and restart on failure.
     * [--adapt] - adapt to newly set limits before execution of services
-    * [--limit-memory=&lt;mem_limit>|auto] - limit memory, only with --adapt
-    * [--limit-cpus=&lt;cpu_countt>|auto] - limit CPU count, only with --adapt
-    * [--listen-addr=&lt;address>] - listen address for started services, only with --adapt
+    * support generic deploy options
 
 In case there is no deployment, but service run is desired in development process:
 
-* *cid devserve [--deployDir=deploy_dir]* - run services as children and restart on failure.
-    * [--limit-memory=&lt;mem_limit>|auto] - limit memory
-    * [--limit-cpus=&lt;cpu_countt>|auto] - limit CPU count
-    * [--listen-addr=&lt;address>] - listen address for started services
+* *cid devserve [args..]* - run services as children and restart on failure.
+    * support generic deploy options
     * Each run creates a new temporary folder
 
 =END OF SPEC=
