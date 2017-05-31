@@ -238,6 +238,7 @@ configuration root or only with its .env part. There should be no other configur
         * UNIX pipes
         * Process ID files
         * On-the-fly configuration files
+    * .tmpDir = {.deployDir}/.tmp - location for other temporary files
     * .autoServices - map of lists, to be auto-generated in deployment process
         * .maxMemory - maximal memory per instance (for deployment config)
         * .maxCpuCount - maximal CPU count an instance can use (for multiCore)
@@ -447,6 +448,7 @@ Generic options:
 * [--deployDir=&lt;deploy_dir>] - target deployment folder
 * [--runtimeDir=&lt;run_dir>|auto] - override default runtime dir location (e.g. /run/service)
     * *NOTE: working dir is always "&lt;deploy_dir>/current"*
+* [--tmpDir=&lt;tmp_dir>|auto] - override default temporary dir location
 * [--limit-memory=&lt;mem_limit>|auto] - limit memory
 * [--limit-cpus=&lt;cpu_count>|auto] - limit CPU count
 * [--listen-addr=&lt;address>|auto] - listen address for started services

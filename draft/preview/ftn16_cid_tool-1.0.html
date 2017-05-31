@@ -237,6 +237,7 @@ configuration root or only with its .env part. There should be no other configur
 <li>On-the-fly configuration files</li>
 </ul>
 </li>
+<li>.tmpDir = {.deployDir}/.tmp - location for other temporary files</li>
 <li>.autoServices - map of lists, to be auto-generated in deployment process<ul>
 <li>.maxMemory - maximal memory per instance (for deployment config)</li>
 <li>.maxCpuCount - maximal CPU count an instance can use (for multiCore)</li>
@@ -468,6 +469,7 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li><em>NOTE: working dir is always "&lt;deploy_dir&gt;/current"</em></li>
 </ul>
 </li>
+<li>[--tmpDir=&lt;tmp_dir&gt;|auto] - override default temporary dir location</li>
 <li>[--limit-memory=&lt;mem_limit&gt;|auto] - limit memory</li>
 <li>[--limit-cpus=&lt;cpu_count&gt;|auto] - limit CPU count</li>
 <li>[--listen-addr=&lt;address&gt;|auto] - listen address for started services</li>
