@@ -7,14 +7,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-05-27
+Date: 2017-05-30
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-05-27</li>
+<li>v1.0 - 2017-05-30</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
@@ -131,7 +131,8 @@ configuration root or only with its .env part. There should be no other configur
 <li>.tools - {}, map of required tool=&gt;version pairs.
     Default version is marked as <code>true</code> or <code>'*'</code>.
     Tool name is all lower case letters with optional digits (except the first position).</li>
-<li>.toolTune - {}, map of maps tool=&gt;settings=&gt;value for fine tuning of tool behavior</li>
+<li>.toolTune - {}, map of maps tool=&gt;settings=&gt;value for fine tuning of tool behavior.
+    Note: It should not be used for build-time tools, but not for .entryPoints tuning.</li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
 <li>.packageGzipStatic = True, creates <em>.gz files for found </em>.js, <em>.json, </em>.css, <em>.svg and </em>.txt files</li>
 <li>.packageChecksums = True, creates .package.checksums of files</li>
@@ -143,6 +144,7 @@ configuration root or only with its .env part. There should be no other configur
 <li>.tune - {}, type-specific configuration options (extandable)<ul>
 <li>.minMemory - minimal memory per instance</li>
 <li>.connMemory - memory per one connection</li>
+<li>.connFD = 16 - file descriptors per connection</li>
 <li>.internal = false - if true, then resource is not exposed</li>
 <li>.scalable = true - if false then it's not allowed to start more than one instance globally</li>
 <li>.reloadable = false - if true then reload WITHOUT INTERRUPTION is supported</li>
@@ -159,6 +161,7 @@ configuration root or only with its .env part. There should be no other configur
 <li>.debugConnOverhead - extra memory per connection in "dev" deployment</li>
 <li>.socketType - generally, for setup in deployment config</li>
 <li>.socketPort - default/base port to assign to service</li>
+<li>.maxRequestSize - maximal size of single request</li>
 </ul>
 </li>
 </ul>
@@ -237,11 +240,13 @@ configuration root or only with its .env part. There should be no other configur
 <li>.autoServices - map of lists, to be auto-generated in deployment process<ul>
 <li>.maxMemory - maximal memory per instance (for deployment config)</li>
 <li>.maxCpuCount - maximal CPU count an instance can use (for multiCore)</li>
-<li>.maxClients - expected number of clients the instance can handle</li>
+<li>.maxConnections - expected number of clients the instance can handle</li>
+<li>.maxFD - maximal file descriptors</li>
 <li>.socketType - one of .entryPoints[.entryPoint].socketTypes</li>
 <li>.socketAddress - assigned socket address, if applicable</li>
 <li>.socketPort - assigned socket port, if applicable</li>
 <li>.socketPath - assigned socket path, if applicable</li>
+<li>tool-specific - any tool-specific value like "nginxConf"</li>
 </ul>
 </li>
 </ul>

@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-05-27
+Date: 2017-05-30
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-05-27
+* v1.0 - 2017-05-30
 * Initial draft - 2015-09-14
 
 
@@ -152,7 +152,8 @@ configuration root or only with its .env part. There should be no other configur
 * .tools - {}, map of required tool=>version pairs.
     Default version is marked as `true` or `'*'`.
     Tool name is all lower case letters with optional digits (except the first position).
-* .toolTune - {}, map of maps tool=>settings=>value for fine tuning of tool behavior
+* .toolTune - {}, map of maps tool=>settings=>value for fine tuning of tool behavior.
+    Note: It should not be used for build-time tools, but not for .entryPoints tuning.
 * .package - [], content of package relative to project root. Default: [ "." ]
 * .packageGzipStatic = True, creates *.gz files for found *.js, *.json, *.css, *.svg and *.txt files
 * .packageChecksums = True, creates .package.checksums of files
@@ -164,6 +165,7 @@ configuration root or only with its .env part. There should be no other configur
     * .tune - {}, type-specific configuration options (extandable)
         * .minMemory - minimal memory per instance
         * .connMemory - memory per one connection
+        * .connFD = 16 - file descriptors per connection
         * .internal = false - if true, then resource is not exposed
         * .scalable = true - if false then it's not allowed to start more than one instance globally
         * .reloadable = false - if true then reload WITHOUT INTERRUPTION is supported
@@ -180,6 +182,7 @@ configuration root or only with its .env part. There should be no other configur
         * .debugConnOverhead - extra memory per connection in "dev" deployment
         * .socketType - generally, for setup in deployment config
         * .socketPort - default/base port to assign to service
+        * .maxRequestSize - maximal size of single request
 * .configenv - {} - list of environment variables to be set in deployment
     * type - FutoIn variable type
     * desc - variable description
@@ -238,11 +241,13 @@ configuration root or only with its .env part. There should be no other configur
     * .autoServices - map of lists, to be auto-generated in deployment process
         * .maxMemory - maximal memory per instance (for deployment config)
         * .maxCpuCount - maximal CPU count an instance can use (for multiCore)
-        * .maxClients - expected number of clients the instance can handle
+        * .maxConnections - expected number of clients the instance can handle
+        * .maxFD - maximal file descriptors
         * .socketType - one of .entryPoints[.entryPoint].socketTypes
         * .socketAddress - assigned socket address, if applicable
         * .socketPort - assigned socket port, if applicable
         * .socketPath - assigned socket path, if applicable
+        * tool-specific - any tool-specific value like "nginxConf"
 
 #### 3.1.1.4. Runtime configuration (available to plugins)
 
