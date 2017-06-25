@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-05-30
+Date: 2017-06-25
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-05-30
+* v1.0 - 2017-06-25
 * Initial draft - 2015-09-14
 
 
@@ -191,8 +191,9 @@ configuration root or only with its .env part. There should be no other configur
     * .main - default index handler from .entryPoints (auto-select, if single one)
     * .mounts - {} - path prefix to .entryPoints mapping
 * .actions - {}, optional override of auto-detect commands.
-    Each either a string or list of strings. Use '&lt;default>' in [] to run the
-    default auto-detected tasks too.
+    Each either a string or list of strings.
+    Use '@default' in [] to run the default auto-detected tasks too.
+    Start command with '@cid' to invoke FutoIn CID itself.
     * .tag - custom shell command for tagging
     * .prepare - custom shell command for source preparation
     * .build - custom shell command for building from source
