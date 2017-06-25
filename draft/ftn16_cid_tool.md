@@ -193,6 +193,7 @@ configuration root or only with its .env part. There should be no other configur
 * .actions - {}, optional override of auto-detect commands.
     Each either a string or list of strings.
     Use '@default' in [] to run the default auto-detected tasks too.
+    Use of '@default' in deploy config means actions defined/detected in project config.
     Start command with '@cid' to invoke FutoIn CID itself.
     * .tag - custom shell command for tagging
     * .prepare - custom shell command for source preparation
