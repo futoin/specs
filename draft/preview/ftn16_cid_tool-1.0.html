@@ -7,14 +7,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-06-25
+Date: 2017-06-26
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-06-25</li>
+<li>v1.0 - 2017-06-26</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
@@ -545,6 +545,10 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 </ul>
 <h4>3.2.7.4. cid deploy setup</h4>
 <p>Setup deploy directory to allow futoin.json modifications without deployment being is done.</p>
+<h4>3.2.7.4.1. cid deploy set-action &lt;name&gt; &lt;action&gt;...</h4>
+<p>Override .action in deployment config. '@default' can be used to call project-defined handlers.</p>
+<h4>3.2.7.4.2. cid deploy set-persistent &lt;path&gt;...</h4>
+<p>Add .persistent paths in deployment config. Duplicate entries are automatically merged.</p>
 <h4>3.2.7.5. common deploy procedure</h4>
 <ul>
 <li>{package_dir} - depend on deployment method</li>
@@ -683,5 +687,10 @@ as entry point:</p>
 </ul>
 </li>
 </ul>
+<h3>3.2.16. cid build-dep &lt;name&gt;...</h3>
+<p>Install development files for specific build dependency.
+The list of dependencies is implementation-defined.</p>
+<p>If build dependency matches supported tool then full initialization of
+.config.env is performed.</p>
 <p>=END OF SPEC=</p>
 </body></html>

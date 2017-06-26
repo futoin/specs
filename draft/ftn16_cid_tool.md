@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-06-25
+Date: 2017-06-26
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-06-25
+* v1.0 - 2017-06-26
 * Initial draft - 2015-09-14
 
 
@@ -517,6 +517,14 @@ Default:
 
 Setup deploy directory to allow futoin.json modifications without deployment being is done.
 
+#### 3.2.7.4.1. cid deploy set-action &lt;name> &lt;action>...
+
+Override .action in deployment config. '@default' can be used to call project-defined handlers.
+
+#### 3.2.7.4.2. cid deploy set-persistent &lt;path>...
+
+Add .persistent paths in deployment config. Duplicate entries are automatically merged.
+
 
 #### 3.2.7.5. common deploy procedure
 
@@ -655,5 +663,13 @@ In case there is no deployment, but service run is desired in development proces
 * *cid devserve [args..]* - run services as children and restart on failure.
     * support generic deploy options
     * Each run creates a new temporary folder
+
+### 3.2.16. cid build-dep &lt;name>...
+
+Install development files for specific build dependency.
+The list of dependencies is implementation-defined.
+
+If build dependency matches supported tool then full initialization of
+.config.env is performed.
 
 =END OF SPEC=
