@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-06-26
+Date: 2017-07-09
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-06-26
+* v1.0 - 2017-07-09
 * Initial draft - 2015-09-14
 
 
@@ -626,6 +626,7 @@ These are helpers for CI environment and should not be used by developer in regu
 * *cid vcs branches [&lt;branch_pattern>] [--vcsRepo=&lt;vcs:url>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]* - list branches
 * *cid vcs reset [--wcDir=<wc_dir>]* - revert all local changes, including merge conflicts
 * *cid vcs ismerged [--wcDir=<wc_dir>]* - check if branch is merged
+* *cid vcs clean [--wcDir=<wc_dir>]* - clean any unversioned items
 
 ### 3.2.14. cid rms &lt;action> [optional args]
 
