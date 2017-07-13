@@ -581,6 +581,7 @@ Default:
 Tools actions:
 
 * *exec* -  execute specified tool with arbitrary arguments passed.
+* *envexec* - execute arbitrary shell command in environment of the tool.
 * *install* - make sure project tools are installed.
 * *install* with tool_name - make sure specified tool is installed even if not used by current project.
 * *uninstall* - make sure project tools are uninstalled.
