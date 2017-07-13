@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-07-09
+Date: 2017-07-13
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-07-09
+* v1.0 - 2017-07-13
 * Initial draft - 2015-09-14
 
 
@@ -163,8 +163,8 @@ configuration root or only with its .env part. There should be no other configur
     * .tool - name of the tool
     * .path - file
     * .tune - {}, type-specific configuration options (extandable)
-        * .minMemory - minimal memory per instance
-        * .connMemory - memory per one connection
+        * .minMemory - minimal memory per instance without connections
+        * .connMemory - extra memory per one connection
         * .connFD = 16 - file descriptors per connection
         * .internal = false - if true, then resource is not exposed
         * .scalable = true - if false then it's not allowed to start more than one instance globally

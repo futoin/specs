@@ -7,14 +7,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.0
-Date: 2017-07-09
+Date: 2017-07-13
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-07-09</li>
+<li>v1.0 - 2017-07-13</li>
 <li>Initial draft - 2015-09-14</li>
 </ul>
 <h1>1. Intro</h1>
@@ -142,8 +142,8 @@ configuration root or only with its .env part. There should be no other configur
 <li>.tool - name of the tool</li>
 <li>.path - file</li>
 <li>.tune - {}, type-specific configuration options (extandable)<ul>
-<li>.minMemory - minimal memory per instance</li>
-<li>.connMemory - memory per one connection</li>
+<li>.minMemory - minimal memory per instance without connections</li>
+<li>.connMemory - extra memory per one connection</li>
 <li>.connFD = 16 - file descriptors per connection</li>
 <li>.internal = false - if true, then resource is not exposed</li>
 <li>.scalable = true - if false then it's not allowed to start more than one instance globally</li>
