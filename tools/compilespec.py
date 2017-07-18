@@ -13,6 +13,7 @@ import os
 import codecs
 import re
 import collections
+from jsonschema import validate as schema_validate
 
 def die( msg ) :
     sys.stderr.write( msg )
@@ -147,6 +148,12 @@ def compilespec( spec_file ) :
                 )
                 iface_name = iface['iface']
                 
+                # validate schema
+                schema_file = os.path.join(meta_dir, 'futoin-interface-' + iface['ftn3rev'] + '-schema.json')
+                with open(schema_file, 'r') as sf:
+                    schema = json.load(sf)
+                schema_validate(iface, schema)
+                
                 # version file
                 iface_ver_file = os.path.join( meta_dir, iface_name + '-' + iface['version'] + '-iface.json' )
 
@@ -155,7 +162,7 @@ def compilespec( spec_file ) :
                                 encoding="utf-8",
                                 errors="xmlcharrefreplace"
                 ) as f:
-                    f.write( json.dumps( iface ) )
+                    f.write( json.dumps( iface, indent=2, separators=(',', ': ') ) )
 
                 # mjr symlink
                 iface_major_ver = iface['version'].split('.')
