@@ -1,13 +1,17 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.3
-Date: 2015-03-08
-Copyright: 2014 FutoIn Project (http://futoin.org)
+Version: 1.4
+Date: 2017-07-19
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.4 - 2017-07-19
+    * FIXED: interface JSON schema "fields" constraints
+    * NEW: clarified imports logic in diamond shaped cases
+    * NEW: clarified default "null" behavior
 * v1.3 - 2015-03-08
     * Added "obf" - on behalf field support
     * Added "seclvl" - user authentication security level minimum
@@ -303,6 +307,12 @@ various *optional* constraints:
 *NOTE: omitted optional field of custom map type must be set to null on incoming message (request
 for Executor and response for Invoker case). Optional fields should be allowed to be sent as null.*
 
+### 1.8.2. "null" parameter value
+
+As a special case, it's possible to mark any parameter with default value of "null". Besides
+providing the default value, it also triggers a special parameter verification logic which skips
+any constraint check, if actual value is null.
+
 ## 1.9. Errors and exceptions
 
 Any functional call can result in expected or unexpected errors. This concept
@@ -455,18 +465,24 @@ Using [JSON-SCHEMA][]:
                                 "fields" : {
                                     "type": "object",
                                     "additionalProperties" : false,
-                                    "properties" : {
-                                        "type" :  {
-                                            "type" : "string",
-                                            "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
-                                        },
-                                        "optional" : {
-                                            "type" : "boolean",
-                                            "description" : "If true the field is optional. Defaults to null"
-                                        },
-                                        "desc" : {
-                                            "type" : "string",
-                                            "description" : "Result variable description"
+                                    "patternProperties" : {
+                                        "^[a-z][a-z0-9_]*$" : {
+                                            "type": "object",
+                                            "additionalProperties" : false,
+                                            "properties" : {
+                                                "type" :  {
+                                                    "type" : "string",
+                                                    "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                                                },
+                                                "optional" : {
+                                                    "type" : "boolean",
+                                                    "description" : "If true the field is optional. Defaults to null"
+                                                },
+                                                "desc" : {
+                                                    "type" : "string",
+                                                    "description" : "Result variable description"
+                                                }
+                                            }
                                         }
                                     }
                                 },
@@ -758,6 +774,10 @@ identifiers.
 
 Import procedure must act exactly as inheritance in scope of processing "types", "funcs"
 and "requires" fields. However, imported interface must never be listed as inherited.
+
+If imported interfaces includes own "imports" field it must be treated as if imported
+interfaces are listed in the top-most main interface. Interface imports of compatible
+interface versions must get merged together. This is a workaround for diamond-shaped cases.
 
 ## 2.8. "Heavy" requests
 
