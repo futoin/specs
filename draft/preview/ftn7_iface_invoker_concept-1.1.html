@@ -133,13 +133,13 @@ issues.</p>
 </ol>
 <p>Advanced CCM extensions:</p>
 <ol>
-<li>boolean initFromCache( AsyncSteps as, cache_l1_endpoint )<ul>
+<li>boolean initRegFromCache( AsyncSteps as, cache_l1_endpoint )<ul>
 <li><em>cache_l1_endpoint</em> - end-point URL for Cache L1</li>
 <li>returns true, if successfully initialized from cache (no need to register interfaces)</li>
 <li>Note: Cache L1 needs to be registered first</li>
 </ul>
 </li>
-<li>void cacheInit( AsyncSteps as )<ul>
+<li>void cacheReg( AsyncSteps as )<ul>
 <li>call after all registrations are done to cache them</li>
 </ul>
 </li>
