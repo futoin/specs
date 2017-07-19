@@ -12,6 +12,7 @@ Authors: Andrey Galkin
     * FIXED: interface JSON schema "fields" constraints
     * NEW: clarified imports logic in diamond shaped cases
     * NEW: clarified default "null" behavior
+    * NEW: type, field, parameter or result shortcut for type definition
 * v1.3 - 2015-03-08
     * Added "obf" - on behalf field support
     * Added "seclvl" - user authentication security level minimum
@@ -313,6 +314,22 @@ As a special case, it's possible to mark any parameter with default value of "nu
 providing the default value, it also triggers a special parameter verification logic which skips
 any constraint check, if actual value is null.
 
+### 1.8.3. Shortcut for type definition
+
+Parameter, result variable, field in "map" and type can be defined with string.
+The string must be a name of a known type.
+
+So,
+`
+    "param" : "integer"
+`
+is equivalent to
+`
+    "param" : {
+        "type" : "integer"
+    }
+`
+
 ## 1.9. Errors and exceptions
 
 Any functional call can result in expected or unexpected errors. This concept
@@ -433,7 +450,7 @@ Using [JSON-SCHEMA][]:
                     "description" : "Version of the FTN3 spec, according to which the iface is defined"
                 },
                 "types" : {
-                    "type" : "object",
+                    "type" : ["object", "string"],
                     "description" : "iface types. Must start with Capital",
                     "patternProperties" : {
                         "^[A-Z][a-zA-Z0-9]*$" : {
@@ -467,7 +484,7 @@ Using [JSON-SCHEMA][]:
                                     "additionalProperties" : false,
                                     "patternProperties" : {
                                         "^[a-z][a-z0-9_]*$" : {
-                                            "type": "object",
+                                            "type" : ["object", "string"],
                                             "additionalProperties" : false,
                                             "properties" : {
                                                 "type" :  {
@@ -507,7 +524,7 @@ Using [JSON-SCHEMA][]:
                                     "additionalProperties" : false,
                                     "patternProperties" : {
                                         "^[a-z][a-z0-9_]*$" : {
-                                            "type" : "object",
+                                            "type" : ["object", "string"],
                                             "properties" : {
                                                 "type" :  {
                                                     "type" : "string",
@@ -529,7 +546,7 @@ Using [JSON-SCHEMA][]:
                                     "additionalProperties" : false,
                                     "patternProperties" : {
                                         "^[a-z][a-z0-9_]*$" : {
-                                            "type" : "object",
+                                            "type" : ["object", "string"],
                                             "properties" : {
                                                 "type" :  {
                                                     "type" : "string",
@@ -617,7 +634,8 @@ Using [JSON-SCHEMA][]:
                         "data" : {
                             "default" : null,
                             "desc" : "Arbitrary event data"
-                        }
+                        },
+                        "ref" : "string"
                     },
                     "desc" : "Asynchronously send event"
                 },
