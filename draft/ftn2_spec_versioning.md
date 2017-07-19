@@ -77,4 +77,4 @@ Exception is when MAJOR=0 - initial development.
 Whole specification can be marked deprecated, if its features are fully covered by another specification.
 The goal is to avoid alternative specs for the same area.
 
-
+=END OF SPEC=

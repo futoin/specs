@@ -1,1 +1,74 @@
-{"iface": "futoin.master.provider", "version": "0.1", "funcs": {"register": {"params": {"callback": {"type": "string", "desc": "Consumer callback URL or 'channel', implementing futoin.master.consumer interface"}, "secret": {"type": "string", "desc": "Initial shared secret"}, "cbid": {"type": "string", "desc": "Arbitrary string to be passed in futoin.master.consumer interface"}, "swver": {"type": "string", "desc": "Software of Service and its version"}, "purpose": {"type": "string", "desc": "Purpose/Description for the Service"}}, "result": {"ok": {"type": "boolean", "desc": "Always true, if no exception"}}, "throws": ["AlreadyRegistered", "InvalidCallback", "InvalidSecret", "KeyRotationFailure"]}, "unRegister": {"params": {"callback": {"type": "string", "desc": "Original value from registration request"}}, "result": {"ok": {"type": "boolean", "desc": "Always true, if no exception"}}, "throws": ["UnknownCallback"]}, "authChannel": {"result": {"ok": {"type": "boolean", "desc": "Always true, if no exception"}}, "desc": "Authenticate channel with credentials for performance reasons (skip sec section)"}}, "requires": ["AllowAnonymous", "SecureChannel"], "desc": "MasterService Provider interface"}
+{
+  "iface": "futoin.master.provider",
+  "version": "0.1",
+  "ftn3rev": "1.4",
+  "funcs": {
+    "register": {
+      "params": {
+        "callback": {
+          "type": "string",
+          "desc": "Consumer callback URL or 'channel', implementing futoin.master.consumer interface"
+        },
+        "secret": {
+          "type": "string",
+          "desc": "Initial shared secret"
+        },
+        "cbid": {
+          "type": "string",
+          "desc": "Arbitrary string to be passed in futoin.master.consumer interface"
+        },
+        "swver": {
+          "type": "string",
+          "desc": "Software of Service and its version"
+        },
+        "purpose": {
+          "type": "string",
+          "desc": "Purpose/Description for the Service"
+        }
+      },
+      "result": {
+        "ok": {
+          "type": "boolean",
+          "desc": "Always true, if no exception"
+        }
+      },
+      "throws": [
+        "AlreadyRegistered",
+        "InvalidCallback",
+        "InvalidSecret",
+        "KeyRotationFailure"
+      ]
+    },
+    "unRegister": {
+      "params": {
+        "callback": {
+          "type": "string",
+          "desc": "Original value from registration request"
+        }
+      },
+      "result": {
+        "ok": {
+          "type": "boolean",
+          "desc": "Always true, if no exception"
+        }
+      },
+      "throws": [
+        "UnknownCallback"
+      ]
+    },
+    "authChannel": {
+      "result": {
+        "ok": {
+          "type": "boolean",
+          "desc": "Always true, if no exception"
+        }
+      },
+      "desc": "Authenticate channel with credentials for performance reasons (skip sec section)"
+    }
+  },
+  "requires": [
+    "AllowAnonymous",
+    "SecureChannel"
+  ],
+  "desc": "MasterService Provider interface"
+}

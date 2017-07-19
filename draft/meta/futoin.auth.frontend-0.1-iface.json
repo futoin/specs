@@ -1,1 +1,69 @@
-{"iface": "futoin.auth.frontend", "version": "0.1", "funcs": {"signIn": {"params": {"lvl": {"type": "string", "desc": "Required Security Level"}, "pf": {"type": "array", "desc": "List of private field access to request"}, "tkn": {"type": "string", "desc": "Requesting Service provided client token"}}, "desc": "Special handling. Service and its callback must be determined from sec.ki parameter. Client is 'transport'"}, "authBySecret": {"params": {"client_id": {"type": "string", "desc": "Unique Client ID"}, "secret": {"type": "string", "desc": "Client secret"}}, "result": {"ok": {"type": "boolean", "desc": "Always true, if no exception"}}, "throws": ["InvalidClientID", "InvalidSecret", "Blocked"], "desc": "Authorize by ID/secret pair"}, "completeSignIn": {"result": {"redirect": {"type": "string", "desc": "Redirect URL to return to requesting Service"}}}, "cancelSignIn": {"result": {"redirect": {"type": "string", "desc": "Redirect URL to return to requesting Service"}}}}, "requires": ["AllowAnonymous", "SecureChannel"], "desc": "AuthService Backend Provider interface"}
+{
+  "iface": "futoin.auth.frontend",
+  "version": "0.1",
+  "ftn3rev": "1.4",
+  "funcs": {
+    "signIn": {
+      "params": {
+        "lvl": {
+          "type": "string",
+          "desc": "Required Security Level"
+        },
+        "pf": {
+          "type": "array",
+          "desc": "List of private field access to request"
+        },
+        "tkn": {
+          "type": "string",
+          "desc": "Requesting Service provided client token"
+        }
+      },
+      "desc": "Special handling. Service and its callback must be determined from sec.ki parameter. Client is 'transport'"
+    },
+    "authBySecret": {
+      "params": {
+        "client_id": {
+          "type": "string",
+          "desc": "Unique Client ID"
+        },
+        "secret": {
+          "type": "string",
+          "desc": "Client secret"
+        }
+      },
+      "result": {
+        "ok": {
+          "type": "boolean",
+          "desc": "Always true, if no exception"
+        }
+      },
+      "throws": [
+        "InvalidClientID",
+        "InvalidSecret",
+        "Blocked"
+      ],
+      "desc": "Authorize by ID/secret pair"
+    },
+    "completeSignIn": {
+      "result": {
+        "redirect": {
+          "type": "string",
+          "desc": "Redirect URL to return to requesting Service"
+        }
+      }
+    },
+    "cancelSignIn": {
+      "result": {
+        "redirect": {
+          "type": "string",
+          "desc": "Redirect URL to return to requesting Service"
+        }
+      }
+    }
+  },
+  "requires": [
+    "AllowAnonymous",
+    "SecureChannel"
+  ],
+  "desc": "AuthService Backend Provider interface"
+}

@@ -594,6 +594,7 @@ system audit and reaction.
         {
             "iface" : "futoin.master.provider",
             "version" : "0.1",
+            "ftn3rev" : "1.4",
             "funcs" : {
                 "register" : {
                     "params" : {
@@ -675,6 +676,7 @@ system audit and reaction.
         {
             "iface" : "futoin.master.consumer",
             "version" : "0.1",
+            "ftn3rev" : "1.4",
             "funcs" : {
                 "newSharedKey" : {
                     "params" : {
@@ -710,6 +712,7 @@ system audit and reaction.
         {
             "iface" : "futoin.auth.backend",
             "version" : "0.1",
+            "ftn3rev" : "1.4",
             "funcs" : {
                 "getClientInfo" : {
                     "params" : {
@@ -785,6 +788,7 @@ system audit and reaction.
         {
             "iface" : "futoin.auth.frontend",
             "version" : "0.1",
+            "ftn3rev" : "1.4",
             "funcs" : {
                 "signIn" : {
                     "params" : {
@@ -860,6 +864,7 @@ system audit and reaction.
         {
             "iface" : "futoin.auth.consumer",
             "version" : "0.1",
+            "ftn3rev" : "1.4",
             "funcs" : {
                 "complete" : {
                     "params" : {
@@ -912,6 +917,7 @@ system audit and reaction.
         {
             "iface" : "futoin.acl.provider",
             "version" : "0.1",
+            "ftn3rev" : "1.4",
             "funcs" : {
                 "checkAccess" : {
                     "params" : {
@@ -1016,6 +1022,7 @@ system audit and reaction.
         {
             "iface" : "futoin.acl.consumer",
             "version" : "0.1",
+            "ftn3rev" : "1.4",
             "funcs" : {
                 "invalidate" : {
                     "params" : {
@@ -1094,6 +1101,7 @@ system audit and reaction.
         {
             "iface" : "futoin.defense.provider",
             "version" : "0.1",
+            "ftn3rev" : "1.4",
             "funcs" : {
                 "onCall" : {
                     "params" : {
@@ -1106,7 +1114,7 @@ system audit and reaction.
                             "desc" : "IPv4:addr, IPv6:addr or other-type:addr, optionally followed by :port or :path"
                         },
                         "request" : {
-                            "type" : "object",
+                            "type" : "map",
                             "desc" : "Original request data"
                         }
                     },
@@ -1133,7 +1141,7 @@ system audit and reaction.
                             "desc" : "Reference ID for onCall()"
                         },
                         "response" : {
-                            "type" : "object",
+                            "type" : "map",
                             "desc" : "Original response data"
                         }
                     },

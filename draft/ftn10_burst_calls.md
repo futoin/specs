@@ -33,6 +33,7 @@ Note: message multiplexing must be enabled to match request and response message
         {
             "iface" : "futoin.burst",
             "version" : "0.1",
+            "ftn3rev" : "1.4",
             "funcs" : {
                 "noResultBurst" : {
                     "params" : {
@@ -81,3 +82,4 @@ Burst can be used globally on CCM or on individual interfaces.
 * start()
 * finish()
 
+=END OF SPEC=

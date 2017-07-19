@@ -1,1 +1,46 @@
-{"iface": "futoin.auth.consumer", "version": "0.1", "funcs": {"complete": {"params": {"essn": {"type": "string", "desc": "Encrypted session token ID"}, "ttl": {"type": "string", "desc": "Time-to-Live for Client session"}}}, "getSignIn": {"result": {"url": {"type": "string", "desc": "AuthService redirection URL"}}}, "invalidate": {"params": {"essn": {"type": "string", "desc": "Encrypted session token ID"}}, "result": {"ok": {"type": "boolean", "desc": "Always true, if no exception"}}, "desc": "Invalidate session and force re-check on next user activity or earlier"}}, "requires": ["AllowAnonymous"], "desc": "AuthService Backend Provider interface"}
+{
+  "iface": "futoin.auth.consumer",
+  "version": "0.1",
+  "ftn3rev": "1.4",
+  "funcs": {
+    "complete": {
+      "params": {
+        "essn": {
+          "type": "string",
+          "desc": "Encrypted session token ID"
+        },
+        "ttl": {
+          "type": "string",
+          "desc": "Time-to-Live for Client session"
+        }
+      }
+    },
+    "getSignIn": {
+      "result": {
+        "url": {
+          "type": "string",
+          "desc": "AuthService redirection URL"
+        }
+      }
+    },
+    "invalidate": {
+      "params": {
+        "essn": {
+          "type": "string",
+          "desc": "Encrypted session token ID"
+        }
+      },
+      "result": {
+        "ok": {
+          "type": "boolean",
+          "desc": "Always true, if no exception"
+        }
+      },
+      "desc": "Invalidate session and force re-check on next user activity or earlier"
+    }
+  },
+  "requires": [
+    "AllowAnonymous"
+  ],
+  "desc": "AuthService Backend Provider interface"
+}

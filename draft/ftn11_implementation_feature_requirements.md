@@ -55,3 +55,5 @@ list to be used in dependency management.
 * Full support [FTN7 Interface Invoker Concept](./ftn7\_iface\_invoker\_concept.md)
 * Full API for [futoin.burst](./ftn10\_burst\_calls.md)
 * Client for WebSocket end-point [FTN5 HTTP integration](./ftn5\_iface\_http\_integration.md)
+
+=END OF SPEC=
