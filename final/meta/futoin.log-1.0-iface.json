@@ -1,1 +1,58 @@
-{"iface": "futoin.log", "version": "1.0", "ftn3rev": "1.1", "types": {"LogLevel": {"type": "string", "regex": "^(debug|info|warn|error|security)$", "desc": "Severity level"}, "LogTimeStamp": {"type": "string", "regex": "^[0-9]{14}(\\.[0-9]+)?$", "desc": "Original timestamp in YYYYMMDDhhmmss.frac format"}}, "funcs": {"msg": {"params": {"lvl": {"type": "LogLevel"}, "txt": {"type": "string", "desc": "Text message, may include new lines"}, "ts": {"type": "LogTimeStamp"}}, "desc": "Trivial log message"}, "hexdump": {"params": {"lvl": {"type": "LogLevel"}, "txt": {"type": "string", "desc": "Text message, may include new lines"}, "ts": {"type": "LogTimeStamp"}, "data": {"type": "string", "desc": "Base64 encoded binary data"}}, "desc": "Trivial log message"}}, "requires": ["AllowAnonymous", "SecureChannel"], "desc": "Audit Log interface"}
+{
+  "iface": "futoin.log",
+  "version": "1.0",
+  "ftn3rev": "1.1",
+  "types": {
+    "LogLevel": {
+      "type": "string",
+      "regex": "^(debug|info|warn|error|security)$",
+      "desc": "Severity level"
+    },
+    "LogTimeStamp": {
+      "type": "string",
+      "regex": "^[0-9]{14}(\\.[0-9]+)?$",
+      "desc": "Original timestamp in YYYYMMDDhhmmss.frac format"
+    }
+  },
+  "funcs": {
+    "msg": {
+      "params": {
+        "lvl": {
+          "type": "LogLevel"
+        },
+        "txt": {
+          "type": "string",
+          "desc": "Text message, may include new lines"
+        },
+        "ts": {
+          "type": "LogTimeStamp"
+        }
+      },
+      "desc": "Trivial log message"
+    },
+    "hexdump": {
+      "params": {
+        "lvl": {
+          "type": "LogLevel"
+        },
+        "txt": {
+          "type": "string",
+          "desc": "Text message, may include new lines"
+        },
+        "ts": {
+          "type": "LogTimeStamp"
+        },
+        "data": {
+          "type": "string",
+          "desc": "Base64 encoded binary data"
+        }
+      },
+      "desc": "Trivial log message"
+    }
+  },
+  "requires": [
+    "AllowAnonymous",
+    "SecureChannel"
+  ],
+  "desc": "Audit Log interface"
+}
