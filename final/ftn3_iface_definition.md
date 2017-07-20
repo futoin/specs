@@ -1,13 +1,15 @@
 <pre>
 FTN3: FutoIn Interface Definition
 Version: 1.4
-Date: 2017-07-19
+Date: 2017-07-20
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.4.1 - 2017-07-20
+    * FIXED: JSON schema issue with "types" type shortcut
 * v1.4 - 2017-07-19
     * FIXED: interface JSON schema "fields" constraints
     * NEW: clarified imports logic in diamond shaped cases
@@ -450,11 +452,11 @@ Using [JSON-SCHEMA][]:
                     "description" : "Version of the FTN3 spec, according to which the iface is defined"
                 },
                 "types" : {
-                    "type" : ["object", "string"],
+                    "type" : "object",
                     "description" : "iface types. Must start with Capital",
                     "patternProperties" : {
                         "^[A-Z][a-zA-Z0-9]*$" : {
-                            "type" : "object",
+                            "type" : ["object", "string"],
                             "additionalProperties" : false,
                             "properties" : {
                                 "type" :  {
