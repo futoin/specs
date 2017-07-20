@@ -97,7 +97,7 @@ def compilespec( spec_file ) :
                         json.loads(
                                 ''.join( json_text ),
                                 object_pairs_hook = lambda pairs: collections.OrderedDict( pairs )
-                        ) )
+                        ), indent=2, separators=(',', ': ') )
 
                 schema_file = os.path.join( meta_dir, parsing_schema + '-' + spec_ver + '-schema.json' )
 
