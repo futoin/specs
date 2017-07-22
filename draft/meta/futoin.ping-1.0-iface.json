@@ -6,21 +6,18 @@
     "ping": {
       "params": {
         "echo": {
-          "type": "string",
-          "desc": "Any string"
+          "type": "integer",
+          "desc": "Arbitrary integer"
         }
       },
       "result": {
         "echo": {
-          "type": "string",
+          "type": "integer",
           "desc": "See params"
         }
       },
       "desc": "Check if peer is accessible"
     }
   },
-  "requires": [
-    "AllowAnonymous"
-  ],
   "desc": "Ping-pong interface"
 }

@@ -8,7 +8,10 @@ Authors: Andrey Galkin
 
 # CHANGES
 
-* v1.0 - 2015-01-24
+* v1.0 - 2017-07-22
+    - Split into AllowAnonymous & secure
+    - Changed to use integer instead of string for echo
+* Intial draft - 2015-01-24
 
 # 1. Intro
 
@@ -20,6 +23,10 @@ as Executor.
 
 # 2. Interface schema
 
+## 2.1. Generic interface
+
+This version requires authentication by default.
+
 `Iface{`
 
         {
@@ -30,19 +37,33 @@ as Executor.
                 "ping" : {
                     "params" : {
                         "echo" : {
-                            "type" : "string",
-                            "desc" : "Any string"
+                            "type" : "integer",
+                            "desc" : "Arbitrary integer"
                         }
                     },
                     "result" : {
                         "echo" : {
-                            "type" : "string",
+                            "type" : "integer",
                             "desc" : "See params"
                         }
                     },
                     "desc" : "Check if peer is accessible"
                 }
             },
+            "desc" : "Ping-pong interface"
+        }
+
+`}Iface`
+
+## 2.1. Anoynmous variation of ping interface
+
+`Iface{`
+
+        {
+            "iface" : "futoin.anonping",
+            "version" : "1.0",
+            "ftn3rev" : "1.1",
+            "inherit" : "futoin.ping:1.0",
             "requires" : [
                 "AllowAnonymous"
             ],
@@ -50,5 +71,8 @@ as Executor.
         }
 
 `}Iface`
+
+
+
 
 =END OF SPEC=

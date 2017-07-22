@@ -14,7 +14,12 @@ Authors: Andrey Galkin
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2015-01-24</li>
+<li>v1.0 - 2017-07-22<ul>
+<li>Split into AllowAnonymous &amp; secure</li>
+<li>Changed to use integer instead of string for echo</li>
+</ul>
+</li>
+<li>Intial draft - 2015-01-24</li>
 </ul>
 <h1>1. Intro</h1>
 <p>Nothing to say, just a generic ping interface, which can be used
@@ -22,6 +27,8 @@ to check other peer availability.</p>
 <p>This interface should be implemented on all peers, which can act
 as Executor.</p>
 <h1>2. Interface schema</h1>
+<h2>2.1. Generic interface</h2>
+<p>This version requires authentication by default.</p>
 <pre><code>    {
         "iface" : "futoin.ping",
         "version" : "1.0",
@@ -30,19 +37,28 @@ as Executor.</p>
             "ping" : {
                 "params" : {
                     "echo" : {
-                        "type" : "string",
-                        "desc" : "Any string"
+                        "type" : "integer",
+                        "desc" : "Arbitrary integer"
                     }
                 },
                 "result" : {
                     "echo" : {
-                        "type" : "string",
+                        "type" : "integer",
                         "desc" : "See params"
                     }
                 },
                 "desc" : "Check if peer is accessible"
             }
         },
+        "desc" : "Ping-pong interface"
+    }
+</code></pre>
+<h2>2.1. Anoynmous variation of ping interface</h2>
+<pre><code>    {
+        "iface" : "futoin.anonping",
+        "version" : "1.0",
+        "ftn3rev" : "1.1",
+        "inherit" : "futoin.ping:1.0",
         "requires" : [
             "AllowAnonymous"
         ],
