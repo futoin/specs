@@ -27,12 +27,12 @@ Authors: Andrey Galkin
 
 # 5. Interfaces
 ## 5.1. Core
+* [FTN4 IF Ping](./ftn4\_if\_ping.md)
 * NOT YET FINAL: FTN8 IF AccessControlService
 * NOT YET FINAL: FTN9 IF AuditLogService
 * NOT YET FINAL: FTN8 IF AuthService
 * NOT YET FINAL: FTN8 IF DefenseService
 * NOT YET FINAL: FTN8 IF MasterService
-* NOT YET FINAL: FTN4 IF Ping
 * NOT YET FINAL: FTN10 IF Burst
 
 =END OF SPEC=
