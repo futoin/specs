@@ -1,11 +1,18 @@
 <pre>
 FTN2: FutoIn Specification Versioning
-Version: 1.0
-Date: 2014-09-07
-Copyright: 2014 FutoIn Project (http://futoin.org)
+Version: 1.1
+Date: 2017-08-03
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
+# CHANGES
+
+* v1.1 - 2017-08-03 - Andrey Galkin
+    - NEW: "6. Specification content requirements" section
+    - NEW: "2.3.3. Non-concept fixes in released versions" section
+* v1.0 - 2014-09-07 - Andrey Galkin
+    - Initial spec
 
 # 1. Version format
 
@@ -50,6 +57,13 @@ Broken backward compatibility is versioned as "(MAJOR+1).DVn" and then releases 
 
 The previous version should be available with "_vMAJOR" postfix/suffix in filename for easy accessibility purposes.
 
+### 2.3.3. Non-concept fixes in released versions
+Sometimes, issues are found right after release of new spec.
+
+When changes only fix spelling, typos and similar errors, it's allowed
+to apply them without spec version update. However, changelog must
+have a dedicated entry with third "patch" component of version.
+
 
 # 3. Requirements for specification release
 
@@ -76,5 +90,24 @@ Exception is when MAJOR=0 - initial development.
 
 Whole specification can be marked deprecated, if its features are fully covered by another specification.
 The goal is to avoid alternative specs for the same area.
+
+# 6. Specification content requirements
+
+* "CHANGES" section with listing:
+    - first level in format "v{version} - {date} - {author}"
+    - second level - list of changes (in this order):
+        - "Initial spec" - for v1.0
+        - "BREAKING: {desc}" - backward incompatible change
+        - "FIXED: {desc}" - fixes of issues found
+        - "CHANGED: {desc}" - backward compatible change
+        - "NEW: {desc}" - new features
+* "1. Intro" - brief introduction on purpose
+* "2. Concept" - main ideas behind
+* "3. Interface" - related interface definitions, if applicable
+* others as required
+
+*Note: historical and specific cases may have another headings*
+
+
 
 =END OF SPEC=
