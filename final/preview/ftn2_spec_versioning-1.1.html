@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn2_spec_versioning.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN2: FutoIn Specification Versioning
+Version: 1.1
+Date: 2017-08-03
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.1 - 2017-08-03 - Andrey Galkin<ul>
+<li>NEW: "6. Specification content requirements" section</li>
+<li>NEW: "2.3.3. Non-concept fixes in released versions" section</li>
+</ul>
+</li>
+<li>v1.0 - 2014-09-07 - Andrey Galkin<ul>
+<li>Initial spec</li>
+</ul>
+</li>
+</ul>
+<h1>1. Version format</h1>
+<p>There are two version components MAJOR and MINOR, separated by point.</p>
+<p>For released specifications, both components are not negative integer number, monotonically increasing from zero.</p>
+<pre><code>Example: 1.0, 1.1, 2.0
+</code></pre>
+<p>The latest up-to-date version in development/draft is to be marked with special "DV" component in place of MINOR, concatenated with draft number equal to the next
+expected version.</p>
+<pre><code>Example: 0.DV1, 1.DV1, 2.DV1, 2.DV2
+</code></pre>
+<h1>2. Linear Versioning</h1>
+<p>FutoIn specification versioning is linear - no branching is allowed.</p>
+<p>"(n+1).x" version is guaranteed to be newer than any "n.y", where x, y - any value</p>
+<p>As exception, it is allowed to released new versions of previous MAJOR version until the first release of new MAJOR version</p>
+<h2>2.1. Initial Specification Design</h2>
+<p>MAJOR is set to 0, minor is incremented with every draft</p>
+<h2>2.2. Initial Release</h2>
+<p>MAJOR is set to 1, MINOR - to 0.</p>
+<h2>2.3. Specification revise</h2>
+<h3>2.3.1. Backward compatible draft</h3>
+<p>Existing specification is updated and versioned as draft (MAJOR.DVn).
+New version is released as "MAJOR.(MINOR+1)".</p>
+<h3>2.3.2. Draft with broken backward compatibility</h3>
+<p>Broken backward compatibility is versioned as "(MAJOR+1).DVn" and then releases as "(MAJOR+1).0".</p>
+<p>The previous version should be available with "_vMAJOR" postfix/suffix in filename for easy accessibility purposes.</p>
+<h3>2.3.3. Non-concept fixes in released versions</h3>
+<p>Sometimes, issues are found right after release of new spec.</p>
+<p>When changes only fix spelling, typos and similar errors, it's allowed
+to apply them without spec version update. However, changelog must
+have a dedicated entry with third "patch" component of version.</p>
+<h1>3. Requirements for specification release</h1>
+<ol>
+<li>Specification must be approved (see note below)</li>
+<li>At least one reference implementation must exist, if applicable</li>
+<li>At least one full [automatic] test suite must exist, if applicable</li>
+</ol>
+<p><em>Note: Review &amp; Approval process is out of scope of this document.</em></p>
+<h1>4. Backward compatibility</h1>
+<p>"x.(n+1)" is guaranteed to be backward compatible with any "x.n". Specification bug fix is not subject for backward compatibility.</p>
+<pre><code>Example: 1.1 with 1.0, 1.2 with 1.1 and 1.0, etc.
+</code></pre>
+<p>"(n+1).0" version increment is allowed only, if there is backward incompatible change.
+Typically, such releases are allowed only after deep revise process to drop deprecated features.
+Exception is when MAJOR=0 - initial development.</p>
+<h1>5. Specification deprecation</h1>
+<p>Whole specification can be marked deprecated, if its features are fully covered by another specification.
+The goal is to avoid alternative specs for the same area.</p>
+<h1>6. Specification content requirements</h1>
+<ul>
+<li>"CHANGES" section with listing:<ul>
+<li>first level in format "v{version} - {date} - {author}"</li>
+<li>second level - list of changes (in this order):<ul>
+<li>"Initial spec" - for v1.0</li>
+<li>"BREAKING: {desc}" - backward incompatible change</li>
+<li>"FIXED: {desc}" - fixes of issues found</li>
+<li>"CHANGED: {desc}" - backward compatible change</li>
+<li>"NEW: {desc}" - new features</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>"1. Intro" - brief introduction on purpose</li>
+<li>"2. Concept" - main ideas behind</li>
+<li>"3. Interface" - related interface definitions, if applicable</li>
+<li>others as required</li>
+</ul>
+<p><em>Note: historical and specific cases may have another headings</em></p>
+<p>=END OF SPEC=</p>
+</body></html>
