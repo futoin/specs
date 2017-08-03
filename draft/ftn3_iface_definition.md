@@ -1,27 +1,29 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.4
-Date: 2017-07-20
+Version: 1.5
+Date: 2017-08-03
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.4.1 - 2017-07-20
+* v1.5 - 2017-08-03 - Andrey Galkin
+    * NEW: minlen/maxlen instead of only regex for string support
+* v1.4.1 - 2017-07-20 - Andrey Galkin
     * FIXED: JSON schema issue with "types" type shortcut
-* v1.4 - 2017-07-19
+* v1.4 - 2017-07-19 - Andrey Galkin
     * FIXED: interface JSON schema "fields" constraints
     * NEW: clarified imports logic in diamond shaped cases
     * NEW: clarified default "null" behavior
     * NEW: type, field, parameter or result shortcut for type definition
-* v1.3 - 2015-03-08
+* v1.3 - 2015-03-08 - Andrey Galkin
     * Added "obf" - on behalf field support
     * Added "seclvl" - user authentication security level minimum
-* v1.2 - 2015-02-22
+* v1.2 - 2015-02-22 - Andrey Galkin
     * Extended 'rid' field regex to support custom prefix part
     * Added "MessageSignature" interface constraint
-* v1.1 - 2015-01-08
+* v1.1 - 2015-01-08 - Andrey Galkin
     * Added response.edesc optional field
     * Added iface.ftn3rev field
     * Added custom types concept
@@ -31,7 +33,7 @@ Authors: Andrey Galkin
     * Added "BiDirectChannel" constraint
     * Added "heavy" function property
     * Officially documented payload size safety limits
-* v1.0 - 2014-09-08
+* v1.0 - 2014-09-08 - Andrey Galkin
 
 # 1. Basic concept
 
@@ -296,7 +298,9 @@ various *optional* constraints:
     * min - minimal allowed value (inclusive).
     * max - maximal allowed value (inclusive).
 * string:
-    * regex - ECMAScript regular expression. Please use it to impose length constraints.
+    * regex - ECMAScript regular expression.
+    * minlen - minimal string length (inclusive).
+    * maxlen - maximal string length (inclusive).
 * array:
     * minlen - minimal array length (inclusive).
     * maxlen - maximal array length (inclusive).
