@@ -1,0 +1,10 @@
+{
+  "vcs": "git",
+  "name": "specs",
+  "tools" : {
+    "python" : "3",
+    "pip" : "*",
+    "node" : "*",
+    "yarn" : "*"
+  }
+}

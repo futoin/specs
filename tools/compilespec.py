@@ -13,7 +13,7 @@ import os
 import codecs
 import re
 import collections
-from jsonschema import validate as schema_validate
+from jsonschema import validate as schema_validate, Draft4Validator
 
 def die( msg ) :
     sys.stderr.write( msg )
@@ -93,11 +93,12 @@ def compilespec( spec_file ) :
                 text.append('<p class="futoin-schema">Schema: ' + parsing_schema + '</p>\n')
 
             elif l == '`}Schema`\n' :
-                schema = json.dumps(
-                        json.loads(
-                                ''.join( json_text ),
-                                object_pairs_hook = lambda pairs: collections.OrderedDict( pairs )
-                        ), indent=2, separators=(',', ': ') )
+                schema_obj = json.loads(
+                        ''.join( json_text ),
+                        object_pairs_hook = lambda pairs: collections.OrderedDict( pairs )
+                )
+                Draft4Validator.check_schema(schema_obj)
+                schema = json.dumps(schema_obj, indent=2, separators=(',', ': ') )
 
                 schema_file = os.path.join( meta_dir, parsing_schema + '-' + spec_ver + '-schema.json' )
 
