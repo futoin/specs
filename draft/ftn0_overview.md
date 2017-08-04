@@ -27,12 +27,13 @@ Authors: Andrey Galkin
 
 # 5. Interfaces
 ## 5.1. Core
+* [FTN4 IF Ping](./ftn4\_if\_ping.md)
 * [FTN8 IF AccessControlService](./ftn8\_security\_concept.md)
 * [FTN9 IF AuditLogService](./ftn9\_if\_auditlog.md)
 * [FTN8 IF AuthService](./ftn8\_security\_concept.md)
 * [FTN8 IF DefenseService](./ftn8\_security\_concept.md)
 * [FTN8 IF MasterService](./ftn8\_security\_concept.md)
-* [FTN4 IF Ping](./ftn4\_if\_ping.md)
 * [FTN10 IF Burst](./ftn10\_burst\_calls.md)
+* [FTN17 IF Database](./ftn17\_if\_database.md)
 
 =END OF SPEC=

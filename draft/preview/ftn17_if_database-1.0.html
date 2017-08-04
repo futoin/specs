@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn17_if_database.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN3: FutoIn Interface - Database
+Version: 1.0DV
+Date: 2017-08-03
+Copyright: 2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.0 - 2017-08-03<ul>
+<li>Initial spec</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>Database interface is fundamental part of almost any technology stack.</p>
+<h1>2. Concept</h1>
+<p>Interface is split into several levels which are combined in inheritance chain.</p>
+<p>Fundamental difference from traditional interfaces is lack of large
+result set support, cursors and explicit transaction control. This is
+done by intention to forbid undesired database operation patterns.</p>
+<h2>2.1. Level 1</h2>
+<p>The very basic level for query execution with minimal safety requirements.</p>
+<h2>2.2. Level 2</h2>
+<p>Transaction execution abstraction with "single call" pattern.</p>
+<p>The overall idea is to execute a list of statements on DB side in single transaction
+one-by-one. After each xfer, trivial validation is done like amount of affected rows
+or count of rows in result. This allows creating complex intermediate checks in
+native DB query. Such pattern avoids blocking on usually expensive DB connection
+and forces to execute transaction with no client-side delays. Also, proper release
+of connection to DB connection pool is ensured.</p>
+<p>If at any step an error occurs then whole transaction is rolled back.</p>
+<p><em>Note: internally, it's assumed that there is a limited number of simultaneous
+DB connection allowed which are managed in connection pool for performance reasons,
+but such details are absolutely hidden from clients.</em></p>
+<h2>2.3. Level 3</h2>
+<p>Database metadata and ORM-like abstraction.</p>
+<h1>3. Interfaces</h1>
+<h2>3.1. Level 1 - query interface</h2>
+<pre><code>    {
+        "iface" : "futoin.db.l1",
+        "version" : "1.0",
+        "ftn3rev" : "1.6",
+        "imports" : [
+            "futoin.ping:1.0"
+        ],
+        "types" : {
+            "Query" : {
+                "type" : "string",
+                "minlen" : 1,
+                "maxlen" : 10000
+            },
+            "Row" : "array",
+            "Rows" : {
+                "type" : "array",
+                "elemtype" : "Row",
+                "maxlen" : 1000
+            },
+            "Fields" : {
+                "type" : "array",
+                "elemtype" : "string",
+                "desc" : "List of field named in order of related Row"
+            }
+        },
+        "funcs" : {
+            "query" : {
+                "params" : {
+                    "q" : "Query"
+                },
+                "result" : {
+                    "rows" : "Rows",
+                    "fields" : "Fields",
+                    "affected" : "integer"
+                },
+                "throws" : [
+                    "InvalidQuery",
+                    "Duplicate",
+                    "OtherExecError",
+                    "LimitTooHigh"
+                ]
+            }
+        }
+    }
+</code></pre>
+<h3>3.1.1. Native interface extension</h3>
+<ul>
+<li>Extends "futoin.db.l1"</li>
+<li>Functions:<ul>
+<li>QueryBuilder queryBuilder(type, entity)<ul>
+<li><em>type</em> - DELETE, INSERT, SELECT, UPDATE</li>
+<li><em>entity</em> - table or view to use</li>
+</ul>
+</li>
+<li>QueryBuilder delete(entity)<ul>
+<li>calls queryBuilder()</li>
+</ul>
+</li>
+<li>QueryBuilder insert(entity)<ul>
+<li>calls queryBuilder()</li>
+</ul>
+</li>
+<li>QueryBuilder select(entity)<ul>
+<li>calls queryBuilder()</li>
+</ul>
+</li>
+<li>QueryBuilder update(entity)<ul>
+<li>calls queryBuilder()</li>
+</ul>
+</li>
+<li>void call(as, name, Array arguments=[])<ul>
+<li><em>name</em> - stored procedure name</li>
+<li><em>arguments</em> - list of positional arguments to pass</li>
+</ul>
+</li>
+<li>void raw(as, String q, Map params={})</li>
+</ul>
+</li>
+<li>Class QueryBuilder<ul>
+<li>QueryBuilder clone()<ul>
+<li>create copy of builder</li>
+</ul>
+</li>
+<li>QueryBuilder get(fields, escape_field=true)<ul>
+<li><em>fields</em> - field name, array of fields names or map of field-expresion pairs</li>
+<li><em>escape_field</em> - escape filed names, if true</li>
+</ul>
+</li>
+<li>QueryBuilder set(field, value, escape_value=true, escape_field=true)<ul>
+<li><em>field</em> - string</li>
+<li><em>value</em> - arbitrary value</li>
+<li><em>escape_field</em> - escape filed names, if true</li>
+<li><em>escape_value</em> - escape value, if true</li>
+</ul>
+</li>
+<li>QueryBuilder setMany(Map fieldValueMap, escape_value=true, escape_field=true)<ul>
+<li>calls set() for each pair of <em>fieldValueMap</em></li>
+</ul>
+</li>
+<li>QueryBuilder where(Map conditions, escape_value=true, escape_field=true)<ul>
+<li><em>conditions</em> - pairs of field-value conditions<ul>
+<li>field name may include operator in the end</li>
+</ul>
+</li>
+<li><em>escape_field</em> - escape filed names, if true</li>
+<li><em>escape_value</em> - escape value, if true</li>
+</ul>
+</li>
+<li>QueryBuilder having(Map conditions, escape_value=true, escape_field=true)<ul>
+<li><em>conditions</em> - pairs of field-value conditions<ul>
+<li>field name may include operator in the end</li>
+</ul>
+</li>
+<li><em>escape_field</em> - escape filed names, if true</li>
+<li><em>escape_value</em> - escape value, if true    * QueryBuilder group(fields, escape_field=true)</li>
+</ul>
+</li>
+<li>QueryBuilder order(Map fields, Boolean escape_field=true)<ul>
+<li><em>conditions</em> - pairs of field-direction, direction in ASC, DESC</li>
+<li><em>escape_field</em> - escape filed names, if true</li>
+</ul>
+</li>
+<li>QueryBuilder limit([Integer start,] Integer count)</li>
+<li>void execute(AsyncSteps as, Boolean unsafe=false)<ul>
+<li>creates query string and calls query()</li>
+<li><em>unsafe</em> - fail on DML query without conditions, if true</li>
+</ul>
+</li>
+<li>void executeAssoc(AsyncSteps as, Boolean unsafe=false)<ul>
+<li>Same as execute(), but process response and passes
+    array of maps and amount of affected rows instead.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>3.1.2. Native executor extension</h3>
+<ul>
+<li>Functions:<ul>
+<li>void setup(host, port, user, password, database, conn_limit[, options])<ul>
+<li><em>host</em> - native DB interface host address</li>
+<li><em>port</em> - native DB interface port</li>
+<li><em>user</em> - database user</li>
+<li><em>password</em> - database password</li>
+<li><em>conn_limit</em> - maximum limit of simultaneous connections</li>
+<li><em>options</em> - database-specific options</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2>3.2. Level 2 - transaction interface</h2>
+<pre><code>    {
+        "iface" : "futoin.db.l2",
+        "version" : "1.0",
+        "ftn3rev" : "1.6",
+        "inherit" : "futoin.db.l1:1.0",
+        "types" : {
+            "IntOrBool" : ["integer", "boolean"],
+            "XferQuery" : {
+                "type" : "map",
+                "fields" : {
+                    "q" : "Query",
+                    "affected" : {
+                        "type" : "IntOrBool",
+                        "optional" : true,
+                        "desc" : "Require changed row count: specific or &gt; 0, if true"
+                    },
+                    "selected" : {
+                        "type" : "IntOrBool",
+                        "optional" : true,
+                        "desc" : "Require selected row count: specific or &gt; 0, if true"
+                    },
+                    "return" : {
+                        "type" : "boolean",
+                        "optional" : true,
+                        "desc" : "Return result of the statement"
+                    }
+                }                    
+            },
+            "XferQueryList" : {
+                "type" : "array",
+                "elemtype" : "XferQuery",
+                "minlen" : 1,
+                "maxlen" : 100
+            },
+            "XferResult" : {
+                "type" : "map",
+                "fields" : {
+                    "rows" : "Rows",
+                    "fields" : "Fields",
+                    "affected" : "integer"
+                }
+            },
+            "XferResultList" : {
+                "type" : "array",
+                "elemtype" : "XferResult",
+                "minlen" : 0,
+                "maxlen" : 100
+            },
+            "IsolationLevel" : {
+                "type" : "enum",
+                "items" : ["RU", "RC", "RR", "SRL"],
+                "desc" : "Refers to standard ISO isolation levels"
+            }
+        },
+        "funcs" : {
+            "xfer" : {
+                "params" : {
+                    "ql" : "XferQuery",
+                    "isol" : "IsolationLevel"
+                },
+                "result" : {
+                    "results" : "XferResultList"
+                },
+                "throws" : [
+                    "InvalidQuery",
+                    "Duplicate",
+                    "OtherExecError",
+                    "LimitTooHigh"
+                ]
+
+            }            
+        }
+    }
+</code></pre>
+<h3>3.2.1. Native interface extension</h3>
+<ul>
+<li>Extends "futoin.db.l2"</li>
+<li>Functions:<ul>
+<li>XferBuilder xferBuilder(IsolationLevel isol="RC")</li>
+</ul>
+</li>
+<li>Map QueryOptions:<ul>
+<li><em>Integer|Boolean affected</em> - exact number or true for &gt;0</li>
+<li><em>Integer|Boolean selected</em> - exact number or true for &gt;0</li>
+<li><em>Boolean return</em> - mark query which result must be returned</li>
+</ul>
+</li>
+<li>Class XferBuilder:<ul>
+<li>XferBuilder clone()</li>
+<li>XferQueryBuilder delete(String entity, QueryOptions query_options)</li>
+<li>XferQueryBuilder insert(String entity, QueryOptions query_options)</li>
+<li>XferQueryBuilder update(String entity, QueryOptions query_options)</li>
+<li>XferQueryBuilder select(String entity, QueryOptions query_options)</li>
+<li>void call(String name, Array arguments=[], QueryOptions query_options)</li>
+<li>void raw(String q, Map params={}, query_options)</li>
+<li>void execute(AsyncSteps as, Boolean unsafe=false)</li>
+</ul>
+</li>
+<li>Class XferQueryBuilder extends QueryBuilder<ul>
+<li>void execute(AsyncSteps as, Boolean unsafe=false) - must unconditionally throw InternalError</li>
+</ul>
+</li>
+</ul>
+<h2>3.3. Level 3 - TBD</h2>
+<p>To be defined in later versions.</p>
+<p>=END OF SPEC=</p>
+</body></html>

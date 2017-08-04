@@ -1,0 +1,44 @@
+{
+  "iface": "futoin.db.l1",
+  "version": "1.0",
+  "ftn3rev": "1.6",
+  "imports": [
+    "futoin.ping:1.0"
+  ],
+  "types": {
+    "Query": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 10000
+    },
+    "Row": "array",
+    "Rows": {
+      "type": "array",
+      "elemtype": "Row",
+      "maxlen": 1000
+    },
+    "Fields": {
+      "type": "array",
+      "elemtype": "string",
+      "desc": "List of field named in order of related Row"
+    }
+  },
+  "funcs": {
+    "query": {
+      "params": {
+        "q": "Query"
+      },
+      "result": {
+        "rows": "Rows",
+        "fields": "Fields",
+        "affected": "integer"
+      },
+      "throws": [
+        "InvalidQuery",
+        "Duplicate",
+        "OtherExecError",
+        "LimitTooHigh"
+      ]
+    }
+  }
+}
