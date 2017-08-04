@@ -1,13 +1,18 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.5
-Date: 2017-08-03
+Version: 1.6
+Date: 2017-08-04
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.6 - 2017-08-04 - Andrey Galkin
+    * FIXED: minor enforcements for interface schema
+    * NEW: "enum" and "set" basic type support
+    * NEW: type variations
+    * NEW: "elemtype" for "map"
 * v1.5 - 2017-08-03 - Andrey Galkin
     * NEW: minlen/maxlen instead of only regex for string support
 * v1.4.1 - 2017-07-20 - Andrey Galkin
@@ -279,6 +284,10 @@ The standard FutoIn interface types:
     * value - any type defined in this section
 * array - ordered list of values
     * value - any type defined in this section
+* enum - value from predefined set
+    * value - integer or string
+* set - list of unique values
+    * value - integer or string
 * any - field type is not checked
 * *CustomType* - any pre-defined custom type defined, inherited or imported
     in the same iface
@@ -309,7 +318,12 @@ various *optional* constraints:
     * fields - a map of field_name to:
         * type - required field type
         * optional - optional. boolean. True, if the field can be omitted.
-        * desc - optional. string, Description of the field
+        * desc - optional. string, Description of the field.
+    * elemtype - required element type, if no "fields" are provided.
+* enum:
+    * items - list of allowed integer or string values
+* set:
+    * items - complete set of allowed integer or string values
 
 *NOTE: omitted optional field of custom map type must be set to null on incoming message (request
 for Executor and response for Invoker case). Optional fields should be allowed to be sent as null.*
@@ -335,6 +349,18 @@ is equivalent to
         "type" : "integer"
     }
 `
+
+### 1.8.4. Type variations
+
+Sometimes the same parameter or result may be allowed to have different types.
+For example: database query can return both integer and string field data.
+
+For that purpose, specification allows listing several types in array. Such
+approach is supported only in shortcut type definition form, e.g.:
+`
+    "param" : ["integer", "string"]
+`
+
 
 ## 1.9. Errors and exceptions
 
@@ -460,12 +486,14 @@ Using [JSON-SCHEMA][]:
                     "description" : "iface types. Must start with Capital",
                     "patternProperties" : {
                         "^[A-Z][a-zA-Z0-9]*$" : {
-                            "type" : ["object", "string"],
+                            "type" : ["object", "string", "array"],
+                            "uniqueItems": true,
+                            "minItems": 1,
                             "additionalProperties" : false,
                             "properties" : {
                                 "type" :  {
                                     "type" : "string",
-                                    "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                                    "pattern" : "^any|boolean|integer|number|string|map|array|enum|set|[A-Z][a-zA-Z0-9]+$"
                                 },
                                 "min" : {
                                     "type": "number"
@@ -490,7 +518,8 @@ Using [JSON-SCHEMA][]:
                                     "additionalProperties" : false,
                                     "patternProperties" : {
                                         "^[a-z][a-z0-9_]*$" : {
-                                            "type" : ["object", "string"],
+                                            "type" : ["object", "string", "array"],
+                                            "uniqueItems": true,
                                             "additionalProperties" : false,
                                             "properties" : {
                                                 "type" :  {
@@ -509,13 +538,24 @@ Using [JSON-SCHEMA][]:
                                         }
                                     }
                                 },
+                                "items" : {
+                                    "type" : "array",
+                                    "uniqueItems": true,
+                                    "additionalItems": false,
+                                    "items" : {
+                                        "type" : ["string", "integer"]
+                                    },
+                                    "minItems": 1,
+                                    "maxItems": 1000
+                                },
                                 "desc" : {
                                     "type" : "string",
                                     "description" : "Custom type description"
                                 }
                             }
                         }
-                    }
+                    },
+                    "additionalProperties" : false
                 },
                 "funcs" : {
                     "type" : "object",
@@ -530,7 +570,9 @@ Using [JSON-SCHEMA][]:
                                     "additionalProperties" : false,
                                     "patternProperties" : {
                                         "^[a-z][a-z0-9_]*$" : {
-                                            "type" : ["object", "string"],
+                                            "type" : ["object", "string", "array"],
+                                            "uniqueItems": true,
+                                            "additionalProperties" : false,
                                             "properties" : {
                                                 "type" :  {
                                                     "type" : "string",
@@ -552,7 +594,9 @@ Using [JSON-SCHEMA][]:
                                     "additionalProperties" : false,
                                     "patternProperties" : {
                                         "^[a-z][a-z0-9_]*$" : {
-                                            "type" : ["object", "string"],
+                                            "type" : ["object", "string", "array"],
+                                            "uniqueItems": true,
+                                            "additionalProperties" : false,
                                             "properties" : {
                                                 "type" :  {
                                                     "type" : "string",
@@ -617,7 +661,8 @@ Using [JSON-SCHEMA][]:
                         "type" : "string",
                         "pattern" : "^AllowAnonymous|SecureChannel|BiDirectChannel|MessageSignature|[a-zA-Z0-9]+$"
                     },
-                    "uniqueItems": true
+                    "uniqueItems": true,
+                    "additionalItems": false
                 }
             }
         }

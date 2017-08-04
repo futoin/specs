@@ -158,9 +158,9 @@ futoin-asyncsteps@^1.5.8:
   dependencies:
     performance-now "^2.1.0"
 
-futoin-invoker@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/futoin-invoker/-/futoin-invoker-1.0.1.tgz#643f5ed151edddb2513df1577098f7996c37fd10"
+futoin-invoker@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/futoin-invoker/-/futoin-invoker-1.1.0.tgz#17be48653eed68853047cd2dbcf4631a0822e97e"
   dependencies:
     agentkeepalive "^3.3.0"
     detect-node "^2.0.3"
