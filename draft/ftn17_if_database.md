@@ -1,5 +1,5 @@
 <pre>
-FTN3: FutoIn Interface - Database
+FTN17: FutoIn Interface - Database
 Version: 1.0DV
 Date: 2017-08-03
 Copyright: 2017 FutoIn Project (http://futoin.org)
