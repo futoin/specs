@@ -10,6 +10,13 @@ Authors: Andrey Galkin
 
 * v1.0 - 2017-08-03
     - Initial spec
+* DV - 2017-08-07
+    - Added L1.getFlavour()
+    - Added QueryBuilder.join() and sub-query support
+    - Removed explicit escape control
+    - Added notes about client design
+* DV - 2017-08-03
+    - Initial draft
 
 # 1. Intro
 
@@ -46,7 +53,82 @@ but such details are absolutely hidden from clients.*
 
 ## 2.3. Level 3
 
-Database metadata and ORM-like abstraction.
+Database metadata and ORM-like abstraction. TBD.
+
+## 2.4. Client-service design
+
+For cross-operation support, client side should be as much neutral as possible and try
+to use QueryBuilder interface which should auto-detect actual database type. QueryBuilder
+is responsible to consistent behavior across databases. The same applies for XferBUilder
+in Level 2.
+
+Client application should be able to run raw queries depending on L1.getType() result.
+
+## 2.5. QueryBuilder security & escapes
+
+QueryBuilder must enforce auto-escape of all values. Identifiers must be checked for valid
+[fully qualified] format to prevent possible injection attacks.
+
+## 2.6. QueryBuilder conditions
+
+Conditions can be set as:
+1. string - must a be a plain expression used as-is:
+2. map:
+    - "field.name" => "value" or "field.name OP" pairs
+    - value is auto-escaped
+3. array - special cases for building complex conditions as tree
+    - Optional "AND" (default) or "OR" string in first element indicate join type
+    - any following element is recursive of these rules: string, map or another array
+    
+Multiple conditions and/or repeated calls assune "AND" join.
+
+
+Simple Example:
+```pseudo
+    select('TableName')
+        .where('SomeField IS NULL')
+        .where({
+            'OtherField' => $val,
+            'AnotherField <' => $threshold,
+        })
+```
+
+Complex Example:
+```pseudo
+    select('TableName')
+        .where([
+            "FieldOne IS NULL",
+            [
+                "OR",
+                "FieldTwo <" => 2,
+                "FieldThee IN" => [1, 2, 3], 
+            ],
+            {
+                "FieldFour" => $val,
+            }
+        ])
+```
+
+## 2.7. QueryBuilder condition operators
+
+For map conditions optional match operators are supported.
+The following standard ops are assumed:
+
+* `=` - equal
+* `<>` - not equal
+* `>` - greater
+* `>=` - greater or equal
+* `<` - less
+* `<=` - less or equal
+* `IN` - in array or subquery (assumed)
+* `NOT IN` - not in array or subquery (assumed)
+* `BETWEEN` - two value tuple is assumed for inclusive range match
+* `NOT BETWEEN` - two value tuple is assumed for inverted inclusive range match
+* `LIKE` - LIKE match
+* `NOT LIKE` - NOT LIKE match
+* other ops may be implicitely supported
+
+*Note: `EXISTS`, `ANY` and `SOME` are not supported by design due to known performance issues in many database implementations.*
 
 # 3. Interfaces
 
@@ -68,16 +150,28 @@ Database metadata and ORM-like abstraction.
                     "minlen" : 1,
                     "maxlen" : 10000
                 },
+                "Identifier" : {
+                    "type" : "string",
+                    "maxlen" : 256
+                },
                 "Row" : "array",
                 "Rows" : {
                     "type" : "array",
                     "elemtype" : "Row",
                     "maxlen" : 1000
                 },
+                "Field" : {
+                    "type" : "string",
+                    "maxlen" : 256
+                },
                 "Fields" : {
                     "type" : "array",
-                    "elemtype" : "string",
+                    "elemtype" : "Field",
                     "desc" : "List of field named in order of related Row"
+                },
+                "Flavour" : {
+                    "type" : "Identifier",
+                    "desc" : "Actual actual database driver type"
                 }
             },
             "funcs" : {
@@ -96,6 +190,28 @@ Database metadata and ORM-like abstraction.
                         "OtherExecError",
                         "LimitTooHigh"
                     ]
+                },
+                "callStored" : {
+                    "params" : {
+                        "name" : "Identifier",
+                        "args" : "Row"
+                    },
+                    "result" : {
+                        "rows" : "Rows",
+                        "fields" : "Fields",
+                        "affected" : "integer"
+                    },
+                    "throws" : [
+                        "InvalidQuery",
+                        "Duplicate",
+                        "OtherExecError",
+                        "LimitTooHigh"
+                    ]
+                },
+                "getFlavour" : {
+                    "result" : {
+                        "flavour" : "Flavour"
+                    }
                 }
             }
         }
@@ -108,7 +224,12 @@ Database metadata and ORM-like abstraction.
 * Functions:
     * QueryBuilder queryBuilder(type, entity)
         * *type* - DELETE, INSERT, SELECT, UPDATE
-        * *entity* - table or view to use
+        * *entity* -
+            - table or view name
+            - QueryBuilder object to use as sub-query
+            - tuple of [entity, alias]
+            - null - special case without SQL "FROM"
+        * *alias* - alias to use for referencing
     * QueryBuilder delete(entity)
         * calls queryBuilder()
     * QueryBuilder insert(entity)
@@ -117,41 +238,47 @@ Database metadata and ORM-like abstraction.
         * calls queryBuilder()
     * QueryBuilder update(entity)
         * calls queryBuilder()
-    * void call(as, name, Array arguments=[])
-        * *name* - stored procedure name
-        * *arguments* - list of positional arguments to pass
-    * void raw(as, String q, Map params={})
+    * void paramQuery(as, String q, Map params={})
+        * substiatue ":name" placeholders in q with
+            values from params
+        * do normal raw query()
+    * void associateResult(as_result)
+        * process efficiently packed result to get array
+            of associative Map
 * Class QueryBuilder
+    * static void addDriver(type, module)
+        * *type* - driver name to match L1.getType()
+        * *module* - module name or actual instance
+        * add/override driver support
     * QueryBuilder clone()
         * create copy of builder
-    * QueryBuilder get(fields, escape_field=true)
+    * String escape(value)
+        * *value* any value
+    * QueryBuilder get(fields)
         * *fields* - field name, array of fields names or map of field-expresion pairs
-        * *escape_field* - escape filed names, if true
-    * QueryBuilder set(field, value, escape_value=true, escape_field=true)
+    * QueryBuilder set(field, value)
         * *field* - string
-        * *value* - arbitrary value
-        * *escape_field* - escape filed names, if true
-        * *escape_value* - escape value, if true
-    * QueryBuilder setMany(Map fieldValueMap, escape_value=true, escape_field=true)
+        * *value* - arbitrary value, expression or QueryBuilder sub-query
+    * QueryBuilder set(Map fieldValueMap)
         * calls set() for each pair of *fieldValueMap*
-    * QueryBuilder where(Map conditions, escape_value=true, escape_field=true)
-        * *conditions* - pairs of field-value conditions
-            * field name may include operator in the end
-        * *escape_field* - escape filed names, if true
-        * *escape_value* - escape value, if true
-    * QueryBuilder having(Map conditions, escape_value=true, escape_field=true)
-        * *conditions* - pairs of field-value conditions
-            * field name may include operator in the end
-        * *escape_field* - escape filed names, if true
-        * *escape_value* - escape value, if true    * QueryBuilder group(fields, escape_field=true)
-    * QueryBuilder order(Map fields, Boolean escape_field=true)
-        * *conditions* - pairs of field-direction, direction in ASC, DESC
-        * *escape_field* - escape filed names, if true
-    * QueryBuilder limit([Integer start,] Integer count)
-    * void execute(AsyncSteps as, Boolean unsafe=false)
+    * QueryBuilder where(conditions)
+        * *conditions* - see concept
+    * QueryBuilder having(conditions)
+        * *conditions* - see concept
+    * QueryBuilder group(field_expr)
+    * QueryBuilder order(field_expr, Boolean ascending=true)
+        * *fields* - pairs of field-direction, direction in ASC, DESC
+    * QueryBuilder limit(Integer count, Integer offset)
+    * QueryBuilder join(join_type, entity, conditions)
+        * *join_type* - INNER, LEFT
+        * *entity* - see L1.queryBuilder()
+        * *conditions* - see concept
+    * QueryBuilder innerJoin(entity, conditions)
+    * QueryBuilder leftJoin(entity, conditions)
+    * void execute(AsyncSteps as, Boolean unsafe_dml=false)
         * creates query string and calls query()
-        * *unsafe* - fail on DML query without conditions, if true
-    * void executeAssoc(AsyncSteps as, Boolean unsafe=false)
+        * *unsafe_dml* - fail on DML query without conditions, if true
+    * void executeAssoc(AsyncSteps as, Boolean unsafe_dml=false)
         * Same as execute(), but process response and passes
             array of maps and amount of affected rows instead.
             
@@ -262,11 +389,12 @@ Database metadata and ORM-like abstraction.
     * XferQueryBuilder insert(String entity, QueryOptions query_options)
     * XferQueryBuilder update(String entity, QueryOptions query_options)
     * XferQueryBuilder select(String entity, QueryOptions query_options)
-    * void call(String name, Array arguments=[], QueryOptions query_options)
-    * void raw(String q, Map params={}, query_options)
-    * void execute(AsyncSteps as, Boolean unsafe=false)
+    * void call(String name, Array arguments=[], QueryOptions query_options={})
+    * void raw(String q, Map params={}, QueryOptions query_options={})
+    * void execute(AsyncSteps as, Boolean unsafe_dml=false)
 * Class XferQueryBuilder extends QueryBuilder
-    * void execute(AsyncSteps as, Boolean unsafe=false) - must unconditionally throw InternalError
+    * void execute(AsyncSteps as, Boolean unsafe_dml=false)
+        - must unconditionally throw InternalError
     
 
 

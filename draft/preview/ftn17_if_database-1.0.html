@@ -18,6 +18,17 @@ Authors: Andrey Galkin
 <li>Initial spec</li>
 </ul>
 </li>
+<li>DV - 2017-08-07<ul>
+<li>Added L1.getFlavour()</li>
+<li>Added QueryBuilder.join() and sub-query support</li>
+<li>Removed explicit escape control</li>
+<li>Added notes about client design</li>
+</ul>
+</li>
+<li>DV - 2017-08-03<ul>
+<li>Initial draft</li>
+</ul>
+</li>
 </ul>
 <h1>1. Intro</h1>
 <p>Database interface is fundamental part of almost any technology stack.</p>
@@ -41,7 +52,67 @@ of connection to DB connection pool is ensured.</p>
 DB connection allowed which are managed in connection pool for performance reasons,
 but such details are absolutely hidden from clients.</em></p>
 <h2>2.3. Level 3</h2>
-<p>Database metadata and ORM-like abstraction.</p>
+<p>Database metadata and ORM-like abstraction. TBD.</p>
+<h2>2.4. Client-service design</h2>
+<p>For cross-operation support, client side should be as much neutral as possible and try
+to use QueryBuilder interface which should auto-detect actual database type. QueryBuilder
+is responsible to consistent behavior across databases. The same applies for XferBUilder
+in Level 2.</p>
+<p>Client application should be able to run raw queries depending on L1.getType() result.</p>
+<h2>2.5. QueryBuilder security &amp; escapes</h2>
+<p>QueryBuilder must enforce auto-escape of all values. Identifiers must be checked for valid
+[fully qualified] format to prevent possible injection attacks.</p>
+<h2>2.6. QueryBuilder conditions</h2>
+<p>Conditions can be set as:
+1. string - must a be a plain expression used as-is:
+2. map:
+    - "field.name" =&gt; "value" or "field.name OP" pairs
+    - value is auto-escaped
+3. array - special cases for building complex conditions as tree
+    - Optional "AND" (default) or "OR" string in first element indicate join type
+    - any following element is recursive of these rules: string, map or another array</p>
+<p>Multiple conditions and/or repeated calls assune "AND" join.</p>
+<p>Simple Example:
+<code>pseudo
+    select('TableName')
+        .where('SomeField IS NULL')
+        .where({
+            'OtherField' =&gt; $val,
+            'AnotherField &lt;' =&gt; $threshold,
+        })</code></p>
+<p>Complex Example:
+<code>pseudo
+    select('TableName')
+        .where([
+            "FieldOne IS NULL",
+            [
+                "OR",
+                "FieldTwo &lt;" =&gt; 2,
+                "FieldThee IN" =&gt; [1, 2, 3], 
+            ],
+            {
+                "FieldFour" =&gt; $val,
+            }
+        ])</code></p>
+<h2>2.7. QueryBuilder condition operators</h2>
+<p>For map conditions optional match operators are supported.
+The following standard ops are assumed:</p>
+<ul>
+<li><code>=</code> - equal</li>
+<li><code>&lt;&gt;</code> - not equal</li>
+<li><code>&gt;</code> - greater</li>
+<li><code>&gt;=</code> - greater or equal</li>
+<li><code>&lt;</code> - less</li>
+<li><code>&lt;=</code> - less or equal</li>
+<li><code>IN</code> - in array or subquery (assumed)</li>
+<li><code>NOT IN</code> - not in array or subquery (assumed)</li>
+<li><code>BETWEEN</code> - two value tuple is assumed for inclusive range match</li>
+<li><code>NOT BETWEEN</code> - two value tuple is assumed for inverted inclusive range match</li>
+<li><code>LIKE</code> - LIKE match</li>
+<li><code>NOT LIKE</code> - NOT LIKE match</li>
+<li>other ops may be implicitely supported</li>
+</ul>
+<p><em>Note: <code>EXISTS</code>, <code>ANY</code> and <code>SOME</code> are not supported by design due to known performance issues in many database implementations.</em></p>
 <h1>3. Interfaces</h1>
 <h2>3.1. Level 1 - query interface</h2>
 <pre><code>    {
@@ -57,16 +128,28 @@ but such details are absolutely hidden from clients.</em></p>
                 "minlen" : 1,
                 "maxlen" : 10000
             },
+            "Identifier" : {
+                "type" : "string",
+                "maxlen" : 256
+            },
             "Row" : "array",
             "Rows" : {
                 "type" : "array",
                 "elemtype" : "Row",
                 "maxlen" : 1000
             },
+            "Field" : {
+                "type" : "string",
+                "maxlen" : 256
+            },
             "Fields" : {
                 "type" : "array",
-                "elemtype" : "string",
+                "elemtype" : "Field",
                 "desc" : "List of field named in order of related Row"
+            },
+            "Flavour" : {
+                "type" : "Identifier",
+                "desc" : "Actual actual database driver type"
             }
         },
         "funcs" : {
@@ -85,6 +168,28 @@ but such details are absolutely hidden from clients.</em></p>
                     "OtherExecError",
                     "LimitTooHigh"
                 ]
+            },
+            "callStored" : {
+                "params" : {
+                    "name" : "Identifier",
+                    "args" : "Row"
+                },
+                "result" : {
+                    "rows" : "Rows",
+                    "fields" : "Fields",
+                    "affected" : "integer"
+                },
+                "throws" : [
+                    "InvalidQuery",
+                    "Duplicate",
+                    "OtherExecError",
+                    "LimitTooHigh"
+                ]
+            },
+            "getFlavour" : {
+                "result" : {
+                    "flavour" : "Flavour"
+                }
             }
         }
     }
@@ -95,7 +200,14 @@ but such details are absolutely hidden from clients.</em></p>
 <li>Functions:<ul>
 <li>QueryBuilder queryBuilder(type, entity)<ul>
 <li><em>type</em> - DELETE, INSERT, SELECT, UPDATE</li>
-<li><em>entity</em> - table or view to use</li>
+<li><em>entity</em> -<ul>
+<li>table or view name</li>
+<li>QueryBuilder object to use as sub-query</li>
+<li>tuple of [entity, alias]</li>
+<li>null - special case without SQL "FROM"</li>
+</ul>
+</li>
+<li><em>alias</em> - alias to use for referencing</li>
 </ul>
 </li>
 <li>QueryBuilder delete(entity)<ul>
@@ -114,65 +226,75 @@ but such details are absolutely hidden from clients.</em></p>
 <li>calls queryBuilder()</li>
 </ul>
 </li>
-<li>void call(as, name, Array arguments=[])<ul>
-<li><em>name</em> - stored procedure name</li>
-<li><em>arguments</em> - list of positional arguments to pass</li>
+<li>void paramQuery(as, String q, Map params={})<ul>
+<li>substiatue ":name" placeholders in q with
+    values from params</li>
+<li>do normal raw query()</li>
 </ul>
 </li>
-<li>void raw(as, String q, Map params={})</li>
+<li>void associateResult(as_result)<ul>
+<li>process efficiently packed result to get array
+    of associative Map</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>Class QueryBuilder<ul>
+<li>static void addDriver(type, module)<ul>
+<li><em>type</em> - driver name to match L1.getType()</li>
+<li><em>module</em> - module name or actual instance</li>
+<li>add/override driver support</li>
+</ul>
+</li>
 <li>QueryBuilder clone()<ul>
 <li>create copy of builder</li>
 </ul>
 </li>
-<li>QueryBuilder get(fields, escape_field=true)<ul>
+<li>String escape(value)<ul>
+<li><em>value</em> any value</li>
+</ul>
+</li>
+<li>QueryBuilder get(fields)<ul>
 <li><em>fields</em> - field name, array of fields names or map of field-expresion pairs</li>
-<li><em>escape_field</em> - escape filed names, if true</li>
 </ul>
 </li>
-<li>QueryBuilder set(field, value, escape_value=true, escape_field=true)<ul>
+<li>QueryBuilder set(field, value)<ul>
 <li><em>field</em> - string</li>
-<li><em>value</em> - arbitrary value</li>
-<li><em>escape_field</em> - escape filed names, if true</li>
-<li><em>escape_value</em> - escape value, if true</li>
+<li><em>value</em> - arbitrary value, expression or QueryBuilder sub-query</li>
 </ul>
 </li>
-<li>QueryBuilder setMany(Map fieldValueMap, escape_value=true, escape_field=true)<ul>
+<li>QueryBuilder set(Map fieldValueMap)<ul>
 <li>calls set() for each pair of <em>fieldValueMap</em></li>
 </ul>
 </li>
-<li>QueryBuilder where(Map conditions, escape_value=true, escape_field=true)<ul>
-<li><em>conditions</em> - pairs of field-value conditions<ul>
-<li>field name may include operator in the end</li>
+<li>QueryBuilder where(conditions)<ul>
+<li><em>conditions</em> - see concept</li>
 </ul>
 </li>
-<li><em>escape_field</em> - escape filed names, if true</li>
-<li><em>escape_value</em> - escape value, if true</li>
+<li>QueryBuilder having(conditions)<ul>
+<li><em>conditions</em> - see concept</li>
 </ul>
 </li>
-<li>QueryBuilder having(Map conditions, escape_value=true, escape_field=true)<ul>
-<li><em>conditions</em> - pairs of field-value conditions<ul>
-<li>field name may include operator in the end</li>
+<li>QueryBuilder group(field_expr)</li>
+<li>QueryBuilder order(field_expr, Boolean ascending=true)<ul>
+<li><em>fields</em> - pairs of field-direction, direction in ASC, DESC</li>
 </ul>
 </li>
-<li><em>escape_field</em> - escape filed names, if true</li>
-<li><em>escape_value</em> - escape value, if true    * QueryBuilder group(fields, escape_field=true)</li>
+<li>QueryBuilder limit(Integer count, Integer offset)</li>
+<li>QueryBuilder join(join_type, entity, conditions)<ul>
+<li><em>join_type</em> - INNER, LEFT</li>
+<li><em>entity</em> - see L1.queryBuilder()</li>
+<li><em>conditions</em> - see concept</li>
 </ul>
 </li>
-<li>QueryBuilder order(Map fields, Boolean escape_field=true)<ul>
-<li><em>conditions</em> - pairs of field-direction, direction in ASC, DESC</li>
-<li><em>escape_field</em> - escape filed names, if true</li>
-</ul>
-</li>
-<li>QueryBuilder limit([Integer start,] Integer count)</li>
-<li>void execute(AsyncSteps as, Boolean unsafe=false)<ul>
+<li>QueryBuilder innerJoin(entity, conditions)</li>
+<li>QueryBuilder leftJoin(entity, conditions)</li>
+<li>void execute(AsyncSteps as, Boolean unsafe_dml=false)<ul>
 <li>creates query string and calls query()</li>
-<li><em>unsafe</em> - fail on DML query without conditions, if true</li>
+<li><em>unsafe_dml</em> - fail on DML query without conditions, if true</li>
 </ul>
 </li>
-<li>void executeAssoc(AsyncSteps as, Boolean unsafe=false)<ul>
+<li>void executeAssoc(AsyncSteps as, Boolean unsafe_dml=false)<ul>
 <li>Same as execute(), but process response and passes
     array of maps and amount of affected rows instead.</li>
 </ul>
@@ -289,13 +411,16 @@ but such details are absolutely hidden from clients.</em></p>
 <li>XferQueryBuilder insert(String entity, QueryOptions query_options)</li>
 <li>XferQueryBuilder update(String entity, QueryOptions query_options)</li>
 <li>XferQueryBuilder select(String entity, QueryOptions query_options)</li>
-<li>void call(String name, Array arguments=[], QueryOptions query_options)</li>
-<li>void raw(String q, Map params={}, query_options)</li>
-<li>void execute(AsyncSteps as, Boolean unsafe=false)</li>
+<li>void call(String name, Array arguments=[], QueryOptions query_options={})</li>
+<li>void raw(String q, Map params={}, QueryOptions query_options={})</li>
+<li>void execute(AsyncSteps as, Boolean unsafe_dml=false)</li>
 </ul>
 </li>
 <li>Class XferQueryBuilder extends QueryBuilder<ul>
-<li>void execute(AsyncSteps as, Boolean unsafe=false) - must unconditionally throw InternalError</li>
+<li>void execute(AsyncSteps as, Boolean unsafe_dml=false)<ul>
+<li>must unconditionally throw InternalError</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

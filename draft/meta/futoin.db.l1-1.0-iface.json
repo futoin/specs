@@ -11,16 +11,28 @@
       "minlen": 1,
       "maxlen": 10000
     },
+    "Identifier": {
+      "type": "string",
+      "maxlen": 256
+    },
     "Row": "array",
     "Rows": {
       "type": "array",
       "elemtype": "Row",
       "maxlen": 1000
     },
+    "Field": {
+      "type": "string",
+      "maxlen": 256
+    },
     "Fields": {
       "type": "array",
-      "elemtype": "string",
+      "elemtype": "Field",
       "desc": "List of field named in order of related Row"
+    },
+    "Flavour": {
+      "type": "Identifier",
+      "desc": "Actual actual database driver type"
     }
   },
   "funcs": {
@@ -39,6 +51,28 @@
         "OtherExecError",
         "LimitTooHigh"
       ]
+    },
+    "callStored": {
+      "params": {
+        "name": "Identifier",
+        "args": "Row"
+      },
+      "result": {
+        "rows": "Rows",
+        "fields": "Fields",
+        "affected": "integer"
+      },
+      "throws": [
+        "InvalidQuery",
+        "Duplicate",
+        "OtherExecError",
+        "LimitTooHigh"
+      ]
+    },
+    "getFlavour": {
+      "result": {
+        "flavour": "Flavour"
+      }
     }
   }
 }
