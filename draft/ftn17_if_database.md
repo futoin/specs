@@ -253,18 +253,35 @@ The following standard ops are assumed:
     * QueryBuilder clone()
         * create copy of builder
     * String escape(value)
-        * *value* any value
-    * QueryBuilder get(fields)
+        * *value* any value, including QueryBuilder instance
+    * String identifier(name)
+        * *name* - string to escape as identifier
+    * String raw(expr)
+        * *expr* - raw expression
+        * wrap raw expression to avoid escaping as value
+    * QueryBuilder get(field[, value])
         * *fields* - field name, array of fields names or map of field-expresion pairs
-    * QueryBuilder set(field, value)
+        * *value* - arbitrary value, expression or QueryBuilder sub-query
+    * QueryBuilder get(List field)
+        * list of field names to select
+    * QueryBuilder get(Map field)
+        * field name => expression pairs to select
+    * QueryBuilder set(field[, value])
         * *field* - string
         * *value* - arbitrary value, expression or QueryBuilder sub-query
     * QueryBuilder set(Map fieldValueMap)
         * calls set() for each pair of *fieldValueMap*
+    * QueryBuilder set(QueryBuilder select_query)
+        * special for "INSERT-SELECT" cases
+        * *select_query* field names are used for target field names
     * QueryBuilder where(conditions)
         * *conditions* - see concept
+    * QueryBuilder where(field, value)
+        * handy shorcut for where({ field: value })
     * QueryBuilder having(conditions)
         * *conditions* - see concept
+    * QueryBuilder having(field, value)
+        * handy shorcut for having({ field: value })
     * QueryBuilder group(field_expr)
     * QueryBuilder order(field_expr, Boolean ascending=true)
         * *fields* - pairs of field-direction, direction in ASC, DESC

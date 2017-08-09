@@ -251,14 +251,32 @@ The following standard ops are assumed:</p>
 </ul>
 </li>
 <li>String escape(value)<ul>
-<li><em>value</em> any value</li>
+<li><em>value</em> any value, including QueryBuilder instance</li>
 </ul>
 </li>
-<li>QueryBuilder get(fields)<ul>
+<li>String identifier(name)<ul>
+<li><em>name</em> - string to escape as identifier</li>
+</ul>
+</li>
+<li>String raw(expr)<ul>
+<li><em>expr</em> - raw expression</li>
+<li>wrap raw expression to avoid escaping as value</li>
+</ul>
+</li>
+<li>QueryBuilder get(field[, value])<ul>
 <li><em>fields</em> - field name, array of fields names or map of field-expresion pairs</li>
+<li><em>value</em> - arbitrary value, expression or QueryBuilder sub-query</li>
 </ul>
 </li>
-<li>QueryBuilder set(field, value)<ul>
+<li>QueryBuilder get(List field)<ul>
+<li>list of field names to select</li>
+</ul>
+</li>
+<li>QueryBuilder get(Map field)<ul>
+<li>field name =&gt; expression pairs to select</li>
+</ul>
+</li>
+<li>QueryBuilder set(field[, value])<ul>
 <li><em>field</em> - string</li>
 <li><em>value</em> - arbitrary value, expression or QueryBuilder sub-query</li>
 </ul>
@@ -267,12 +285,25 @@ The following standard ops are assumed:</p>
 <li>calls set() for each pair of <em>fieldValueMap</em></li>
 </ul>
 </li>
+<li>QueryBuilder set(QueryBuilder select_query)<ul>
+<li>special for "INSERT-SELECT" cases</li>
+<li><em>select_query</em> field names are used for target field names</li>
+</ul>
+</li>
 <li>QueryBuilder where(conditions)<ul>
 <li><em>conditions</em> - see concept</li>
 </ul>
 </li>
+<li>QueryBuilder where(field, value)<ul>
+<li>handy shorcut for where({ field: value })</li>
+</ul>
+</li>
 <li>QueryBuilder having(conditions)<ul>
 <li><em>conditions</em> - see concept</li>
+</ul>
+</li>
+<li>QueryBuilder having(field, value)<ul>
+<li>handy shorcut for having({ field: value })</li>
 </ul>
 </li>
 <li>QueryBuilder group(field_expr)</li>
