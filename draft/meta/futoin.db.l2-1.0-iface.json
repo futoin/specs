@@ -38,6 +38,7 @@
     "XferResult": {
       "type": "map",
       "fields": {
+        "seq": "integer",
         "rows": "Rows",
         "fields": "Fields",
         "affected": "integer"
@@ -63,7 +64,7 @@
   "funcs": {
     "xfer": {
       "params": {
-        "ql": "XferQuery",
+        "ql": "XferQueryList",
         "isol": "IsolationLevel"
       },
       "result": {

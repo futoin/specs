@@ -21,6 +21,7 @@ Authors: Andrey Galkin
 # 1. Intro
 
 Database interface is fundamental part of almost any technology stack.
+The primary focus is interface for classical Relational Database Systems.
 
 # 2. Concept
 
@@ -245,7 +246,7 @@ The following standard ops are assumed:
     * void associateResult(as_result)
         * process efficiently packed result to get array
             of associative Map
-* Class QueryBuilder
+* Class QueryBuilder:
     * static void addDriver(type, module)
         * *type* - driver name to match L1.getType()
         * *module* - module name or actual instance
@@ -256,9 +257,12 @@ The following standard ops are assumed:
         * *value* any value, including QueryBuilder instance
     * String identifier(name)
         * *name* - string to escape as identifier
-    * String raw(expr)
+    * Expression expr(expr)
         * *expr* - raw expression
         * wrap raw expression to avoid escaping as value
+    * Expression param(name)
+        * *name* - parameter name
+        * wrapped placeholder for prepared statement
     * QueryBuilder get(field[, value])
         * *fields* - field name, array of fields names or map of field-expresion pairs
         * *value* - arbitrary value, expression or QueryBuilder sub-query
@@ -298,9 +302,19 @@ The following standard ops are assumed:
     * void executeAssoc(AsyncSteps as, Boolean unsafe_dml=false)
         * Same as execute(), but process response and passes
             array of maps and amount of affected rows instead.
+    * Prepared prepare(Boolean unsafe_dml=false)
+        * Return an interface for efficient execution of built query
+            multiple times
+* class Prepared:
+    * void execute(AsyncSteps as, L1Face iface, params=null)
+        * *params* - name => value pairs for substitution
+        * *iface* - iface to run against
+        * executes already built query with optional parameters
+    * void executeAssoc(AsyncSteps as, L1Face iface, params=null)
+        * the same as execute(), but return associative result
             
 
-### 3.1.2. Native executor extension
+### 3.1.2. Native service extension
 
 * Functions:
     * void setup(host, port, user, password, database, conn_limit[, options])
@@ -352,6 +366,7 @@ The following standard ops are assumed:
                 "XferResult" : {
                     "type" : "map",
                     "fields" : {
+                        "seq" : "integer",
                         "rows" : "Rows",
                         "fields" : "Fields",
                         "affected" : "integer"
@@ -372,7 +387,7 @@ The following standard ops are assumed:
             "funcs" : {
                 "xfer" : {
                     "params" : {
-                        "ql" : "XferQuery",
+                        "ql" : "XferQueryList",
                         "isol" : "IsolationLevel"
                     },
                     "result" : {
@@ -395,11 +410,11 @@ The following standard ops are assumed:
 
 * Extends "futoin.db.l2"
 * Functions:
-    * XferBuilder xferBuilder(IsolationLevel isol="RC")
+    * XferBuilder newXfer(IsolationLevel isol="RC")
 * Map QueryOptions:
     * *Integer|Boolean affected* - exact number or true for >0
     * *Integer|Boolean selected* - exact number or true for >0
-    * *Boolean return* - mark query which result must be returned
+    * *Boolean return* - mark query which result must be returned (default true for last)
 * Class XferBuilder:
     * XferBuilder clone()
     * XferQueryBuilder delete(String entity, QueryOptions query_options)
@@ -409,8 +424,18 @@ The following standard ops are assumed:
     * void call(String name, Array arguments=[], QueryOptions query_options={})
     * void raw(String q, Map params={}, QueryOptions query_options={})
     * void execute(AsyncSteps as, Boolean unsafe_dml=false)
+        * build all queries and execute in single transaction
+        * *unsafe_dml* - fail on DML query without conditions, if true
+    * void executeAssoc(AsyncSteps as, Boolean unsafe_dml=false)
+        * Same as execute(), but process response and passes
+            array of maps and amount of affected rows instead.
+    * Prepared prepare(Boolean unsafe_dml=false)
+        * Return an interface for efficient execution of built transaction
+            multiple times
 * Class XferQueryBuilder extends QueryBuilder
     * void execute(AsyncSteps as, Boolean unsafe_dml=false)
+        - must unconditionally throw InternalError
+    * QueryBuilder clone()
         - must unconditionally throw InternalError
     
 
