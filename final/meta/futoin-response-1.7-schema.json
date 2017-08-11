@@ -1,0 +1,29 @@
+{
+  "title": "FutoIn response schema",
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "maxProperties": 3,
+  "properties": {
+    "r": {
+      "description": "Result key-value pairs (pre-1.7) or any type"
+    },
+    "e": {
+      "type": "string",
+      "description": "Exception/error name. Either r or e must be present"
+    },
+    "edesc": {
+      "type": "string",
+      "description": "Optional. Error description, if e is present"
+    },
+    "rid": {
+      "type": "string",
+      "pattern": "^(C|S)[0-9]+$",
+      "description": "Optional request ID for multiplexing"
+    },
+    "sec": {
+      "type": "object",
+      "description": "Security-defined extension"
+    }
+  }
+}
