@@ -1,7 +1,7 @@
 {
   "iface": "futoin.db.l1",
   "version": "1.0",
-  "ftn3rev": "1.6",
+  "ftn3rev": "1.7",
   "imports": [
     "futoin.ping:1.0"
   ],
@@ -33,6 +33,14 @@
     "Flavour": {
       "type": "Identifier",
       "desc": "Actual actual database driver type"
+    },
+    "QueryResult": {
+      "type": "map",
+      "fields": {
+        "rows": "Rows",
+        "fields": "Fields",
+        "affected": "integer"
+      }
     }
   },
   "funcs": {
@@ -40,11 +48,7 @@
       "params": {
         "q": "Query"
       },
-      "result": {
-        "rows": "Rows",
-        "fields": "Fields",
-        "affected": "integer"
-      },
+      "result": "QueryResult",
       "throws": [
         "InvalidQuery",
         "Duplicate",
@@ -57,11 +61,7 @@
         "name": "Identifier",
         "args": "Row"
       },
-      "result": {
-        "rows": "Rows",
-        "fields": "Fields",
-        "affected": "integer"
-      },
+      "result": "QueryResult",
       "throws": [
         "InvalidQuery",
         "Duplicate",
@@ -70,9 +70,7 @@
       ]
     },
     "getFlavour": {
-      "result": {
-        "flavour": "Flavour"
-      }
+      "result": "Flavour"
     }
   }
 }

@@ -119,7 +119,7 @@ The following standard ops are assumed:</p>
 <pre><code>    {
         "iface" : "futoin.db.l1",
         "version" : "1.0",
-        "ftn3rev" : "1.6",
+        "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0"
         ],
@@ -151,6 +151,14 @@ The following standard ops are assumed:</p>
             "Flavour" : {
                 "type" : "Identifier",
                 "desc" : "Actual actual database driver type"
+            },
+            "QueryResult" : {
+                "type" : "map",
+                "fields" : {
+                    "rows" : "Rows",
+                    "fields" : "Fields",
+                    "affected" : "integer"
+                }
             }
         },
         "funcs" : {
@@ -158,11 +166,7 @@ The following standard ops are assumed:</p>
                 "params" : {
                     "q" : "Query"
                 },
-                "result" : {
-                    "rows" : "Rows",
-                    "fields" : "Fields",
-                    "affected" : "integer"
-                },
+                "result" : "QueryResult",
                 "throws" : [
                     "InvalidQuery",
                     "Duplicate",
@@ -175,11 +179,7 @@ The following standard ops are assumed:</p>
                     "name" : "Identifier",
                     "args" : "Row"
                 },
-                "result" : {
-                    "rows" : "Rows",
-                    "fields" : "Fields",
-                    "affected" : "integer"
-                },
+                "result" : "QueryResult",
                 "throws" : [
                     "InvalidQuery",
                     "Duplicate",
@@ -188,9 +188,7 @@ The following standard ops are assumed:</p>
                 ]
             },
             "getFlavour" : {
-                "result" : {
-                    "flavour" : "Flavour"
-                }
+                "result" : "Flavour"
             }
         }
     }
@@ -376,7 +374,7 @@ The following standard ops are assumed:</p>
 <pre><code>    {
         "iface" : "futoin.db.l2",
         "version" : "1.0",
-        "ftn3rev" : "1.6",
+        "ftn3rev" : "1.7",
         "inherit" : "futoin.db.l1:1.0",
         "types" : {
             "IntOrBool" : ["integer", "boolean"],

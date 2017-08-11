@@ -1,21 +1,21 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0DV
-Date: 2017-08-03
+Date: 2017-08-12
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-08-03
+* v1.0 - 2017-08-12 - Andrey Galkin
     - Initial spec
-* DV - 2017-08-07
+* DV - 2017-08-12 - Andrey Galkin
     - Added L1.getFlavour()
     - Added QueryBuilder.join() and sub-query support
     - Removed explicit escape control
     - Added notes about client design
-* DV - 2017-08-03
+* DV - 2017-08-03 - Andrey Galkin
     - Initial draft
 
 # 1. Intro
@@ -141,7 +141,7 @@ The following standard ops are assumed:
         {
             "iface" : "futoin.db.l1",
             "version" : "1.0",
-            "ftn3rev" : "1.6",
+            "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0"
             ],
@@ -173,6 +173,14 @@ The following standard ops are assumed:
                 "Flavour" : {
                     "type" : "Identifier",
                     "desc" : "Actual actual database driver type"
+                },
+                "QueryResult" : {
+                    "type" : "map",
+                    "fields" : {
+                        "rows" : "Rows",
+                        "fields" : "Fields",
+                        "affected" : "integer"
+                    }
                 }
             },
             "funcs" : {
@@ -180,11 +188,7 @@ The following standard ops are assumed:
                     "params" : {
                         "q" : "Query"
                     },
-                    "result" : {
-                        "rows" : "Rows",
-                        "fields" : "Fields",
-                        "affected" : "integer"
-                    },
+                    "result" : "QueryResult",
                     "throws" : [
                         "InvalidQuery",
                         "Duplicate",
@@ -197,11 +201,7 @@ The following standard ops are assumed:
                         "name" : "Identifier",
                         "args" : "Row"
                     },
-                    "result" : {
-                        "rows" : "Rows",
-                        "fields" : "Fields",
-                        "affected" : "integer"
-                    },
+                    "result" : "QueryResult",
                     "throws" : [
                         "InvalidQuery",
                         "Duplicate",
@@ -210,9 +210,7 @@ The following standard ops are assumed:
                     ]
                 },
                 "getFlavour" : {
-                    "result" : {
-                        "flavour" : "Flavour"
-                    }
+                    "result" : "Flavour"
                 }
             }
         }
@@ -332,7 +330,7 @@ The following standard ops are assumed:
         {
             "iface" : "futoin.db.l2",
             "version" : "1.0",
-            "ftn3rev" : "1.6",
+            "ftn3rev" : "1.7",
             "inherit" : "futoin.db.l1:1.0",
             "types" : {
                 "IntOrBool" : ["integer", "boolean"],
