@@ -1,13 +1,15 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.6
-Date: 2017-08-04
+Version: 1.7DV
+Date: 2017-08-11
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.7 - 2017-08-11 - Andrey Galkin
+    * NEW: added support for result as type instead of result object
 * v1.6 - 2017-08-04 - Andrey Galkin
     * FIXED: minor enforcements for interface schema
     * NEW: "enum" and "set" basic type support
@@ -227,12 +229,7 @@ Using [JSON-SCHEMA][]:
             "maxProperties" : 3,
             "properties" : {
                 "r" : {
-                    "type" : "object",
-                    "additionalProperties" : false,
-                    "patternProperties" : {
-                        "^[a-z][a-z0-9_]*$" : {}
-                    },
-                    "description" : "Result key-value pairs"
+                    "description" : "Result key-value pairs (pre-1.7) or any type"
                 },
                 "e" : {
                     "type" : "string",
@@ -361,6 +358,17 @@ approach is supported only in shortcut type definition form, e.g.:
     "param" : ["integer", "string"]
 `
 
+*Since: v1.6*
+
+### 1.8.5. Result type
+
+Very often function calls return only single value. It not efficient and
+not clean write something `result.result`. Therefore, it's allowed
+to define result as string refering to standard or custom type.
+
+Type variations are not allowed in result.
+
+*Since: v1.7*
 
 ## 1.9. Errors and exceptions
 
@@ -567,6 +575,7 @@ Using [JSON-SCHEMA][]:
                             "additionalProperties" : false,
                             "properties" : {
                                 "params" : {
+                                    "type" : "object",
                                     "additionalProperties" : false,
                                     "patternProperties" : {
                                         "^[a-z][a-z0-9_]*$" : {
@@ -591,6 +600,7 @@ Using [JSON-SCHEMA][]:
                                     "description" : "List of allowed parameter key-value pairs"
                                 },
                                 "result" : {
+                                    "type" : ["object", "string"],
                                     "additionalProperties" : false,
                                     "patternProperties" : {
                                         "^[a-z][a-z0-9_]*$" : {
