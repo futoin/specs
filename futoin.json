@@ -6,5 +6,8 @@
     "pip" : "*",
     "node" : "*",
     "yarn" : "*"
+  },
+  "actions" : {
+    "yarn_upgrade" : "@cid tool exec yarn -- upgrade --latest"
   }
 }
