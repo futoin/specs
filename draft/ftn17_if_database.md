@@ -131,6 +131,17 @@ The following standard ops are assumed:
 
 *Note: `EXISTS`, `ANY` and `SOME` are not supported by design due to known performance issues in many database implementations.*
 
+## 2.8. Environment neutrality requirements
+
+1. Date/time must be forced to UTC in all database operations
+2. Multiple statement execution must be forbidden in single query() call
+3. Unicode charset is assumed
+4. Date/time conversion to/from native objects is implementation defined,
+    but ISO-like strings are preferred.
+5. String representation should be used, unless there is a native runtime
+    type which can represent DB type without doubt and side-effects.
+
+
 # 3. Interfaces
 
 ## 3.1. Level 1 - query interface
@@ -315,13 +326,16 @@ The following standard ops are assumed:
 ### 3.1.2. Native service extension
 
 * Functions:
-    * void setup(host, port, user, password, database, conn_limit[, options])
-        * *host* - native DB interface host address
-        * *port* - native DB interface port
-        * *user* - database user
-        * *password* - database password
-        * *conn_limit* - maximum limit of simultaneous connections
-        * *options* - database-specific options
+    * ctor(ServiceOptions options)
+        * *options* - connection & pool options
+* Class ServiceOptions:
+    * *host* - native DB interface host address
+    * *port* - native DB interface port
+    * *database* - database to select
+    * *user* - database user
+    * *password* - database password
+    * *conn_limit* - maximum limit of simultaneous connections in pool
+    * *raw* - implementation-defined raw options
 
 ## 3.2. Level 2 - transaction interface
 
@@ -388,14 +402,13 @@ The following standard ops are assumed:
                         "ql" : "XferQueryList",
                         "isol" : "IsolationLevel"
                     },
-                    "result" : {
-                        "results" : "XferResultList"
-                    },
+                    "result" : "XferResultList",
                     "throws" : [
                         "InvalidQuery",
                         "Duplicate",
                         "OtherExecError",
-                        "LimitTooHigh"
+                        "LimitTooHigh",
+                        "XferCondition"
                     ]
 
                 }            

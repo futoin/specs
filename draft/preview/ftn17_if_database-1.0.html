@@ -7,25 +7,25 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0DV
-Date: 2017-08-03
+Date: 2017-08-12
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-08-03<ul>
+<li>v1.0 - 2017-08-12 - Andrey Galkin<ul>
 <li>Initial spec</li>
 </ul>
 </li>
-<li>DV - 2017-08-07<ul>
+<li>DV - 2017-08-12 - Andrey Galkin<ul>
 <li>Added L1.getFlavour()</li>
 <li>Added QueryBuilder.join() and sub-query support</li>
 <li>Removed explicit escape control</li>
 <li>Added notes about client design</li>
 </ul>
 </li>
-<li>DV - 2017-08-03<ul>
+<li>DV - 2017-08-03 - Andrey Galkin<ul>
 <li>Initial draft</li>
 </ul>
 </li>
@@ -114,6 +114,16 @@ The following standard ops are assumed:</p>
 <li>other ops may be implicitely supported</li>
 </ul>
 <p><em>Note: <code>EXISTS</code>, <code>ANY</code> and <code>SOME</code> are not supported by design due to known performance issues in many database implementations.</em></p>
+<h2>2.8. Environment neutrality requirements</h2>
+<ol>
+<li>Date/time must be forced to UTC in all database operations</li>
+<li>Multiple statement execution must be forbidden in single query() call</li>
+<li>Unicode charset is assumed</li>
+<li>Date/time conversion to/from native objects is implementation defined,
+    but ISO-like strings are preferred.</li>
+<li>String representation should be used, unless there is a native runtime
+    type which can represent DB type without doubt and side-effects.</li>
+</ol>
 <h1>3. Interfaces</h1>
 <h2>3.1. Level 1 - query interface</h2>
 <pre><code>    {
@@ -358,15 +368,20 @@ The following standard ops are assumed:</p>
 <h3>3.1.2. Native service extension</h3>
 <ul>
 <li>Functions:<ul>
-<li>void setup(host, port, user, password, database, conn_limit[, options])<ul>
-<li><em>host</em> - native DB interface host address</li>
-<li><em>port</em> - native DB interface port</li>
-<li><em>user</em> - database user</li>
-<li><em>password</em> - database password</li>
-<li><em>conn_limit</em> - maximum limit of simultaneous connections</li>
-<li><em>options</em> - database-specific options</li>
+<li>ctor(ServiceOptions options)<ul>
+<li><em>options</em> - connection &amp; pool options</li>
 </ul>
 </li>
+</ul>
+</li>
+<li>Class ServiceOptions:<ul>
+<li><em>host</em> - native DB interface host address</li>
+<li><em>port</em> - native DB interface port</li>
+<li><em>database</em> - database to select</li>
+<li><em>user</em> - database user</li>
+<li><em>password</em> - database password</li>
+<li><em>conn_limit</em> - maximum limit of simultaneous connections in pool</li>
+<li><em>raw</em> - implementation-defined raw options</li>
 </ul>
 </li>
 </ul>
@@ -432,9 +447,7 @@ The following standard ops are assumed:</p>
                     "ql" : "XferQueryList",
                     "isol" : "IsolationLevel"
                 },
-                "result" : {
-                    "results" : "XferResultList"
-                },
+                "result" : "XferResultList",
                 "throws" : [
                     "InvalidQuery",
                     "Duplicate",

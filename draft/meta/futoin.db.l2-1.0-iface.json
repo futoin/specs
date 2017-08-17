@@ -67,9 +67,7 @@
         "ql": "XferQueryList",
         "isol": "IsolationLevel"
       },
-      "result": {
-        "results": "XferResultList"
-      },
+      "result": "XferResultList",
       "throws": [
         "InvalidQuery",
         "Duplicate",
