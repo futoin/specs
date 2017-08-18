@@ -1,14 +1,14 @@
 <pre>
 FTN6: FutoIn Executor Concept
 Version: 1.6DV
-Date: 2015-03-08
-Copyright: 2014 FutoIn Project (http://futoin.org)
+Date: 2017-08-18
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.6 - 2017-08-18
+* v1.6 - 2017-08-18 - Andrey Galkin
     * NEW: RequestInfo.result(replace)
     * NEW: "-internal" in "sec" for internal channel calls
 * v1.5 - 2015-03-08
