@@ -72,7 +72,8 @@
         "InvalidQuery",
         "Duplicate",
         "OtherExecError",
-        "LimitTooHigh"
+        "LimitTooHigh",
+        "XferCondition"
       ]
     }
   }

@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.5
+Version: 1.6DV
 Date: 2015-03-08
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -8,6 +8,9 @@ Authors: Andrey Galkin
 
 # CHANGES
 
+* v1.6 - 2017-08-18
+    * NEW: RequestInfo.result(replace)
+    * NEW: "-internal" in "sec" for internal channel calls
 * v1.5 - 2015-03-08
     * Added "System" security level for internal communications
     * Fixed SL_SAFEOPS -> SL_SAFE_OPS, SL_PRIVLEGED_OPS -> SL_PRIVILEGED_OPS
@@ -188,6 +191,18 @@ with HMAC using exactly the same secret key and hashing algorithm.
 
 Only Base64-encoded signature in sent back in the "sec" field.
 
+### 1.4. Internal system calls security
+
+If internal communication channel is used, a special "-internal" user
+name can be passed in "sec" field.
+
+Such internal calls must bypass Auth Service processing and trust
+on-behalf-of data in request message. Otherwise, user info must
+"-internal" for both local and global user ID, SL_SYSTEM must be set
+as security level.
+
+Normally, internal channel can exist only with the same process.
+
 # 2. Native Executor interface requirements
 
 Language/platform should support runtime introspection and
@@ -239,7 +254,8 @@ are assumed.
     * INFO_HAVE_RAW_RESULT - boolean - have raw result (e.g. should open rawOutput())
     * INFO_CHANNEL_CONTEXT - persistent channel context (e.g. WebSockets
 1. map params() - return reference to request parameter map
-1. map result() - return reference to response parameter map
+1. map result([replace]) - return reference to response parameter map
+    - NOTE: replaced result may be of any type expected by interface definition
 1. map info() - return reference to info parameter map, keys (defined as const with INFO_ prefix):
     * Note: info() is not merged to AsyncSteps only for minor security reasons
 1. stream rawInput() - return raw input stream or throws error
@@ -327,6 +343,7 @@ Each call can set result variables the following way:
 1. through reqinfo.result() map
 2. by returning a map from the function
 3. by returning a map through as.success() call
+4. by replacing result through reqinfo.result(replace)
 
 *Note: Executor implementation must merge all possible ways to set result variables
 in the strict order as listed above.*
