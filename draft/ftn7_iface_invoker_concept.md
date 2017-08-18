@@ -1,6 +1,6 @@
 <pre>
 FTN7: FutoIn Invoker Concept
-Version: 1.6DV
+Version: 1.6
 Date: 2017-08-18
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -115,16 +115,7 @@ Local calls must never execute if there are Invoker frames on execution stack. I
 function must return before Executor runs or Executor must run in a different thread. Yes, it may have performance
 issues, but is natural for async programming.
 
-## 1.4. Communication Errors
-
-Invoker should transparently handle transitional communication errors with implicit retries.
-
-## 1.5. HMAC signature support
-
-Please referer to [FTN6 Interface Executor Concept](./ftn6_iface_executor_concept.md) for details.
-**HMAC is supported only by AdvancedCCM.**
-
-## 1.6. Internal call security
+### 1.3.1. Internal call security
 
 When internal service is used with disabled on-behalf-of setting it does not make
 much sense to require authorization inside the same process. A special "-internal"
@@ -133,6 +124,16 @@ credentials were introduced.
 If a new interface without "AllowAnonymous" constraint is registered for internal
 communication channel (in-process in most cases), but without credentials then
 CCM must automatically use "-internal" credentials for "sec" field.
+
+
+## 1.4. Communication Errors
+
+Invoker should transparently handle transitional communication errors with implicit retries.
+
+## 1.5. HMAC signature support
+
+Please referer to [FTN6 Interface Executor Concept](./ftn6_iface_executor_concept.md) for details.
+**HMAC is supported only by AdvancedCCM.**
 
 # 2. Invoker interfaces
 

@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.6DV
+Version: 1.6
 Date: 2017-08-18
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin

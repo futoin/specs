@@ -1,13 +1,15 @@
 <pre>
 FTN7: FutoIn Invoker Concept
-Version: 1.5
-Date: 2015-03-08
-Copyright: 2014 FutoIn Project (http://futoin.org)
+Version: 1.6
+Date: 2017-08-18
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.6 - 2017-08-18 - Andrey Galkin
+    * NEW: '-internal" auto-set credentials for internal comms
 * v1.5 - 2015-03-08
     * Added FTN3 v1.3 on-behalf-of feature mandated interface option "sendOnBehalfOf"
 * v1.4 - 2015-02-22
@@ -113,6 +115,17 @@ Local calls must never execute if there are Invoker frames on execution stack. I
 function must return before Executor runs or Executor must run in a different thread. Yes, it may have performance
 issues, but is natural for async programming.
 
+### 1.3.1. Internal call security
+
+When internal service is used with disabled on-behalf-of setting it does not make
+much sense to require authorization inside the same process. A special "-internal"
+credentials were introduced.
+
+If a new interface without "AllowAnonymous" constraint is registered for internal
+communication channel (in-process in most cases), but without credentials then
+CCM must automatically use "-internal" credentials for "sec" field.
+
+
 ## 1.4. Communication Errors
 
 Invoker should transparently handle transitional communication errors with implicit retries.
@@ -144,6 +157,7 @@ Simple CCM:
         * 'master' - enable MasterService authentication logic (Advanced CCM only)
         * '{user}:{clear-text-password}' - send as is in the 'sec' section
         * '-hmac:{user}' - HMAC generation, see *options.hmacKey* and *options.hmacAlgo* for details
+        * '-internal' - for internal communication channel with SL_SYSTEM auth level
         * NOTE: some more reserved words and/or patterns can appear in the future
     * *options* - optional, override global options of CCM
 1. NativeIface iface( name )
