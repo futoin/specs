@@ -364,7 +364,7 @@ The following standard ops are assumed:
                             "optional" : true,
                             "desc" : "Require selected row count: specific or > 0, if true"
                         },
-                        "return" : {
+                        "result" : {
                             "type" : "boolean",
                             "optional" : true,
                             "desc" : "Return result of the statement"
