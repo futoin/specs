@@ -54,6 +54,7 @@ but such details are absolutely hidden from clients.*
 
 ## 2.3. Level 3
 
+Large result streaming through BiDirectional channel.
 Database metadata and ORM-like abstraction. TBD.
 
 ## 2.4. Client-service design
@@ -217,7 +218,8 @@ The following standard ops are assumed:
                         "InvalidQuery",
                         "Duplicate",
                         "OtherExecError",
-                        "LimitTooHigh"
+                        "LimitTooHigh",
+                        "DeadLock"
                     ]
                 },
                 "getFlavour" : {
@@ -408,6 +410,7 @@ The following standard ops are assumed:
                         "Duplicate",
                         "OtherExecError",
                         "LimitTooHigh",
+                        "DeadLock",
                         "XferCondition"
                     ]
 
@@ -428,6 +431,16 @@ The following standard ops are assumed:
     * *Boolean return* - mark query which result must be returned (default true for last)
 * Class XferBuilder:
     * XferBuilder clone()
+    * String escape(value)
+        * *value* any value, including QueryBuilder instance
+    * String identifier(name)
+        * *name* - string to escape as identifier
+    * Expression expr(expr)
+        * *expr* - raw expression
+        * wrap raw expression to avoid escaping as value
+    * Expression param(name)
+        * *name* - parameter name
+        * wrapped placeholder for prepared statement
     * XferQueryBuilder delete(String entity, QueryOptions query_options)
     * XferQueryBuilder insert(String entity, QueryOptions query_options)
     * XferQueryBuilder update(String entity, QueryOptions query_options)

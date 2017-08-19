@@ -73,6 +73,7 @@
         "Duplicate",
         "OtherExecError",
         "LimitTooHigh",
+        "DeadLock",
         "XferCondition"
       ]
     }

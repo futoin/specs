@@ -53,7 +53,8 @@ of connection to DB connection pool is ensured.</p>
 DB connection allowed which are managed in connection pool for performance reasons,
 but such details are absolutely hidden from clients.</em></p>
 <h2>2.3. Level 3</h2>
-<p>Database metadata and ORM-like abstraction. TBD.</p>
+<p>Large result streaming through BiDirectional channel.
+Database metadata and ORM-like abstraction. TBD.</p>
 <h2>2.4. Client-service design</h2>
 <p>For cross-operation support, client side should be as much neutral as possible and try
 to use QueryBuilder interface which should auto-detect actual database type. QueryBuilder
@@ -194,7 +195,8 @@ The following standard ops are assumed:</p>
                     "InvalidQuery",
                     "Duplicate",
                     "OtherExecError",
-                    "LimitTooHigh"
+                    "LimitTooHigh",
+                    "DeadLock"
                 ]
             },
             "getFlavour" : {
@@ -453,6 +455,7 @@ The following standard ops are assumed:</p>
                     "Duplicate",
                     "OtherExecError",
                     "LimitTooHigh",
+                    "DeadLock",
                     "XferCondition"
                 ]
 
@@ -475,6 +478,24 @@ The following standard ops are assumed:</p>
 </li>
 <li>Class XferBuilder:<ul>
 <li>XferBuilder clone()</li>
+<li>String escape(value)<ul>
+<li><em>value</em> any value, including QueryBuilder instance</li>
+</ul>
+</li>
+<li>String identifier(name)<ul>
+<li><em>name</em> - string to escape as identifier</li>
+</ul>
+</li>
+<li>Expression expr(expr)<ul>
+<li><em>expr</em> - raw expression</li>
+<li>wrap raw expression to avoid escaping as value</li>
+</ul>
+</li>
+<li>Expression param(name)<ul>
+<li><em>name</em> - parameter name</li>
+<li>wrapped placeholder for prepared statement</li>
+</ul>
+</li>
 <li>XferQueryBuilder delete(String entity, QueryOptions query_options)</li>
 <li>XferQueryBuilder insert(String entity, QueryOptions query_options)</li>
 <li>XferQueryBuilder update(String entity, QueryOptions query_options)</li>
