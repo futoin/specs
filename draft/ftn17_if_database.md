@@ -12,6 +12,7 @@ Authors: Andrey Galkin
     - Initial spec
 * DV - 2017-08-23 - Andrey Galkin
     - added getInsertID() concept
+    - added xfer query placeholders support
 * DV - 2017-08-12 - Andrey Galkin
     - Added L1.getFlavour()
     - Added QueryBuilder.join() and sub-query support
@@ -157,6 +158,25 @@ database implementations, a special convention is required.
 3. For neutral QueryBuilder as special method getInsertID(field) is to
     be used which always ensures '$id' field in response of successful
     insert operation.
+
+## 2.10. Transaction value back references
+
+Very often, transaction requires values returning from previous queries
+inside the same transaction. As overall concept of this spec forbids
+transaction processing splitting across requests a special mechanism
+of placeholders for value back references is required.
+
+1. There must be database-specific placeholder format to be emdedded
+    in raw query strings when run through L2 xfer() API.
+2. Placeholders must:
+    * reference previous query result by sequential ID,
+    * mark single or multiple value mode (use first or all result rows),
+    * reference particular field by name
+    * must be impossible sequence for embedded strings - use string quotes.
+3. An extra query option for template processing must be supported.
+4. If template processing is enabled, the placeholders must be replaced
+    with actual values from previous queries.
+    
 
 # 3. Interfaces
 
@@ -478,6 +498,11 @@ database implementations, a special convention is required.
         - must unconditionally throw InternalError
     * QueryBuilder clone()
         - must unconditionally throw InternalError
+    * Expression resref(XferQueryBuilder xqb, field, multi=false)
+        * *xqb* - Query Builder of previous query in transaction
+        * *field* - fieldname to use
+        * *multi* - require single or multi row result
+        * Current query gets marked for template processing
     
 
 

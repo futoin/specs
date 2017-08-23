@@ -20,6 +20,7 @@ Authors: Andrey Galkin
 </li>
 <li>DV - 2017-08-23 - Andrey Galkin<ul>
 <li>added getInsertID() concept</li>
+<li>added xfer query placeholders support</li>
 </ul>
 </li>
 <li>DV - 2017-08-12 - Andrey Galkin<ul>
@@ -141,6 +142,25 @@ database implementations, a special convention is required.</p>
 <li>For neutral QueryBuilder as special method getInsertID(field) is to
     be used which always ensures '$id' field in response of successful
     insert operation.</li>
+</ol>
+<h2>2.10. Transaction value back references</h2>
+<p>Very often, transaction requires values returning from previous queries
+inside the same transaction. As overall concept of this spec forbids
+transaction processing splitting across requests a special mechanism
+of placeholders for value back references is required.</p>
+<ol>
+<li>There must be database-specific placeholder format to be emdedded
+    in raw query strings when run through L2 xfer() API.</li>
+<li>Placeholders must:<ul>
+<li>reference previous query result by sequential ID,</li>
+<li>mark single or multiple value mode (use first or all result rows),</li>
+<li>reference particular field by name</li>
+<li>must be impossible sequence for embedded strings - use string quotes.</li>
+</ul>
+</li>
+<li>An extra query option for template processing must be supported.</li>
+<li>If template processing is enabled, the placeholders must be replaced
+    with actual values from previous queries.</li>
 </ol>
 <h1>3. Interfaces</h1>
 <h2>3.1. Level 1 - query interface</h2>
@@ -547,6 +567,13 @@ database implementations, a special convention is required.</p>
 </li>
 <li>QueryBuilder clone()<ul>
 <li>must unconditionally throw InternalError</li>
+</ul>
+</li>
+<li>Expression resref(XferQueryBuilder xqb, field, multi=false)<ul>
+<li><em>xqb</em> - Query Builder of previous query in transaction</li>
+<li><em>field</em> - fieldname to use</li>
+<li><em>multi</em> - require single or multi row result</li>
+<li>Current query gets marked for template processing</li>
 </ul>
 </li>
 </ul>
