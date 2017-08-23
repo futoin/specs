@@ -1,15 +1,17 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0DV
-Date: 2017-08-12
+Date: 2017-08-23
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-08-12 - Andrey Galkin
+* v1.0 - 2017-08-23 - Andrey Galkin
     - Initial spec
+* DV - 2017-08-23 - Andrey Galkin
+    - added getInsertID() concept
 * DV - 2017-08-12 - Andrey Galkin
     - Added L1.getFlavour()
     - Added QueryBuilder.join() and sub-query support
@@ -142,6 +144,19 @@ The following standard ops are assumed:
 5. String representation should be used, unless there is a native runtime
     type which can represent DB type without doubt and side-effects.
 
+## 2.9. Insert ID concept
+
+As there is no single approach to retrieve last insert ID across popular
+database implementations, a special convention is required.
+
+1. For database implementations which do not support select-like query
+    on insert operation, last insert ID must be unconditionally returned
+    as '$id' field on first result row.
+2. For other databases, user is responsible for adding RETURNING, OUTPUT
+    or similar implementation-specific clause.
+3. For neutral QueryBuilder as special method getInsertID(field) is to
+    be used which always ensures '$id' field in response of successful
+    insert operation.
 
 # 3. Interfaces
 
@@ -277,10 +292,12 @@ The following standard ops are assumed:
     * QueryBuilder get(field[, value])
         * *fields* - field name, array of fields names or map of field-expresion pairs
         * *value* - arbitrary value, expression or QueryBuilder sub-query
-    * QueryBuilder get(List field)
-        * list of field names to select
-    * QueryBuilder get(Map field)
-        * field name => expression pairs to select
+    * QueryBuilder get(List fields)
+        * *fields* - list of field names to select
+    * QueryBuilder get(Map fields)
+        * *fields* - name => expression pairs to select
+    * QueryBuilder getInsertID(String field)
+        * *field* - name of field with auto-generated value
     * QueryBuilder set(field[, value])
         * *field* - string
         * *value* - arbitrary value, expression or QueryBuilder sub-query

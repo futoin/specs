@@ -7,15 +7,19 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0DV
-Date: 2017-08-12
+Date: 2017-08-23
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-08-12 - Andrey Galkin<ul>
+<li>v1.0 - 2017-08-23 - Andrey Galkin<ul>
 <li>Initial spec</li>
+</ul>
+</li>
+<li>DV - 2017-08-23 - Andrey Galkin<ul>
+<li>added getInsertID() concept</li>
 </ul>
 </li>
 <li>DV - 2017-08-12 - Andrey Galkin<ul>
@@ -124,6 +128,19 @@ The following standard ops are assumed:</p>
     but ISO-like strings are preferred.</li>
 <li>String representation should be used, unless there is a native runtime
     type which can represent DB type without doubt and side-effects.</li>
+</ol>
+<h2>2.9. Insert ID concept</h2>
+<p>As there is no single approach to retrieve last insert ID across popular
+database implementations, a special convention is required.</p>
+<ol>
+<li>For database implementations which do not support select-like query
+    on insert operation, last insert ID must be unconditionally returned
+    as '$id' field on first result row.</li>
+<li>For other databases, user is responsible for adding RETURNING, OUTPUT
+    or similar implementation-specific clause.</li>
+<li>For neutral QueryBuilder as special method getInsertID(field) is to
+    be used which always ensures '$id' field in response of successful
+    insert operation.</li>
 </ol>
 <h1>3. Interfaces</h1>
 <h2>3.1. Level 1 - query interface</h2>
@@ -284,12 +301,16 @@ The following standard ops are assumed:</p>
 <li><em>value</em> - arbitrary value, expression or QueryBuilder sub-query</li>
 </ul>
 </li>
-<li>QueryBuilder get(List field)<ul>
-<li>list of field names to select</li>
+<li>QueryBuilder get(List fields)<ul>
+<li><em>fields</em> - list of field names to select</li>
 </ul>
 </li>
-<li>QueryBuilder get(Map field)<ul>
-<li>field name =&gt; expression pairs to select</li>
+<li>QueryBuilder get(Map fields)<ul>
+<li><em>fields</em> - name =&gt; expression pairs to select</li>
+</ul>
+</li>
+<li>QueryBuilder getInsertID(String field)<ul>
+<li><em>field</em> - name of field with auto-generated value</li>
 </ul>
 </li>
 <li>QueryBuilder set(field[, value])<ul>
