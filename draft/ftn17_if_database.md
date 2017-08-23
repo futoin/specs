@@ -405,6 +405,11 @@ of placeholders for value back references is required.
                             "type" : "boolean",
                             "optional" : true,
                             "desc" : "Return result of the statement"
+                        },
+                        "template" : {
+                            "type" : "boolean",
+                            "optional" : true,
+                            "desc" : "Process value back references"
                         }
                     }                    
                 },
