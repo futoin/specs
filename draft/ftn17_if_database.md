@@ -503,7 +503,7 @@ of placeholders for value back references is required.
         - must unconditionally throw InternalError
     * QueryBuilder clone()
         - must unconditionally throw InternalError
-    * Expression resref(XferQueryBuilder xqb, field, multi=false)
+    * Expression backref(XferQueryBuilder xqb, field, multi=false)
         * *xqb* - Query Builder of previous query in transaction
         * *field* - fieldname to use
         * *multi* - require single or multi row result
