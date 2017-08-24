@@ -453,7 +453,8 @@ of placeholders for value back references is required.
                         "OtherExecError",
                         "LimitTooHigh",
                         "DeadLock",
-                        "XferCondition"
+                        "XferCondition",
+                        "XferBackRef"
                     ]
 
                 }            

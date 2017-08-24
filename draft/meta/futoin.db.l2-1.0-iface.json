@@ -79,7 +79,8 @@
         "OtherExecError",
         "LimitTooHigh",
         "DeadLock",
-        "XferCondition"
+        "XferCondition",
+        "XferBackRef"
       ]
     }
   }
