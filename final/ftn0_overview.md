@@ -10,6 +10,7 @@ Authors: Andrey Galkin
 * [FTN1 Intro](./ftn1\_intro.md)
 * [FTN2 Specification Versioning](./ftn2\_spec\_versioning.md)
 * [FTN3 Interface Definition](./ftn3\_iface\_definition.md)
+* [FTN16 Continuous Integration & Delivery Tool](./ftn16\_cid\_tool.md)
 
 # 2. Security
 * NOT YET FINAL: FTN8 Security Concept
@@ -27,12 +28,7 @@ Authors: Andrey Galkin
 
 # 5. Interfaces
 ## 5.1. Core
-* [FTN4 IF Ping](./ftn4\_if\_ping.md)
-* NOT YET FINAL: FTN8 IF AccessControlService
-* NOT YET FINAL: FTN9 IF AuditLogService
-* NOT YET FINAL: FTN8 IF AuthService
-* NOT YET FINAL: FTN8 IF DefenseService
-* NOT YET FINAL: FTN8 IF MasterService
-* NOT YET FINAL: FTN10 IF Burst
+* [FTN4 Ping](./ftn4\_if\_ping.md)
+* [FTN17 Database](./ftn17\_if\_database.md)
 
 =END OF SPEC=
