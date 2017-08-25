@@ -22,6 +22,7 @@ Authors: Andrey Galkin
 * NOT YET FINAL: FTN10 Burst Calls
 * [FTN12 Async API](./ftn12\_async\_api.md)
 * NOT YET FINAL: FTN11 Implementation Feature Requirements
+* [FTN15 Native Event API](./ftn15\_native\_event.md)
 
 # 4. Technology-specific integration
 * [FTN5 HTTP integration](./ftn5\_iface\_http\_integration.md)
