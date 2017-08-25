@@ -30,6 +30,7 @@ Authors: Andrey Galkin
 # 5. Interfaces
 ## 5.1. Core
 * [FTN4 Ping](./ftn4\_if\_ping.md)
+* [FTN9 Audit Log](./ftn9\_if\_auditlog.md)
 * [FTN17 Database](./ftn17\_if\_database.md)
 
 =END OF SPEC=
