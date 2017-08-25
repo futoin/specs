@@ -1,15 +1,17 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0DV
-Date: 2017-08-23
+Date: 2017-08-25
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.0 - 2017-08-23 - Andrey Galkin
+* v1.0 - 2017-08-25 - Andrey Galkin
     - Initial spec
+* DV - 2017-08-25 - Andrey Galkin
+    - SELECT FOR-clause
 * DV - 2017-08-23 - Andrey Galkin
     - added getInsertID() concept
     - added xfer query placeholders support
@@ -73,6 +75,9 @@ Client application should be able to run raw queries depending on L1.getType() r
 
 QueryBuilder must enforce auto-escape of all values. Identifiers must be checked for valid
 [fully qualified] format to prevent possible injection attacks.
+
+QueryBuilder must throw an error at build or prepare stage, if any of configured query parts
+are not used.
 
 ## 2.6. QueryBuilder conditions
 
@@ -502,13 +507,17 @@ of placeholders for value back references is required.
 * Class XferQueryBuilder extends QueryBuilder
     * void execute(AsyncSteps as, Boolean unsafe_dml=false)
         - must unconditionally throw InternalError
-    * QueryBuilder clone()
+    * XferQueryBuilder clone()
         - must unconditionally throw InternalError
     * Expression backref(XferQueryBuilder xqb, field, multi=false)
         * *xqb* - Query Builder of previous query in transaction
         * *field* - fieldname to use
         * *multi* - require single or multi row result
         * Current query gets marked for template processing
+    * XferQueryBuilder forUpdate()
+        * select in "for update" exclusive locking
+    * XferQueryBuilder forSharedRead()
+        * select in shared read locking
     
 
 

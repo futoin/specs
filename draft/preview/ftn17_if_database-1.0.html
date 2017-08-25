@@ -7,15 +7,19 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0DV
-Date: 2017-08-23
+Date: 2017-08-25
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.0 - 2017-08-23 - Andrey Galkin<ul>
+<li>v1.0 - 2017-08-25 - Andrey Galkin<ul>
 <li>Initial spec</li>
+</ul>
+</li>
+<li>DV - 2017-08-25 - Andrey Galkin<ul>
+<li>SELECT FOR-clause</li>
 </ul>
 </li>
 <li>DV - 2017-08-23 - Andrey Galkin<ul>
@@ -69,6 +73,8 @@ in Level 2.</p>
 <h2>2.5. QueryBuilder security &amp; escapes</h2>
 <p>QueryBuilder must enforce auto-escape of all values. Identifiers must be checked for valid
 [fully qualified] format to prevent possible injection attacks.</p>
+<p>QueryBuilder must throw an error at build or prepare stage, if any of configured query parts
+are not used.</p>
 <h2>2.6. QueryBuilder conditions</h2>
 <p>Conditions can be set as:
 1. string - must a be a plain expression used as-is:
@@ -571,7 +577,7 @@ of placeholders for value back references is required.</p>
 <li>must unconditionally throw InternalError</li>
 </ul>
 </li>
-<li>QueryBuilder clone()<ul>
+<li>XferQueryBuilder clone()<ul>
 <li>must unconditionally throw InternalError</li>
 </ul>
 </li>
@@ -580,6 +586,14 @@ of placeholders for value back references is required.</p>
 <li><em>field</em> - fieldname to use</li>
 <li><em>multi</em> - require single or multi row result</li>
 <li>Current query gets marked for template processing</li>
+</ul>
+</li>
+<li>XferQueryBuilder forUpdate()<ul>
+<li>select in "for update" exclusive locking</li>
+</ul>
+</li>
+<li>XferQueryBuilder forSharedRead()<ul>
+<li>select in shared read locking</li>
 </ul>
 </li>
 </ul>
