@@ -1,0 +1,77 @@
+{
+  "iface": "futoin.db.l1",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0"
+  ],
+  "types": {
+    "Query": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 10000
+    },
+    "Identifier": {
+      "type": "string",
+      "maxlen": 256
+    },
+    "Row": "array",
+    "Rows": {
+      "type": "array",
+      "elemtype": "Row",
+      "maxlen": 1000
+    },
+    "Field": {
+      "type": "string",
+      "maxlen": 256
+    },
+    "Fields": {
+      "type": "array",
+      "elemtype": "Field",
+      "desc": "List of field named in order of related Row"
+    },
+    "Flavour": {
+      "type": "Identifier",
+      "desc": "Actual actual database driver type"
+    },
+    "QueryResult": {
+      "type": "map",
+      "fields": {
+        "rows": "Rows",
+        "fields": "Fields",
+        "affected": "integer"
+      }
+    }
+  },
+  "funcs": {
+    "query": {
+      "params": {
+        "q": "Query"
+      },
+      "result": "QueryResult",
+      "throws": [
+        "InvalidQuery",
+        "Duplicate",
+        "OtherExecError",
+        "LimitTooHigh"
+      ]
+    },
+    "callStored": {
+      "params": {
+        "name": "Identifier",
+        "args": "Row"
+      },
+      "result": "QueryResult",
+      "throws": [
+        "InvalidQuery",
+        "Duplicate",
+        "OtherExecError",
+        "LimitTooHigh",
+        "DeadLock"
+      ]
+    },
+    "getFlavour": {
+      "result": "Flavour"
+    }
+  }
+}
