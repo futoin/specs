@@ -7,13 +7,20 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-08-25
+Date: 2017-08-26
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v1.0.1 - 2017-08-26 - Andrey Galkin<ul>
+<li>BREAKING CHANGE: fixed fundamental design flaw of Prepared interface<ul>
+<li>removed iface parameter - it must be bound</li>
+</ul>
+</li>
+</ul>
+</li>
 <li>v1.0 - 2017-08-25 - Andrey Galkin<ul>
 <li>Initial spec</li>
 </ul>
@@ -385,13 +392,13 @@ of placeholders for value back references is required.</p>
 </ul>
 </li>
 <li>class Prepared:<ul>
-<li>void execute(AsyncSteps as, L1Face iface, params=null)<ul>
+<li>void execute(AsyncSteps as, params=null)<ul>
 <li><em>params</em> - name =&gt; value pairs for substitution</li>
 <li><em>iface</em> - iface to run against</li>
 <li>executes already built query with optional parameters</li>
 </ul>
 </li>
-<li>void executeAssoc(AsyncSteps as, L1Face iface, params=null)<ul>
+<li>void executeAssoc(AsyncSteps as, params=null)<ul>
 <li>the same as execute(), but return associative result</li>
 </ul>
 </li>

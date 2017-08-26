@@ -1,13 +1,16 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-08-25
+Date: 2017-08-26
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.0.1 - 2017-08-26 - Andrey Galkin
+    - BREAKING CHANGE: fixed fundamental design flaw of Prepared interface
+        * removed iface parameter - it must be bound
 * v1.0 - 2017-08-25 - Andrey Galkin
     - Initial spec
 * DV - 2017-08-03 - Andrey Galkin
@@ -349,11 +352,11 @@ of placeholders for value back references is required.
         * Return an interface for efficient execution of built query
             multiple times
 * class Prepared:
-    * void execute(AsyncSteps as, L1Face iface, params=null)
+    * void execute(AsyncSteps as, params=null)
         * *params* - name => value pairs for substitution
         * *iface* - iface to run against
         * executes already built query with optional parameters
-    * void executeAssoc(AsyncSteps as, L1Face iface, params=null)
+    * void executeAssoc(AsyncSteps as, params=null)
         * the same as execute(), but return associative result
             
 
