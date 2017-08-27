@@ -1,0 +1,23 @@
+{
+  "iface": "futoin.evt.poll",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.evt.types:1.0"
+  ],
+  "funcs": {
+    "registerConsumer": {
+      "params": {
+        "want": "EventTypes",
+        "reliable": "boolean"
+      },
+      "result": "boolean"
+    },
+    "pollEvents": {
+      "params": {
+        "last_id": "EventID"
+      },
+      "result": "EventList"
+    }
+  }
+}

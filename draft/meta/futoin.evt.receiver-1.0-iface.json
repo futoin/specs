@@ -1,0 +1,19 @@
+{
+  "iface": "futoin.evt.receiver",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.evt.types:1.0"
+  ],
+  "funcs": {
+    "onEvents": {
+      "params": {
+        "events": "EventList"
+      },
+      "result": "boolean"
+    }
+  },
+  "requires": [
+    "AllowAnonymous"
+  ]
+}

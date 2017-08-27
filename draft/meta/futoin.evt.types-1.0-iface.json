@@ -1,0 +1,42 @@
+{
+  "iface": "futoin.evt.types",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0"
+  ],
+  "types": {
+    "EventID": {
+      "type": "string",
+      "regex": "^[1-9][0-9]{0,17}$",
+      "desc": "1-999999999999999999 for now"
+    },
+    "EventType": {
+      "type": "string",
+      "regex": "^[A-Z_]{1,16}$"
+    },
+    "EventData": "any",
+    "Event": {
+      "type": "map",
+      "fields": {
+        "id": "EventID",
+        "type": "EventType",
+        "data": "EventData"
+      }
+    },
+    "EventList": {
+      "type": "array",
+      "elemtype": "Event",
+      "maxlen": 1000
+    },
+    "EventTypes": {
+      "type": "array",
+      "elemtype": "EventType"
+    },
+    "ConsumerComponent": {
+      "type": "string",
+      "regex": "^[A-Za-z0-9_]{1,16}$",
+      "desc": "Identify component of consumer's side"
+    }
+  }
+}

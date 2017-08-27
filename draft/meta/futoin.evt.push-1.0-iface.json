@@ -1,0 +1,15 @@
+{
+  "iface": "futoin.evt.push",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "inherit": "futoin.evt.poll:1.0",
+  "funcs": {
+    "readyToReceive": {
+      "result": "boolean",
+      "desc": "Inform generator to start pushing events"
+    }
+  },
+  "requires": [
+    "BiDirectChannel"
+  ]
+}
