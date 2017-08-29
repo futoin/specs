@@ -449,7 +449,24 @@ any object supporting synchronization protocol `.sync(as, step, err_handler)`.
 
 Synchronization object is allowed to add own steps and is responsible for adding
 request steps under protection of provided synchronization. Synchronization object
-must correctly handler execution cancelation and possible errors.
+must correctly handle canceled execution and possible errors.
+
+Incoming success parameters must be passed to critical section step.
+Resulting success parameters must be forwarded to the following steps like there is
+no critical section logic.
+
+### 1.11.4. Re-entrancy requirements
+
+All synchronization implementations must either allow multiple re-entrancy of the
+same AsyncSteps instance or properly detect and raise error on such event.
+
+All implementations must correctly detect parallel flows in scope of single AsyncSteps
+instance and treat each as separate one. None of paralleled steps should inherit
+lock state of parent step.
+
+### 1.11.5. Deadlock detection
+
+Deadlock detection is optional and is not mandatory required.
 
 # 2. Async Steps API
 
@@ -696,6 +713,43 @@ In pseudo-code.
             as.forEach( as.state(), function( as, k, v ) {
                 print k "=" v;
             } );
+        },
+    )
+    
+## 3.5. External event wait
+
+    AsyncStepsImpl as;
+    
+    as.add(
+        function( as ){
+            as.waitExternal();
+            
+            callSomeExternal( function(err) {
+                if (err)
+                {
+                    try {
+                        as.error(err);
+                    } catch {
+                        // ignore
+                    }
+                }
+                else
+                {
+                    as.success();
+                }
+            } );
+        },
+    )
+    
+## 3.6. Synchronization
+
+    AsyncStepsImpl as;
+    MutexImpl mutex(10);
+    
+    as.sync(
+        mutex,
+        function( as ){
+            // critical section with regular AsyncSteps
         },
     )
         

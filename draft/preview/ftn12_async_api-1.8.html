@@ -404,7 +404,18 @@ number of steps allowed to enter critical section within time period.</p>
 any object supporting synchronization protocol <code>.sync(as, step, err_handler)</code>.</p>
 <p>Synchronization object is allowed to add own steps and is responsible for adding
 request steps under protection of provided synchronization. Synchronization object
-must correctly handler execution cancelation and possible errors.</p>
+must correctly handle canceled execution and possible errors.</p>
+<p>Incoming success parameters must be passed to critical section step.
+Resulting success parameters must be forwarded to the following steps like there is
+no critical section logic.</p>
+<h3>1.11.4. Re-entrancy requirements</h3>
+<p>All synchronization implementations must either allow multiple re-entrancy of the
+same AsyncSteps instance or properly detect and raise error on such event.</p>
+<p>All implementations must correctly detect parallel flows in scope of single AsyncSteps
+instance and treat each as separate one. None of paralleled steps should inherit
+lock state of parent step.</p>
+<h3>1.11.5. Deadlock detection</h3>
+<p>Deadlock detection is optional and is not mandatory required.</p>
 <h1>2. Async Steps API</h1>
 <h2>2.1. Types</h2>
 <ul>
@@ -699,6 +710,41 @@ as.add(
         as.forEach( as.state(), function( as, k, v ) {
             print k "=" v;
         } );
+    },
+)
+</code></pre>
+<h2>3.5. External event wait</h2>
+<pre><code>AsyncStepsImpl as;
+
+as.add(
+    function( as ){
+        as.waitExternal();
+
+        callSomeExternal( function(err) {
+            if (err)
+            {
+                try {
+                    as.error(err);
+                } catch {
+                    // ignore
+                }
+            }
+            else
+            {
+                as.success();
+            }
+        } );
+    },
+)
+</code></pre>
+<h2>3.6. Synchronization</h2>
+<pre><code>AsyncStepsImpl as;
+MutexImpl mutex(10);
+
+as.sync(
+    mutex,
+    function( as ){
+        // critical section with regular AsyncSteps
     },
 )
 </code></pre>
