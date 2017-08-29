@@ -1,13 +1,18 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.7DV
-Date: 2015-05-04
+Version: 1.8DV
+Date: 2017-08-29
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.8 - 2017-08-29 - Andrey Galkin
+    * Added .sync() API & protocol
+    * Added .waitExternal()
+    * Added Mutex class
+    * Added Throttle class
 * v1.7 - 2015-06-01
     * Removed .utils() artifact
     * Added 1.10 "Reserved keyword name clash"
@@ -312,6 +317,10 @@ implicit as.success() call is assumed to simplify code and increase efficiency.
         doSomeStuff( as );
     })
 
+As in many cases it's required to wait for external event without any additional
+conditions, the general approach used to be adding an empty cancel handler. To
+avoid that, an explicit `.waitExternal()` API is available.
+
 ## 1.7. Error Info and Last Exception
 
 Pre-defined state variables:
@@ -417,6 +426,30 @@ Pre-defined alternative method names, if the default matches language-specific r
 * Otherwise, - try adding underscore to the end of the
     identifier (e.g. do -> do_)
 
+## 1.11. Synchronization
+
+### 1.11.1. Mutual exclusion
+
+As with any multi-threaded application, multi-step cases may also require synchronization
+to ensure not more than N steps enter the same critical section.
+
+Implemented as `Mutex` class.
+
+### 1.11.2. Throttling
+
+For general stability reasons and protection of self-DoS, it may be required to limit
+number of steps allowed to enter critical section within time period.
+
+Implemented as `Throttle` class.
+
+### 1.11.3. API details
+
+A special `.sync(obj, step, err_handler)` API is available to synchronized against
+any object supporting synchronization protocol `.sync(as, step, err_handler)`.
+
+Synchronization object is allowed to add own steps and is responsible for adding
+request steps under protection of provided synchronization. Synchronization object
+must correctly handler execution cancelation and possible errors.
 
 # 2. Async Steps API
 
@@ -447,6 +480,10 @@ Pre-defined alternative method names, if the default matches language-specific r
 * *void cancel_callback( AsyncSteps as )*
     * it must be used to cancel out of AsyncSteps program flow actions, like
         waiting on connection, timer, dedicated task, etc.
+* interface *ISync*
+    * *void sync( AsyncSteps, execute_callback[, error_callback] )*
+        * synchronized independent or parallel AsyncSteps, execute provided
+            callbacks in critical section.
 
     
 ## 2.2. Functions
@@ -476,6 +513,7 @@ However, they are grouped by semantical scope of use.
     from other(model) AsyncSteps object
     * See cloning concept
 1. *clone*/*copy c-tor* - implementation-defined way of cloning AsyncSteps object
+1. *AsyncSteps sync(ISync obj, execute_callback func[, error_callback onerror] )*
 
 ### 2.2.2. Execution API - can be used only inside execute_callback
 
@@ -499,6 +537,8 @@ However, they are grouped by semantical scope of use.
     * if supported by language/platform, alias for success()
 1. *void setCancel( cancel_callback oncancel )*
     * set callback, to be used to cancel execution
+1. *void waitExternal()*
+    * prevent implicit as.success() behavior of current step
 
 ### 2.2.3. Control API - can be used only on Root AsyncSteps object
 
@@ -527,6 +567,21 @@ However, they are grouped by semantical scope of use.
 1. *void continue( [label] )*
     * continue loop execution from the next iteration, throws exception
     * *label* - break loops, until *label* named loop is found
+
+### 2.3. `Mutex` class
+
+* Must implemenet ISync interface
+* Functions:
+    * *c-tor(unsigned integer max=1)*
+        * set maximum number of parallel AsyncSteps entering critical section
+
+### 2.4. `Throttle` class
+
+* Must implemenet ISync interface
+* Functions:
+    * *c-tor(unsigned integer max, unsigned integer period_ms=1000)*
+        * set maximum number of critical section entries with specification time period.
+        * *period_ms* - time period in milliseconds
 
 # 3. Examples
 
