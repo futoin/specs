@@ -1,6 +1,6 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.8DV
+Version: 1.8
 Date: 2017-08-29
 Copyright: 2014 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
