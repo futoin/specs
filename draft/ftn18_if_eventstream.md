@@ -178,9 +178,6 @@ for interface.
             "iface" : "futoin.evt.types",
             "version" : "1.0",
             "ftn3rev" : "1.7",
-            "imports" : [
-                "futoin.ping:1.0"
-            ],
             "types" : {
                 "EventID" : {
                     "type" : "string",
@@ -192,12 +189,17 @@ for interface.
                     "regex" : "^[A-Z_]{1,16}$"
                 },
                 "EventData" : "any",
+                "EventTimestamp" : {
+                    "type" : "string",
+                    "regex": "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"
+                },
                 "Event" : {
                     "type" : "map",
                     "fields" : {
                         "id" : "EventID",
                         "type" : "EventType",
-                        "data" : "EventData"
+                        "data" : "EventData",
+                        "ts" : "EventTimestamp"
                     }
                 },
                 "EventList" : {
@@ -228,7 +230,8 @@ for interface.
             "version" : "1.0",
             "ftn3rev" : "1.7",
             "imports" : [
-                "futoin.evt.types:1.0"
+                "futoin.evt.types:1.0",
+                "futoin.ping:1.0"
             ],
             "funcs" : {
                 "addEvent" : {
@@ -243,6 +246,10 @@ for interface.
         }
 
 `}Iface`
+
+###. 3.2.1. Native extension
+
+* void addXferEvent(XferBuilder, type, data)
 
 ## 3.3. Consumer interface
 
@@ -261,7 +268,8 @@ software version changes as a general convention for plug & play approach.
             "version" : "1.0",
             "ftn3rev" : "1.7",
             "imports" : [
-                "futoin.evt.types:1.0"
+                "futoin.evt.types:1.0",
+                "futoin.ping:1.0"
             ],
             "funcs" : {
                 "registerConsumer" : {
