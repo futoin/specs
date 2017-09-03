@@ -2,9 +2,6 @@
   "iface": "futoin.evt.types",
   "version": "1.0",
   "ftn3rev": "1.7",
-  "imports": [
-    "futoin.ping:1.0"
-  ],
   "types": {
     "EventID": {
       "type": "string",
@@ -16,12 +13,17 @@
       "regex": "^[A-Z_]{1,16}$"
     },
     "EventData": "any",
+    "EventTimestamp": {
+      "type": "string",
+      "regex": "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"
+    },
     "Event": {
       "type": "map",
       "fields": {
         "id": "EventID",
         "type": "EventType",
-        "data": "EventData"
+        "data": "EventData",
+        "ts": "EventTimestamp"
       }
     },
     "EventList": {

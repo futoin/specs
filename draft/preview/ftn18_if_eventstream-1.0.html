@@ -136,9 +136,6 @@ for interface.</p>
         "iface" : "futoin.evt.types",
         "version" : "1.0",
         "ftn3rev" : "1.7",
-        "imports" : [
-            "futoin.ping:1.0"
-        ],
         "types" : {
             "EventID" : {
                 "type" : "string",
@@ -150,12 +147,17 @@ for interface.</p>
                 "regex" : "^[A-Z_]{1,16}$"
             },
             "EventData" : "any",
+            "EventTimestamp" : {
+                "type" : "string",
+                "regex": "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"
+            },
             "Event" : {
                 "type" : "map",
                 "fields" : {
                     "id" : "EventID",
                     "type" : "EventType",
-                    "data" : "EventData"
+                    "data" : "EventData",
+                    "ts" : "EventTimestamp"
                 }
             },
             "EventList" : {
@@ -181,7 +183,8 @@ for interface.</p>
         "version" : "1.0",
         "ftn3rev" : "1.7",
         "imports" : [
-            "futoin.evt.types:1.0"
+            "futoin.evt.types:1.0",
+            "futoin.ping:1.0"
         ],
         "funcs" : {
             "addEvent" : {
@@ -195,6 +198,10 @@ for interface.</p>
         "requires" : [ "SecureChannel" ]
     }
 </code></pre>
+<h3>. 3.2.1. Native extension</h3>
+<ul>
+<li>void addXferEvent(XferBuilder, type, data)</li>
+</ul>
 <h2>3.3. Consumer interface</h2>
 <h3>3.3.1. Base</h3>
 <p>Base interface to use for registration and polling purposes.</p>
@@ -206,7 +213,8 @@ software version changes as a general convention for plug &amp; play approach.</
         "version" : "1.0",
         "ftn3rev" : "1.7",
         "imports" : [
-            "futoin.evt.types:1.0"
+            "futoin.evt.types:1.0",
+            "futoin.ping:1.0"
         ],
         "funcs" : {
             "registerConsumer" : {
