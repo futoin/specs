@@ -7,13 +7,20 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-08-26
+Date: 2017-09-03
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v1.0.2 - 2017-09-03 - Andrey Galkin<ul>
+<li>NEW: native interface helpers<ul>
+<li>Added as patch version due to lack of interface changes</li>
+</ul>
+</li>
+</ul>
+</li>
 <li>v1.0.1 - 2017-08-26 - Andrey Galkin<ul>
 <li>BREAKING CHANGE: fixed fundamental design flaw of Prepared interface<ul>
 <li>removed iface parameter - it must be bound</li>
@@ -159,6 +166,11 @@ of placeholders for value back references is required.</p>
 <li>If template processing is enabled, the placeholders must be replaced
     with actual values from previous queries.</li>
 </ol>
+<h2>2.11. Additional helpers</h2>
+<p>There are many uniqie database-specific features which may not be implemented
+in all types. A generic optional <code>Helpers</code> interface is provided. Each
+end user application must have full coverage unit test run to ensure that
+particular database flavour is supported, if helpers are used.</p>
 <h1>3. Interfaces</h1>
 <h2>3.1. Level 1 - query interface</h2>
 <pre><code>    {
@@ -313,6 +325,10 @@ of placeholders for value back references is required.</p>
 <li>wrapped placeholder for prepared statement</li>
 </ul>
 </li>
+<li>Helpers helpers()<ul>
+<li>Get additional helpers which may not be implemented for all database types</li>
+</ul>
+</li>
 <li>QueryBuilder get(field[, value])<ul>
 <li><em>fields</em> - field name, array of fields names or map of field-expresion pairs</li>
 <li><em>value</em> - arbitrary value, expression or QueryBuilder sub-query</li>
@@ -402,6 +418,30 @@ of placeholders for value back references is required.</p>
 <li>the same as execute(), but return associative result</li>
 </ul>
 </li>
+</ul>
+</li>
+<li>class Helpers:<ul>
+<li>Expression now()<ul>
+<li>Return expression representing current timestamp</li>
+</ul>
+</li>
+<li>Expression date(NativeTimestamp value)<ul>
+<li>Convert implementation-defined native timestamp to DB-specific
+    string representation</li>
+</ul>
+</li>
+<li>NativeTimestamp nativeDate(String value)<ul>
+<li>Get implementation-defined timestamp from string representation
+    of date / datetime object</li>
+</ul>
+</li>
+<li>Expression dateModify(Expression expr, Integer +/-seconds)<ul>
+<li>Return expression representing source date/time expression
+    being applied with <code>seconds</code> interval implementation-defined
+    way</li>
+</ul>
+</li>
+<li>any other - implementation is free to add any other meanigful helpers</li>
 </ul>
 </li>
 </ul>
@@ -538,6 +578,10 @@ of placeholders for value back references is required.</p>
 <li>Expression param(name)<ul>
 <li><em>name</em> - parameter name</li>
 <li>wrapped placeholder for prepared statement</li>
+</ul>
+</li>
+<li>Helpers helpers()<ul>
+<li>Get additional helpers which may not be implemented for all database types</li>
 </ul>
 </li>
 <li>XferQueryBuilder delete(String entity, QueryOptions query_options)</li>
