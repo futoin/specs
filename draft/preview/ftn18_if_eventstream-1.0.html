@@ -60,7 +60,7 @@ of event data, but it must not be used in scope of this spec.</p>
 </ol>
 <h2>2.2. Event consumption</h2>
 <p>Each consumer with reliable delivery of events must be registered on generating peer.
-Unreliable live event consumer reqistration is not required.</p>
+Unreliable live event consumer must not register.</p>
 <p>Two well known approaches for event delivery are assumed: polling and pushing.</p>
 <p>Generator does not care about which approach consumer uses to retrieve events.
 Consumer may even use both approaches interchangeably - for example, to skip
@@ -82,12 +82,13 @@ through the opened BiDirectional channel. </p>
 <p>It's assumed that events are grouped with reasonable maximum delay and send to consumer.
 Consumer responses with success only after events are reliably scheduled for internal processing.</p>
 <p>For efficent throughput, generator may send many event groups in parallel. It is consumer's
-responsibility to process events in proper order. Each request must have previous event ID
+responsibility to process events in proper order. Each request must have sequence ID
 hint for that purpose.</p>
 <h3>2.2.3. filtering</h3>
 <p>In large systems, event consumers may need to process only a limited subset of
 all event types. It's not efficent to send all events to all consumers. Therefore,
-it should be possible to select required types of events at consumer registration time.</p>
+it should be possible to select required types of events at consumer poll or
+push request time.</p>
 <p>For security reasons, actual implementation may apply additional filter logic based on
 actual event data.</p>
 <p>Generator is responsible for event filterig. That also means, that possible skipped events
@@ -101,6 +102,10 @@ process different parts of event stream. Therefore, extra identification of such
 component is supported.</p>
 <p>So, consumer is represented with tuple of local user ID as defined in FTN8 and
 component name.</p>
+<p>A special "LIVE" component is reserved for live streams. It's not allowed to register
+consumers with such component.</p>
+<h3>2.2.5. Race conditions of consumer requests</h3>
+<p>Consumer is responsible to ensure there is only one request.</p>
 <h2>2.3. Extra large and long running systems</h2>
 <h3>2.3.1. Event archiving or discarding</h3>
 <p>For efficiency and reliability of operation active data needs to be kept small enough.
@@ -149,7 +154,7 @@ for interface.</p>
             "EventData" : "any",
             "EventTimestamp" : {
                 "type" : "string",
-                "regex": "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"
+                "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
             },
             "Event" : {
                 "type" : "map",
@@ -198,9 +203,9 @@ for interface.</p>
         "requires" : [ "SecureChannel" ]
     }
 </code></pre>
-<h3>. 3.2.1. Native extension</h3>
+<h3>3.2.1. Native extension</h3>
 <ul>
-<li>void addXferEvent(XferBuilder, type, data)</li>
+<li>void addXferEvent(XferBuilder, type, data, table=IMPL_DEFINED)</li>
 </ul>
 <h2>3.3. Consumer interface</h2>
 <h3>3.3.1. Base</h3>
@@ -219,16 +224,29 @@ software version changes as a general convention for plug &amp; play approach.</
         "funcs" : {
             "registerConsumer" : {
                 "params" : {
-                    "want" : "EventTypes",
-                    "reliable" : "boolean"
+                    "component" : "ConsumerComponent"
                 },
-                "result" : "boolean"
+                "result" : "boolean",
+                "throws" : [
+                    "LiveNotAllowed"
+                ]
             },
             "pollEvents" : {
                 "params" : {
-                    "last_id" : "EventID"
+                    "component" : "ConsumerComponent",
+                    "last_id" : {
+                        "type": "EventID",
+                        "default": null
+                    },
+                    "want" : {
+                        "type": "EventTypes",
+                        "default": null
+                    }
                 },
-                "result" : "EventList"
+                "result" : "EventList",
+                "throws" : [
+                    "NotRegistered"
+                ]
             }
         }
     }
@@ -244,8 +262,18 @@ for event delivery.</p>
         "inherit" : "futoin.evt.poll:1.0",
         "funcs" : {
             "readyToReceive" : {
+                "params" : {
+                    "component" : "ConsumerComponent",
+                    "want" : {
+                        "type": "EventTypes",
+                        "default": null
+                    }
+                },
                 "result" : "boolean",
-                "desc" : "Inform generator to start pushing events"
+                "desc" : "Inform generator to start pushing events",
+                "throws" : [
+                    "NotRegistered"
+                ]
             }
         },
         "requires" : [ "BiDirectChannel" ]
@@ -260,9 +288,16 @@ for event delivery.</p>
         "imports" : [
             "futoin.evt.types:1.0"
         ],
+        "types" : {
+            "SequenceID" : {
+                "type" : "integer",
+                "min" : 0
+            }
+        },
         "funcs" : {
             "onEvents" : {
                 "params" : {
+                    "seq" : "SequenceID",
                     "events" : "EventList"
                 },
                 "result" : "boolean"

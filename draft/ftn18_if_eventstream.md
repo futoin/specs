@@ -63,7 +63,7 @@ of event data, but it must not be used in scope of this spec.
 ## 2.2. Event consumption
 
 Each consumer with reliable delivery of events must be registered on generating peer.
-Unreliable live event consumer reqistration is not required.
+Unreliable live event consumer must not register.
 
 Two well known approaches for event delivery are assumed: polling and pushing.
 
@@ -96,14 +96,15 @@ It's assumed that events are grouped with reasonable maximum delay and send to c
 Consumer responses with success only after events are reliably scheduled for internal processing.
 
 For efficent throughput, generator may send many event groups in parallel. It is consumer's
-responsibility to process events in proper order. Each request must have previous event ID
+responsibility to process events in proper order. Each request must have sequence ID
 hint for that purpose.
 
 ### 2.2.3. filtering
 
 In large systems, event consumers may need to process only a limited subset of
 all event types. It's not efficent to send all events to all consumers. Therefore,
-it should be possible to select required types of events at consumer registration time.
+it should be possible to select required types of events at consumer poll or
+push request time.
 
 For security reasons, actual implementation may apply additional filter logic based on
 actual event data.
@@ -123,6 +124,13 @@ component is supported.
 
 So, consumer is represented with tuple of local user ID as defined in FTN8 and
 component name.
+
+A special "LIVE" component is reserved for live streams. It's not allowed to register
+consumers with such component.
+
+### 2.2.5. Race conditions of consumer requests
+
+Consumer is responsible to ensure there is only one request.
 
 
 ## 2.3. Extra large and long running systems
@@ -191,7 +199,7 @@ for interface.
                 "EventData" : "any",
                 "EventTimestamp" : {
                     "type" : "string",
-                    "regex": "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"
+                    "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
                 },
                 "Event" : {
                     "type" : "map",
@@ -247,9 +255,9 @@ for interface.
 
 `}Iface`
 
-###. 3.2.1. Native extension
+### 3.2.1. Native extension
 
-* void addXferEvent(XferBuilder, type, data)
+* void addXferEvent(XferBuilder, type, data, table=IMPL_DEFINED)
 
 ## 3.3. Consumer interface
 
@@ -274,16 +282,29 @@ software version changes as a general convention for plug & play approach.
             "funcs" : {
                 "registerConsumer" : {
                     "params" : {
-                        "want" : "EventTypes",
-                        "reliable" : "boolean"
+                        "component" : "ConsumerComponent"
                     },
-                    "result" : "boolean"
+                    "result" : "boolean",
+                    "throws" : [
+                        "LiveNotAllowed"
+                    ]
                 },
                 "pollEvents" : {
                     "params" : {
-                        "last_id" : "EventID"
+                        "component" : "ConsumerComponent",
+                        "last_id" : {
+                            "type": "EventID",
+                            "default": null
+                        },
+                        "want" : {
+                            "type": "EventTypes",
+                            "default": null
+                        }
                     },
-                    "result" : "EventList"
+                    "result" : "EventList",
+                    "throws" : [
+                        "NotRegistered"
+                    ]
                 }
             }
         }
@@ -305,8 +326,18 @@ for event delivery.
             "inherit" : "futoin.evt.poll:1.0",
             "funcs" : {
                 "readyToReceive" : {
+                    "params" : {
+                        "component" : "ConsumerComponent",
+                        "want" : {
+                            "type": "EventTypes",
+                            "default": null
+                        }
+                    },
                     "result" : "boolean",
-                    "desc" : "Inform generator to start pushing events"
+                    "desc" : "Inform generator to start pushing events",
+                    "throws" : [
+                        "NotRegistered"
+                    ]
                 }
             },
             "requires" : [ "BiDirectChannel" ]
@@ -327,9 +358,16 @@ This interface must be available on initiating peer of bi-directional communicat
             "imports" : [
                 "futoin.evt.types:1.0"
             ],
+            "types" : {
+                "SequenceID" : {
+                    "type" : "integer",
+                    "min" : 0
+                }
+            },
             "funcs" : {
                 "onEvents" : {
                     "params" : {
+                        "seq" : "SequenceID",
                         "events" : "EventList"
                     },
                     "result" : "boolean"

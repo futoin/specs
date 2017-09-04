@@ -5,9 +5,16 @@
   "imports": [
     "futoin.evt.types:1.0"
   ],
+  "types": {
+    "SequenceID": {
+      "type": "integer",
+      "min": 0
+    }
+  },
   "funcs": {
     "onEvents": {
       "params": {
+        "seq": "SequenceID",
         "events": "EventList"
       },
       "result": "boolean"

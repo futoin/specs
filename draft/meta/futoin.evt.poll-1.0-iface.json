@@ -9,16 +9,29 @@
   "funcs": {
     "registerConsumer": {
       "params": {
-        "want": "EventTypes",
-        "reliable": "boolean"
+        "component": "ConsumerComponent"
       },
-      "result": "boolean"
+      "result": "boolean",
+      "throws": [
+        "LiveNotAllowed"
+      ]
     },
     "pollEvents": {
       "params": {
-        "last_id": "EventID"
+        "component": "ConsumerComponent",
+        "last_id": {
+          "type": "EventID",
+          "default": null
+        },
+        "want": {
+          "type": "EventTypes",
+          "default": null
+        }
       },
-      "result": "EventList"
+      "result": "EventList",
+      "throws": [
+        "NotRegistered"
+      ]
     }
   }
 }
