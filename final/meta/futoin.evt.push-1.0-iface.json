@@ -1,0 +1,25 @@
+{
+  "iface": "futoin.evt.push",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "inherit": "futoin.evt.poll:1.0",
+  "funcs": {
+    "readyToReceive": {
+      "params": {
+        "component": "ConsumerComponent",
+        "want": {
+          "type": "EventTypes",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "desc": "Inform generator to start pushing events",
+      "throws": [
+        "NotRegistered"
+      ]
+    }
+  },
+  "requires": [
+    "BiDirectChannel"
+  ]
+}
