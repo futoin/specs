@@ -1,0 +1,30 @@
+{
+  "iface": "futoin.currency.info",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.currency.types:1.0"
+  ],
+  "funcs": {
+    "listCurrencies": {
+      "result": "CurrencyList"
+    },
+    "getExRate": {
+      "params": {
+        "base": "CurrencyCode",
+        "foreign": "CurrencyCode"
+      },
+      "result": {
+        "rate": "ExRate",
+        "margin": "ExRate"
+      },
+      "throws": [
+        "UnknownCurrency"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

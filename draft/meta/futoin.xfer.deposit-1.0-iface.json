@@ -1,0 +1,55 @@
+{
+  "iface": "futoin.xfer.deposit",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.xfer.types:1.0"
+  ],
+  "funcs": {
+    "preDepositCheck": {
+      "params": {
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "fee": {
+          "type": "Fee",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownAccountID",
+        "CurrencyMismatch",
+        "InvalidAmount",
+        "LimitReject"
+      ],
+      "desc": "Check if system allows deposit"
+    },
+    "onDeposit": {
+      "params": {
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "ext_id": "XferExtID",
+        "ext_info": "XferExtInfo",
+        "fee": {
+          "type": "Fee",
+          "default": null
+        }
+      },
+      "result": "XferID",
+      "throws": [
+        "UnknownAccountID",
+        "CurrencyMismatch",
+        "InvalidAmount",
+        "LimitReject"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

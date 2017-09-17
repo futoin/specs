@@ -1,0 +1,124 @@
+{
+  "iface": "futoin.xfer.accounts",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.xfer.types:1.0"
+  ],
+  "types": {
+    "AccountType": {
+      "type": "enum",
+      "items": [
+        "System",
+        "Regular",
+        "Transit",
+        "External"
+      ]
+    },
+    "AccountExternalID": {
+      "type": "string",
+      "maxlen": 64
+    },
+    "AccountAlias": {
+      "type": "string",
+      "maxlen": 20
+    },
+    "AccountHolderData": {
+      "type": "map"
+    },
+    "AccountHolderInternalData": {
+      "type": "map"
+    }
+  },
+  "funcs": {
+    "setAccount": {
+      "params": {
+        "id": {
+          "type": "AccountID",
+          "default": null
+        },
+        "type": "AccountType",
+        "holder": "AccountHolderID",
+        "currency": "CurrencyCode",
+        "ext_id": "AccountExternalID",
+        "alias": "AccountAlias"
+      },
+      "result": "AccountHolderID",
+      "throws": [
+        "UnknownHolderID",
+        "UnknownAccountID",
+        "ImmutableMismatch"
+      ]
+    },
+    "listAccounts": {
+      "params": {
+        "holder": "AccountHolderID"
+      },
+      "result": {
+        "id": "AccountID",
+        "type": "AccountType",
+        "currency": "CurrencyCode",
+        "ext_id": "AccountExternalID",
+        "alias": "AccountAlias",
+        "balance": "Balance",
+        "reserved": "Amount"
+      },
+      "throws": [
+        "UnknownHolderID"
+      ]
+    },
+    "convAccount": {
+      "params": {
+        "id": "AccountID",
+        "currency": "CurrencyCode"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownHolderID",
+        "UnknownCurrency"
+      ],
+      "desc": "For rare cases when some currency needs to be disabled"
+    },
+    "setAccountHolder": {
+      "params": {
+        "id": {
+          "type": "AccountHolderID",
+          "default": null
+        },
+        "group": "LimitGroup",
+        "kyc": "boolean",
+        "data": "AccountHolderData",
+        "internal": "AccountHolderInternalData"
+      },
+      "result": "AccountHolderID"
+    },
+    "getAccountHolder": {
+      "params": {
+        "id": "AccountHolderID"
+      },
+      "result": {
+        "group": "LimitGroup",
+        "kyc": "boolean",
+        "data": "AccountHolderData",
+        "internal": "AccountHolderInternalData"
+      },
+      "throws": [
+        "UnknownAccountHolder"
+      ]
+    },
+    "mergeAccountHolders": {
+      "params": {
+        "id": "AccountHolderID",
+        "other_id": "AccountHolderID"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownAccountHolder"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "iface": "futoin.xfer.generic",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.xfer.types:1.0"
+  ],
+  "funcs": {
+    "fee": {
+      "params": {
+        "holder": "AccountHolderID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "reason": "Reason",
+        "ext_id": "XferExtID",
+        "ext_info": "XferExtInfo",
+        "force": "boolean"
+      },
+      "result": "XferID",
+      "throws": [
+        "UnknownHolderID",
+        "CurrencyMismatch",
+        "InvalidAmount",
+        "LimitReject"
+      ]
+    },
+    "genericXfer": {
+      "params": {
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "reason": "Reason"
+      },
+      "result": "XferID",
+      "throws": [
+        "UnknownAccountID",
+        "CurrencyMismatch",
+        "InvalidAmount",
+        "LimitReject"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

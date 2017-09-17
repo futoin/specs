@@ -1,0 +1,104 @@
+{
+  "iface": "futoin.xfer.sales",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.xfer.types:1.0"
+  ],
+  "funcs": {
+    "purchase": {
+      "params": {
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "ext_id": "XferExtID",
+        "ext_info": "XferExtInfo",
+        "fee": {
+          "type": "Fee",
+          "default": null
+        },
+        "rel_auth_id": {
+          "type": "XferID",
+          "default": null
+        }
+      },
+      "result": "XferID",
+      "throws": [
+        "UnknownAccountID",
+        "CurrencyMismatch",
+        "InvalidAmount",
+        "LimitReject",
+        "AlreadyCanceled"
+      ]
+    },
+    "cancelPurchase": {
+      "params": {
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "ext_id": "XferExtID"
+      },
+      "result": "boolean",
+      "throws": [
+        "DataMismatch"
+      ]
+    },
+    "refund": {
+      "params": {
+        "ref_id": "XferID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "ext_id": "XferExtID"
+      },
+      "result": "boolean",
+      "throws": [
+        "CurrencyMismatch",
+        "AmountTooLarge",
+        "PurchaseNotFound",
+        "AlreadyCanceled"
+      ]
+    },
+    "preAuth": {
+      "params": {
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "ext_id": "XferExtID",
+        "ext_info": "XferExtInfo"
+      },
+      "result": "XferID",
+      "throws": [
+        "UnknownAccountID",
+        "CurrencyMismatch",
+        "InvalidAmount",
+        "LimitReject",
+        "AlreadyCanceled"
+      ]
+    },
+    "clearPreAuth": {
+      "params": {
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "ext_id": "XferExtID",
+        "ext_info": "XferExtInfo",
+        "rel_id": {
+          "type": "XferID",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "throws": [
+        "DataMismatch"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "iface": "futoin.xfer.types",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.currency.types:1.0"
+  ],
+  "types": {
+    "UUIDB64": {
+      "type": "string",
+      "regex": "^[A-Za-z0-9+/]{22}$"
+    },
+    "AccountID": "UUIDB64",
+    "AccountHolderID": "UUIDB64",
+    "Amount": {
+      "type": "string",
+      "regex": "^[0-9]{1,12}(\\.[0-9]{1,8})?$"
+    },
+    "Balance": {
+      "type": "string",
+      "regex": "^-?[0-9]{1,12}(\\.[0-9]{1,8})?$"
+    },
+    "XferID": "UUIDB64",
+    "XferExtID": {
+      "type": "string",
+      "maxlen": 32
+    },
+    "XferExtInfo": "map",
+    "Reason": {
+      "type": "string",
+      "maxlen": 128
+    },
+    "LimitGroup": {
+      "type": "string",
+      "regex": "^[a-zA-Z ]+$"
+    },
+    "LimitDomain": {
+      "type": "enum",
+      "items": [
+        "Purchases",
+        "Transfers",
+        "Gaming",
+        "Personnel"
+      ]
+    },
+    "Fee": {
+      "type": "map",
+      "fields": {
+        "currency": "Currency",
+        "amount": "Amount",
+        "reason": "Reason"
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "iface": "futoin.xfer.gaming",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.xfer.types:1.0"
+  ],
+  "funcs": {
+    "bet": {
+      "params": {
+        "holder": "AccountHolderID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "ext_id": "XferExtId",
+        "ext_info": "XferExtInfo"
+      },
+      "result": "XferID",
+      "throws": [
+        "UnknownHolderID",
+        "CurrencyMismatch",
+        "OutOfBalance",
+        "LimitReject",
+        "DataMismatch",
+        "AlreadyCanceled"
+      ]
+    },
+    "cancelBet": {
+      "params": {
+        "holder": "AccountHolderID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "ext_id": "XferExtId"
+      },
+      "result": "boolean",
+      "throws": [
+        "DataMismatch"
+      ]
+    },
+    "win": {
+      "params": {
+        "holder": "AccountHolderID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "ext_id": "XferExtId",
+        "ext_info": "XferExtInfo"
+      },
+      "result": "XferID",
+      "throws": [
+        "UnknownHolderID",
+        "CurrencyMismatch",
+        "LimitReject",
+        "DataMismatch"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

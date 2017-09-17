@@ -1,0 +1,57 @@
+{
+  "iface": "futoin.xfer.withdraw",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.xfer.types:1.0"
+  ],
+  "funcs": {
+    "startWithdrawal": {
+      "params": {
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "fee": {
+          "type": "Fee",
+          "default": null
+        }
+      },
+      "result": "XferID",
+      "throws": [
+        "UnknownAccountID",
+        "CurrencyMismatch",
+        "InvalidAmount",
+        "LimitReject",
+        "AlreadyCanceled"
+      ]
+    },
+    "completeWithdrawal": {
+      "params": {
+        "ref_id": "XferID",
+        "ext_id": "XferExtID",
+        "ext_info": "XferExtInfo"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownXferID",
+        "AlreadyCanceled"
+      ]
+    },
+    "cancelWithdrawal": {
+      "params": {
+        "ref_id": "XferID",
+        "reason": "Reason"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownXferID",
+        "AlreadyCompleted"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

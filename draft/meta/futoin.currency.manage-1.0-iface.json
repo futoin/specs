@@ -1,0 +1,41 @@
+{
+  "iface": "futoin.currency.manage",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.currency.types:1.0"
+  ],
+  "funcs": {
+    "setCurrency": {
+      "params": {
+        "code": "CurrencyCode",
+        "dec_places": "DecimalPlaces",
+        "name": "CurrencyName",
+        "symbol": "CurrencySymbol",
+        "enabled": "boolean"
+      },
+      "result": "boolean",
+      "desc": "Register or update currency",
+      "throws": [
+        "DecPlaceMismatch",
+        "DuplicateNameOrSymbol"
+      ]
+    },
+    "setExRate": {
+      "params": {
+        "base": "CurrencyCode",
+        "foreign": "CurrencyCode",
+        "rate": "ExRate",
+        "margin": "ExRate"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownCurrency"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

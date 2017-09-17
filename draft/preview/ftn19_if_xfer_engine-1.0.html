@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn19_if_xfer_engine.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN19: FutoIn Interface - Transaction Engine
+Version: 1.0DV
+Date: 2017-09-17
+Copyright: 2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>
+<p>DV - 2017-09-17 - Andrey Galkin</p>
+<ul>
+<li>Major rework</li>
+</ul>
+</li>
+<li>
+<p>DV - 2017-08-27 - Andrey Galkin</p>
+<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>Absolutely any project involving any type of money or credit processing
+requires financial engine to manage user accounts, process transactions
+and support in-depth history and analytics.</p>
+<p>Very common, "hand made" transaction processing approaches quickly run into
+serious bugs, have scalability and suistainability issues.</p>
+<p>Therefore, a standard interface for account management and transaction processing
+is required. Based on project scale, it can have different background implementation
+being loosely coupled to other business logic.</p>
+<p>Possible use cases:</p>
+<ul>
+<li>Online banking system</li>
+<li>In-game economics simulation</li>
+<li>Accounting &amp; billing</li>
+<li>Any other case of credits management &amp; reporting</li>
+</ul>
+<p>It is assumed there is always single authoritative operator of transaction engine
+instance. For multi-tenancy, there must be a separate instance. When multiple
+timezones, legislations, regions and other type of segregation are involved,
+several instance of transaction engines may be present in scope of single operator
+similar to bank branches.</p>
+<h1>2. Concept</h1>
+<p>There are two fundamental types of objects: accounts and transactions
+between the accounts.</p>
+<p>The nature of many long-running projects is to have many accounts actively used
+only in relatively short period of time. Some accounts may be used only for single
+transaction.</p>
+<p>Another important object type is account holder. Transaction processing constraints
+may apply based on account type and/or account holder type.</p>
+<p>Most international project operate with different type of currency, so two more
+important object types are currencies and exchange rates.</p>
+<p>In most cases, financial system is not closed loop and it requires interaction with
+external systems. So, each database object should support external references
+with clear distinction of ID source.</p>
+<h2>2.1. Currencies</h2>
+<h3>2.1.1 Codes</h3>
+<p>There are known internationally accepted currencies with standardized codes, but that
+does not cover widely known, but "unofficial" currencies. It's possible to have various
+other virtual or closed loop currencies. Therefore, there must be a clear distinction
+of currency code "sets". In current implementation, currency code is prefixed with the
+following:</p>
+<ul>
+<li>"I:" - for ISO 4217 fiat currency codes of International Organization for Standardization</li>
+<li>"C:" - for so-called cryptocurrencies with de-facto code conventions</li>
+<li>"K:" - for currencies of Confederation of Reasonable Legal Freedom</li>
+<li>"L:" - for closed loop internal currencies or other type of credits (e.g. game minutes)</li>
+</ul>
+<p>It should be possible to disable unusused or undesired currencies even if it was previously
+registed or used for accounts and transactions.</p>
+<h3>2.1.2. Units</h3>
+<p>Each currency must have a minimal unit in decimal notation. All currency operations must
+always have exact number of decimal places after dot in amounts used in interface. However,
+internal database representation may use types without decimal places after dot based on
+minimal unit per currency.</p>
+<h3>2.1.3. Exchange rates</h3>
+<p>Currency exchange rates are dynamic. Therefore, transaction engine must manage current
+exchange rate and full history of changes, if applicable. However, each transaction must
+contain used rate regardless of data available elsewhere.</p>
+<p>It's assumed that exchange rates are constantly updated from authoritative source.</p>
+<p>Exchange rate must be set with up to four extra decimal places after dot.</p>
+<h3>2.1.4. Base currency</h3>
+<p>Each currency may have own authoritative source of exchange rates. It may happen that
+the same currency pair may have different rates based on authoritative source.</p>
+<p>Due to legislation and other means, all conversion operations should specify the base
+currency. Only associated authoritative source exchange rate must be used in such operation.</p>
+<h3>2.1.5. Buy/Sell margin &amp; rounding</h3>
+<p>Due to imposed risks and rounding errors, the transaction engine operator may need to specify
+different rates for conversion to and from base currency. The system should hold a spot rate
+and a margin rate to be added to/subtracted from the spot rate.</p>
+<p>Relative spread calculations to be done externally before spot &amp; margin rate is set.</p>
+<p>Rounding must be done in favor of transaction engine operator.</p>
+<h3>2.1.6. Events</h3>
+<ul>
+<li><code>CURRENCY</code> - add or update of currency</li>
+<li><code>EXRATE</code> - change of currency exchange rate</li>
+</ul>
+<h2>2.2. Accounts</h2>
+<p>Each account must have the following properties:
+1. Currency
+2. Balance
+3. Reservation</p>
+<h3>2.2.1. Types</h3>
+<p>The following types of accounts are assumed:
+1. System - internal source &amp; sink which have no limit restrictions
+2. Regular - used for accumulation of funds, supports operation limits
+3. Transit - similar to Regular, but forbids direct operations by account holder
+4. External - similar to Transit, but used for accounting of external systems
+5. Bonus - a temporary account used for bonus amounts processing</p>
+<h3>2.2.2. Events</h3>
+<ul>
+<li><code>ACCT_NEW</code> - on account being created</li>
+<li><code>ACCT_UPD</code> - on account information being updated, but not balance</li>
+<li><code>ACCT_BAL</code> - on account balance change</li>
+<li><code>ACCT_CONV</code> - on account currency being converted to another one</li>
+<li><code>ACCT_CLOSE</code> - on account being closed</li>
+</ul>
+<h2>2.3. Transactions</h2>
+<h3>2.3.1. Types</h3>
+<p>The following list is recommendation. Particular implementation may
+omit some or add additional types. However, if type is already listed in the spec
+then it must be used.</p>
+<ul>
+<li>Large amounts with extra checks:<ul>
+<li>Deposit - funds deposit from external source</li>
+<li>Withdraw - funds withdrawal to external source</li>
+</ul>
+</li>
+<li>Relatively small amounts with real-time transactions:<ul>
+<li>Bet - gaming bet</li>
+<li>Win - gaming win</li>
+<li>CancelBet - cancel gaming bet due to canceled game</li>
+</ul>
+</li>
+<li>Goods and service purchase:<ul>
+<li>Purchase - purchase</li>
+<li>CancelPurchase - cancel previous purchase</li>
+<li>Refund - full or partial refund of Purchase</li>
+<li>PreAuth - block account balance for later Purchase</li>
+<li>ClearAuth - clear previous PreAuth balance</li>
+</ul>
+</li>
+<li>Bonus &amp; Loyalty:<ul>
+<li>Bonus - a special type of stimulation/promotion deposit which adds withdrawal block</li>
+<li>ReleaseBonus - move bonus amount to regular account and free it of any restrictions</li>
+<li>CancelBonus - close bonus account</li>
+</ul>
+</li>
+<li>Misc.:<ul>
+<li>Fee - any type of fee which may force negative balance</li>
+<li>Generic - generic transaction not related to others, e.g. peer-to-peer</li>
+</ul>
+</li>
+</ul>
+<h3>2.3.2. Fees</h3>
+<p>As many transaction processing types involve expenses for operator they may be accompanied
+by Fee transaction which should be atomically processed with relates transaction.</p>
+<p>Fees due to operation initiatied by account holder action should not allow account
+balance to become negative. Other type of fees may result in negative account balance,
+if the cause is unavoidable.</p>
+<h3>2.3.3. Transaction processing &amp; error recovery</h3>
+<ol>
+<li>Duplicate check must be performed based on pair of <code>rel_account</code> and <code>ext_id</code>.<ul>
+<li>All provided data must be checked for mismatch.</li>
+<li>Original result must be returned without any other processing done.</li>
+</ul>
+</li>
+<li>If transaction is already canceled then "AlreadyCanceled" error must be raised.<ul>
+<li>This workaround cases when cancel is delivered before original request.</li>
+</ul>
+</li>
+<li>Transaction cancellation;<ul>
+<li>It must be possible to cancel only balance decreasing transactions due to external
+    processing cancel (e.g. canceled game or not possible to complete withdrawal).</li>
+<li>It must not be possible to cancel transaction, if there are related transactions done.</li>
+</ul>
+</li>
+</ol>
+<h3>2.3.4. Transaction use scenarios</h3>
+<p>I. System and External
+* Generic transaction which should reflect out-of-scope settlement.</p>
+<p>II. External and Regular account types:
+<em> Typical use case when user accounts are managed by the system and external services are out of scope
+</em> Purchases, Bets, Withdrawals originate from Regular to External, but Refunds, Wins, Deposit
+    are processing in reverse direction.</p>
+<p>III. External and Transit account types:
+<em> Typical use case when user account is managed outside of the system, but it is used for accounting
+</em> As additona to "External and Regular" transactions, it's allowed to make transactions in opposite directions
+    to account pass-through requests to external account management instance.
+    * Typical chain: External -&gt; Transit -&gt; External</p>
+<p>IV. Regular and Regular account types:
+* A typical case when user and service provider (or another user) accounts are both managed inside the system.</p>
+<p>V. Transit and Transit account type:
+* Such scenarios are possible for proxy passthrough transactions when balance for both accounts is managed externally.
+    * There should be a chain of transactions: External -&gt; Transit -&gt; Transit -&gt; External</p>
+<p>VI. External and External:
+* It should be allowed only between accounts of the same account holder, For example, the primary account
+    with base currency may have negative balance limit, but additional accounts of another currency may
+    need to borrow that limit with conversion. Such details are out of current spec scope.</p>
+<p>VII. Involving Bonus account type:
+<em> Bonus should be used with associated Regular account type, but not independently
+</em> System to/from Bonus mean bonus enrollment or bonus cancel
+* Regular to/from Bonus not in scope of associated Regular account must be allowed only for release of bonus</p>
+<p>VIII. System and Regular account type:
+* May be used in scope of standard transactions meaning no external system being involved. The transaction engine
+    acts as both operator and service provider.</p>
+<h3>2.3.5. Events</h3>
+<ul>
+<li><code>XFER_RISK</code> - on transaction waiting for risk analysis</li>
+<li><code>XFER_WAIT</code> - on transaction waiting for external processing</li>
+<li><code>XFER_DONE</code> - on transaction being completed</li>
+<li><code>XFER_FEE</code> - on fee transaction<ul>
+<li>Note: it should follow related XFER_DONE, if applicable</li>
+</ul>
+</li>
+<li><code>XFER_REJ</code> - on transaction being rejected</li>
+<li><code>XFER_BLOCK</code> - on transaction being blocked due inbound rejection of target account<ul>
+<li>Note: by limit, by external failure or by risk rejection</li>
+</ul>
+</li>
+</ul>
+<h2>2.4. Limits</h2>
+<p>Limits can be set per account and/or per account holder. There should be global
+fallback limits, if specific limits are not configured. The first one hit is to
+be used. Limits accounting should be always on. The default limits must not allow
+transaction processing to prevent misconfiguration.</p>
+<p>On each tranaction, a set of related limits must be retrieved and checked.</p>
+<p>Rejection of outbound transactions should cause return of money.</p>
+<h3>2.4.1. Limit levels</h3>
+<p>There should be several threshold values for different type of result.</p>
+<ol>
+<li>Check - set by account holder, bound by Soft limit</li>
+<li>Soft - set by account holder, bound by Hard limit</li>
+<li>Hard - set by operator, bound by System limit</li>
+<li>Risk - set by operator, triggers risk analysis</li>
+<li>System - set by system</li>
+</ol>
+<p>All except Check &amp; Soft limits should be organized in limit groups and management
+that way.</p>
+<h3>2.4.2. Limit types</h3>
+<ol>
+<li>NBL - Negative Balance Limit - must be 0 by default<ul>
+<li>Note: the balance may still become negative for forced system transactions</li>
+</ul>
+</li>
+<li>TAL - Transaction Amount - limit per single outgoing transaction</li>
+<li>DAL - Daily Amount - daily limit for outgoing amounts</li>
+<li>WAL - Weekly Amount - weekly limit for outgoing amounts</li>
+<li>MAL - Monthly Amount - monthly limit for outgoing amounts</li>
+<li>DTL - Daily Turnover Amount - daily limit for incoming and outgoing amounts</li>
+<li>WTL - Weekly Turnover Amount - weekly limit for incoming and outgoing amounts</li>
+<li>MTL - Monthly Turnover Amount - monthly limit for incoming and outgoing amounts</li>
+<li>DTC - Daily Transaction Count - daily limit for all transactions</li>
+<li>WTC - Weekly Transaction Count - weekly limit for all transactions</li>
+<li>MTC - Monthly Transaction Count - monthly limit for all transactions</li>
+<li>MTAL - Minimum Transaction Amount - limit per single transaction</li>
+<li>DLH - Daily Limit Hit - any type of limit hit per day<ul>
+<li>Note: should lead to blocking for security reasons and system stability</li>
+</ul>
+</li>
+<li>DMC - Daily Message Count - maximum number of in-system message count</li>
+</ol>
+<p>Periods are accounted per calendar with operator configured timezone. Per account
+holder limits are accounted in base currency.</p>
+<h3>2.4.3. Limit domain</h3>
+<p>Limit scopes are essential to separate operations by their domain &amp; risk.</p>
+<ol>
+<li>Deposit, Withdraw &amp; Generic - funds transfers from external systems and other peers</li>
+<li>Purchases - limits in scope of purchases - transactions with well known peer</li>
+<li>Game - limits in scope fo real-time game processing - transactions with well known peer</li>
+<li>Personnel - transactions done by operator's personnel</li>
+</ol>
+<h3>2.4.4. Limit groups</h3>
+<p>Only Check &amp; Soft limit is specific to account holde. All other limits should be
+grouped into relatively small amount of manageable groups. Otherwise, management
+errors are unavoidable.</p>
+<p>Such approach reduces database size and related processing load.</p>
+<h3>2.4.5. Events</h3>
+<ul>
+<li><code>LIM_UPD</code> - update of limit</li>
+<li><code>LIM_HLDR_UPD</code> - update of account holder limits</li>
+</ul>
+<h2>2.5. Account holder</h2>
+<p>There is strict Know Your Customer (KYC) and related limit requirements for financial
+systems in scope of AML/CTF efforts. It's the primary reason to introduce such entity.</p>
+<p>As account holder information varies across the Globe, it should be abstract enough
+to hold arbitrary data provided by actual implementation.</p>
+<p>However, if data type is already defined as part of spec - it must be used instead of
+optional extensions.</p>
+<h3>2.5.1. Known data types</h3>
+<p>All data may be in national Unicode format. However, some fields may have
+restrictions.</p>
+<ul>
+<li><code>full_name</code></li>
+<li><code>other_names</code> = {} - other names, if applicable<ul>
+<li><code>first</code></li>
+<li><code>last</code></li>
+<li><code>middle</code></li>
+<li><code>father</code></li>
+<li><code>latin_first</code> - first name in latin as in ICAO ID</li>
+<li><code>latin_last</code> - last name in latin as in ICAO ID</li>
+</ul>
+</li>
+<li><code>dob</code> - date of birth</li>
+<li><code>sex</code> = [M, F, O] - Male, Female, Other</li>
+<li><code>title</code> - arbitrary string like 'Mr.', 'Dr.', 'Sir', etc.</li>
+<li><code>citizenship</code> = [] - Country List</li>
+<li><code>resident</code> = [] - Country List</li>
+<li><code>home_address</code> = {} - primary contact address<ul>
+<li><code>country</code></li>
+<li><code>region</code> = null - state, province, etc. if applicable</li>
+<li><code>city</code></li>
+<li><code>street</code></li>
+<li><code>building</code></li>
+<li><code>room</code></li>
+</ul>
+</li>
+<li><code>other_addresses</code> = [ {} ] - list of other contact addresses</li>
+<li><code>main_email</code> - primary contact email</li>
+<li><code>other_emails</code> = [] - list of contact emails</li>
+<li><code>main_phone</code> - primary contact phone</li>
+<li><code>other_phones</code> = [] - list of contact phones</li>
+<li><code>ids</code> = [ {}, ... ] - list of IDs<ul>
+<li><code>type</code> - arbitrary string<ul>
+<li><code>ICAO</code> - ICAO-compliant ID/passport</li>
+<li><code>NATID</code> - national ID</li>
+<li><code>DL</code> - Driver License</li>
+</ul>
+</li>
+<li><code>num</code> - arbitrary string identifying document ID</li>
+<li><code>country</code> - the country issued the document</li>
+<li><code>issuer</code></li>
+<li><code>iss_date</code> - date issued</li>
+<li><code>exp_date</code> - valid through date</li>
+<li><code>doc_ids</code> = [] - list of associated uploaded documents</li>
+<li><code>comment</code> - user supplied comment</li>
+</ul>
+</li>
+<li><code>tax_id</code></li>
+</ul>
+<h3>2.5.2. Events</h3>
+<ul>
+<li><code>AH_NEW</code> - new account holder</li>
+<li><code>AH_UPD</code> - update of account holder</li>
+<li><code>AH_BLOCK</code> - on account holder being blocked</li>
+</ul>
+<h2>2.6. Messages</h2>
+<p>Due to security and traceability considerations use of third-party communication channels
+may be undesired. A basic plain text in-system messaging feature is required for
+operator &lt;-&gt; user communication in scope of transaction processing.</p>
+<p>All other types of communications must be handled externally.</p>
+<h2>2.7. Security considerations</h2>
+<p>User authentication &amp; authorization is out of scope of this spec. It should be defined
+in scope of FTN8: Security.</p>
+<p>Some withdrawal, purchase and peer-to-peer transactions may require extra account holder
+confirmation based on Soft limit. The way to verify user confirmation should be also
+derived from FTN8.</p>
+<p>In other cases, when additional confirmation does not make any sense (e.g. in-game bets)
+Soft limit should cause transaction rejection.</p>
+<h1>3. Interface</h1>
+<h2>3.1. Common types</h2>
+<p>Common types to use in other interfaces of this spec.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.types",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.currency.types:1.0"
+        ],
+        "types" : {
+            "UUIDB64" : {
+                "type" : "string",
+                "regex" : "^[A-Za-z0-9+/]{22}$"
+            },
+            "AccountID" : "UUIDB64",
+            "AccountHolderID" : "UUIDB64",
+            "Amount" : {
+                "type" : "string",
+                "regex" : "^[0-9]{1,12}(\\.[0-9]{1,8})?$"
+            },
+            "Balance" : {
+                "type" : "string",
+                "regex" : "^-?[0-9]{1,12}(\\.[0-9]{1,8})?$"
+            },
+            "XferID" : "UUIDB64",
+            "XferExtID" : {
+                "type" : "string",
+                "maxlen" : 32
+            },
+            "XferExtInfo" : "map",
+            "Reason" : {
+                "type" : "string",
+                "maxlen" : 128
+            },
+            "LimitGroup" : {
+                "type" : "string",
+                "regex" : "^[a-zA-Z ]+$"
+            },
+            "LimitDomain" : {
+                "type" : "enum",
+                "items" : [
+                    "Purchases",
+                    "Transfers",
+                    "Gaming",
+                    "Personnel"
+                ]
+            },
+            "Fee" : {
+                "type" : "map",
+                "fields" : {
+                    "currency" : "Currency",
+                    "amount" : "Amount",
+                    "reason" : "Reason"
+                }
+            }
+        }
+    }
+</code></pre>
+<h2>3.2. Currency</h2>
+<p>Currency-related services are assumed to be a separate module. In some cases,
+tehre can be a single centralized service from which other instances sync. Therefore
+there is a strict separation between management and information retrieval.</p>
+<h3>3.2.1. Types</h3>
+<p>Common types in scope for currency processing.</p>
+<pre><code>    {
+        "iface" : "futoin.currency.types",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "types" : {
+            "CurrencyCode" : {
+                "type" : "string",
+                "regex" : "^[ICKL]:[A-Z]{7}$",
+                "desc" : "T:Code, see the spec"
+            },
+            "DecimalPlaces": {
+                "type" : "integer",
+                "min" : 0,
+                "max" : 8
+            },
+            "CurrencyName" : {
+                "type" : "string",
+                "minlen" : 1,
+                "maxlen" : 64
+            },
+            "CurrencySymbol" : {
+                "type" : "string",
+                "minlen" : 1,
+                "maxlen" : 3
+            },
+            "Currency" : {
+                "type" : "map",
+                "fields" : {
+                    "code" : "CurrencyCode",
+                    "dec_places" : "DecimalPlaces",
+                    "name" : "CurrencyName",
+                    "symbol" : "CurrencySymbol",
+                    "enabled" : "boolean"
+                }
+            },
+            "CurrencyList" : {
+                "type" : "array",
+                "elemtype" : "Currency"
+            },
+            "ExRate" : {
+                "type" : "string",
+                "regex" : "^[0-9]{1,12}(\\.[0-9]{1,12})?$"
+            }
+        }
+    }
+</code></pre>
+<h3>3.2.2. Management</h3>
+<p>Currency management API.</p>
+<pre><code>    {
+        "iface" : "futoin.currency.manage",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.currency.types:1.0"
+        ],
+        "funcs" : {
+            "setCurrency" : {
+                "params" : {
+                    "code" : "CurrencyCode",
+                    "dec_places" : "DecimalPlaces",
+                    "name" : "CurrencyName",
+                    "symbol" : "CurrencySymbol",
+                    "enabled" : "boolean"
+                },
+                "result" : "boolean",
+                "desc" : "Register or update currency",
+                "throws" : [
+                    "DecPlaceMismatch",
+                    "DuplicateNameOrSymbol"
+                ]
+            },
+            "setExRate" : {
+                "params" : {
+                    "base" : "CurrencyCode",
+                    "foreign" : "CurrencyCode",
+                    "rate" : "ExRate",
+                    "margin" : "ExRate"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownCurrency"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h3>3.2.3. Information</h3>
+<p>Currency information API.</p>
+<pre><code>    {
+        "iface" : "futoin.currency.info",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.currency.types:1.0"
+        ],
+        "funcs" : {
+            "listCurrencies" : {
+                "result" : "CurrencyList"
+            },
+            "getExRate" : {
+                "params" : {
+                    "base" : "CurrencyCode",
+                    "foreign" : "CurrencyCode"
+                },
+                "result" : {
+                    "rate" : "ExRate",
+                    "margin" : "ExRate"
+                },
+                "throws" : [
+                    "UnknownCurrency"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.3. Accounts</h2>
+<p>Account management API for internal use only.</p>
+<p>Merge functionality should be rarely used to workaround multiple registrations per single person
+which may happen in some scenarios.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.accounts",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "types" : {
+            "AccountType" : {
+                "type" : "enum",
+                "items": [
+                    "System",
+                    "Regular",
+                    "Transit",
+                    "External"
+                ]
+            },
+            "AccountExternalID" : {
+                "type" : "string",
+                "maxlen" : 64
+            },
+            "AccountAlias" : {
+                "type" : "string",
+                "maxlen" : 20
+            },
+            "AccountHolderData" : {
+                "type" : "map"
+            },
+            "AccountHolderInternalData" : {
+                "type" : "map"
+            }
+        },
+        "funcs" : {
+            "setAccount" : {
+                "params" : {
+                    "id" : {
+                        "type" : "AccountID",
+                        "default" : null
+                    },
+                    "type" : "AccountType",
+                    "holder" : "AccountHolderID",
+                    "currency" : "CurrencyCode",
+                    "ext_id" : "AccountExternalID",
+                    "alias" : "AccountAlias"
+                },
+                "result" : "AccountHolderID",
+                "throws" : [
+                    "UnknownHolderID",
+                    "UnknownAccountID",
+                    "ImmutableMismatch"
+                ]
+            },
+            "listAccounts": {
+                "params" : {
+                    "holder" : "AccountHolderID"
+                },
+                "result" : {
+                    "id" : "AccountID",
+                    "type" : "AccountType",
+                    "currency" : "CurrencyCode",
+                    "ext_id" : "AccountExternalID",
+                    "alias" : "AccountAlias",
+                    "balance" : "Balance",
+                    "reserved" : "Amount"
+                },
+                "throws" : [
+                    "UnknownHolderID"
+                ]
+            },
+            "convAccount" : {
+                "params" : {
+                    "id" : "AccountID",
+                    "currency" : "CurrencyCode"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownHolderID",
+                    "UnknownCurrency"
+                ],
+                "desc" : "For rare cases when some currency needs to be disabled"
+            },
+            "setAccountHolder" : {
+                "params" : {
+                    "id" : {
+                        "type" : "AccountHolderID",
+                        "default" : null
+                    },
+                    "group" : "LimitGroup",
+                    "kyc" : "boolean",
+                    "data" : "AccountHolderData",
+                    "internal" : "AccountHolderInternalData"
+                },
+                "result" : "AccountHolderID"
+            },
+            "getAccountHolder" : {
+                "params" : {
+                    "id" : "AccountHolderID"
+                },
+                "result" : {
+                    "group" : "LimitGroup",
+                    "kyc" : "boolean",
+                    "data" : "AccountHolderData",
+                    "internal" : "AccountHolderInternalData"
+                },
+                "throws" : [
+                    "UnknownAccountHolder"
+                ]
+            },
+            "mergeAccountHolders" : {
+                "params" : {
+                    "id" : "AccountHolderID",
+                    "other_id" : "AccountHolderID"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownAccountHolder"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.4. Transactions</h2>
+<p>Specific instances of transaction engine may support only subset of all
+possible transaction processing features. Therefore, each part is split
+into own interface/module.</p>
+<p>General notes for canellation: even if transaction is not known, it must be marked
+as canceled. So, if original transaction request comes after cancel request, it should
+get "AlreadyCanceled" status.</p>
+<p>A special system "External" account ID is assumed in "rel_account" field. It is used as
+source of/sink for transaction credits. Primary reason is to manage limits per external
+system. It may also aid integrity checks.</p>
+<h3>3.4.1. Deposits</h3>
+<p>Processing of deposit transactions. Actual external processing &amp; integration
+is out of scope. The interface is only responsible for "recording" fact of
+transaction.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.deposit",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "funcs" : {
+            "preDepositCheck" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject"
+                ],
+                "desc" : "Check if system allows deposit"
+            },
+            "onDeposit" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h3>3.4.2. Withdrawals</h3>
+<p>Similar to deposits, this interface is only reponsible for in-system
+processing of withdrawal transactions. External processing is out of scope.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.withdraw",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "funcs" : {
+            "startWithdrawal" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "AlreadyCanceled"
+                ]
+            },
+            "completeWithdrawal" : {
+                "params" : {
+                    "ref_id" : "XferID",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCanceled"
+                ]
+            },
+            "cancelWithdrawal" : {
+                "params" : {
+                    "ref_id" : "XferID",
+                    "reason" : "Reason"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCompleted"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h3>3.4.3. Gaming</h3>
+<p>This module is focused on processing of gaming transactions. It should be supported
+only for e-gaming and similar projects with real-time transactions.</p>
+<p>Unlike other interfaces, there is no Account ID involved directly as it assumed that there is
+is unique pair of AccountHolderID + CurrencyCode for Regular Account type. However, it's possible
+to have more than one Bonus account types for proper bonus amount processing.</p>
+<p>If there are associated bonus accounts of specified currency then their balance must be used in first place
+in creation order. If more than one account is used for placing of bets then win amount must be distributed
+proportionally. Creation, cancellation and release of bonus accounts is out of scope.</p>
+<p>It must not happen that "cancelBet" is called after any related "win". "ext_info" should include information
+about related game round in "round_id" field.</p>
+<p>The interface is still internall and must not be exposed.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.gaming",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "funcs" : {
+            "bet" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtId",
+                    "ext_info" : "XferExtInfo"
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "OutOfBalance",
+                    "LimitReject",
+                    "DataMismatch",
+                    "AlreadyCanceled"
+                ]
+            },
+            "cancelBet" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtId"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "DataMismatch"
+                ]
+            },
+            "win" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtId",
+                    "ext_info" : "XferExtInfo"
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "LimitReject",
+                    "DataMismatch"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h3>3.4.4. Sales</h3>
+<p>This interface is responsible for processing transactions in scope of goods and 
+service purchase.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.sales",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "funcs" : {
+            "purchase" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    },
+                    "rel_auth_id" : {
+                        "type" : "XferID",
+                        "default" : null
+                    }
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "AlreadyCanceled"
+                ]
+            },
+            "cancelPurchase" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "DataMismatch"
+                ]
+            },
+            "refund" : {
+                "params" : {
+                    "ref_id" : "XferID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "CurrencyMismatch",
+                    "AmountTooLarge",
+                    "PurchaseNotFound",
+                    "AlreadyCanceled"
+                ]
+            },
+            "preAuth" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo"
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "AlreadyCanceled"
+                ]
+            },
+            "clearPreAuth" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "rel_id" : {
+                        "type" : "XferID",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "DataMismatch"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h3>3.4.5. Bonus</h3>
+<pre><code>    {
+        "iface" : "futoin.xfer.bonus",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "funcs" : {
+            "claimBonus" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo"
+                },
+                "result" : "AccountID",
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject"
+                ]
+            },
+            "clearBonus" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "bonus" : "AccountID"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownHolderID",
+                    "UnknownBonus"
+                ]
+            },
+            "releaseBonus" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "bonus" : "AccountID"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownHolderID",
+                    "UnknownBonus"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h3>3.4.5. Bonus</h3>
+<pre><code>    {
+        "iface" : "futoin.xfer.generic",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "funcs" : {
+            "fee" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "reason" : "Reason",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "force" : "boolean"
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject"
+                ]
+            },
+            "genericXfer" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "reason" : "Reason"
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject"
+                ]
+
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.5. Limits</h2>
+<p>Internal API for limits configuration.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.limits",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "types" : {
+            "LimitXferCount" : {
+                "type" : "integer",
+                "min" : 0
+            },
+            "LimitValues" : {
+                "type" : "map",
+                "fields" : {
+                    "nbl" : "Balance",
+                    "dal" : "Amount",
+                    "wal" : "Amount",
+                    "mal" : "Amount",
+                    "dtl" : "Amount",
+                    "wtl" : "Amount",
+                    "mtl" : "Amount",
+                    "dtc" : "LimitXferCount",
+                    "wtc" : "LimitXferCount",
+                    "mtc" : "LimitXferCount",
+                    "dlh" : "LimitXferCount",
+                    "dmc" : "LimitXferCount"
+                }
+            },
+            "LimitGroups" : {
+                "type" : "array",
+                "elemtype" : "LimitGroup"
+            }
+        },
+        "funcs" : {
+            "setLimits" : {
+                "params" : {
+                    "group" : "LimitGroup",
+                    "domain" : "LimitDomain",
+                    "hard" : "LimitValues",
+                    "risk" : "LimitValues",
+                    "system" : "LimitValues"
+                }
+            },
+            "getLimits" : {
+                "params" : {
+                    "group" : "LimitGroup",
+                    "domain" : "LimitDomain"
+                },
+                "result" : {
+                    "hard" : "LimitValues",
+                    "risk" : "LimitValues",
+                    "system" : "LimitValues"
+                }
+            },
+            "getLimitGroups" : {
+                "result" : "LimitGroups"
+            },
+            "setHolderLimits" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "domain" : "LimitDomain",
+                    "check" : "LimitValues",
+                    "soft" : "LimitValues"
+                }
+            },
+            "getHolderLimits" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "domain" : "LimitDomain"
+                },
+                "result" : {
+                    "check" : "LimitValues",
+                    "soft" : "LimitValues"
+                }
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.7. Messages</h2>
+<p>TBD.</p>
+<p>=END OF SPEC=</p>
+</body></html>

@@ -1,0 +1,45 @@
+{
+  "iface": "futoin.currency.types",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "types": {
+    "CurrencyCode": {
+      "type": "string",
+      "regex": "^[ICKL]:[A-Z]{7}$",
+      "desc": "T:Code, see the spec"
+    },
+    "DecimalPlaces": {
+      "type": "integer",
+      "min": 0,
+      "max": 8
+    },
+    "CurrencyName": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 64
+    },
+    "CurrencySymbol": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 3
+    },
+    "Currency": {
+      "type": "map",
+      "fields": {
+        "code": "CurrencyCode",
+        "dec_places": "DecimalPlaces",
+        "name": "CurrencyName",
+        "symbol": "CurrencySymbol",
+        "enabled": "boolean"
+      }
+    },
+    "CurrencyList": {
+      "type": "array",
+      "elemtype": "Currency"
+    },
+    "ExRate": {
+      "type": "string",
+      "regex": "^[0-9]{1,12}(\\.[0-9]{1,12})?$"
+    }
+  }
+}
