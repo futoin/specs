@@ -152,21 +152,20 @@ form-data@~2.1.1:
     combined-stream "^1.0.5"
     mime-types "^2.1.12"
 
-futoin-asyncsteps@^1.6.2:
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/futoin-asyncsteps/-/futoin-asyncsteps-1.6.2.tgz#25f6b45f54e621a8df3c08d844b432920b58358b"
+futoin-asyncsteps@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/futoin-asyncsteps/-/futoin-asyncsteps-1.7.1.tgz#eb5d80ba0b5581fce7caa022ab02b32ca9947a06"
   dependencies:
     performance-now "^2.1.0"
 
-futoin-invoker@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/futoin-invoker/-/futoin-invoker-1.3.1.tgz#30db4150ae2c2556272355ed7490a022ae2b2502"
+futoin-invoker@^1.5.4:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/futoin-invoker/-/futoin-invoker-1.5.4.tgz#9c06731cbc9233ac5f1acc8b4eef6d32f7e188b2"
   dependencies:
     agentkeepalive "^3.3.0"
     detect-node "^2.0.3"
     event-emitter "^0.3.5"
     faye-websocket "^0.11.1"
-    futoin-asyncsteps "^1.6.2"
     lodash "^4.17.4"
     performance-now "^2.1.0"
     request "^2.81.0"
