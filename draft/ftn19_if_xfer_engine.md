@@ -1021,13 +1021,32 @@ processing of withdrawal transactions. External processing is out of scope.
                             "default" : null
                         }
                     },
-                    "result" : "XferID",
+                    "result" : {
+                        "xfer_id" : "XferID",
+                        "wait_check" : "boolean"
+                    },
                     "throws" : [
                         "UnknownAccountID",
                         "CurrencyMismatch",
                         "InvalidAmount",
                         "LimitReject",
-                        "AlreadyCanceled"
+                        "AlreadyCanceled",
+                        "OriginalTooOld"
+                    ]
+                },
+                "confirmWithdrawal" : {
+                    "params" : {
+                        "account" : "AccountID",
+                        "currency" : "CurrencyCode",
+                        "amount" : "Amount",
+                        "xfer_id" : "XferID",
+                        "orig_ts" : "XferTimestamp"
+                    },
+                    "result" : "boolean",
+                    "throws" : [
+                        "UnknownXferID",
+                        "AlreadyCanceled",
+                        "OriginalTooOld"
                     ]
                 },
                 "completeWithdrawal" : {
@@ -1040,7 +1059,9 @@ processing of withdrawal transactions. External processing is out of scope.
                     "result" : "boolean",
                     "throws" : [
                         "UnknownXferID",
-                        "AlreadyCanceled"
+                        "AlreadyCanceled",
+                        "NotConfirmed",
+                        "OriginalTooOld"
                     ]
                 },
                 "cancelWithdrawal" : {
@@ -1210,7 +1231,10 @@ service purchase.
                             "default" : null
                         }
                     },
-                    "result" : "XferID",
+                    "result" : {
+                        "xfer_id" : "XferID",
+                        "wait_check" : "boolean"
+                    },
                     "throws" : [
                         "UnknownAccountID",
                         "CurrencyMismatch",
@@ -1262,7 +1286,10 @@ service purchase.
                         "ext_info" : "XferExtInfo",
                         "orig_ts" : "XferTimestamp"
                     },
-                    "result" : "XferID",
+                    "result" : {
+                        "xfer_id" : "XferID",
+                        "wait_check" : "boolean"
+                    },
                     "throws" : [
                         "UnknownAccountID",
                         "CurrencyMismatch",
@@ -1289,6 +1316,22 @@ service purchase.
                     "result" : "boolean",
                     "throws" : [
                         "DataMismatch",
+                        "OriginalTooOld"
+                    ]
+                },
+                "confirmAuth" : {
+                    "params" : {
+                        "account" : "AccountID",
+                        "rel_account" : "AccountID",
+                        "currency" : "CurrencyCode",
+                        "amount" : "Amount",
+                        "xfer_id" : "XferID",
+                        "orig_ts" : "XferTimestamp"
+                    },
+                    "result" : "boolean",
+                    "throws" : [
+                        "UnknownXferID",
+                        "AlreadyCanceled",
                         "OriginalTooOld"
                     ]
                 }

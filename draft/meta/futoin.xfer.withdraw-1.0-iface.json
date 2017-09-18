@@ -18,13 +18,32 @@
           "default": null
         }
       },
-      "result": "XferID",
+      "result": {
+        "xfer_id": "XferID",
+        "wait_check": "boolean"
+      },
       "throws": [
         "UnknownAccountID",
         "CurrencyMismatch",
         "InvalidAmount",
         "LimitReject",
-        "AlreadyCanceled"
+        "AlreadyCanceled",
+        "OriginalTooOld"
+      ]
+    },
+    "confirmWithdrawal": {
+      "params": {
+        "account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "xfer_id": "XferID",
+        "orig_ts": "XferTimestamp"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownXferID",
+        "AlreadyCanceled",
+        "OriginalTooOld"
       ]
     },
     "completeWithdrawal": {
@@ -37,7 +56,9 @@
       "result": "boolean",
       "throws": [
         "UnknownXferID",
-        "AlreadyCanceled"
+        "AlreadyCanceled",
+        "NotConfirmed",
+        "OriginalTooOld"
       ]
     },
     "cancelWithdrawal": {
