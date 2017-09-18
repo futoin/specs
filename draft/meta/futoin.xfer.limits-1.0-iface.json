@@ -12,21 +12,7 @@
       "min": 0
     },
     "LimitValues": {
-      "type": "map",
-      "fields": {
-        "nbl": "Balance",
-        "dal": "Amount",
-        "wal": "Amount",
-        "mal": "Amount",
-        "dtl": "Amount",
-        "wtl": "Amount",
-        "mtl": "Amount",
-        "dtc": "LimitXferCount",
-        "wtc": "LimitXferCount",
-        "mtc": "LimitXferCount",
-        "dlh": "LimitXferCount",
-        "dmc": "LimitXferCount"
-      }
+      "type": "map"
     },
     "LimitGroups": {
       "type": "array",
@@ -39,8 +25,8 @@
         "group": "LimitGroup",
         "domain": "LimitDomain",
         "hard": "LimitValues",
-        "risk": "LimitValues",
-        "system": "LimitValues"
+        "check": "LimitValues",
+        "risk": "LimitValues"
       }
     },
     "getLimits": {
@@ -50,8 +36,8 @@
       },
       "result": {
         "hard": "LimitValues",
-        "risk": "LimitValues",
-        "system": "LimitValues"
+        "check": "LimitValues",
+        "risk": "LimitValues"
       }
     },
     "getLimitGroups": {
@@ -61,8 +47,8 @@
       "params": {
         "holder": "AccountHolderID",
         "domain": "LimitDomain",
-        "check": "LimitValues",
-        "soft": "LimitValues"
+        "soft": "LimitValues",
+        "check": "LimitValues"
       }
     },
     "getHolderLimits": {

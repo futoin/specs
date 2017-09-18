@@ -289,64 +289,260 @@ architecture level.</p>
 </li>
 </ul>
 <h2>2.4. Limits</h2>
-<p>Limits can be set per account and/or per account holder. There should be global
-fallback limits, if specific limits are not configured. The first one hit is to
-be used. Limits accounting should be always on. The default limits must not allow
-transaction processing to prevent misconfiguration.</p>
-<p>On each tranaction, a set of related limits must be retrieved and checked.</p>
-<p>Rejection of outbound transactions should cause return of money.</p>
-<h3>2.4.1. Limit levels</h3>
-<p>There should be several threshold values for different type of result.</p>
-<ol>
-<li>Check - set by account holder, bound by Soft limit</li>
-<li>Soft - set by account holder, bound by Hard limit</li>
-<li>Hard - set by operator, bound by System limit</li>
-<li>Risk - set by operator, triggers risk analysis</li>
-<li>System - set by system</li>
-</ol>
-<p>All except Check &amp; Soft limits should be organized in limit groups and management
-that way.</p>
-<h3>2.4.2. Limit types</h3>
-<ol>
-<li>NBL - Negative Balance Limit - must be 0 by default<ul>
-<li>Note: the balance may still become negative for forced system transactions</li>
-</ul>
-</li>
-<li>TAL - Transaction Amount - limit per single outgoing transaction</li>
-<li>DAL - Daily Amount - daily limit for outgoing amounts</li>
-<li>WAL - Weekly Amount - weekly limit for outgoing amounts</li>
-<li>MAL - Monthly Amount - monthly limit for outgoing amounts</li>
-<li>DTL - Daily Turnover Amount - daily limit for incoming and outgoing amounts</li>
-<li>WTL - Weekly Turnover Amount - weekly limit for incoming and outgoing amounts</li>
-<li>MTL - Monthly Turnover Amount - monthly limit for incoming and outgoing amounts</li>
-<li>DTC - Daily Transaction Count - daily limit for all transactions</li>
-<li>WTC - Weekly Transaction Count - weekly limit for all transactions</li>
-<li>MTC - Monthly Transaction Count - monthly limit for all transactions</li>
-<li>MTAL - Minimum Transaction Amount - limit per single transaction</li>
-<li>DLH - Daily Limit Hit - any type of limit hit per day<ul>
-<li>Note: should lead to blocking for security reasons and system stability</li>
-</ul>
-</li>
-<li>DMC - Daily Message Count - maximum number of in-system message count</li>
-</ol>
+<p>Limits are important to minimize consequences of potential design &amp; software issues,
+to comply with AML/CTF requirements and to protect against risks of unreliable
+personnel and partners.</p>
+<p>Any action in system must have reasonable limits. Some limits may be used to trigger
+additional checks and/or blocking risk analysis.</p>
 <p>Periods are accounted per calendar with operator configured timezone. Per account
 holder limits are accounted in base currency.</p>
-<h3>2.4.3. Limit domain</h3>
-<p>Limit scopes are essential to separate operations by their domain &amp; risk.</p>
+<p><em>Note: risk assessment must be done for all activity even if limits are not hit, but that should be asynchronous.</em></p>
+<h3>2.4.1. Limit groups</h3>
+<p>It's not feasible to configure most limits individually as it may eventually lead to configuration errors. It would
+also make limits practically unmanageable. Therefore, only a smal number of limit groups (sets) should be present.</p>
+<p>Each account holder must be associated with one of the global limit groups.</p>
+<h3>2.4.2. Limit domains</h3>
+<p>Transaction engine assumes different domains of operations. Each domain
+has quite specific limit requirements.</p>
+<p>Continuous accounting must be present based on the following creteria per account holder:</p>
 <ol>
-<li>Deposit, Withdraw &amp; Generic - funds transfers from external systems and other peers</li>
-<li>Purchases - limits in scope of purchases - transactions with well known peer</li>
-<li>Game - limits in scope fo real-time game processing - transactions with well known peer</li>
-<li>Personnel - transactions done by operator's personnel</li>
+<li><code>Retail</code> - purchase of goods and services<ul>
+<li>Limit types:<ul>
+<li>Daily limits:<ul>
+<li>RetailDailyAmt - daily amount</li>
+<li>RetailDailyCnt - daily count</li>
+</ul>
+</li>
+<li>Weekly limits:<ul>
+<li>RetailWeeklyAmt - weekly amount</li>
+<li>RetailWeeklyCnt - weekly count</li>
+</ul>
+</li>
+<li>Monthly limits:<ul>
+<li>MaxMonthlyAmt - monthly amount</li>
+<li>MaxMonthlyCnt - monthly count</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Accounting for affected transactions:<ul>
+<li>On blocking of balance - increase Used for blocked part</li>
+<li>On unblocking of balance - decrease Used for unblocked part</li>
+<li>On decreasing balance - increase Used</li>
+<li>On increasing balance - no action</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Deposits</code> - in/out transfers of own money<ul>
+<li>Limit types:<ul>
+<li>Daily limits:<ul>
+<li>DepositDailyAmt - daily deposit amount</li>
+<li>DepositDailyCnt - daily deposit count</li>
+<li>WithdrawalDailyAmt - daily withdrawal amount</li>
+<li>WithdrawalDailyCnt - daily withdrawal count</li>
+</ul>
+</li>
+<li>Weekly limits:<ul>
+<li>DepositWeeklyAmt - weekly deposit amount</li>
+<li>DepositWeeklyCnt - weekly deposit count</li>
+<li>WithdrawalWeeklyAmt - weekly withdrawal amount</li>
+<li>WithdrawalWeeklyCnt - weekly withdrawal count</li>
+</ul>
+</li>
+<li>Monthly limits:<ul>
+<li>DepositMonthlyAmt - monthly deposit amount</li>
+<li>DepositMonthlyCnt - monthly deposit count</li>
+<li>WithdrawalMonthlyAmt - monthly withdrawal amount</li>
+<li>WithdrawalMonthlyCnt - monthly withdrawal count</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Accounting for affected transactions: Deposits &amp; Withdrawals<ul>
+<li>canceled transactions should decrease statistics</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Payments</code> - transfers to other users<ul>
+<li>Limit types:<ul>
+<li>Daily limits:<ul>
+<li>OutboundDailyAmt - daily outbound amount</li>
+<li>OutboundDailyCnt - daily outbound count</li>
+<li>InboundDailyAmt - daily inbound amount</li>
+<li>InboundDailyCnt - daily inbound count</li>
+</ul>
+</li>
+<li>Weekly limits:<ul>
+<li>OutboundWeeklyAmt - weekly outbound amount</li>
+<li>OutboundWeeklyCnt - weekly outbound count</li>
+<li>InboundWeeklyAmt - weekly inbound amount</li>
+<li>InboundWeeklyCnt - weekly inbound count</li>
+</ul>
+</li>
+<li>Monthly limits:<ul>
+<li>OutboundMonthlyAmt - monthly outbound amount</li>
+<li>OutboundMonthlyCnt - monthly outbound count</li>
+<li>InboundMonthlyAmt - monthly inbound amount</li>
+<li>InboundMonthlyCnt - monthly inbound count</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Accounting for affected transactions: Deposits &amp; Withdrawals<ul>
+<li>canceled transactions should decrease statistics</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Gaming</code> - in-game activity<ul>
+<li>Limit types:<ul>
+<li>Daily limits:<ul>
+<li>BetDailyAmt - daily bet amount</li>
+<li>BetDailyCnt - daily bet count</li>
+<li>WinDailyAmt - daily win amount</li>
+<li>WinDailyCnt - daily win count</li>
+<li>ProfitDailyDelta - daily player profit delta </li>
+</ul>
+</li>
+<li>Weekly limits:<ul>
+<li>BetWeeklyAmt - weekly bet amount</li>
+<li>BetWeeklyCnt - weekly bet count</li>
+<li>WinWeeklyAmt - weekly win amount</li>
+<li>WinWeeklyCnt - weekly win count</li>
+<li>ProfitWeeklyDelta - weekly player profit delta</li>
+</ul>
+</li>
+<li>Monthly limits:<ul>
+<li>BetMonthlyAmt - monthly bet amount</li>
+<li>BetMonthlyCnt - monthly bet count</li>
+<li>WinMonthlyAmt - monthly win amount</li>
+<li>WinMonthlyCnt - monthly win count</li>
+<li>ProfitMonthlyDelta - monthly player profit delta</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Accounting for affected transactions: Deposits &amp; Withdrawals<ul>
+<li>canceled transactions should decrease statistics</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Misc</code> - not fitting other domains<ul>
+<li>Limit types:<ul>
+<li>Daily limits:<ul>
+<li>MessageDailyCnt - daily message count</li>
+<li>FailureDailyCnt - daily failure count</li>
+<li>LimitHitDailyCnt - daily limit hit count</li>
+</ul>
+</li>
+<li>Weekly limits:<ul>
+<li>MessageWeeklyCnt - weekly message count</li>
+<li>FailureWeeklyCnt - weekly failure count</li>
+<li>LimitHitWeeklyCnt - weekly limit hit count</li>
+</ul>
+</li>
+<li>Monthly limits:<ul>
+<li>MessageMonthlyCnt - monthly message count</li>
+<li>FailureMonthlyCnt - monthly failure count</li>
+<li>LimitHitMonthlyCnt - monthly limit hit count</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Personnel</code> - limits of operations done by specific employee<ul>
+<li>Limit types:<ul>
+<li>Daily limits:<ul>
+<li>MessageDailyCnt - daily message count</li>
+<li>ManualDailyAmt - daily manual transaction amount</li>
+<li>ManualDailyCnt - daily manual transaction count</li>
+</ul>
+</li>
+<li>Weekly limits:<ul>
+<li>MessageWeeklyCnt - weekly message count</li>
+<li>ManualWeeklyAmt - weekly manual transaction amount</li>
+<li>ManualWeeklyCnt - weekly manual transaction count</li>
+</ul>
+</li>
+<li>Monthly limits:<ul>
+<li>MessageMonthlyCnt - monthly message count</li>
+<li>ManualMonthlyAmt - monthly manual transaction amount</li>
+<li>ManualMonthlyCnt - monthly manual transaction count</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ol>
-<h3>2.4.4. Limit groups</h3>
-<p>Only Check &amp; Soft limit is specific to account holde. All other limits should be
-grouped into relatively small amount of manageable groups. Otherwise, management
-errors are unavoidable.</p>
-<p>Such approach reduces database size and related processing load.</p>
-<h3>2.4.5. Events</h3>
+<h3>2.4.3. Limit types:</h3>
+<h4>2.4.3.1. Per account limits</h4>
+<p>Such limit is set per single account in currency of the account.</p>
+<ol>
+<li>NBL - Negative Balance Limit (a.k.a. Overdraft) - set by system</li>
+</ol>
+<h4>2.4.3.2. Account holder limits</h4>
+<p>These are personal user limits which user configures based on own will. Such limits are bound
+by system limits and act as threshold value.</p>
+<ol>
+<li>Extended verification - requires system to get implementation-defined additional confirmation
+    of user activity. For example, input of Two-Factor Authentication code.<ul>
+<li>RetailDailyAmt</li>
+</ul>
+</li>
+<li>Soft limits - user configured restrictions<ul>
+<li>RetailDailyAmt</li>
+<li>WithdrawalDailyAmt</li>
+<li>BetDailyAmt</li>
+<li>OutboundDailyAmt</li>
+</ul>
+</li>
+</ol>
+<h4>2.4.3.3. Group system limits</h4>
+<ol>
+<li>Hard limits<ul>
+<li>All fields of the same name as statitics field act as maximum limit</li>
+<li><code>Retail</code><ul>
+<li><code>RetailMinAmt</code> - minimal transaction amount</li>
+</ul>
+</li>
+<li><code>Deposits</code><ul>
+<li><code>DepositMinAmt</code> - minimal deposit amount</li>
+<li><code>WithdrawalMinAmt</code> - minimal withdrawal amount</li>
+</ul>
+</li>
+<li><code>Payments</code> <ul>
+<li><code>OutboundMinAmt</code> - minimal outbound payment amount</li>
+</ul>
+</li>
+<li><code>Gaming</code><ul>
+<li><code>BetMinAmt</code> - minimal bet amount</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Synchronous risk assessment<ul>
+<li>All fields of the same name as statitics field act as threshold value</li>
+<li><code>Retail</code></li>
+<li><code>Deposits</code></li>
+<li><code>Payments</code></li>
+</ul>
+</li>
+<li>Extended confirmation<ul>
+<li>All fields of the same name as statitics field act as threshold value</li>
+<li><code>Retail</code> - only for purchases</li>
+<li><code>Deposits</code> - only for withdrwals</li>
+<li><code>Payments</code> - only for outbound payments</li>
+</ul>
+</li>
+</ol>
+<h3>2.4.4. Events</h3>
 <ul>
-<li><code>LIM_UPD</code> - update of limit</li>
+<li><code>LIM_UPD</code> - update of limits</li>
 <li><code>LIM_HLDR_UPD</code> - update of account holder limits</li>
 </ul>
 <h2>2.5. Account holder</h2>
@@ -1216,21 +1412,7 @@ service purchase.</p>
                 "min" : 0
             },
             "LimitValues" : {
-                "type" : "map",
-                "fields" : {
-                    "nbl" : "Balance",
-                    "dal" : "Amount",
-                    "wal" : "Amount",
-                    "mal" : "Amount",
-                    "dtl" : "Amount",
-                    "wtl" : "Amount",
-                    "mtl" : "Amount",
-                    "dtc" : "LimitXferCount",
-                    "wtc" : "LimitXferCount",
-                    "mtc" : "LimitXferCount",
-                    "dlh" : "LimitXferCount",
-                    "dmc" : "LimitXferCount"
-                }
+                "type" : "map"
             },
             "LimitGroups" : {
                 "type" : "array",
@@ -1243,8 +1425,8 @@ service purchase.</p>
                     "group" : "LimitGroup",
                     "domain" : "LimitDomain",
                     "hard" : "LimitValues",
-                    "risk" : "LimitValues",
-                    "system" : "LimitValues"
+                    "check" : "LimitValues",
+                    "risk" : "LimitValues"
                 }
             },
             "getLimits" : {
@@ -1254,8 +1436,8 @@ service purchase.</p>
                 },
                 "result" : {
                     "hard" : "LimitValues",
-                    "risk" : "LimitValues",
-                    "system" : "LimitValues"
+                    "check" : "LimitValues",
+                    "risk" : "LimitValues"
                 }
             },
             "getLimitGroups" : {
@@ -1265,8 +1447,8 @@ service purchase.</p>
                 "params" : {
                     "holder" : "AccountHolderID",
                     "domain" : "LimitDomain",
-                    "check" : "LimitValues",
-                    "soft" : "LimitValues"
+                    "soft" : "LimitValues",
+                    "check" : "LimitValues"
                 }
             },
             "getHolderLimits" : {
