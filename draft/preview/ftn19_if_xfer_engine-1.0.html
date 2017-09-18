@@ -183,35 +183,96 @@ if the cause is unavoidable.</p>
 <li>It must not be possible to cancel transaction, if there are related transactions done.</li>
 </ul>
 </li>
+<li><code>orig_ts</code> and similar fields must always point to original initiation time in external system.<ul>
+<li>Transaction engine may refuse processing of too old requests which get archived</li>
+</ul>
+</li>
 </ol>
-<h3>2.3.4. Transaction use scenarios</h3>
-<p>I. System and External
-* Generic transaction which should reflect out-of-scope settlement.</p>
-<p>II. External and Regular account types:
-<em> Typical use case when user accounts are managed by the system and external services are out of scope
-</em> Purchases, Bets, Withdrawals originate from Regular to External, but Refunds, Wins, Deposit
-    are processing in reverse direction.</p>
-<p>III. External and Transit account types:
-<em> Typical use case when user account is managed outside of the system, but it is used for accounting
-</em> As additona to "External and Regular" transactions, it's allowed to make transactions in opposite directions
-    to account pass-through requests to external account management instance.
-    * Typical chain: External -&gt; Transit -&gt; External</p>
-<p>IV. Regular and Regular account types:
-* A typical case when user and service provider (or another user) accounts are both managed inside the system.</p>
-<p>V. Transit and Transit account type:
-* Such scenarios are possible for proxy passthrough transactions when balance for both accounts is managed externally.
-    * There should be a chain of transactions: External -&gt; Transit -&gt; Transit -&gt; External</p>
-<p>VI. External and External:
-* It should be allowed only between accounts of the same account holder, For example, the primary account
-    with base currency may have negative balance limit, but additional accounts of another currency may
-    need to borrow that limit with conversion. Such details are out of current spec scope.</p>
-<p>VII. Involving Bonus account type:
-<em> Bonus should be used with associated Regular account type, but not independently
-</em> System to/from Bonus mean bonus enrollment or bonus cancel
-* Regular to/from Bonus not in scope of associated Regular account must be allowed only for release of bonus</p>
-<p>VIII. System and Regular account type:
-* May be used in scope of standard transactions meaning no external system being involved. The transaction engine
-    acts as both operator and service provider.</p>
+<h3>2.3.4. Transaction use case</h3>
+<p>In all cases, if not noted otherwise, Withdrawals, Refunds, Wins, ClearBonus go in opposite direction
+of Deposits, Purchases, Bets and Bonus respectively. </p>
+<p>Pre-authorizations must be reserved only on Regular accounts.</p>
+<h4>2.3.4.1. Online bank</h4>
+<ol>
+<li>Natural persons &amp; companies have Regular accounts</li>
+<li>Funds deposit in bank branch goes from System(Bank) to Regular(User) account</li>
+<li>Transfers to another bank go from Regular(User) to External(OtherBank) correspondent account</li>
+<li>Inter-bank settlement goes as transaction between External(OtherBank) and System(Bank) accounts</li>
+<li>Purchases from Regular(Person) to Regular(Company) accounts</li>
+<li>Fees go from Regular(User) to System(Bank) accounts</li>
+<li>In-bank transfers go from Regular(User) to Regular(User)</li>
+</ol>
+<h4>2.3.4.2. General integration of third-party service (Payments, Gaming, Retail, etc.)</h4>
+<p>Third-party service may be integrated through External(Service) accounts:
+<em> Purchases go from Regular(User) to External(Service) accounts
+</em> Deposits go from External(Service) to Regular(User) accounts
+<em> Settlement is done from/to System(Bank) to External(Service)
+</em> External(Service) account should be constrained by negative balance limit</p>
+<h3>2.3.4.3. Closed loop online gaming system</h3>
+<ol>
+<li>Players get single per currency Regular accounts and unlimited number of Bonus accounts</li>
+<li>Deposits go from System(Service) to Regular(Player)</li>
+<li>Bets go from Regular(Player) to System(Service)<ul>
+<li>Associated Bonus(Player) accounts are used in first place by time of claim</li>
+<li>Bets go from Bonus(Player) to System(Service) account</li>
+<li>It's possible to have more than one transaction per single bet</li>
+</ul>
+</li>
+<li>Purchases go from Regular(Player) to System(Service)</li>
+<li>Bonus goes from System(Service) to Bonus(Player) accounts</li>
+</ol>
+<h3>2.3.4.4. Online gaming service provider</h3>
+<ol>
+<li>Players get Transit account, single per currency</li>
+<li>No deposits or withdrawals are assumed</li>
+<li>Bets go from External(Operator) to Transit(Player) to System(Service)</li>
+<li>Purchases go from External(Operator) to Transit(Player) to System(Service)</li>
+<li>Bonus amount is not processed separately in transaction, but should be availabe in extended
+    info for fine reporting (out of scope)</li>
+<li>Settlement is done between Externa(Operator) and System(Service) accounts</li>
+<li>External(Operator) account should be constrained by negative balance limit</li>
+</ol>
+<h3>2.3.4.5. Online gaming operator</h3>
+<ol>
+<li>Players get single per currency Regular accounts and unlimited number of Bonus accounts</li>
+<li>In-house Deposits go from System(Operator) to Regular(Player)</li>
+<li>Payments Deposits go from External(Payments) to Regular(Player) accounts</li>
+<li>Bets go from Regular(Player) to External(Service) accounts</li>
+<li>Purchases go from Regular(Player) to External(Service) accounts</li>
+<li>Purchases in Operator go from Regular(Player) to System(Operator) accounts</li>
+<li>External(Payments) and External(Service) accounts should be constrained by negative balance limit</li>
+<li>Settlement is done between System(Operator) and External accounts</li>
+</ol>
+<h3>2.3.4.6. Online gaming pass-through aggregator</h3>
+<p>The difference to Operator case, is that Operator has own system and Regular accounts are managed externally there.</p>
+<p>Aggregator acts as a proxy. For Services, it shows as Operator, but for Operator it shows as Service. This allows
+chaining multiple Aggregators - typical case in modern online gaming.</p>
+<p>Even if aggregator supports Payments as part of business, it should be provided as separate Payments service on
+architecture level.</p>
+<ol>
+<li>For each Player a single per currency Transit account is created</li>
+<li>No deposits or withdrawals are assumed</li>
+<li>Bets go from External(Operator) to Transit(Player) to External(Service) accounts</li>
+<li>Purchases follow Bets scheme, except Bonus processing</li>
+<li>External(Operator) and External(Service) accounts should be constrained by negative balance limit</li>
+<li>Settlement is done between System(Aggregator) and External accounts</li>
+</ol>
+<h3>2.3.4.7. Payments provider</h3>
+<ol>
+<li>For each User a Transit account is created, Operators have External account</li>
+<li>No gaming or sales transactions are assumed</li>
+<li>Deposits go from System(Payments) to Transit(User) to External(Operator) accounts</li>
+<li>Settlement is done between System(Payments) and External(Operator) accounts</li>
+<li>External(Operator) accounts should be constrained by negative balance limit</li>
+</ol>
+<h3>2.3.4.8. Payments aggregator</h3>
+<ol>
+<li>For each User a Transit account is created, Operators and Payment providers have External accounts</li>
+<li>No gaming or sales transactions are assumed</li>
+<li>Deposits go from External(Payments) to Transit(User) to External(Operator) accounts</li>
+<li>Settlement is done between System(Aggregator) and External accounts</li>
+<li>External accounts should be constrained by negative balance limit</li>
+</ol>
 <h3>2.3.5. Events</h3>
 <ul>
 <li><code>XFER_RISK</code> - on transaction waiting for risk analysis</li>
@@ -420,6 +481,10 @@ Soft limit should cause transaction rejection.</p>
                     "amount" : "Amount",
                     "reason" : "Reason"
                 }
+            },
+           "XferTimestamp" : {
+                "type" : "string",
+                "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
             }
         }
     }
@@ -617,7 +682,8 @@ which may happen in some scenarios.</p>
                     "ext_id" : "AccountExternalID",
                     "alias" : "AccountAlias",
                     "balance" : "Balance",
-                    "reserved" : "Amount"
+                    "reserved" : "Amount",
+                    "created" : "XferTimestamp"
                 },
                 "throws" : [
                     "UnknownHolderID"
@@ -656,7 +722,8 @@ which may happen in some scenarios.</p>
                     "group" : "LimitGroup",
                     "kyc" : "boolean",
                     "data" : "AccountHolderData",
-                    "internal" : "AccountHolderInternalData"
+                    "internal" : "AccountHolderInternalData",
+                    "created" : "XferTimestamp"
                 },
                 "throws" : [
                     "UnknownAccountHolder"
@@ -727,6 +794,7 @@ transaction.</p>
                     "amount" : "Amount",
                     "ext_id" : "XferExtID",
                     "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
                     "fee" : {
                         "type" : "Fee",
                         "default" : null
@@ -737,7 +805,8 @@ transaction.</p>
                     "UnknownAccountID",
                     "CurrencyMismatch",
                     "InvalidAmount",
-                    "LimitReject"
+                    "LimitReject",
+                    "OriginalTooOld"
                 ]
             }
         },
@@ -780,7 +849,8 @@ processing of withdrawal transactions. External processing is out of scope.</p>
                 "params" : {
                     "ref_id" : "XferID",
                     "ext_id" : "XferExtID",
-                    "ext_info" : "XferExtInfo"
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
                 },
                 "result" : "boolean",
                 "throws" : [
@@ -791,12 +861,14 @@ processing of withdrawal transactions. External processing is out of scope.</p>
             "cancelWithdrawal" : {
                 "params" : {
                     "ref_id" : "XferID",
-                    "reason" : "Reason"
+                    "reason" : "Reason",
+                    "orig_ts" : "XferTimestamp"
                 },
                 "result" : "boolean",
                 "throws" : [
                     "UnknownXferID",
-                    "AlreadyCompleted"
+                    "AlreadyCompleted",
+                    "OriginalTooOld"
                 ]
             }
         },
@@ -831,16 +903,22 @@ about related game round in "round_id" field.</p>
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
                     "ext_id" : "XferExtId",
-                    "ext_info" : "XferExtInfo"
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
                 },
-                "result" : "XferID",
+                "result" : {
+                    "xfer_id" : "XferID",
+                    "balance" : "Balance",
+                    "bonus_part" : "Amount"
+                },
                 "throws" : [
                     "UnknownHolderID",
                     "CurrencyMismatch",
                     "OutOfBalance",
                     "LimitReject",
                     "DataMismatch",
-                    "AlreadyCanceled"
+                    "AlreadyCanceled",
+                    "OriginalTooOld"
                 ]
             },
             "cancelBet" : {
@@ -849,11 +927,15 @@ about related game round in "round_id" field.</p>
                     "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
-                    "ext_id" : "XferExtId"
+                    "ext_id" : "XferExtId",
+                    "orig_ts" : "XferTimestamp"
                 },
-                "result" : "boolean",
+                "result" : {
+                    "balance" : "Balance"
+                },
                 "throws" : [
-                    "DataMismatch"
+                    "DataMismatch",
+                    "OriginalTooOld"
                 ]
             },
             "win" : {
@@ -863,14 +945,34 @@ about related game round in "round_id" field.</p>
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
                     "ext_id" : "XferExtId",
-                    "ext_info" : "XferExtInfo"
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
                 },
-                "result" : "XferID",
+                "result" : {
+                    "xfer_id" : "XferID",
+                    "balance" : "Balance",
+                    "bonus_part" : "Amount"
+                },
                 "throws" : [
                     "UnknownHolderID",
                     "CurrencyMismatch",
                     "LimitReject",
-                    "DataMismatch"
+                    "DataMismatch",
+                    "OriginalTooOld"
+                ]
+            },
+            "gameBalance" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "currency" : "CurrencyCode"
+                },
+                "result" : {
+                    "balance" : "Balance",
+                    "bonus_part" : "Amount"
+                },
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch"
                 ]
             }
         },
@@ -897,6 +999,7 @@ service purchase.</p>
                     "amount" : "Amount",
                     "ext_id" : "XferExtID",
                     "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
                     "fee" : {
                         "type" : "Fee",
                         "default" : null
@@ -912,7 +1015,8 @@ service purchase.</p>
                     "CurrencyMismatch",
                     "InvalidAmount",
                     "LimitReject",
-                    "AlreadyCanceled"
+                    "AlreadyCanceled",
+                    "OriginalTooOld"
                 ]
             },
             "cancelPurchase" : {
@@ -921,7 +1025,8 @@ service purchase.</p>
                     "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
-                    "ext_id" : "XferExtID"
+                    "ext_id" : "XferExtID",
+                    "orig_ts" : "XferTimestamp"
                 },
                 "result" : "boolean",
                 "throws" : [
@@ -933,14 +1038,17 @@ service purchase.</p>
                     "ref_id" : "XferID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
-                    "ext_id" : "XferExtID"
+                    "ext_id" : "XferExtID",
+                    "purchase_ts" : "XferTimestamp",
+                    "orig_ts" : "XferTimestamp"
                 },
                 "result" : "boolean",
                 "throws" : [
                     "CurrencyMismatch",
                     "AmountTooLarge",
                     "PurchaseNotFound",
-                    "AlreadyCanceled"
+                    "AlreadyCanceled",
+                    "OriginalTooOld"
                 ]
             },
             "preAuth" : {
@@ -950,7 +1058,8 @@ service purchase.</p>
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
                     "ext_id" : "XferExtID",
-                    "ext_info" : "XferExtInfo"
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
                 },
                 "result" : "XferID",
                 "throws" : [
@@ -958,7 +1067,8 @@ service purchase.</p>
                     "CurrencyMismatch",
                     "InvalidAmount",
                     "LimitReject",
-                    "AlreadyCanceled"
+                    "AlreadyCanceled",
+                    "OriginalTooOld"
                 ]
             },
             "clearPreAuth" : {
@@ -969,6 +1079,7 @@ service purchase.</p>
                     "amount" : "Amount",
                     "ext_id" : "XferExtID",
                     "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
                     "rel_id" : {
                         "type" : "XferID",
                         "default" : null
@@ -976,7 +1087,8 @@ service purchase.</p>
                 },
                 "result" : "boolean",
                 "throws" : [
-                    "DataMismatch"
+                    "DataMismatch",
+                    "OriginalTooOld"
                 ]
             }
         },
@@ -999,14 +1111,16 @@ service purchase.</p>
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
                     "ext_id" : "XferExtID",
-                    "ext_info" : "XferExtInfo"
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
                 },
                 "result" : "AccountID",
                 "throws" : [
                     "UnknownHolderID",
                     "CurrencyMismatch",
                     "InvalidAmount",
-                    "LimitReject"
+                    "LimitReject",
+                    "OriginalTooOld"
                 ]
             },
             "clearBonus" : {
@@ -1035,7 +1149,7 @@ service purchase.</p>
         "requires" : [ "SecureChannel" ]
     }
 </code></pre>
-<h3>3.4.5. Bonus</h3>
+<h3>3.4.6. Generic</h3>
 <pre><code>    {
         "iface" : "futoin.xfer.generic",
         "version" : "1.0",
@@ -1053,6 +1167,7 @@ service purchase.</p>
                     "reason" : "Reason",
                     "ext_id" : "XferExtID",
                     "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
                     "force" : "boolean"
                 },
                 "result" : "XferID",
@@ -1060,7 +1175,8 @@ service purchase.</p>
                     "UnknownHolderID",
                     "CurrencyMismatch",
                     "InvalidAmount",
-                    "LimitReject"
+                    "LimitReject",
+                    "OriginalTooOld"
                 ]
             },
             "genericXfer" : {

@@ -31,7 +31,8 @@
       "params": {
         "ref_id": "XferID",
         "ext_id": "XferExtID",
-        "ext_info": "XferExtInfo"
+        "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp"
       },
       "result": "boolean",
       "throws": [
@@ -42,12 +43,14 @@
     "cancelWithdrawal": {
       "params": {
         "ref_id": "XferID",
-        "reason": "Reason"
+        "reason": "Reason",
+        "orig_ts": "XferTimestamp"
       },
       "result": "boolean",
       "throws": [
         "UnknownXferID",
-        "AlreadyCompleted"
+        "AlreadyCompleted",
+        "OriginalTooOld"
       ]
     }
   },

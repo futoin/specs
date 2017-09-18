@@ -15,6 +15,7 @@
         "reason": "Reason",
         "ext_id": "XferExtID",
         "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp",
         "force": "boolean"
       },
       "result": "XferID",
@@ -22,7 +23,8 @@
         "UnknownHolderID",
         "CurrencyMismatch",
         "InvalidAmount",
-        "LimitReject"
+        "LimitReject",
+        "OriginalTooOld"
       ]
     },
     "genericXfer": {

@@ -15,6 +15,7 @@
         "amount": "Amount",
         "ext_id": "XferExtID",
         "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp",
         "fee": {
           "type": "Fee",
           "default": null
@@ -30,7 +31,8 @@
         "CurrencyMismatch",
         "InvalidAmount",
         "LimitReject",
-        "AlreadyCanceled"
+        "AlreadyCanceled",
+        "OriginalTooOld"
       ]
     },
     "cancelPurchase": {
@@ -39,7 +41,8 @@
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
-        "ext_id": "XferExtID"
+        "ext_id": "XferExtID",
+        "orig_ts": "XferTimestamp"
       },
       "result": "boolean",
       "throws": [
@@ -51,14 +54,17 @@
         "ref_id": "XferID",
         "currency": "CurrencyCode",
         "amount": "Amount",
-        "ext_id": "XferExtID"
+        "ext_id": "XferExtID",
+        "purchase_ts": "XferTimestamp",
+        "orig_ts": "XferTimestamp"
       },
       "result": "boolean",
       "throws": [
         "CurrencyMismatch",
         "AmountTooLarge",
         "PurchaseNotFound",
-        "AlreadyCanceled"
+        "AlreadyCanceled",
+        "OriginalTooOld"
       ]
     },
     "preAuth": {
@@ -68,7 +74,8 @@
         "currency": "CurrencyCode",
         "amount": "Amount",
         "ext_id": "XferExtID",
-        "ext_info": "XferExtInfo"
+        "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp"
       },
       "result": "XferID",
       "throws": [
@@ -76,7 +83,8 @@
         "CurrencyMismatch",
         "InvalidAmount",
         "LimitReject",
-        "AlreadyCanceled"
+        "AlreadyCanceled",
+        "OriginalTooOld"
       ]
     },
     "clearPreAuth": {
@@ -87,6 +95,7 @@
         "amount": "Amount",
         "ext_id": "XferExtID",
         "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp",
         "rel_id": {
           "type": "XferID",
           "default": null
@@ -94,7 +103,8 @@
       },
       "result": "boolean",
       "throws": [
-        "DataMismatch"
+        "DataMismatch",
+        "OriginalTooOld"
       ]
     }
   },

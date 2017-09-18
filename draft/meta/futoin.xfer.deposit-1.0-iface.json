@@ -35,6 +35,7 @@
         "amount": "Amount",
         "ext_id": "XferExtID",
         "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp",
         "fee": {
           "type": "Fee",
           "default": null
@@ -45,7 +46,8 @@
         "UnknownAccountID",
         "CurrencyMismatch",
         "InvalidAmount",
-        "LimitReject"
+        "LimitReject",
+        "OriginalTooOld"
       ]
     }
   },

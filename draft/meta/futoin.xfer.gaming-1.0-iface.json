@@ -14,16 +14,22 @@
         "currency": "CurrencyCode",
         "amount": "Amount",
         "ext_id": "XferExtId",
-        "ext_info": "XferExtInfo"
+        "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp"
       },
-      "result": "XferID",
+      "result": {
+        "xfer_id": "XferID",
+        "balance": "Balance",
+        "bonus_part": "Amount"
+      },
       "throws": [
         "UnknownHolderID",
         "CurrencyMismatch",
         "OutOfBalance",
         "LimitReject",
         "DataMismatch",
-        "AlreadyCanceled"
+        "AlreadyCanceled",
+        "OriginalTooOld"
       ]
     },
     "cancelBet": {
@@ -32,11 +38,15 @@
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
-        "ext_id": "XferExtId"
+        "ext_id": "XferExtId",
+        "orig_ts": "XferTimestamp"
       },
-      "result": "boolean",
+      "result": {
+        "balance": "Balance"
+      },
       "throws": [
-        "DataMismatch"
+        "DataMismatch",
+        "OriginalTooOld"
       ]
     },
     "win": {
@@ -46,14 +56,34 @@
         "currency": "CurrencyCode",
         "amount": "Amount",
         "ext_id": "XferExtId",
-        "ext_info": "XferExtInfo"
+        "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp"
       },
-      "result": "XferID",
+      "result": {
+        "xfer_id": "XferID",
+        "balance": "Balance",
+        "bonus_part": "Amount"
+      },
       "throws": [
         "UnknownHolderID",
         "CurrencyMismatch",
         "LimitReject",
-        "DataMismatch"
+        "DataMismatch",
+        "OriginalTooOld"
+      ]
+    },
+    "gameBalance": {
+      "params": {
+        "holder": "AccountHolderID",
+        "currency": "CurrencyCode"
+      },
+      "result": {
+        "balance": "Balance",
+        "bonus_part": "Amount"
+      },
+      "throws": [
+        "UnknownHolderID",
+        "CurrencyMismatch"
       ]
     }
   },

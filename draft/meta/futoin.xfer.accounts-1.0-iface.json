@@ -62,7 +62,8 @@
         "ext_id": "AccountExternalID",
         "alias": "AccountAlias",
         "balance": "Balance",
-        "reserved": "Amount"
+        "reserved": "Amount",
+        "created": "XferTimestamp"
       },
       "throws": [
         "UnknownHolderID"
@@ -101,7 +102,8 @@
         "group": "LimitGroup",
         "kyc": "boolean",
         "data": "AccountHolderData",
-        "internal": "AccountHolderInternalData"
+        "internal": "AccountHolderInternalData",
+        "created": "XferTimestamp"
       },
       "throws": [
         "UnknownAccountHolder"

@@ -13,14 +13,16 @@
         "currency": "CurrencyCode",
         "amount": "Amount",
         "ext_id": "XferExtID",
-        "ext_info": "XferExtInfo"
+        "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp"
       },
       "result": "AccountID",
       "throws": [
         "UnknownHolderID",
         "CurrencyMismatch",
         "InvalidAmount",
-        "LimitReject"
+        "LimitReject",
+        "OriginalTooOld"
       ]
     },
     "clearBonus": {
