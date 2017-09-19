@@ -1,13 +1,15 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-09-03
+Date: 2017-09-19
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.0.3 - 2017-09-17 - Andrey Galkin
+    - NEW: multi-row INSERT support in QueryBuilder
 * v1.0.2 - 2017-09-03 - Andrey Galkin
     - NEW: native interface helpers
         * Added as patch version due to lack of interface changes
@@ -327,6 +329,9 @@ particular database flavour is supported, if helpers are used.
         * *fields* - name => expression pairs to select
     * QueryBuilder getInsertID(String field)
         * *field* - name of field with auto-generated value
+    * QueryBuilder newRow()
+        * enables multi-row insert on first call
+        * saves current set() values into list, if any
     * QueryBuilder set(field[, value])
         * *field* - string
         * *value* - arbitrary value, expression or QueryBuilder sub-query
