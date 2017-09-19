@@ -20,7 +20,7 @@
         "margin": "ExRate"
       },
       "throws": [
-        "UnknownCurrency"
+        "UnknownPair"
       ]
     }
   },

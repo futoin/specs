@@ -114,8 +114,10 @@ Rounding must be done in favor of transaction engine operator.
 
 ### 2.1.6. Events
 
-* `CURRENCY` - add or update of currency
-* `EXRATE` - change of currency exchange rate
+* `CURRENCY` - update of existing currency
+* `CURRENCY_NEW` - new currency
+* `EXRATE` - change of existing exchange rate
+* `EXRATE_NEW` - new pair of exchange rate
 
 ## 2.2. Accounts
 
@@ -650,7 +652,7 @@ Common types in scope for currency processing.
             "types" : {
                 "CurrencyCode" : {
                     "type" : "string",
-                    "regex" : "^[ICKL]:[A-Z]{7}$",
+                    "regex" : "^[ICKL]:[A-Z]{1,7}$",
                     "desc" : "T:Code, see the spec"
                 },
                 "DecimalPlaces": {
@@ -767,7 +769,7 @@ Currency information API.
                         "margin" : "ExRate"
                     },
                     "throws" : [
-                        "UnknownCurrency"
+                        "UnknownPair"
                     ]
                 }
             },

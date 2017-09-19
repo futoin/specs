@@ -5,7 +5,7 @@
   "types": {
     "CurrencyCode": {
       "type": "string",
-      "regex": "^[ICKL]:[A-Z]{7}$",
+      "regex": "^[ICKL]:[A-Z]{1,7}$",
       "desc": "T:Code, see the spec"
     },
     "DecimalPlaces": {
