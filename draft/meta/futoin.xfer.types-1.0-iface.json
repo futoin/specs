@@ -32,16 +32,7 @@
     },
     "LimitGroup": {
       "type": "string",
-      "regex": "^[a-zA-Z ]+$"
-    },
-    "LimitDomain": {
-      "type": "enum",
-      "items": [
-        "Purchases",
-        "Transfers",
-        "Gaming",
-        "Personnel"
-      ]
+      "regex": "^[a-zA-Z0-9_-]{1,32}$"
     },
     "Fee": {
       "type": "map",

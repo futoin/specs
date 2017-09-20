@@ -335,8 +335,8 @@ Continuous accounting must be present based on the following creteria per accoun
             - RetailWeeklyAmt - weekly amount
             - RetailWeeklyCnt - weekly count
         - Monthly limits:
-            - MaxMonthlyAmt - monthly amount
-            - MaxMonthlyCnt - monthly count
+            - RetailMonthlyAmt - monthly amount
+            - RetailMonthlyCnt - monthly count
     - Accounting for affected transactions:
         - On blocking of balance - increase Used for blocked part
         - On unblocking of balance - decrease Used for unblocked part
@@ -605,16 +605,7 @@ Common types to use in other interfaces of this spec.
                 },
                 "LimitGroup" : {
                     "type" : "string",
-                    "regex" : "^[a-zA-Z ]+$"
-                },
-                "LimitDomain" : {
-                    "type" : "enum",
-                    "items" : [
-                        "Purchases",
-                        "Transfers",
-                        "Gaming",
-                        "Personnel"
-                    ]
+                    "regex" : "^[a-zA-Z0-9_-]{1,32}$"
                 },
                 "Fee" : {
                     "type" : "map",
@@ -811,6 +802,10 @@ which may happen in some scenarios.
                     "type" : "string",
                     "maxlen" : 64
                 },
+                "AccountHolderExternalID" : {
+                    "type" : "string",
+                    "maxlen" : 128
+                },
                 "AccountAlias" : {
                     "type" : "string",
                     "maxlen" : 20
@@ -874,22 +869,39 @@ which may happen in some scenarios.
                 },
                 "setAccountHolder" : {
                     "params" : {
-                        "id" : {
-                            "type" : "AccountHolderID",
-                            "default" : null
-                        },
+                        "ext_id" : "AccountHolderExternalID",
                         "group" : "LimitGroup",
                         "kyc" : "boolean",
                         "data" : "AccountHolderData",
                         "internal" : "AccountHolderInternalData"
                     },
-                    "result" : "AccountHolderID"
+                    "result" : "AccountHolderID",
+                    "throws" : [
+                        "UnknownLimitGroup"
+                    ]
                 },
                 "getAccountHolder" : {
                     "params" : {
                         "id" : "AccountHolderID"
                     },
                     "result" : {
+                        "ext_id" : "AccountHolderExternalID",
+                        "group" : "LimitGroup",
+                        "kyc" : "boolean",
+                        "data" : "AccountHolderData",
+                        "internal" : "AccountHolderInternalData",
+                        "created" : "XferTimestamp"
+                    },
+                    "throws" : [
+                        "UnknownAccountHolder"
+                    ]
+                },
+                "getAccountHolderExt" : {
+                    "params" : {
+                        "ext_id" : "AccountHolderExternalID"
+                    },
+                    "result" : {
+                        "id" : "AccountHolderID",
                         "group" : "LimitGroup",
                         "kyc" : "boolean",
                         "data" : "AccountHolderData",
@@ -1474,16 +1486,128 @@ Internal API for limits configuration.
                 "futoin.xfer.types:1.0"
             ],
             "types" : {
-                "LimitXferCount" : {
+                "LimitAmount" : "Amount",
+                "LimitCount" : {
                     "type" : "integer",
                     "min" : 0
                 },
                 "LimitValues" : {
                     "type" : "map"
                 },
+                "OptionalLimitValues" : [ "LimitValues", "boolean" ],
                 "LimitGroups" : {
                     "type" : "array",
                     "elemtype" : "LimitGroup"
+                },
+                "LimitDomain" : {
+                    "type" : "enum",
+                    "items" : [
+                        "Retail",
+                        "Deposits",
+                        "Payments",
+                        "Gaming",
+                        "Misc",
+                        "Personnel"
+                    ]
+                },
+                "RetailLimitValues" : {
+                    "type" : "LimitValues",
+                    "fields" : {
+                        "retail_daily_amt" : "LimitAmount",
+                        "retail_daily_cnt" : "LimitCount",
+                        "retail_weekly_amt" : "LimitAmount",
+                        "retail_weekly_cnt" : "LimitCount",
+                        "retail_monthly_amt" : "LimitAmount",
+                        "retail_monthly_cnt" : "LimitCount",
+                        "retail_min_amt" : "LimitAmount"
+                    }
+                },
+                "DepositsLimitValues" : {
+                    "type" : "LimitValues",
+                    "fields" : {
+                        "deposit_daily_amt" : "LimitAmount",
+                        "deposit_daily_cnt" : "LimitCount",
+                        "withdrawal_daily_amt" : "LimitAmount",
+                        "withdrawal_daily_cnt" : "LimitCount",
+                        "deposit_weekly_amt" : "LimitAmount",
+                        "deposit_weekly_cnt" : "LimitCount",
+                        "withdrawal_weekly_amt" : "LimitAmount",
+                        "withdrawal_weekly_cnt" : "LimitCount",
+                        "deposit_monthly_amt" : "LimitAmount",
+                        "deposit_monthly_cnt" : "LimitCount",
+                        "withdrawal_monthly_amt" : "LimitAmount",
+                        "withdrawal_monthly_cnt" : "LimitCount",
+                        "deposit_min_amt" : "LimitAmount",
+                        "withdrawal_min_amt" : "LimitAmount"
+
+                    }
+                },
+                "PaymentsLimitValues" : {
+                    "type" : "LimitValues",
+                    "fields" : {
+                        "outbound_daily_amt" : "LimitAmount",
+                        "outbound_daily_cnt" : "LimitCount",
+                        "inbound_daily_amt" : "LimitAmount",
+                        "inbound_daily_cnt" : "LimitCount",
+                        "outbound_weekly_amt" : "LimitAmount",
+                        "outbound_weekly_cnt" : "LimitCount",
+                        "inbound_weekly_amt" : "LimitAmount",
+                        "inbound_weekly_cnt" : "LimitCount",
+                        "outbound_monthly_amt" : "LimitAmount",
+                        "outbound_monthly_cnt" : "LimitCount",
+                        "inbound_monthly_amt" : "LimitAmount",
+                        "inbound_monthly_cnt" : "LimitCount",
+                        "outbound_min_amt" : "LimitAmount"
+                    }
+                },
+                "GamingLimitValues" : {
+                    "type" : "LimitValues",
+                    "fields" : {
+                        "bet_daily_amt" : "LimitAmount",
+                        "bet_daily_cnt" : "LimitCount",
+                        "win_daily_amt" : "LimitAmount",
+                        "win_daily_cnt" : "LimitCount",
+                        "profit_daily_delta" : "LimitAmount",
+                        "bet_weekly_amt" : "LimitAmount",
+                        "bet_weekly_cnt" : "LimitCount",
+                        "win_weekly_amt" : "LimitAmount",
+                        "win_weekly_cnt" : "LimitCount",
+                        "profit_weekly_delta" : "LimitAmount",
+                        "bet_monthly_amt" : "LimitAmount",
+                        "bet_monthly_cnt" : "LimitCount",
+                        "win_monthly_amt" : "LimitAmount",
+                        "win_monthly_cnt" : "LimitCount",
+                        "profit_monthly_delta" : "LimitAmount",
+                        "bet_min_amt" : "LimitAmount"
+                    }
+                },
+                "MiscLimitValues" : {
+                    "type" : "LimitValues",
+                    "fields" : {
+                        "message_daily_cnt" : "LimitCount",
+                        "failure_daily_cnt" : "LimitCount",
+                        "limithit_daily_cnt" : "LimitCount",
+                        "message_weekly_cnt" : "LimitCount",
+                        "failure_weekly_cnt" : "LimitCount",
+                        "limithit_weekly_cnt" : "LimitCount",
+                        "message_monthly_cnt" : "LimitCount",
+                        "failure_monthly_cnt" : "LimitCount",
+                        "limithit_monthly_cnt" : "LimitCount"
+                    }
+                },
+                "PersonnelLimitValues" : {
+                    "type" : "LimitValues",
+                    "fields" : {
+                        "message_daily_cnt" : "LimitCount",
+                        "manual_daily_amt" : "LimitAmount",
+                        "manual_daily_cnt" : "LimitCount",
+                        "message_weekly_cnt" : "LimitCount",
+                        "manual_weekly_amt" : "LimitAmount",
+                        "manual_weekly_cnt" : "LimitCount",
+                        "message_monthly_cnt" : "LimitCount",
+                        "manual_monthly_amt" : "LimitAmount",
+                        "manual_monthly_cnt" : "LimitCount"
+                    }
                 }
             },
             "funcs" : {
@@ -1491,10 +1615,16 @@ Internal API for limits configuration.
                     "params" : {
                         "group" : "LimitGroup",
                         "domain" : "LimitDomain",
+                        "currency" : "CurrencyCode",
                         "hard" : "LimitValues",
-                        "check" : "LimitValues",
-                        "risk" : "LimitValues"
-                    }
+                        "check" : "OptionalLimitValues",
+                        "risk" : "OptionalLimitValues"
+                    },
+                    "result" : "boolean",
+                    "throws" : [
+                        "UnknownGroup",
+                        "UnknownCurrency"
+                    ]
                 },
                 "getLimits" : {
                     "params" : {
@@ -1502,31 +1632,28 @@ Internal API for limits configuration.
                         "domain" : "LimitDomain"
                     },
                     "result" : {
+                        "currency" : "CurrencyCode",
                         "hard" : "LimitValues",
-                        "check" : "LimitValues",
-                        "risk" : "LimitValues"
-                    }
+                        "check" : "OptionalLimitValues",
+                        "risk" : "OptionalLimitValues"
+                    },
+                    "throws" : [
+                        "UnknownGroup",
+                        "UnknownCurrency",
+                        "LimitsNotSet"
+                    ]
+                },
+                "addLimitGroup" : {
+                    "params" : {
+                        "group" : "LimitGroup"
+                    },
+                    "result" : "boolean",
+                    "throws" : [
+                        "AlreadyExists"
+                    ]
                 },
                 "getLimitGroups" : {
                     "result" : "LimitGroups"
-                },
-                "setHolderLimits" : {
-                    "params" : {
-                        "holder" : "AccountHolderID",
-                        "domain" : "LimitDomain",
-                        "soft" : "LimitValues",
-                        "check" : "LimitValues"
-                    }
-                },
-                "getHolderLimits" : {
-                    "params" : {
-                        "holder" : "AccountHolderID",
-                        "domain" : "LimitDomain"
-                    },
-                    "result" : {
-                        "check" : "LimitValues",
-                        "soft" : "LimitValues"
-                    }
                 }
             },
             "requires" : [ "SecureChannel" ]

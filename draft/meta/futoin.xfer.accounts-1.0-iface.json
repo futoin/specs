@@ -20,6 +20,10 @@
       "type": "string",
       "maxlen": 64
     },
+    "AccountHolderExternalID": {
+      "type": "string",
+      "maxlen": 128
+    },
     "AccountAlias": {
       "type": "string",
       "maxlen": 20
@@ -83,22 +87,39 @@
     },
     "setAccountHolder": {
       "params": {
-        "id": {
-          "type": "AccountHolderID",
-          "default": null
-        },
+        "ext_id": "AccountHolderExternalID",
         "group": "LimitGroup",
         "kyc": "boolean",
         "data": "AccountHolderData",
         "internal": "AccountHolderInternalData"
       },
-      "result": "AccountHolderID"
+      "result": "AccountHolderID",
+      "throws": [
+        "UnknownLimitGroup"
+      ]
     },
     "getAccountHolder": {
       "params": {
         "id": "AccountHolderID"
       },
       "result": {
+        "ext_id": "AccountHolderExternalID",
+        "group": "LimitGroup",
+        "kyc": "boolean",
+        "data": "AccountHolderData",
+        "internal": "AccountHolderInternalData",
+        "created": "XferTimestamp"
+      },
+      "throws": [
+        "UnknownAccountHolder"
+      ]
+    },
+    "getAccountHolderExt": {
+      "params": {
+        "ext_id": "AccountHolderExternalID"
+      },
+      "result": {
+        "id": "AccountHolderID",
         "group": "LimitGroup",
         "kyc": "boolean",
         "data": "AccountHolderData",
