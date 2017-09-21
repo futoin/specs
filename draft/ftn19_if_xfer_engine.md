@@ -818,12 +818,8 @@ which may happen in some scenarios.
                 }
             },
             "funcs" : {
-                "setAccount" : {
+                "addAccount" : {
                     "params" : {
-                        "id" : {
-                            "type" : "AccountID",
-                            "default" : null
-                        },
                         "type" : "AccountType",
                         "holder" : "AccountHolderID",
                         "currency" : "CurrencyCode",
@@ -834,7 +830,20 @@ which may happen in some scenarios.
                     "throws" : [
                         "UnknownHolderID",
                         "UnknownAccountID",
-                        "ImmutableMismatch"
+                        "UnknownCurrency",
+                        "Duplicate"
+                    ]
+                },
+                "updateAccount" : {
+                    "params" : {
+                        "id" : "AccountHolderID",
+                        "ext_id" : "AccountExternalID",
+                        "alias" : "AccountAlias"
+                    },
+                    "result" : "boolean",
+                    "throws" : [
+                        "UnknownAccountID",
+                        "Duplicate"
                     ]
                 },
                 "listAccounts": {
@@ -867,16 +876,48 @@ which may happen in some scenarios.
                     ],
                     "desc" : "For rare cases when some currency needs to be disabled"
                 },
-                "setAccountHolder" : {
+                "addAccountHolder" : {
                     "params" : {
                         "ext_id" : "AccountHolderExternalID",
                         "group" : "LimitGroup",
+                        "enabled" : "boolean",
                         "kyc" : "boolean",
                         "data" : "AccountHolderData",
                         "internal" : "AccountHolderInternalData"
                     },
                     "result" : "AccountHolderID",
                     "throws" : [
+                        "UnknownLimitGroup",
+                        "DuplicateExtID"
+                    ]
+                },
+                "updateAccountHolder" : {
+                    "params" : {
+                        "id" : "AccountHolderID",
+                        "group" : {
+                            "type" : "LimitGroup",
+                            "default" : null
+                        },
+                        "enabled" : {
+                            "type" : "boolean",
+                            "default" : null
+                        },
+                        "kyc" : {
+                            "type" : "boolean",
+                            "default" : null
+                        },
+                        "data" : {
+                            "type" : "AccountHolderData",
+                            "default" : null
+                        },
+                        "internal" : {
+                            "type" : "AccountHolderInternalData",
+                            "default" : null
+                        }
+                    },
+                    "result" : "boolean",
+                    "throws" : [
+                        "UnknownAccountHolder",
                         "UnknownLimitGroup"
                     ]
                 },
@@ -885,12 +926,15 @@ which may happen in some scenarios.
                         "id" : "AccountHolderID"
                     },
                     "result" : {
+                        "id" : "AccountHolderID",
                         "ext_id" : "AccountHolderExternalID",
                         "group" : "LimitGroup",
+                        "enabled" : "boolean",
                         "kyc" : "boolean",
                         "data" : "AccountHolderData",
                         "internal" : "AccountHolderInternalData",
-                        "created" : "XferTimestamp"
+                        "created" : "XferTimestamp",
+                        "updated" : "XferTimestamp"
                     },
                     "throws" : [
                         "UnknownAccountHolder"
@@ -902,11 +946,14 @@ which may happen in some scenarios.
                     },
                     "result" : {
                         "id" : "AccountHolderID",
+                        "ext_id" : "AccountHolderExternalID",
                         "group" : "LimitGroup",
+                        "enabled" : "boolean",
                         "kyc" : "boolean",
                         "data" : "AccountHolderData",
                         "internal" : "AccountHolderInternalData",
-                        "created" : "XferTimestamp"
+                        "created" : "XferTimestamp",
+                        "updated" : "XferTimestamp"
                     },
                     "throws" : [
                         "UnknownAccountHolder"
