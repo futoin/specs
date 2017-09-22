@@ -777,6 +777,14 @@ Account management API for internal use only.
 Merge functionality should be rarely used to workaround multiple registrations per single person
 which may happen in some scenarios.
 
+It's assumed there is a unique Account Alias per Account Holder - it should be used to create
+accounts and prevent duplicates.
+
+External Account ID is optional, but can be set only at creation time.
+
+Transit and Bonus account types must have related External and Regular accounts respectively.
+Related account can be set only at creation time.
+
 
 `Iface{`
 
@@ -798,16 +806,22 @@ which may happen in some scenarios.
                         "External"
                     ]
                 },
+                "RelatedAccountID" : [
+                    "AccountID",
+                    "boolean"
+                ],
                 "AccountExternalID" : {
                     "type" : "string",
                     "maxlen" : 64
                 },
                 "AccountHolderExternalID" : {
                     "type" : "string",
+                    "minlen" : 1,
                     "maxlen" : 128
                 },
                 "AccountAlias" : {
                     "type" : "string",
+                    "minlen" : 1,
                     "maxlen" : 20
                 },
                 "AccountHolderData" : {
@@ -815,30 +829,72 @@ which may happen in some scenarios.
                 },
                 "AccountHolderInternalData" : {
                     "type" : "map"
+                },
+                "AccountInfo" : {
+                    "type" : "map",
+                    "fields" : {
+                        "id" : "AccountID",
+                        "type" : "AccountType",
+                        "currency" : "CurrencyCode",
+                        "alias" : "AccountAlias",
+                        "enabled" : "boolean",
+                        "balance" : "Balance",
+                        "reserved" : "Amount",
+                        "ext_id" : {
+                            "type" : "AccountExternalID",
+                            "optional" : true
+                        },
+                        "rel_id" : {
+                            "type" : "RelatedAccountID",
+                            "optional" : true
+                        },
+                        "created" : "XferTimestamp",
+                        "updated" : "XferTimestamp"
+                    }
+                },
+                "AccountInfoList" : {
+                    "type" : "array",
+                    "elemtype" : "AccountInfo"
                 }
             },
             "funcs" : {
                 "addAccount" : {
                     "params" : {
+                        "holder" : "AccountID",
                         "type" : "AccountType",
-                        "holder" : "AccountHolderID",
                         "currency" : "CurrencyCode",
-                        "ext_id" : "AccountExternalID",
-                        "alias" : "AccountAlias"
+                        "alias" : "AccountAlias",
+                        "enabled" : {
+                            "type" : "boolean",
+                            "default" : true
+                        },
+                        "ext_id" : {
+                            "type" : "AccountExternalID",
+                            "default" : null
+                        },
+                        "rel_id" :  {
+                            "type" : "RelatedAccountID",
+                            "default" : null
+                        }
                     },
-                    "result" : "AccountHolderID",
+                    "result" : "AccountExternalID",
                     "throws" : [
                         "UnknownHolderID",
-                        "UnknownAccountID",
                         "UnknownCurrency",
                         "Duplicate"
                     ]
                 },
                 "updateAccount" : {
                     "params" : {
-                        "id" : "AccountHolderID",
-                        "ext_id" : "AccountExternalID",
-                        "alias" : "AccountAlias"
+                        "id" : "AccountID",
+                        "alias" : {
+                            "type" : "AccountAlias",
+                            "default" : null
+                        },
+                        "enabled" : {
+                            "type" : "boolean",
+                            "default" : null
+                        }
                     },
                     "result" : "boolean",
                     "throws" : [
@@ -846,25 +902,25 @@ which may happen in some scenarios.
                         "Duplicate"
                     ]
                 },
+                "getAccount": {
+                    "params" : {
+                        "id" : "AccountID"
+                    },
+                    "result" : "AccountInfo",
+                    "throws" : [
+                        "UnknownAccountID"
+                    ]
+                },
                 "listAccounts": {
                     "params" : {
                         "holder" : "AccountHolderID"
                     },
-                    "result" : {
-                        "id" : "AccountID",
-                        "type" : "AccountType",
-                        "currency" : "CurrencyCode",
-                        "ext_id" : "AccountExternalID",
-                        "alias" : "AccountAlias",
-                        "balance" : "Balance",
-                        "reserved" : "Amount",
-                        "created" : "XferTimestamp"
-                    },
+                    "result" : "AccountInfoList",
                     "throws" : [
                         "UnknownHolderID"
                     ]
                 },
-                "convAccount" : {
+                "convertAccount" : {
                     "params" : {
                         "id" : "AccountID",
                         "currency" : "CurrencyCode"
