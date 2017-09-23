@@ -1,13 +1,15 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-09-19
+Date: 2017-09-22
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.0.4 - 2017-09-22 - Andrey Galkin
+    - NEW: L1Face#getPrepared() feature
 * v1.0.3 - 2017-09-17 - Andrey Galkin
     - NEW: multi-row INSERT support in QueryBuilder
 * v1.0.2 - 2017-09-03 - Andrey Galkin
@@ -301,6 +303,11 @@ particular database flavour is supported, if helpers are used.
     * void associateResult(as_result)
         * process efficiently packed result to get array
             of associative Map
+    * Prepared getPrepared(unique_key, callback)
+        * A feature for easy re-using prepared statements
+        * checks if prepared statement has been already cached with
+            unique key and retuns one if found
+        * otherwise, calls callback, stores result and returns it
 * Class QueryBuilder:
     * static void addDriver(type, module)
         * *type* - driver name to match L1.getType()

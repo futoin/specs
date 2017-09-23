@@ -7,13 +7,17 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-09-19
+Date: 2017-09-22
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v1.0.4 - 2017-09-22 - Andrey Galkin<ul>
+<li>NEW: L1Face#getPrepared() feature</li>
+</ul>
+</li>
 <li>v1.0.3 - 2017-09-17 - Andrey Galkin<ul>
 <li>NEW: multi-row INSERT support in QueryBuilder</li>
 </ul>
@@ -296,6 +300,13 @@ particular database flavour is supported, if helpers are used.</p>
 <li>void associateResult(as_result)<ul>
 <li>process efficiently packed result to get array
     of associative Map</li>
+</ul>
+</li>
+<li>Prepared getPrepared(unique_key, callback)<ul>
+<li>A feature for easy re-using prepared statements</li>
+<li>checks if prepared statement has been already cached with
+    unique key and retuns one if found</li>
+<li>otherwise, calls callback, stores result and returns it</li>
 </ul>
 </li>
 </ul>
