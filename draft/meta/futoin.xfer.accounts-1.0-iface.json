@@ -234,6 +234,19 @@
       "throws": [
         "UnknownAccountHolder"
       ]
+    },
+    "getLimitStats": {
+      "params": {
+        "holder": "AccountHolderID",
+        "domain": "LimitDomain"
+      },
+      "result": {
+        "currency": "CurrencyCode",
+        "stats": "LimitValues"
+      },
+      "throws": [
+        "UnknownHolderID"
+      ]
     }
   },
   "requires": [

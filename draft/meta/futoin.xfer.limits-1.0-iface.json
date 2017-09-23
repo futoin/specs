@@ -7,14 +7,6 @@
     "futoin.xfer.types:1.0"
   ],
   "types": {
-    "LimitAmount": "Amount",
-    "LimitCount": {
-      "type": "integer",
-      "min": 0
-    },
-    "LimitValues": {
-      "type": "map"
-    },
     "OptionalLimitValues": [
       "LimitValues",
       "boolean"
@@ -22,17 +14,6 @@
     "LimitGroups": {
       "type": "array",
       "elemtype": "LimitGroup"
-    },
-    "LimitDomain": {
-      "type": "enum",
-      "items": [
-        "Retail",
-        "Deposits",
-        "Payments",
-        "Gaming",
-        "Misc",
-        "Personnel"
-      ]
     },
     "RetailLimitValues": {
       "type": "LimitValues",

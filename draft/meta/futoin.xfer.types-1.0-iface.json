@@ -34,6 +34,30 @@
       "type": "string",
       "regex": "^[a-zA-Z0-9_-]{1,32}$"
     },
+    "LimitDomain": {
+      "type": "enum",
+      "items": [
+        "Retail",
+        "Deposits",
+        "Payments",
+        "Gaming",
+        "Misc",
+        "Personnel"
+      ]
+    },
+    "LimitAmount": "Amount",
+    "LimitCount": {
+      "type": "integer",
+      "min": 0
+    },
+    "LimitValue": [
+      "LimitAmount",
+      "LimitCount"
+    ],
+    "LimitValues": {
+      "type": "map",
+      "elemtype": "LimitValue"
+    },
     "Fee": {
       "type": "map",
       "fields": {

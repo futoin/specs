@@ -1,0 +1,13 @@
+{
+  "iface": "futoin.xfer.peer",
+  "version": "1.0",
+  "ftn3rev": "1.7",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.xfer.types:1.0"
+  ],
+  "funcs": {},
+  "requires": [
+    "SecureChannel"
+  ]
+}

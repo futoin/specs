@@ -27,7 +27,7 @@
         "OriginalTooOld"
       ]
     },
-    "genericXfer": {
+    "settleXfer": {
       "params": {
         "account": "AccountID",
         "rel_account": "AccountID",

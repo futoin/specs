@@ -153,7 +153,8 @@ then it must be used.
 
 * Large amounts with extra checks:
     * Deposit - funds deposit from external source
-    * Withdraw - funds withdrawal to external source
+    * Withdrawal - funds withdrawal to external destination
+    * CancelWithdrawal - cancel not completed withdrawal
 * Relatively small amounts with real-time transactions:
     * Bet - gaming bet
     * Win - gaming win
@@ -170,6 +171,7 @@ then it must be used.
     * CancelBonus - close bonus account
 * Misc.:
     * Fee - any type of fee which may force negative balance
+    * Settle - settlement related to External accounts
     * Generic - generic transaction not related to others, e.g. peer-to-peer
 
 ### 2.3.2. Fees
@@ -286,8 +288,26 @@ architecture level.
 4. Settlement is done between System(Aggregator) and External accounts
 5. External accounts should be constrained by negative balance limit
 
+### 2.3.5. Unattended external processing
 
-### 2.3.5. Events
+There are cases when user wallet is managed outside of the system while transaction engine
+has control only over Transit account. All operations on Transit account must require online
+communication with external peer systems.
+
+Similar to that synchronous risk assessment can be done in scope of single transaction processing.
+
+Transaction engine should automatically workaround interruptions and repeated calls for error recovery.
+
+There should be unified interface for transaction operation with only difference - time required
+for operation.
+
+### 2.3.6. Human-involved external processing
+
+Some operations like withdrawals, purchases or manual risk analysis require
+relatively long interruption for human confirmation/rejection. Interface for such operations
+assumes such interruption by splitting processing into different API calls.
+
+### 2.3.7. Events
 
 * `XFER_RISK` - on transaction waiting for risk analysis
 * `XFER_WAIT` - on transaction waiting for external processing
@@ -310,7 +330,7 @@ additional checks and/or blocking risk analysis.
 Periods are accounted per calendar with operator configured timezone. Per account
 holder limits are accounted in base currency.
 
-*Note: risk assessment must be done for all activity even if limits are not hit, but that should be asynchronous.*
+*Note: risk assessment must be done for all activity even if limits are not hit, but that should be asynchronously.*
 
 ### 2.4.1. Limit groups
 
@@ -607,6 +627,27 @@ Common types to use in other interfaces of this spec.
                     "type" : "string",
                     "regex" : "^[a-zA-Z0-9_-]{1,32}$"
                 },
+                "LimitDomain" : {
+                    "type" : "enum",
+                    "items" : [
+                        "Retail",
+                        "Deposits",
+                        "Payments",
+                        "Gaming",
+                        "Misc",
+                        "Personnel"
+                    ]
+                },
+                "LimitAmount" : "Amount",
+                "LimitCount" : {
+                    "type" : "integer",
+                    "min" : 0
+                },
+                "LimitValue" : [ "LimitAmount", "LimitCount" ],
+                "LimitValues" : {
+                    "type" : "map",
+                    "elemtype" : "LimitValue"
+                },
                 "Fee" : {
                     "type" : "map",
                     "fields" : {
@@ -615,7 +656,7 @@ Common types to use in other interfaces of this spec.
                         "reason" : "Reason"
                     }
                 },
-               "XferTimestamp" : {
+                "XferTimestamp" : {
                     "type" : "string",
                     "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
                 }
@@ -1023,6 +1064,19 @@ Related account can be set only at creation time.
                     "result" : "boolean",
                     "throws" : [
                         "UnknownAccountHolder"
+                    ]
+                },
+                "getLimitStats" : {
+                    "params" : {
+                        "holder" : "AccountHolderID",
+                        "domain" : "LimitDomain"
+                    },
+                    "result" : {
+                        "currency" : "CurrencyCode",
+                        "stats" : "LimitValues"
+                    },
+                    "throws" : [
+                        "UnknownHolderID"
                     ]
                 }
             },
@@ -1518,7 +1572,28 @@ service purchase.
 
 `}Iface`
 
-### 3.4.6. Generic
+### 3.4.6. Direct Payments
+
+Placeholer for user-initiated direct payments spec.
+
+`Iface{`
+
+        {
+            "iface" : "futoin.xfer.direct",
+            "version" : "1.0",
+            "ftn3rev" : "1.7",
+            "imports" : [
+                "futoin.ping:1.0",
+                "futoin.xfer.types:1.0"
+            ],
+            "funcs" : {
+            },
+            "requires" : [ "SecureChannel" ]
+        }
+
+`}Iface`
+
+### 3.4.7. Generic
 
 `Iface{`
 
@@ -1551,7 +1626,7 @@ service purchase.
                         "OriginalTooOld"
                     ]
                 },
-                "genericXfer" : {
+                "settleXfer" : {
                     "params" : {
                         "account" : "AccountID",
                         "rel_account" : "AccountID",
@@ -1566,8 +1641,28 @@ service purchase.
                         "InvalidAmount",
                         "LimitReject"
                     ]
-                    
                 }
+            },
+            "requires" : [ "SecureChannel" ]
+        }
+
+`}Iface`
+
+### 3.4.8. Peer-to-peer settlement
+
+Placeholder for automatic peer-to-peer reconciliation spec.
+
+`Iface{`
+
+        {
+            "iface" : "futoin.xfer.settle",
+            "version" : "1.0",
+            "ftn3rev" : "1.7",
+            "imports" : [
+                "futoin.ping:1.0",
+                "futoin.xfer.types:1.0"
+            ],
+            "funcs" : {
             },
             "requires" : [ "SecureChannel" ]
         }
@@ -1589,29 +1684,10 @@ Internal API for limits configuration.
                 "futoin.xfer.types:1.0"
             ],
             "types" : {
-                "LimitAmount" : "Amount",
-                "LimitCount" : {
-                    "type" : "integer",
-                    "min" : 0
-                },
-                "LimitValues" : {
-                    "type" : "map"
-                },
                 "OptionalLimitValues" : [ "LimitValues", "boolean" ],
                 "LimitGroups" : {
                     "type" : "array",
                     "elemtype" : "LimitGroup"
-                },
-                "LimitDomain" : {
-                    "type" : "enum",
-                    "items" : [
-                        "Retail",
-                        "Deposits",
-                        "Payments",
-                        "Gaming",
-                        "Misc",
-                        "Personnel"
-                    ]
                 },
                 "RetailLimitValues" : {
                     "type" : "LimitValues",
@@ -1758,6 +1834,33 @@ Internal API for limits configuration.
                 "getLimitGroups" : {
                     "result" : "LimitGroups"
                 }
+            },
+            "requires" : [ "SecureChannel" ]
+        }
+
+`}Iface`
+
+## 3.6. External wallet interface
+
+It is assumed that all external systems operate on the same transaction interfaces
+as already defined above.
+
+External IDs in "current" systems refer to internal IDs in "other" system and vice-versa.
+
+This interface is left as placeholder for system-to-system interface not defined in
+other specs.
+
+`Iface{`
+
+        {
+            "iface" : "futoin.xfer.peer",
+            "version" : "1.0",
+            "ftn3rev" : "1.7",
+            "imports" : [
+                "futoin.ping:1.0",
+                "futoin.xfer.types:1.0"
+            ],
+            "funcs" : {
             },
             "requires" : [ "SecureChannel" ]
         }

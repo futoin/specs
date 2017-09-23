@@ -133,7 +133,8 @@ then it must be used.</p>
 <ul>
 <li>Large amounts with extra checks:<ul>
 <li>Deposit - funds deposit from external source</li>
-<li>Withdraw - funds withdrawal to external source</li>
+<li>Withdrawal - funds withdrawal to external destination</li>
+<li>CancelWithdrawal - cancel not completed withdrawal</li>
 </ul>
 </li>
 <li>Relatively small amounts with real-time transactions:<ul>
@@ -158,6 +159,7 @@ then it must be used.</p>
 </li>
 <li>Misc.:<ul>
 <li>Fee - any type of fee which may force negative balance</li>
+<li>Settle - settlement related to External accounts</li>
 <li>Generic - generic transaction not related to others, e.g. peer-to-peer</li>
 </ul>
 </li>
@@ -275,7 +277,19 @@ architecture level.</p>
 <li>Settlement is done between System(Aggregator) and External accounts</li>
 <li>External accounts should be constrained by negative balance limit</li>
 </ol>
-<h3>2.3.5. Events</h3>
+<h3>2.3.5. Unattended external processing</h3>
+<p>There are cases when user wallet is managed outside of the system while transaction engine
+has control only over Transit account. All operations on Transit account must require online
+communication with external peer systems.</p>
+<p>Similar to that synchronous risk assessment can be done in scope of single transaction processing.</p>
+<p>Transaction engine should automatically workaround interruptions and repeated calls for error recovery.</p>
+<p>There should be unified interface for transaction operation with only difference - time required
+for operation.</p>
+<h3>2.3.6. Human-involved external processing</h3>
+<p>Some operations like withdrawals, purchases or manual risk analysis require
+relatively long interruption for human confirmation/rejection. Interface for such operations
+assumes such interruption by splitting processing into different API calls.</p>
+<h3>2.3.7. Events</h3>
 <ul>
 <li><code>XFER_RISK</code> - on transaction waiting for risk analysis</li>
 <li><code>XFER_WAIT</code> - on transaction waiting for external processing</li>
@@ -298,7 +312,7 @@ personnel and partners.</p>
 additional checks and/or blocking risk analysis.</p>
 <p>Periods are accounted per calendar with operator configured timezone. Per account
 holder limits are accounted in base currency.</p>
-<p><em>Note: risk assessment must be done for all activity even if limits are not hit, but that should be asynchronous.</em></p>
+<p><em>Note: risk assessment must be done for all activity even if limits are not hit, but that should be asynchronously.</em></p>
 <h3>2.4.1. Limit groups</h3>
 <p>It's not feasible to configure most limits individually as it may eventually lead to configuration errors. It would
 also make limits practically unmanageable. Therefore, only a smal number of limit groups (sets) should be present.</p>
@@ -663,6 +677,27 @@ Soft limit should cause transaction rejection.</p>
                 "type" : "string",
                 "regex" : "^[a-zA-Z0-9_-]{1,32}$"
             },
+            "LimitDomain" : {
+                "type" : "enum",
+                "items" : [
+                    "Retail",
+                    "Deposits",
+                    "Payments",
+                    "Gaming",
+                    "Misc",
+                    "Personnel"
+                ]
+            },
+            "LimitAmount" : "Amount",
+            "LimitCount" : {
+                "type" : "integer",
+                "min" : 0
+            },
+            "LimitValue" : [ "LimitAmount", "LimitCount" ],
+            "LimitValues" : {
+                "type" : "map",
+                "elemtype" : "LimitValue"
+            },
             "Fee" : {
                 "type" : "map",
                 "fields" : {
@@ -671,7 +706,7 @@ Soft limit should cause transaction rejection.</p>
                     "reason" : "Reason"
                 }
             },
-           "XferTimestamp" : {
+            "XferTimestamp" : {
                 "type" : "string",
                 "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
             }
@@ -1047,6 +1082,19 @@ Related account can be set only at creation time.</p>
                 "result" : "boolean",
                 "throws" : [
                     "UnknownAccountHolder"
+                ]
+            },
+            "getLimitStats" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "domain" : "LimitDomain"
+                },
+                "result" : {
+                    "currency" : "CurrencyCode",
+                    "stats" : "LimitValues"
+                },
+                "throws" : [
+                    "UnknownHolderID"
                 ]
             }
         },
@@ -1502,7 +1550,22 @@ service purchase.</p>
         "requires" : [ "SecureChannel" ]
     }
 </code></pre>
-<h3>3.4.6. Generic</h3>
+<h3>3.4.6. Direct Payments</h3>
+<p>Placeholer for user-initiated direct payments spec.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.direct",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "funcs" : {
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h3>3.4.7. Generic</h3>
 <pre><code>    {
         "iface" : "futoin.xfer.generic",
         "version" : "1.0",
@@ -1532,7 +1595,7 @@ service purchase.</p>
                     "OriginalTooOld"
                 ]
             },
-            "genericXfer" : {
+            "settleXfer" : {
                 "params" : {
                     "account" : "AccountID",
                     "rel_account" : "AccountID",
@@ -1547,8 +1610,22 @@ service purchase.</p>
                     "InvalidAmount",
                     "LimitReject"
                 ]
-
             }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h3>3.4.8. Peer-to-peer settlement</h3>
+<p>Placeholder for automatic peer-to-peer reconciliation spec.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.settle",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "funcs" : {
         },
         "requires" : [ "SecureChannel" ]
     }
@@ -1564,29 +1641,10 @@ service purchase.</p>
             "futoin.xfer.types:1.0"
         ],
         "types" : {
-            "LimitAmount" : "Amount",
-            "LimitCount" : {
-                "type" : "integer",
-                "min" : 0
-            },
-            "LimitValues" : {
-                "type" : "map"
-            },
             "OptionalLimitValues" : [ "LimitValues", "boolean" ],
             "LimitGroups" : {
                 "type" : "array",
                 "elemtype" : "LimitGroup"
-            },
-            "LimitDomain" : {
-                "type" : "enum",
-                "items" : [
-                    "Retail",
-                    "Deposits",
-                    "Payments",
-                    "Gaming",
-                    "Misc",
-                    "Personnel"
-                ]
             },
             "RetailLimitValues" : {
                 "type" : "LimitValues",
@@ -1733,6 +1791,25 @@ service purchase.</p>
             "getLimitGroups" : {
                 "result" : "LimitGroups"
             }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.6. External wallet interface</h2>
+<p>It is assumed that all external systems operate on the same transaction interfaces
+as already defined above.</p>
+<p>External IDs in "current" systems refer to internal IDs in "other" system and vice-versa.</p>
+<p>This interface is left as placeholder for system-to-system interface not defined in
+other specs.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.peer",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "funcs" : {
         },
         "requires" : [ "SecureChannel" ]
     }
