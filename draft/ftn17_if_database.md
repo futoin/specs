@@ -1,13 +1,15 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-09-22
+Date: 2017-09-23
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.0.5 - 2017-09-23 - Andrey Galkin
+    - NEW: L1Face#helpers() API
 * v1.0.4 - 2017-09-22 - Andrey Galkin
     - NEW: L1Face#getPrepared() feature
 * v1.0.3 - 2017-09-17 - Andrey Galkin
@@ -308,6 +310,8 @@ particular database flavour is supported, if helpers are used.
         * checks if prepared statement has been already cached with
             unique key and retuns one if found
         * otherwise, calls callback, stores result and returns it
+    * Helpers helpers()
+        * get associated Helpers without QueryBuilder instance
 * Class QueryBuilder:
     * static void addDriver(type, module)
         * *type* - driver name to match L1.getType()

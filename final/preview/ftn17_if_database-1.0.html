@@ -7,13 +7,17 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-09-22
+Date: 2017-09-23
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v1.0.5 - 2017-09-23 - Andrey Galkin<ul>
+<li>NEW: L1Face#helpers() API</li>
+</ul>
+</li>
 <li>v1.0.4 - 2017-09-22 - Andrey Galkin<ul>
 <li>NEW: L1Face#getPrepared() feature</li>
 </ul>
@@ -307,6 +311,10 @@ particular database flavour is supported, if helpers are used.</p>
 <li>checks if prepared statement has been already cached with
     unique key and retuns one if found</li>
 <li>otherwise, calls callback, stores result and returns it</li>
+</ul>
+</li>
+<li>Helpers helpers()<ul>
+<li>get associated Helpers without QueryBuilder instance</li>
 </ul>
 </li>
 </ul>
