@@ -10,6 +10,15 @@
     "listCurrencies": {
       "result": "CurrencyList"
     },
+    "getCurrency": {
+      "params": {
+        "code": "CurrencyCode"
+      },
+      "result": "Currency",
+      "throws": [
+        "UnknownCurrency"
+      ]
+    },
     "getExRate": {
       "params": {
         "base": "CurrencyCode",

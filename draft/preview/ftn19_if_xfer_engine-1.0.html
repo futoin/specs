@@ -821,6 +821,15 @@ there is a strict separation between management and information retrieval.</p>
             "listCurrencies" : {
                 "result" : "CurrencyList"
             },
+            "getCurrency" : {
+                "params" : {
+                    "code" : "CurrencyCode"
+                },
+                "result" : "Currency",
+                "throws" : [
+                    "UnknownCurrency"
+                ]
+            },
             "getExRate" : {
                 "params" : {
                     "base" : "CurrencyCode",
@@ -1703,17 +1712,17 @@ service purchase.</p>
                     "bet_daily_cnt" : "LimitCount",
                     "win_daily_amt" : "LimitAmount",
                     "win_daily_cnt" : "LimitCount",
-                    "profit_daily_delta" : "LimitAmount",
+                    "profit_daily_amt" : "LimitAmount",
                     "bet_weekly_amt" : "LimitAmount",
                     "bet_weekly_cnt" : "LimitCount",
                     "win_weekly_amt" : "LimitAmount",
                     "win_weekly_cnt" : "LimitCount",
-                    "profit_weekly_delta" : "LimitAmount",
+                    "profit_weekly_amt" : "LimitAmount",
                     "bet_monthly_amt" : "LimitAmount",
                     "bet_monthly_cnt" : "LimitCount",
                     "win_monthly_amt" : "LimitAmount",
                     "win_monthly_cnt" : "LimitCount",
-                    "profit_monthly_delta" : "LimitAmount",
+                    "profit_monthly_amt" : "LimitAmount",
                     "bet_min_amt" : "LimitAmount"
                 }
             },
