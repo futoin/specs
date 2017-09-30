@@ -24,7 +24,8 @@
         "CurrencyMismatch",
         "InvalidAmount",
         "LimitReject",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "settleXfer": {

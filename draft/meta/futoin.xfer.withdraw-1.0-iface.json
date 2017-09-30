@@ -28,7 +28,8 @@
         "InvalidAmount",
         "LimitReject",
         "AlreadyCanceled",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "confirmWithdrawal": {
@@ -43,7 +44,8 @@
       "throws": [
         "UnknownXferID",
         "AlreadyCanceled",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "completeWithdrawal": {
@@ -58,7 +60,8 @@
         "UnknownXferID",
         "AlreadyCanceled",
         "NotConfirmed",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "cancelWithdrawal": {
@@ -71,7 +74,8 @@
       "throws": [
         "UnknownXferID",
         "AlreadyCompleted",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     }
   },

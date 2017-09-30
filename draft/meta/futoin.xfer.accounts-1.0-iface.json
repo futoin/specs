@@ -50,6 +50,7 @@
         "enabled": "boolean",
         "balance": "Balance",
         "reserved": "Amount",
+        "overdraft": "Amount",
         "ext_id": {
           "type": "AccountExternalID",
           "optional": true
@@ -110,6 +111,18 @@
       "throws": [
         "UnknownAccountID",
         "Duplicate"
+      ]
+    },
+    "setOverdraft": {
+      "params": {
+        "id": "AccountID",
+        "currency": "CurrencyCode",
+        "overdraft": "Amount"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownAccountID",
+        "CurrencyMismatch"
       ]
     },
     "getAccount": {

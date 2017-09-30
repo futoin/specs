@@ -7,22 +7,18 @@
 <pre>
 FTN19: FutoIn Interface - Transaction Engine
 Version: 1.0DV
-Date: 2017-09-17
+Date: 2017-10-01
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>
-<p>DV - 2017-09-17 - Andrey Galkin</p>
-<ul>
-<li>Major rework</li>
+<li>DV - 2017-10-01 - Andrey Galkin<ul>
+<li>Major rework following development</li>
 </ul>
 </li>
-<li>
-<p>DV - 2017-08-27 - Andrey Galkin</p>
-<ul>
+<li>DV - 2017-08-27 - Andrey Galkin<ul>
 <li>Initial draft</li>
 </ul>
 </li>
@@ -908,6 +904,7 @@ Related account can be set only at creation time.</p>
                     "enabled" : "boolean",
                     "balance" : "Balance",
                     "reserved" : "Amount",
+                    "overdraft" : "Amount",
                     "ext_id" : {
                         "type" : "AccountExternalID",
                         "optional" : true
@@ -968,6 +965,18 @@ Related account can be set only at creation time.</p>
                 "throws" : [
                     "UnknownAccountID",
                     "Duplicate"
+                ]
+            },
+            "setOverdraft" : {
+                "params" : {
+                    "id" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "overdraft" : "Amount"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch"
                 ]
             },
             "getAccount": {
@@ -1173,7 +1182,8 @@ transaction.</p>
                     "CurrencyMismatch",
                     "InvalidAmount",
                     "LimitReject",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             }
         },
@@ -1213,7 +1223,8 @@ processing of withdrawal transactions. External processing is out of scope.</p>
                     "InvalidAmount",
                     "LimitReject",
                     "AlreadyCanceled",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "confirmWithdrawal" : {
@@ -1228,7 +1239,8 @@ processing of withdrawal transactions. External processing is out of scope.</p>
                 "throws" : [
                     "UnknownXferID",
                     "AlreadyCanceled",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "completeWithdrawal" : {
@@ -1243,7 +1255,8 @@ processing of withdrawal transactions. External processing is out of scope.</p>
                     "UnknownXferID",
                     "AlreadyCanceled",
                     "NotConfirmed",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "cancelWithdrawal" : {
@@ -1256,7 +1269,8 @@ processing of withdrawal transactions. External processing is out of scope.</p>
                 "throws" : [
                     "UnknownXferID",
                     "AlreadyCompleted",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             }
         },
@@ -1306,7 +1320,8 @@ about related game round in "round_id" field.</p>
                     "LimitReject",
                     "DataMismatch",
                     "AlreadyCanceled",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "cancelBet" : {
@@ -1323,7 +1338,8 @@ about related game round in "round_id" field.</p>
                 },
                 "throws" : [
                     "DataMismatch",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "win" : {
@@ -1346,7 +1362,8 @@ about related game round in "round_id" field.</p>
                     "CurrencyMismatch",
                     "LimitReject",
                     "DataMismatch",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "gameBalance" : {
@@ -1407,7 +1424,8 @@ service purchase.</p>
                     "InvalidAmount",
                     "LimitReject",
                     "AlreadyCanceled",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "cancelPurchase" : {
@@ -1439,7 +1457,8 @@ service purchase.</p>
                     "AmountTooLarge",
                     "PurchaseNotFound",
                     "AlreadyCanceled",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "preAuth" : {
@@ -1462,7 +1481,8 @@ service purchase.</p>
                     "InvalidAmount",
                     "LimitReject",
                     "AlreadyCanceled",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "clearPreAuth" : {
@@ -1482,7 +1502,8 @@ service purchase.</p>
                 "result" : "boolean",
                 "throws" : [
                     "DataMismatch",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "confirmAuth" : {
@@ -1498,7 +1519,8 @@ service purchase.</p>
                 "throws" : [
                     "UnknownXferID",
                     "AlreadyCanceled",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             }
         },
@@ -1530,7 +1552,8 @@ service purchase.</p>
                     "CurrencyMismatch",
                     "InvalidAmount",
                     "LimitReject",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "clearBonus" : {
@@ -1601,7 +1624,8 @@ service purchase.</p>
                     "CurrencyMismatch",
                     "InvalidAmount",
                     "LimitReject",
-                    "OriginalTooOld"
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "settleXfer" : {
@@ -1684,7 +1708,6 @@ service purchase.</p>
                     "withdrawal_monthly_cnt" : "LimitCount",
                     "deposit_min_amt" : "LimitAmount",
                     "withdrawal_min_amt" : "LimitAmount"
-
                 }
             },
             "PaymentsLimitValues" : {

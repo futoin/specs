@@ -29,7 +29,8 @@
         "LimitReject",
         "DataMismatch",
         "AlreadyCanceled",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "cancelBet": {
@@ -46,7 +47,8 @@
       },
       "throws": [
         "DataMismatch",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "win": {
@@ -69,7 +71,8 @@
         "CurrencyMismatch",
         "LimitReject",
         "DataMismatch",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "gameBalance": {

@@ -35,7 +35,8 @@
         "InvalidAmount",
         "LimitReject",
         "AlreadyCanceled",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "cancelPurchase": {
@@ -67,7 +68,8 @@
         "AmountTooLarge",
         "PurchaseNotFound",
         "AlreadyCanceled",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "preAuth": {
@@ -90,7 +92,8 @@
         "InvalidAmount",
         "LimitReject",
         "AlreadyCanceled",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "clearPreAuth": {
@@ -110,7 +113,8 @@
       "result": "boolean",
       "throws": [
         "DataMismatch",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "confirmAuth": {
@@ -126,7 +130,8 @@
       "throws": [
         "UnknownXferID",
         "AlreadyCanceled",
-        "OriginalTooOld"
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     }
   },

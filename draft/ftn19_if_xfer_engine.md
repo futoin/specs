@@ -1,16 +1,15 @@
 <pre>
 FTN19: FutoIn Interface - Transaction Engine
 Version: 1.0DV
-Date: 2017-09-17
+Date: 2017-10-01
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* DV - 2017-09-17 - Andrey Galkin
-    - Major rework
-
+* DV - 2017-10-01 - Andrey Galkin
+    - Major rework following development
 * DV - 2017-08-27 - Andrey Galkin
     - Initial draft
 
@@ -890,6 +889,7 @@ Related account can be set only at creation time.
                         "enabled" : "boolean",
                         "balance" : "Balance",
                         "reserved" : "Amount",
+                        "overdraft" : "Amount",
                         "ext_id" : {
                             "type" : "AccountExternalID",
                             "optional" : true
@@ -950,6 +950,18 @@ Related account can be set only at creation time.
                     "throws" : [
                         "UnknownAccountID",
                         "Duplicate"
+                    ]
+                },
+                "setOverdraft" : {
+                    "params" : {
+                        "id" : "AccountID",
+                        "currency" : "CurrencyCode",
+                        "overdraft" : "Amount"
+                    },
+                    "result" : "boolean",
+                    "throws" : [
+                        "UnknownAccountID",
+                        "CurrencyMismatch"
                     ]
                 },
                 "getAccount": {
@@ -1165,7 +1177,8 @@ transaction.
                         "CurrencyMismatch",
                         "InvalidAmount",
                         "LimitReject",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 }
             },
@@ -1211,7 +1224,8 @@ processing of withdrawal transactions. External processing is out of scope.
                         "InvalidAmount",
                         "LimitReject",
                         "AlreadyCanceled",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "confirmWithdrawal" : {
@@ -1226,7 +1240,8 @@ processing of withdrawal transactions. External processing is out of scope.
                     "throws" : [
                         "UnknownXferID",
                         "AlreadyCanceled",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "completeWithdrawal" : {
@@ -1241,7 +1256,8 @@ processing of withdrawal transactions. External processing is out of scope.
                         "UnknownXferID",
                         "AlreadyCanceled",
                         "NotConfirmed",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "cancelWithdrawal" : {
@@ -1254,7 +1270,8 @@ processing of withdrawal transactions. External processing is out of scope.
                     "throws" : [
                         "UnknownXferID",
                         "AlreadyCompleted",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 }
             },
@@ -1314,7 +1331,8 @@ The interface is still internall and must not be exposed.
                         "LimitReject",
                         "DataMismatch",
                         "AlreadyCanceled",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "cancelBet" : {
@@ -1331,7 +1349,8 @@ The interface is still internall and must not be exposed.
                     },
                     "throws" : [
                         "DataMismatch",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "win" : {
@@ -1354,7 +1373,8 @@ The interface is still internall and must not be exposed.
                         "CurrencyMismatch",
                         "LimitReject",
                         "DataMismatch",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "gameBalance" : {
@@ -1421,7 +1441,8 @@ service purchase.
                         "InvalidAmount",
                         "LimitReject",
                         "AlreadyCanceled",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "cancelPurchase" : {
@@ -1453,7 +1474,8 @@ service purchase.
                         "AmountTooLarge",
                         "PurchaseNotFound",
                         "AlreadyCanceled",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "preAuth" : {
@@ -1476,7 +1498,8 @@ service purchase.
                         "InvalidAmount",
                         "LimitReject",
                         "AlreadyCanceled",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "clearPreAuth" : {
@@ -1496,7 +1519,8 @@ service purchase.
                     "result" : "boolean",
                     "throws" : [
                         "DataMismatch",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "confirmAuth" : {
@@ -1512,7 +1536,8 @@ service purchase.
                     "throws" : [
                         "UnknownXferID",
                         "AlreadyCanceled",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 }
             },
@@ -1550,7 +1575,8 @@ service purchase.
                         "CurrencyMismatch",
                         "InvalidAmount",
                         "LimitReject",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "clearBonus" : {
@@ -1632,7 +1658,8 @@ Placeholer for user-initiated direct payments spec.
                         "CurrencyMismatch",
                         "InvalidAmount",
                         "LimitReject",
-                        "OriginalTooOld"
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "settleXfer" : {
@@ -1727,7 +1754,6 @@ Internal API for limits configuration.
                         "withdrawal_monthly_cnt" : "LimitCount",
                         "deposit_min_amt" : "LimitAmount",
                         "withdrawal_min_amt" : "LimitAmount"
-
                     }
                 },
                 "PaymentsLimitValues" : {
