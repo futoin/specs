@@ -1,13 +1,15 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
-Version: 1.0
-Date: 2017-07-13
+Version: 1.1DV
+Date: 2017-10-07
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.1 - 2017-10-07 - Andrey Galin
+    * clarified external setup
 * v1.0 - 2017-07-13 - Andrey Galkin
 * Initial draft - 2015-09-14 - Andrey Galkin
 
@@ -109,6 +111,17 @@ manage configuration and support rolling deployment with no service interruption
 
 This action should focused on execution in development and testing process and
 may not be implemented at all, if not applicable.
+
+## 2.9. Integration into provisioning systems
+
+In multi-tenant environments, it may not be desired to give application user
+full control over system. However, some tools may require privileged administrator
+access for installation and update. Also, it's not desired to have multiple copies
+of same tool, but secure sharing is required.
+
+For such cases, an external to CID provisioning system may set external setup
+callback command to be used instead of CID itself for tool setup. The external command
+is responsible for proper filtering.
 
 # 3. Detailed business logic definition
 
@@ -217,7 +230,9 @@ configuration root or only with its .env part. There should be no other configur
     * .pluginPacks = [] - custom plugin packs, implementation defined
         * $module_name - define module providing list of plugins
     * .binDir = ${HOME}/bin - user bin folder
-    * .externalSetup - false - skip automatic tools install, if true
+    * .externalSetup = false
+        - a shell command to call instead of CID with the same parameters, if set to string
+        - disable tool setup, if true
     * .timeouts - timeout configuration for various operations (may not be always supported)
         * .connect = 10 - initial connection timeout 
         * .read = 60 - network timeout for individual read calls
