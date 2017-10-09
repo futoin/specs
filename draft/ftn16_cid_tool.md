@@ -1,14 +1,14 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.1DV
-Date: 2017-10-07
+Date: 2017-10-09
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.1 - 2017-10-07 - Andrey Galin
+* v1.1 - 2017-10-09 - Andrey Galin
     * clarified external setup
 * v1.0 - 2017-07-13 - Andrey Galkin
 * Initial draft - 2015-09-14 - Andrey Galkin
@@ -122,6 +122,11 @@ of same tool, but secure sharing is required.
 For such cases, an external to CID provisioning system may set external setup
 callback command to be used instead of CID itself for tool setup. The external command
 is responsible for proper filtering.
+
+For purpose own easy integration, target deploy dir must have auto-generated
+".futoin.merged.json" which should include all data from project, deployment, user,
+global and runtime. The file must not be manually editable and should be overwitten
+on each deployment. CID itself must never consult to it.
 
 # 3. Detailed business logic definition
 
