@@ -249,6 +249,11 @@ configuration root or only with its .env part. There should be no other configur
 <li>disable tool setup, if true</li>
 </ul>
 </li>
+<li>.externalServices = []<ul>
+<li>list of tools which should not be accounted in resource distribution</li>
+<li>it's expected the tools are externally configured by provisioning system</li>
+</ul>
+</li>
 <li>.timeouts - timeout configuration for various operations (may not be always supported)<ul>
 <li>.connect = 10 - initial connection timeout </li>
 <li>.read = 60 - network timeout for individual read calls</li>

@@ -250,6 +250,9 @@ configuration root or only with its .env part. There should be no other configur
     * .externalSetup = false
         - a shell command to call instead of CID with the same parameters, if set to string
         - disable tool setup, if true
+    * .externalServices = []
+        - list of tools which should not be accounted in resource distribution
+        - it's expected the tools are externally configured by provisioning system
     * .timeouts - timeout configuration for various operations (may not be always supported)
         * .connect = 10 - initial connection timeout 
         * .read = 60 - network timeout for individual read calls
