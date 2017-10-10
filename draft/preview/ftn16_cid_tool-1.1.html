@@ -105,6 +105,8 @@ is responsible for proper filtering.</p>
 ".futoin.merged.json" which should include all data from project, deployment, user,
 global and runtime. The file must not be manually editable and should be overwitten
 on each deployment. CID itself must never consult to it.</p>
+<p>As some tools and services may be configured by provisioning system, there are
+<code>.env.externalSetup</code> and <code>.env.externalServices</code> configuration options available.</p>
 <h1>3. Detailed business logic definition</h1>
 <h2>3.1. Configuration file</h2>
 <ul>

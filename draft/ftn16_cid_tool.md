@@ -128,6 +128,9 @@ For purpose own easy integration, target deploy dir must have auto-generated
 global and runtime. The file must not be manually editable and should be overwitten
 on each deployment. CID itself must never consult to it.
 
+As some tools and services may be configured by provisioning system, there are
+`.env.externalSetup` and `.env.externalServices` configuration options available.
+
 # 3. Detailed business logic definition
 
 ## 3.1. Configuration file
