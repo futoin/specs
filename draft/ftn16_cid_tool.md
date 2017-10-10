@@ -207,7 +207,19 @@ configuration root or only with its .env part. There should be no other configur
 * .webcfg - additional web server configuration (to be used by web server)
     * .root - web root folder relative to project root
     * .main - default index handler from .entryPoints (auto-select, if single one)
-    * .mounts - {} - path prefix to .entryPoints mapping
+    * .mounts - {} - path prefix to details in form of:
+        - string - name of related entry point
+        - map - advanced config
+            - .app - name of related entry point
+            - .static = false - try to serve static files, if true
+            - .tune = {} - fine options
+                - .pattern = true - enable other options based on pattern match
+                - .staticGzip = true - try to use pre-compressed "*.gz" files
+                - .gzip = false - compress in transmission
+                - .expires = 'max' - add expires header
+                - .autoindex = false - enable auto-indexing
+                - .index = 'index.html' - default index file
+                - .etag = false - enable ETag
 * .actions - {}, optional override of auto-detect commands.
     Each either a string or list of strings.
     Use '@default' in [] to run the default auto-detected tasks too.

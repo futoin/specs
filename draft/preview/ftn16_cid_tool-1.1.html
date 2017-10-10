@@ -190,7 +190,25 @@ configuration root or only with its .env part. There should be no other configur
 <li>.webcfg - additional web server configuration (to be used by web server)<ul>
 <li>.root - web root folder relative to project root</li>
 <li>.main - default index handler from .entryPoints (auto-select, if single one)</li>
-<li>.mounts - {} - path prefix to .entryPoints mapping</li>
+<li>.mounts - {} - path prefix to details in form of:<ul>
+<li>string - name of related entry point</li>
+<li>map - advanced config<ul>
+<li>.app - name of related entry point</li>
+<li>.static = false - try to serve static files, if true</li>
+<li>.tune = {} - fine options<ul>
+<li>.pattern = true - enable other options based on pattern match</li>
+<li>.staticGzip = true - try to use pre-compressed "*.gz" files</li>
+<li>.gzip = false - compress in transmission</li>
+<li>.expires = 'max' - add expires header</li>
+<li>.autoindex = false - enable auto-indexing</li>
+<li>.index = 'index.html' - default index file</li>
+<li>.etag = false - enable ETag</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>.actions - {}, optional override of auto-detect commands.
