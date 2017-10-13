@@ -149,8 +149,10 @@ configuration root or only with its .env part. There should be no other configur
 <li>.tools - {}, map of required tool=&gt;version pairs.
     Default version is marked as <code>true</code> or <code>'*'</code>.
     Tool name is all lower case letters with optional digits (except the first position).</li>
-<li>.toolTune - {}, map of maps tool=&gt;settings=&gt;value for fine tuning of tool behavior.
-    Note: It should not be used for build-time tools, but not for .entryPoints tuning.</li>
+<li>.toolTune - {}, map of maps tool=&gt;settings=&gt;value for fine tuning of tool behavior.<ul>
+<li><em>Note: it should be used for build-time tools, but it can also be used for global .entryPoints tuning</em> by tool.</li>
+</ul>
+</li>
 <li>.package - [], content of package relative to project root. Default: [ "." ]</li>
 <li>.packageGzipStatic = True, creates <em>.gz files for found </em>.js, <em>.json, </em>.css, <em>.svg and </em>.txt files</li>
 <li>.packageChecksums = True, creates .package.checksums of files</li>

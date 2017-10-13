@@ -174,7 +174,7 @@ configuration root or only with its .env part. There should be no other configur
     Default version is marked as `true` or `'*'`.
     Tool name is all lower case letters with optional digits (except the first position).
 * .toolTune - {}, map of maps tool=>settings=>value for fine tuning of tool behavior.
-    Note: It should not be used for build-time tools, but not for .entryPoints tuning.
+    * *Note: it should be used for build-time tools, but it can also be used for global .entryPoints tuning* by tool.
 * .package - [], content of package relative to project root. Default: [ "." ]
 * .packageGzipStatic = True, creates *.gz files for found *.js, *.json, *.css, *.svg and *.txt files
 * .packageChecksums = True, creates .package.checksums of files
