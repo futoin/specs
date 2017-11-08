@@ -1,13 +1,15 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
-Version: 1.0
-Date: 2017-07-13
+Version: 1.1
+Date: 2017-11-07
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.1 - 2017-10-09 - Andrey Galin
+    * clarified external setup
 * v1.0 - 2017-07-13 - Andrey Galkin
 * Initial draft - 2015-09-14 - Andrey Galkin
 
@@ -110,6 +112,25 @@ manage configuration and support rolling deployment with no service interruption
 This action should focused on execution in development and testing process and
 may not be implemented at all, if not applicable.
 
+## 2.9. Integration into provisioning systems
+
+In multi-tenant environments, it may not be desired to give application user
+full control over system. However, some tools may require privileged administrator
+access for installation and update. Also, it's not desired to have multiple copies
+of same tool, but secure sharing is required.
+
+For such cases, an external to CID provisioning system may set external setup
+callback command to be used instead of CID itself for tool setup. The external command
+is responsible for proper filtering.
+
+For purpose own easy integration, target deploy dir must have auto-generated
+".futoin.merged.json" which should include all data from project, deployment, user,
+global and runtime. The file must not be manually editable and should be overwitten
+on each deployment. CID itself must never consult to it.
+
+As some tools and services may be configured by provisioning system, there are
+`.env.externalSetup` and `.env.externalServices` configuration options available.
+
 # 3. Detailed business logic definition
 
 ## 3.1. Configuration file
@@ -153,7 +174,7 @@ configuration root or only with its .env part. There should be no other configur
     Default version is marked as `true` or `'*'`.
     Tool name is all lower case letters with optional digits (except the first position).
 * .toolTune - {}, map of maps tool=>settings=>value for fine tuning of tool behavior.
-    Note: It should not be used for build-time tools, but not for .entryPoints tuning.
+    * *Note: it should be used for build-time tools, but it can also be used for global .entryPoints tuning* by tool.
 * .package - [], content of package relative to project root. Default: [ "." ]
 * .packageGzipStatic = True, creates *.gz files for found *.js, *.json, *.css, *.svg and *.txt files
 * .packageChecksums = True, creates .package.checksums of files
@@ -189,7 +210,19 @@ configuration root or only with its .env part. There should be no other configur
 * .webcfg - additional web server configuration (to be used by web server)
     * .root - web root folder relative to project root
     * .main - default index handler from .entryPoints (auto-select, if single one)
-    * .mounts - {} - path prefix to .entryPoints mapping
+    * .mounts - {} - path prefix to details in form of:
+        - string - name of related entry point
+        - map - advanced config
+            - .app - name of related entry point
+            - .static = false - try to serve static files, if true
+            - .tune = {} - fine options
+                - .pattern = true - enable other options based on pattern match
+                - .staticGzip = true - try to use pre-compressed "*.gz" files
+                - .gzip = false - compress in transmission
+                - .expires = 'max' - add expires header
+                - .autoindex = false - enable auto-indexing
+                - .index = 'index.html' - default index file
+                - .etag = false - enable ETag
 * .actions - {}, optional override of auto-detect commands.
     Each either a string or list of strings.
     Use '@default' in [] to run the default auto-detected tasks too.
@@ -217,7 +250,12 @@ configuration root or only with its .env part. There should be no other configur
     * .pluginPacks = [] - custom plugin packs, implementation defined
         * $module_name - define module providing list of plugins
     * .binDir = ${HOME}/bin - user bin folder
-    * .externalSetup - false - skip automatic tools install, if true
+    * .externalSetup = false
+        - a shell command to call instead of CID with the same parameters, if set to string
+        - disable tool setup, if true
+    * .externalServices = []
+        - list of tools which should not be accounted in resource distribution
+        - it's expected the tools are externally configured by provisioning system
     * .timeouts - timeout configuration for various operations (may not be always supported)
         * .connect = 10 - initial connection timeout 
         * .read = 60 - network timeout for individual read calls

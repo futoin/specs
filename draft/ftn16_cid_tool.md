@@ -1,7 +1,7 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
-Version: 1.1DV
-Date: 2017-10-09
+Version: 1.1
+Date: 2017-11-07
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
