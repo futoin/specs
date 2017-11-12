@@ -287,18 +287,8 @@ relatively long interruption for human confirmation/rejection. Interface for suc
 assumes such interruption by splitting processing into different API calls.</p>
 <h3>2.3.7. Events</h3>
 <ul>
-<li><code>XFER_RISK</code> - on transaction waiting for risk analysis</li>
-<li><code>XFER_WAIT</code> - on transaction waiting for external processing</li>
-<li><code>XFER_DONE</code> - on transaction being completed</li>
-<li><code>XFER_FEE</code> - on fee transaction<ul>
-<li>Note: it should follow related XFER_DONE, if applicable</li>
-</ul>
-</li>
-<li><code>XFER_REJ</code> - on transaction being rejected</li>
-<li><code>XFER_BLOCK</code> - on transaction being blocked due inbound rejection of target account<ul>
-<li>Note: by limit, by external failure or by risk rejection</li>
-</ul>
-</li>
+<li>'XFER_NEW' - new xfer added</li>
+<li>'XFER_UPD' - on xfer status update</li>
 </ul>
 <h2>2.4. Limits</h2>
 <p>Limits are important to minimize consequences of potential design &amp; software issues,
@@ -308,7 +298,7 @@ personnel and partners.</p>
 additional checks and/or blocking risk analysis.</p>
 <p>Periods are accounted per calendar with operator configured timezone. Per account
 holder limits are accounted in base currency.</p>
-<p><em>Note: risk assessment must be done for all activity even if limits are not hit, but that should be asynchronously.</em></p>
+<p><em>Note: risk assessment must be done for all activity even if limits are not hit, but that should be done asynchronously.</em></p>
 <h3>2.4.1. Limit groups</h3>
 <p>It's not feasible to configure most limits individually as it may eventually lead to configuration errors. It would
 also make limits practically unmanageable. Therefore, only a smal number of limit groups (sets) should be present.</p>
@@ -554,8 +544,8 @@ by system limits and act as threshold value.</p>
 </ol>
 <h3>2.4.4. Events</h3>
 <ul>
-<li><code>LIM_UPD</code> - update of limits</li>
-<li><code>LIM_HLDR_UPD</code> - update of account holder limits</li>
+<li><code>LIM_NEW</code> - on new limits group</li>
+<li><code>LIM_SET</code> - update of account holder limits</li>
 </ul>
 <h2>2.5. Account holder</h2>
 <p>There is strict Know Your Customer (KYC) and related limit requirements for financial
@@ -1288,7 +1278,7 @@ in creation order. If more than one account is used for placing of bets then win
 proportionally. Creation, cancellation and release of bonus accounts is out of scope.</p>
 <p>It must not happen that "cancelBet" is called after any related "win". "ext_info" should include information
 about related game round in "round_id" field.</p>
-<p>The interface is still internall and must not be exposed.</p>
+<p>The interface is still internal and must not be exposed.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.gaming",
         "version" : "1.0",
@@ -1318,7 +1308,6 @@ about related game round in "round_id" field.</p>
                     "CurrencyMismatch",
                     "OutOfBalance",
                     "LimitReject",
-                    "DataMismatch",
                     "AlreadyCanceled",
                     "OriginalTooOld",
                     "OriginalMismatch"
@@ -1337,7 +1326,8 @@ about related game round in "round_id" field.</p>
                     "balance" : "Balance"
                 },
                 "throws" : [
-                    "DataMismatch",
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
                     "OriginalTooOld",
                     "OriginalMismatch"
                 ]
@@ -1361,7 +1351,6 @@ about related game round in "round_id" field.</p>
                     "UnknownHolderID",
                     "CurrencyMismatch",
                     "LimitReject",
-                    "DataMismatch",
                     "OriginalTooOld",
                     "OriginalMismatch"
                 ]
@@ -1439,7 +1428,12 @@ service purchase.</p>
                 },
                 "result" : "boolean",
                 "throws" : [
-                    "DataMismatch"
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
                 ]
             },
             "refund" : {
@@ -1501,7 +1495,6 @@ service purchase.</p>
                 },
                 "result" : "boolean",
                 "throws" : [
-                    "DataMismatch",
                     "OriginalTooOld",
                     "OriginalMismatch"
                 ]

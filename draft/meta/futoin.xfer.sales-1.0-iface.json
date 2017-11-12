@@ -50,7 +50,12 @@
       },
       "result": "boolean",
       "throws": [
-        "DataMismatch"
+        "UnknownAccountID",
+        "CurrencyMismatch",
+        "InvalidAmount",
+        "LimitReject",
+        "OriginalTooOld",
+        "OriginalMismatch"
       ]
     },
     "refund": {
@@ -112,7 +117,6 @@
       },
       "result": "boolean",
       "throws": [
-        "DataMismatch",
         "OriginalTooOld",
         "OriginalMismatch"
       ]

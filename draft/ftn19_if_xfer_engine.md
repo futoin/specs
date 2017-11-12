@@ -308,14 +308,8 @@ assumes such interruption by splitting processing into different API calls.
 
 ### 2.3.7. Events
 
-* `XFER_RISK` - on transaction waiting for risk analysis
-* `XFER_WAIT` - on transaction waiting for external processing
-* `XFER_DONE` - on transaction being completed
-* `XFER_FEE` - on fee transaction
-    * Note: it should follow related XFER_DONE, if applicable
-* `XFER_REJ` - on transaction being rejected
-* `XFER_BLOCK` - on transaction being blocked due inbound rejection of target account
-    * Note: by limit, by external failure or by risk rejection
+* 'XFER_NEW' - new xfer added
+* 'XFER_UPD' - on xfer status update
 
 ## 2.4. Limits
 
@@ -329,7 +323,7 @@ additional checks and/or blocking risk analysis.
 Periods are accounted per calendar with operator configured timezone. Per account
 holder limits are accounted in base currency.
 
-*Note: risk assessment must be done for all activity even if limits are not hit, but that should be asynchronously.*
+*Note: risk assessment must be done for all activity even if limits are not hit, but that should be done asynchronously.*
 
 ### 2.4.1. Limit groups
 
@@ -498,8 +492,8 @@ by system limits and act as threshold value.
 
 ### 2.4.4. Events
 
-* `LIM_UPD` - update of limits
-* `LIM_HLDR_UPD` - update of account holder limits
+* `LIM_NEW` - on new limits group
+* `LIM_SET` - update of account holder limits
 
 ## 2.5. Account holder
 
@@ -1296,7 +1290,7 @@ proportionally. Creation, cancellation and release of bonus accounts is out of s
 It must not happen that "cancelBet" is called after any related "win". "ext_info" should include information
 about related game round in "round_id" field.
 
-The interface is still internall and must not be exposed.
+The interface is still internal and must not be exposed.
 
 `Iface{`
 
@@ -1329,7 +1323,6 @@ The interface is still internall and must not be exposed.
                         "CurrencyMismatch",
                         "OutOfBalance",
                         "LimitReject",
-                        "DataMismatch",
                         "AlreadyCanceled",
                         "OriginalTooOld",
                         "OriginalMismatch"
@@ -1348,7 +1341,8 @@ The interface is still internall and must not be exposed.
                         "balance" : "Balance"
                     },
                     "throws" : [
-                        "DataMismatch",
+                        "UnknownHolderID",
+                        "CurrencyMismatch",
                         "OriginalTooOld",
                         "OriginalMismatch"
                     ]
@@ -1372,7 +1366,6 @@ The interface is still internall and must not be exposed.
                         "UnknownHolderID",
                         "CurrencyMismatch",
                         "LimitReject",
-                        "DataMismatch",
                         "OriginalTooOld",
                         "OriginalMismatch"
                     ]
@@ -1456,7 +1449,12 @@ service purchase.
                     },
                     "result" : "boolean",
                     "throws" : [
-                        "DataMismatch"
+                        "UnknownAccountID",
+                        "CurrencyMismatch",
+                        "InvalidAmount",
+                        "LimitReject",
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 },
                 "refund" : {
@@ -1518,7 +1516,6 @@ service purchase.
                     },
                     "result" : "boolean",
                     "throws" : [
-                        "DataMismatch",
                         "OriginalTooOld",
                         "OriginalMismatch"
                     ]
