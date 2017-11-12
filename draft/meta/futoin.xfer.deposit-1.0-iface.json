@@ -12,11 +12,7 @@
         "account": "AccountID",
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
-        "amount": "Amount",
-        "fee": {
-          "type": "Fee",
-          "default": null
-        }
+        "amount": "Amount"
       },
       "result": "boolean",
       "throws": [

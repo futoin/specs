@@ -687,7 +687,8 @@ Soft limit should cause transaction rejection.</p>
             "Fee" : {
                 "type" : "map",
                 "fields" : {
-                    "currency" : "Currency",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
                     "amount" : "Amount",
                     "reason" : "Reason"
                 }
@@ -1123,6 +1124,7 @@ system. It may also aid integrity checks.</p>
 <p>Processing of deposit transactions. Actual external processing &amp; integration
 is out of scope. The interface is only responsible for "recording" fact of
 transaction.</p>
+<p>Fee is deducted from deposit amount.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.deposit",
         "version" : "1.0",
@@ -1137,11 +1139,7 @@ transaction.</p>
                     "account" : "AccountID",
                     "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
-                    "amount" : "Amount",
-                    "fee" : {
-                        "type" : "Fee",
-                        "default" : null
-                    }
+                    "amount" : "Amount"
                 },
                 "result" : "boolean",
                 "throws" : [

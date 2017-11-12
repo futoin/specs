@@ -644,7 +644,8 @@ Common types to use in other interfaces of this spec.
                 "Fee" : {
                     "type" : "map",
                     "fields" : {
-                        "currency" : "Currency",
+                        "rel_account" : "AccountID",
+                        "currency" : "CurrencyCode",
                         "amount" : "Amount",
                         "reason" : "Reason"
                     }
@@ -1120,6 +1121,8 @@ Processing of deposit transactions. Actual external processing & integration
 is out of scope. The interface is only responsible for "recording" fact of
 transaction.
 
+Fee is deducted from deposit amount.
+
 `Iface{`
 
         {
@@ -1136,11 +1139,7 @@ transaction.
                         "account" : "AccountID",
                         "rel_account" : "AccountID",
                         "currency" : "CurrencyCode",
-                        "amount" : "Amount",
-                        "fee" : {
-                            "type" : "Fee",
-                            "default" : null
-                        }
+                        "amount" : "Amount"
                     },
                     "result" : "boolean",
                     "throws" : [

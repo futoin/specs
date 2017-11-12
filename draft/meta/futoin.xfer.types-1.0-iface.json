@@ -61,7 +61,8 @@
     "Fee": {
       "type": "map",
       "fields": {
-        "currency": "Currency",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
         "amount": "Amount",
         "reason": "Reason"
       }
