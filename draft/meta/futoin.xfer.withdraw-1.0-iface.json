@@ -13,62 +13,56 @@
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
-        "fee": {
+        "extra_fee": {
           "type": "Fee",
           "default": null
         }
       },
       "result": {
         "xfer_id": "XferID",
-        "wait_check": "boolean"
+        "wait_user": "boolean"
       },
       "throws": [
         "UnknownAccountID",
         "CurrencyMismatch",
         "InvalidAmount",
         "LimitReject",
-        "AlreadyCanceled",
-        "OriginalTooOld",
-        "OriginalMismatch"
+        "NotEnoughFunds"
       ]
     },
     "confirmWithdrawal": {
       "params": {
+        "xfer_id": "XferID",
         "account": "AccountID",
+        "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
+        "orig_ts": "XferTimestamp",
+        "extra_fee": {
+          "type": "Fee",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownXferID",
+        "AlreadyCanceled",
+        "OriginalTooOld",
+        "OriginalMismatch"
+      ]
+    },
+    "rejectWithdrawal": {
+      "params": {
         "xfer_id": "XferID",
-        "orig_ts": "XferTimestamp"
-      },
-      "result": "boolean",
-      "throws": [
-        "UnknownXferID",
-        "AlreadyCanceled",
-        "OriginalTooOld",
-        "OriginalMismatch"
-      ]
-    },
-    "completeWithdrawal": {
-      "params": {
-        "ref_id": "XferID",
-        "ext_id": "XferExtID",
-        "ext_info": "XferExtInfo",
-        "orig_ts": "XferTimestamp"
-      },
-      "result": "boolean",
-      "throws": [
-        "UnknownXferID",
-        "AlreadyCanceled",
-        "NotConfirmed",
-        "OriginalTooOld",
-        "OriginalMismatch"
-      ]
-    },
-    "cancelWithdrawal": {
-      "params": {
-        "ref_id": "XferID",
-        "reason": "Reason",
-        "orig_ts": "XferTimestamp"
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "orig_ts": "XferTimestamp",
+        "extra_fee": {
+          "type": "Fee",
+          "default": null
+        }
       },
       "result": "boolean",
       "throws": [

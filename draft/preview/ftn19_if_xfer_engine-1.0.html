@@ -1181,6 +1181,7 @@ transaction.</p>
 <h3>3.4.2. Withdrawals</h3>
 <p>Similar to deposits, this interface is only reponsible for in-system
 processing of withdrawal transactions. External processing is out of scope.</p>
+<p>Fee is processed as extra on top of transaction amount.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.withdraw",
         "version" : "1.0",
@@ -1196,62 +1197,56 @@ processing of withdrawal transactions. External processing is out of scope.</p>
                     "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
-                    "fee" : {
+                    "extra_fee" : {
                         "type" : "Fee",
                         "default" : null
                     }
                 },
                 "result" : {
                     "xfer_id" : "XferID",
-                    "wait_check" : "boolean"
+                    "wait_user" : "boolean"
                 },
                 "throws" : [
                     "UnknownAccountID",
                     "CurrencyMismatch",
                     "InvalidAmount",
                     "LimitReject",
-                    "AlreadyCanceled",
-                    "OriginalTooOld",
-                    "OriginalMismatch"
+                    "NotEnoughFunds"
                 ]
             },
             "confirmWithdrawal" : {
                 "params" : {
+                    "xfer_id" : "XferID",
                     "account" : "AccountID",
+                    "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "rejectWithdrawal" : {
+                "params" : {
                     "xfer_id" : "XferID",
-                    "orig_ts" : "XferTimestamp"
-                },
-                "result" : "boolean",
-                "throws" : [
-                    "UnknownXferID",
-                    "AlreadyCanceled",
-                    "OriginalTooOld",
-                    "OriginalMismatch"
-                ]
-            },
-            "completeWithdrawal" : {
-                "params" : {
-                    "ref_id" : "XferID",
-                    "ext_id" : "XferExtID",
-                    "ext_info" : "XferExtInfo",
-                    "orig_ts" : "XferTimestamp"
-                },
-                "result" : "boolean",
-                "throws" : [
-                    "UnknownXferID",
-                    "AlreadyCanceled",
-                    "NotConfirmed",
-                    "OriginalTooOld",
-                    "OriginalMismatch"
-                ]
-            },
-            "cancelWithdrawal" : {
-                "params" : {
-                    "ref_id" : "XferID",
-                    "reason" : "Reason",
-                    "orig_ts" : "XferTimestamp"
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
                 },
                 "result" : "boolean",
                 "throws" : [
@@ -1833,6 +1828,30 @@ other specs.</p>
             "futoin.xfer.types:1.0"
         ],
         "funcs" : {
+            "rawXfer" : {
+                "params" : {
+                    "orig_currency" : "CurrencyCode",
+                    "orig_amount" : "Amount",
+                    "src_account" : "AccountID",
+                    "src_currency" : "CurrencyCode",
+                    "src_amount" : "Amount",
+                    "dst_account" : "AccountID",
+                    "dst_currency" : "CurrencyCode",
+                    "dst_amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            }
         },
         "requires" : [ "SecureChannel" ]
     }
