@@ -7,13 +7,18 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-09-23
+Date: 2017-11-13
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v1.0.6 - 2017-11-13 - Andrey Galkin<ul>
+<li>NEW: XferBuilder#lface()</li>
+<li>NEW: XferBuilder#execute() allow empty query list</li>
+</ul>
+</li>
 <li>v1.0.5 - 2017-09-23 - Andrey Galkin<ul>
 <li>NEW: L1Face#helpers() API</li>
 </ul>
@@ -612,6 +617,11 @@ particular database flavour is supported, if helpers are used.</p>
 <li>Get additional helpers which may not be implemented for all database types</li>
 </ul>
 </li>
+<li>L2Face lface()<ul>
+<li>Get associated L2 interface implementation for easy sub-query building
+    without use of backref() approach</li>
+</ul>
+</li>
 <li>XferQueryBuilder delete(String entity, QueryOptions query_options)</li>
 <li>XferQueryBuilder insert(String entity, QueryOptions query_options)</li>
 <li>XferQueryBuilder update(String entity, QueryOptions query_options)</li>
@@ -621,6 +631,7 @@ particular database flavour is supported, if helpers are used.</p>
 <li>void execute(AsyncSteps as, Boolean unsafe_dml=false)<ul>
 <li>build all queries and execute in single transaction</li>
 <li><em>unsafe_dml</em> - fail on DML query without conditions, if true</li>
+<li>it must silently allow empty query list</li>
 </ul>
 </li>
 <li>void executeAssoc(AsyncSteps as, Boolean unsafe_dml=false)<ul>

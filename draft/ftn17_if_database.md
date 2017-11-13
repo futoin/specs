@@ -1,13 +1,16 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-09-23
+Date: 2017-11-13
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.0.6 - 2017-11-13 - Andrey Galkin
+    - NEW: XferBuilder#lface()
+    - NEW: XferBuilder#execute() allow empty query list
 * v1.0.5 - 2017-09-23 - Andrey Galkin
     - NEW: L1Face#helpers() API
 * v1.0.4 - 2017-09-22 - Andrey Galkin
@@ -526,6 +529,9 @@ particular database flavour is supported, if helpers are used.
         * wrapped placeholder for prepared statement
     * Helpers helpers()
         * Get additional helpers which may not be implemented for all database types
+    * L2Face lface()
+        * Get associated L2 interface implementation for easy sub-query building
+            without use of backref() approach
     * XferQueryBuilder delete(String entity, QueryOptions query_options)
     * XferQueryBuilder insert(String entity, QueryOptions query_options)
     * XferQueryBuilder update(String entity, QueryOptions query_options)
@@ -535,6 +541,7 @@ particular database flavour is supported, if helpers are used.
     * void execute(AsyncSteps as, Boolean unsafe_dml=false)
         * build all queries and execute in single transaction
         * *unsafe_dml* - fail on DML query without conditions, if true
+        * it must silently allow empty query list
     * void executeAssoc(AsyncSteps as, Boolean unsafe_dml=false)
         * Same as execute(), but process response and passes
             array of maps and amount of affected rows instead.
