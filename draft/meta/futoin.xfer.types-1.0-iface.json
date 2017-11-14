@@ -70,6 +70,25 @@
     "XferTimestamp": {
       "type": "string",
       "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "XferType": {
+      "type": "enum",
+      "items": [
+        "Deposit",
+        "Withdrawal",
+        "Purchase",
+        "Refund",
+        "PreAuth",
+        "ClearAuth",
+        "Bet",
+        "Win",
+        "Bonus",
+        "ReleaseBonus",
+        "CancelBonus",
+        "Fee",
+        "Settle",
+        "Generic"
+      ]
     }
   }
 }

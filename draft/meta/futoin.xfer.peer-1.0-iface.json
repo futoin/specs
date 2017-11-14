@@ -9,6 +9,32 @@
   "funcs": {
     "rawXfer": {
       "params": {
+        "xfer_type": "XferType",
+        "orig_currency": "CurrencyCode",
+        "orig_amount": "Amount",
+        "src_account": "AccountID",
+        "src_currency": "CurrencyCode",
+        "src_amount": "Amount",
+        "dst_account": "AccountID",
+        "dst_currency": "CurrencyCode",
+        "dst_amount": "Amount",
+        "ext_id": "XferExtID",
+        "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp"
+      },
+      "result": "XferID",
+      "throws": [
+        "UnknownAccountID",
+        "CurrencyMismatch",
+        "InvalidAmount",
+        "LimitReject",
+        "OriginalTooOld",
+        "OriginalMismatch"
+      ]
+    },
+    "cancelXfer": {
+      "params": {
+        "xfer_type": "XferType",
         "orig_currency": "CurrencyCode",
         "orig_amount": "Amount",
         "src_account": "AccountID",

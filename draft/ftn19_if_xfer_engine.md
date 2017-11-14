@@ -653,6 +653,25 @@ Common types to use in other interfaces of this spec.
                 "XferTimestamp" : {
                     "type" : "string",
                     "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+                },
+                "XferType" : {
+                    "type" : "enum",
+                    "items" : [
+                        "Deposit",
+                        "Withdrawal",
+                        "Purchase",
+                        "Refund",
+                        "PreAuth",
+                        "ClearAuth",
+                        "Bet",
+                        "Win",
+                        "Bonus",
+                        "ReleaseBonus",
+                        "CancelBonus",
+                        "Fee",
+                        "Settle",
+                        "Generic"
+                    ]
                 }
             }
         }
@@ -1101,7 +1120,7 @@ Related account can be set only at creation time.
 
 `}Iface`
 
-## 3.4. Transactions
+## 3.4. Internal Transaction API
 
 Specific instances of transaction engine may support only subset of all
 possible transaction processing features. Therefore, each part is split
@@ -1421,7 +1440,7 @@ service purchase.
                     },
                     "result" : {
                         "xfer_id" : "XferID",
-                        "wait_check" : "boolean"
+                        "wait_user" : "boolean"
                     },
                     "throws" : [
                         "UnknownAccountID",
@@ -1483,7 +1502,7 @@ service purchase.
                     },
                     "result" : {
                         "xfer_id" : "XferID",
-                        "wait_check" : "boolean"
+                        "wait_user" : "boolean"
                     },
                     "throws" : [
                         "UnknownAccountID",
@@ -1635,6 +1654,8 @@ Placeholer for user-initiated direct payments spec.
             "funcs" : {
                 "fee" : {
                     "params" : {
+                        "account" : "AccountID",
+                        "rel_account" : "AccountID",
                         "holder" : "AccountHolderID",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
@@ -1890,6 +1911,32 @@ other specs.
             "funcs" : {
                 "rawXfer" : {
                     "params" : {
+                        "xfer_type" : "XferType",
+                        "orig_currency" : "CurrencyCode",
+                        "orig_amount" : "Amount",
+                        "src_account" : "AccountID",
+                        "src_currency" : "CurrencyCode",
+                        "src_amount" : "Amount",
+                        "dst_account" : "AccountID",
+                        "dst_currency" : "CurrencyCode",
+                        "dst_amount" : "Amount",
+                        "ext_id" : "XferExtID",
+                        "ext_info" : "XferExtInfo",
+                        "orig_ts" : "XferTimestamp"
+                    },
+                    "result" : "XferID",
+                    "throws" : [
+                        "UnknownAccountID",
+                        "CurrencyMismatch",
+                        "InvalidAmount",
+                        "LimitReject",
+                        "OriginalTooOld",
+                        "OriginalMismatch"
+                    ]
+                },
+                "cancelXfer" : {
+                    "params" : {
+                        "xfer_type" : "XferType",
                         "orig_currency" : "CurrencyCode",
                         "orig_amount" : "Amount",
                         "src_account" : "AccountID",

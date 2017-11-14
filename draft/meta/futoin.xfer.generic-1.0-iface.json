@@ -9,6 +9,8 @@
   "funcs": {
     "fee": {
       "params": {
+        "account": "AccountID",
+        "rel_account": "AccountID",
         "holder": "AccountHolderID",
         "currency": "CurrencyCode",
         "amount": "Amount",

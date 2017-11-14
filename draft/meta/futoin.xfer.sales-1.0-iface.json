@@ -27,7 +27,7 @@
       },
       "result": {
         "xfer_id": "XferID",
-        "wait_check": "boolean"
+        "wait_user": "boolean"
       },
       "throws": [
         "UnknownAccountID",
@@ -89,7 +89,7 @@
       },
       "result": {
         "xfer_id": "XferID",
-        "wait_check": "boolean"
+        "wait_user": "boolean"
       },
       "throws": [
         "UnknownAccountID",
