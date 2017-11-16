@@ -1,13 +1,15 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.8
-Date: 2017-08-29
-Copyright: 2014 FutoIn Project (http://futoin.org)
+Version: 1.9DV
+Date: 2017-11-16
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.9 - 2017-11-16 - Andrey Galkin
+    * NEW: async_stack state variable
 * v1.8 - 2017-08-29 - Andrey Galkin
     * Added .sync() API & protocol
     * Added .waitExternal()
@@ -327,6 +329,7 @@ Pre-defined state variables:
 
 * **error_info** - value of the second parameter passed to the last *as.error()* call
 * **last_exception** - the last exception caught, if feasible
+* **async_stack** - implementation-defined stack of step handler references
 
 Error code is not always descriptive enough, especially, if it can be generated in multiple ways.
 As a convention special "error_info" state field should hold descriptive information of the last error.
