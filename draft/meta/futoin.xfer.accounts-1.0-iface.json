@@ -20,20 +20,6 @@
       "AccountID",
       "boolean"
     ],
-    "AccountExternalID": {
-      "type": "string",
-      "maxlen": 64
-    },
-    "AccountHolderExternalID": {
-      "type": "string",
-      "minlen": 1,
-      "maxlen": 128
-    },
-    "AccountAlias": {
-      "type": "string",
-      "minlen": 1,
-      "maxlen": 20
-    },
     "AccountHolderData": {
       "type": "map"
     },
@@ -128,6 +114,16 @@
     "getAccount": {
       "params": {
         "id": "AccountID"
+      },
+      "result": "AccountInfo",
+      "throws": [
+        "UnknownAccountID"
+      ]
+    },
+    "getAccountExt": {
+      "params": {
+        "holder": "AccountID",
+        "ext_id": "AccountExternalID"
       },
       "result": "AccountInfo",
       "throws": [

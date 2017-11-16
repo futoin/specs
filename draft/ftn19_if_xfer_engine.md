@@ -598,6 +598,21 @@ Common types to use in other interfaces of this spec.
                 },
                 "AccountID" : "UUIDB64",
                 "AccountHolderID" : "UUIDB64",
+                "AccountExternalID" : {
+                    "type" : "string",
+                    "minlen" : 1,
+                    "maxlen" : 64
+                },
+                "AccountHolderExternalID" : {
+                    "type" : "string",
+                    "minlen" : 1,
+                    "maxlen" : 128
+                },
+                "AccountAlias" : {
+                    "type" : "string",
+                    "minlen" : 1,
+                    "maxlen" : 20
+                },
                 "Amount" : {
                     "type" : "string",
                     "regex" : "^[0-9]{1,12}(\\.[0-9]{1,8})?$"
@@ -873,20 +888,6 @@ Related account can be set only at creation time.
                     "AccountID",
                     "boolean"
                 ],
-                "AccountExternalID" : {
-                    "type" : "string",
-                    "maxlen" : 64
-                },
-                "AccountHolderExternalID" : {
-                    "type" : "string",
-                    "minlen" : 1,
-                    "maxlen" : 128
-                },
-                "AccountAlias" : {
-                    "type" : "string",
-                    "minlen" : 1,
-                    "maxlen" : 20
-                },
                 "AccountHolderData" : {
                     "type" : "map"
                 },
@@ -981,6 +982,16 @@ Related account can be set only at creation time.
                 "getAccount": {
                     "params" : {
                         "id" : "AccountID"
+                    },
+                    "result" : "AccountInfo",
+                    "throws" : [
+                        "UnknownAccountID"
+                    ]
+                },
+                "getAccountExt": {
+                    "params" : {
+                        "holder" : "AccountID",
+                        "ext_id" : "AccountExternalID"
                     },
                     "result" : "AccountInfo",
                     "throws" : [
@@ -1909,8 +1920,20 @@ other specs.
                 "futoin.xfer.types:1.0"
             ],
             "funcs" : {
+                "pair" : {
+                    "params" : {
+                        "ext_id" : "AccountExternalID",
+                        "currency" : "CurrencyCode",
+                        "alias" : "AccountAlias"
+                    },
+                    "result" : "AccountID",
+                    "throws" : [
+                        "CurrencyMismatch"
+                    ]
+                },
                 "rawXfer" : {
                     "params" : {
+                        "to_external" : "boolean",
                         "xfer_type" : "XferType",
                         "orig_currency" : "CurrencyCode",
                         "orig_amount" : "Amount",

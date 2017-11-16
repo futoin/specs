@@ -12,6 +12,21 @@
     },
     "AccountID": "UUIDB64",
     "AccountHolderID": "UUIDB64",
+    "AccountExternalID": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 64
+    },
+    "AccountHolderExternalID": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 128
+    },
+    "AccountAlias": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 20
+    },
     "Amount": {
       "type": "string",
       "regex": "^[0-9]{1,12}(\\.[0-9]{1,8})?$"

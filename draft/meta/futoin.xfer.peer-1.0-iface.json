@@ -7,8 +7,20 @@
     "futoin.xfer.types:1.0"
   ],
   "funcs": {
+    "pair": {
+      "params": {
+        "ext_id": "AccountExternalID",
+        "currency": "CurrencyCode",
+        "alias": "AccountAlias"
+      },
+      "result": "AccountID",
+      "throws": [
+        "CurrencyMismatch"
+      ]
+    },
     "rawXfer": {
       "params": {
+        "to_external": "boolean",
         "xfer_type": "XferType",
         "orig_currency": "CurrencyCode",
         "orig_amount": "Amount",
