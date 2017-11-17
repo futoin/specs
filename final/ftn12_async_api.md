@@ -1,13 +1,16 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.8
-Date: 2017-08-29
-Copyright: 2014 FutoIn Project (http://futoin.org)
+Version: 1.9
+Date: 2017-11-17
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.9 - 2017-11-17 - Andrey Galkin
+    * NEW: async_stack state variable
+    * NEW: adding steps in error handler
 * v1.8 - 2017-08-29 - Andrey Galkin
     * Added .sync() API & protocol
     * Added .waitExternal()
@@ -203,6 +206,55 @@ In synchronous way, it would look like:
     
     print( "Level 0 func2: " + variable )
 
+## 1.2.1. Steps in error handler
+
+Very often, error handler creates an alternative complex program path which
+requires own async operation. Therefore, error handler must accept `as.add()`
+as implicit `as.success()`.
+
+If steps are added inside error handler they must remain on the same async stack
+level while error handler itself gets removed.
+
+Example:
+
+    add( -> Level 0
+        func( as ){
+            print( "Level 0 func" )
+            add( -> Level 1
+                func( as ){
+                    print( "Level 1 func" )
+                    as.error( "first" )
+                },
+                onerror( as, error ){
+                    print( "Level 1 onerror: " + error )
+                    as.add( -> Level 2
+                        func() {
+                            print( "Level 2 func" )
+                            as.error( "second" );
+                        },
+                        onerror( as, error ) {
+                            print( "Level 2 onerror: " + error )
+                        }
+                    )
+                }
+            )
+        },
+        onerror( as, error ){
+            print( "Level 0 onerror: " + error )
+        }
+    )
+
+
+Output would be:
+
+    Level 0 func
+    Level 1 func
+    Level 1 onerror: first
+    Level 2 func
+    Level 2 onerror: second
+    Level 0 onerror: second
+
+*Note: "Level 1 onerror" is not executed second time!*
 
 ## 1.3. Wait for external resources
 
@@ -321,12 +373,13 @@ As in many cases it's required to wait for external event without any additional
 conditions, the general approach used to be adding an empty cancel handler. To
 avoid that, an explicit `.waitExternal()` API is available.
 
-## 1.7. Error Info and Last Exception
+## 1.7. Error Info, Last Exception and Async Call Stack
 
 Pre-defined state variables:
 
 * **error_info** - value of the second parameter passed to the last *as.error()* call
 * **last_exception** - the last exception caught, if feasible
+* **async_stack** - implementation-defined stack of step handler references
 
 Error code is not always descriptive enough, especially, if it can be generated in multiple ways.
 As a convention special "error_info" state field should hold descriptive information of the last error.
