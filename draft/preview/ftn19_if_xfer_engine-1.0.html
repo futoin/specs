@@ -1767,21 +1767,6 @@ service purchase.</p>
         "requires" : [ "SecureChannel" ]
     }
 </code></pre>
-<h3>3.4.8. Peer-to-peer settlement</h3>
-<p>Placeholder for automatic peer-to-peer reconciliation spec.</p>
-<pre><code>    {
-        "iface" : "futoin.xfer.settle",
-        "version" : "1.0",
-        "ftn3rev" : "1.7",
-        "imports" : [
-            "futoin.ping:1.0",
-            "futoin.xfer.types:1.0"
-        ],
-        "funcs" : {
-        },
-        "requires" : [ "SecureChannel" ]
-    }
-</code></pre>
 <h2>3.5. Limits</h2>
 <p>Internal API for limits configuration.</p>
 <pre><code>    {
@@ -1995,7 +1980,9 @@ other specs.</p>
                     "InvalidAmount",
                     "LimitReject",
                     "OriginalTooOld",
-                    "OriginalMismatch"
+                    "OriginalMismatch",
+                    "NotEnoughFunds",
+                    "AlreadyCanceled"
                 ]
             },
             "cancelXfer" : {

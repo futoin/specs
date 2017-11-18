@@ -41,7 +41,9 @@
         "InvalidAmount",
         "LimitReject",
         "OriginalTooOld",
-        "OriginalMismatch"
+        "OriginalMismatch",
+        "NotEnoughFunds",
+        "AlreadyCanceled"
       ]
     },
     "cancelXfer": {

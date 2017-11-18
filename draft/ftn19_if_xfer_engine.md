@@ -1809,27 +1809,6 @@ Direct payments interface for incoming and outgoing payment processing.
 
 `}Iface`
 
-### 3.4.8. Peer-to-peer settlement
-
-Placeholder for automatic peer-to-peer reconciliation spec.
-
-`Iface{`
-
-        {
-            "iface" : "futoin.xfer.settle",
-            "version" : "1.0",
-            "ftn3rev" : "1.7",
-            "imports" : [
-                "futoin.ping:1.0",
-                "futoin.xfer.types:1.0"
-            ],
-            "funcs" : {
-            },
-            "requires" : [ "SecureChannel" ]
-        }
-
-`}Iface`
-
 ## 3.5. Limits
 
 Internal API for limits configuration.
