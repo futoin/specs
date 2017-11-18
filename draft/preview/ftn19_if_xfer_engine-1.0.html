@@ -1319,7 +1319,7 @@ about related game round in "round_id" field.</p>
         "funcs" : {
             "bet" : {
                 "params" : {
-                    "holder" : "AccountHolderID",
+                    "user" : "AccountHolderExternalID",
                     "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
@@ -1344,7 +1344,7 @@ about related game round in "round_id" field.</p>
             },
             "cancelBet" : {
                 "params" : {
-                    "holder" : "AccountHolderID",
+                    "user" : "AccountHolderExternalID",
                     "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
@@ -1363,7 +1363,7 @@ about related game round in "round_id" field.</p>
             },
             "win" : {
                 "params" : {
-                    "holder" : "AccountHolderID",
+                    "user" : "AccountHolderExternalID",
                     "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
@@ -1386,7 +1386,7 @@ about related game round in "round_id" field.</p>
             },
             "gameBalance" : {
                 "params" : {
-                    "holder" : "AccountHolderID",
+                    "user" : "AccountHolderExternalID",
                     "currency" : "CurrencyCode"
                 },
                 "result" : {
@@ -1931,7 +1931,7 @@ service purchase.</p>
         "requires" : [ "SecureChannel" ]
     }
 </code></pre>
-<h2>3.6. External wallet interface</h2>
+<h2>3.6. Cluster peer interface</h2>
 <p>It is assumed that all external systems operate on the same transaction interfaces
 as already defined above.</p>
 <p>External IDs in "current" systems refer to internal IDs in "other" system and vice-versa.</p>
@@ -1987,6 +1987,7 @@ other specs.</p>
             },
             "cancelXfer" : {
                 "params" : {
+                    "to_external" : "boolean",
                     "xfer_type" : "XferType",
                     "orig_currency" : "CurrencyCode",
                     "orig_amount" : "Amount",
@@ -2000,7 +2001,7 @@ other specs.</p>
                     "ext_info" : "XferExtInfo",
                     "orig_ts" : "XferTimestamp"
                 },
-                "result" : "XferID",
+                "result" : "boolean",
                 "throws" : [
                     "UnknownAccountID",
                     "CurrencyMismatch",

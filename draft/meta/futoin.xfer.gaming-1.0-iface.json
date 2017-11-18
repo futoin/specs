@@ -9,7 +9,7 @@
   "funcs": {
     "bet": {
       "params": {
-        "holder": "AccountHolderID",
+        "user": "AccountHolderExternalID",
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
@@ -34,7 +34,7 @@
     },
     "cancelBet": {
       "params": {
-        "holder": "AccountHolderID",
+        "user": "AccountHolderExternalID",
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
@@ -53,7 +53,7 @@
     },
     "win": {
       "params": {
-        "holder": "AccountHolderID",
+        "user": "AccountHolderExternalID",
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
@@ -76,7 +76,7 @@
     },
     "gameBalance": {
       "params": {
-        "holder": "AccountHolderID",
+        "user": "AccountHolderExternalID",
         "currency": "CurrencyCode"
       },
       "result": {

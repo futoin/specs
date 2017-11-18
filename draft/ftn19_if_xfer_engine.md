@@ -1336,7 +1336,7 @@ The interface is still internal and must not be exposed.
             "funcs" : {
                 "bet" : {
                     "params" : {
-                        "holder" : "AccountHolderID",
+                        "user" : "AccountHolderExternalID",
                         "rel_account" : "AccountID",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
@@ -1361,7 +1361,7 @@ The interface is still internal and must not be exposed.
                 },
                 "cancelBet" : {
                     "params" : {
-                        "holder" : "AccountHolderID",
+                        "user" : "AccountHolderExternalID",
                         "rel_account" : "AccountID",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
@@ -1380,7 +1380,7 @@ The interface is still internal and must not be exposed.
                 },
                 "win" : {
                     "params" : {
-                        "holder" : "AccountHolderID",
+                        "user" : "AccountHolderExternalID",
                         "rel_account" : "AccountID",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
@@ -1403,7 +1403,7 @@ The interface is still internal and must not be exposed.
                 },
                 "gameBalance" : {
                     "params" : {
-                        "holder" : "AccountHolderID",
+                        "user" : "AccountHolderExternalID",
                         "currency" : "CurrencyCode"
                     },
                     "result" : {
@@ -1979,7 +1979,7 @@ Internal API for limits configuration.
 
 `}Iface`
 
-## 3.6. External wallet interface
+## 3.6. Cluster peer interface
 
 It is assumed that all external systems operate on the same transaction interfaces
 as already defined above.
@@ -2041,6 +2041,7 @@ other specs.
                 },
                 "cancelXfer" : {
                     "params" : {
+                        "to_external" : "boolean",
                         "xfer_type" : "XferType",
                         "orig_currency" : "CurrencyCode",
                         "orig_amount" : "Amount",
@@ -2054,7 +2055,7 @@ other specs.
                         "ext_info" : "XferExtInfo",
                         "orig_ts" : "XferTimestamp"
                     },
-                    "result" : "XferID",
+                    "result" : "boolean",
                     "throws" : [
                         "UnknownAccountID",
                         "CurrencyMismatch",
