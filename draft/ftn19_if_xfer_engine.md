@@ -310,6 +310,8 @@ assumes such interruption by splitting processing into different API calls.
 
 * 'XFER_NEW' - new xfer added
 * 'XFER_UPD' - on xfer status update
+* 'XFER_ERR' - on internal xfer failure
+* 'XFER_EXTERR' - on external xfer failure
 
 ## 2.4. Limits
 
@@ -2053,7 +2055,9 @@ other specs.
                         "InvalidAmount",
                         "LimitReject",
                         "OriginalTooOld",
-                        "OriginalMismatch"
+                        "OriginalMismatch",
+                        "NotEnoughFunds",
+                        "AlreadyCanceled"
                     ]
                 },
                 "cancelXfer" : {
