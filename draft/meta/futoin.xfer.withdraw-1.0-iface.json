@@ -13,6 +13,9 @@
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
+        "ext_id": "XferExtID",
+        "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp",
         "extra_fee": {
           "type": "Fee",
           "default": null
@@ -27,7 +30,8 @@
         "CurrencyMismatch",
         "InvalidAmount",
         "LimitReject",
-        "NotEnoughFunds"
+        "NotEnoughFunds",
+        "AlreadyCanceled"
       ]
     },
     "confirmWithdrawal": {

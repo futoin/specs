@@ -7,14 +7,14 @@
 <pre>
 FTN19: FutoIn Interface - Transaction Engine
 Version: 1.0DV
-Date: 2017-10-01
+Date: 2017-11-17
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>DV - 2017-10-01 - Andrey Galkin<ul>
+<li>DV - 2017-11-17 - Andrey Galkin<ul>
 <li>Major rework following development</li>
 </ul>
 </li>
@@ -1227,6 +1227,9 @@ processing of withdrawal transactions. External processing is out of scope.</p>
                     "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
                     "extra_fee" : {
                         "type" : "Fee",
                         "default" : null
@@ -1241,7 +1244,8 @@ processing of withdrawal transactions. External processing is out of scope.</p>
                     "CurrencyMismatch",
                     "InvalidAmount",
                     "LimitReject",
-                    "NotEnoughFunds"
+                    "NotEnoughFunds",
+                    "AlreadyCanceled"
                 ]
             },
             "confirmWithdrawal" : {
@@ -1599,7 +1603,7 @@ service purchase.</p>
     }
 </code></pre>
 <h3>3.4.6. Direct Payments</h3>
-<p>Placeholer for user-initiated direct payments spec.</p>
+<p>Direct payments interface for incoming and outgoing payment processing.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.direct",
         "version" : "1.0",
@@ -1609,6 +1613,101 @@ service purchase.</p>
             "futoin.xfer.types:1.0"
         ],
         "funcs" : {
+            "startOutbound" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : {
+                    "xfer_id" : "XferID",
+                    "wait_user" : "boolean"
+                },
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch",
+                    "NotEnoughFunds",
+                    "AlreadyCanceled"
+                ]
+            },
+            "confirmOutbound" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "rejectOutbound" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCompleted",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "onInbound" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "xfer_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            }
         },
         "requires" : [ "SecureChannel" ]
     }
