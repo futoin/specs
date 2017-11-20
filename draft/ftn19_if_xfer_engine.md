@@ -1333,6 +1333,17 @@ The interface is still internal and must not be exposed.
                 "futoin.ping:1.0",
                 "futoin.xfer.types:1.0"
             ],
+            "types" : {
+                "RelatedBetPH" : {
+                    "type" : "enum",
+                    "items" : [
+                        "%FreeSpin%",
+                        "%Prize%",
+                        "%Award%"
+                    ]
+                },
+                "RelatedBet" : [ "XferID", "RelatedBetPH" ]
+            },
             "funcs" : {
                 "bet" : {
                     "params" : {
@@ -1366,6 +1377,7 @@ The interface is still internal and must not be exposed.
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
                         "ext_id" : "XferExtId",
+                        "ext_info" : "XferExtInfo",
                         "orig_ts" : "XferTimestamp"
                     },
                     "result" : {
@@ -1384,6 +1396,7 @@ The interface is still internal and must not be exposed.
                         "rel_account" : "AccountID",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
+                        "rel_bet" : "RelatedBet",
                         "ext_id" : "XferExtId",
                         "ext_info" : "XferExtInfo",
                         "orig_ts" : "XferTimestamp"
@@ -1407,8 +1420,7 @@ The interface is still internal and must not be exposed.
                         "currency" : "CurrencyCode"
                     },
                     "result" : {
-                        "balance" : "Balance",
-                        "bonus_part" : "Amount"
+                        "balance" : "Balance"
                     },
                     "throws" : [
                         "UnknownHolderID",
