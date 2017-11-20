@@ -192,7 +192,7 @@
       },
       "result": "boolean",
       "throws": [
-        "UnknownAccountHolder",
+        "UnknownHolderID",
         "UnknownLimitGroup"
       ]
     },
@@ -212,7 +212,7 @@
         "updated": "XferTimestamp"
       },
       "throws": [
-        "UnknownAccountHolder"
+        "UnknownHolderID"
       ]
     },
     "getAccountHolderExt": {
@@ -231,7 +231,7 @@
         "updated": "XferTimestamp"
       },
       "throws": [
-        "UnknownAccountHolder"
+        "UnknownHolderID"
       ]
     },
     "mergeAccountHolders": {
@@ -241,7 +241,7 @@
       },
       "result": "boolean",
       "throws": [
-        "UnknownAccountHolder"
+        "UnknownHolderID"
       ]
     },
     "getLimitStats": {

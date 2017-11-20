@@ -1062,7 +1062,7 @@ Related account can be set only at creation time.
                     },
                     "result" : "boolean",
                     "throws" : [
-                        "UnknownAccountHolder",
+                        "UnknownHolderID",
                         "UnknownLimitGroup"
                     ]
                 },
@@ -1082,7 +1082,7 @@ Related account can be set only at creation time.
                         "updated" : "XferTimestamp"
                     },
                     "throws" : [
-                        "UnknownAccountHolder"
+                        "UnknownHolderID"
                     ]
                 },
                 "getAccountHolderExt" : {
@@ -1101,7 +1101,7 @@ Related account can be set only at creation time.
                         "updated" : "XferTimestamp"
                     },
                     "throws" : [
-                        "UnknownAccountHolder"
+                        "UnknownHolderID"
                     ]
                 },
                 "mergeAccountHolders" : {
@@ -1111,7 +1111,7 @@ Related account can be set only at creation time.
                     },
                     "result" : "boolean",
                     "throws" : [
-                        "UnknownAccountHolder"
+                        "UnknownHolderID"
                     ]
                 },
                 "getLimitStats" : {
