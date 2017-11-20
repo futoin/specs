@@ -27,7 +27,7 @@
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
-        "ext_id": "XferExtId",
+        "ext_id": "XferExtID",
         "ext_info": "XferExtInfo",
         "orig_ts": "XferTimestamp"
       },
@@ -52,7 +52,7 @@
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
-        "ext_id": "XferExtId",
+        "ext_id": "XferExtID",
         "ext_info": "XferExtInfo",
         "orig_ts": "XferTimestamp"
       },
@@ -73,7 +73,7 @@
         "currency": "CurrencyCode",
         "amount": "Amount",
         "rel_bet": "RelatedBet",
-        "ext_id": "XferExtId",
+        "ext_id": "XferExtID",
         "ext_info": "XferExtInfo",
         "orig_ts": "XferTimestamp"
       },
