@@ -626,6 +626,7 @@ Common types to use in other interfaces of this spec.
                 "XferID" : "UUIDB64",
                 "XferExtID" : {
                     "type" : "string",
+                    "minlen" : 1,
                     "maxlen" : 32
                 },
                 "XferExtInfo" : "map",
@@ -1424,6 +1425,7 @@ The interface is still internal and must not be exposed.
                     },
                     "throws" : [
                         "UnknownHolderID",
+                        "UnknownCurrency",
                         "CurrencyMismatch"
                     ]
                 }

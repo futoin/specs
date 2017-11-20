@@ -669,6 +669,7 @@ Soft limit should cause transaction rejection.</p>
             "XferID" : "UUIDB64",
             "XferExtID" : {
                 "type" : "string",
+                "minlen" : 1,
                 "maxlen" : 32
             },
             "XferExtInfo" : "map",
@@ -1407,6 +1408,7 @@ about related game round in "round_id" field.</p>
                 },
                 "throws" : [
                     "UnknownHolderID",
+                    "UnknownCurrency",
                     "CurrencyMismatch"
                 ]
             }

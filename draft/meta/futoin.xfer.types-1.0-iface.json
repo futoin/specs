@@ -38,6 +38,7 @@
     "XferID": "UUIDB64",
     "XferExtID": {
       "type": "string",
+      "minlen": 1,
       "maxlen": 32
     },
     "XferExtInfo": "map",
