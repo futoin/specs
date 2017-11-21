@@ -16,7 +16,7 @@
       ]
     },
     "RelatedBet": [
-      "XferID",
+      "XferExtID",
       "RelatedBetPH"
     ]
   },

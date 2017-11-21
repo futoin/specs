@@ -1343,7 +1343,7 @@ The interface is still internal and must not be exposed.
                         "%Award%"
                     ]
                 },
-                "RelatedBet" : [ "XferID", "RelatedBetPH" ]
+                "RelatedBet" : [ "XferExtID", "RelatedBetPH" ]
             },
             "funcs" : {
                 "bet" : {
