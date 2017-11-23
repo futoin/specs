@@ -878,8 +878,10 @@ which may happen in some scenarios.</p>
 <p>It's assumed there is a unique Account Alias per Account Holder - it should be used to create
 accounts and prevent duplicates.</p>
 <p>External Account ID is optional, but can be set only at creation time.</p>
-<p>Transit and Bonus account types must have related External and Regular accounts respectively.
-Related account can be set only at creation time.</p>
+<p>Transit and Bonus account types must have related External accounts.
+Related account can be set only at creation time with exception below.</p>
+<p>When bonus account is closed all out-of-band cancels and wins gets redirected to related account.
+Therefore, when bonus amount is released. The main Regular account becomes related.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.accounts",
         "version" : "1.0",
@@ -895,7 +897,8 @@ Related account can be set only at creation time.</p>
                     "System",
                     "Regular",
                     "Transit",
-                    "External"
+                    "External",
+                    "Bonus"
                 ]
             },
             "RelatedAccountID" : [
@@ -1575,14 +1578,16 @@ service purchase.</p>
         "funcs" : {
             "claimBonus" : {
                 "params" : {
-                    "holder" : "AccountHolderID",
+                    "user" : "AccountHolderExternalID",
+                    "rel_account" : "AccountID",
+                    "alias" : "AccountAlias",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
-                    "ext_id" : "XferExtID",
+                    "bonus_id" : "XferExtID",
                     "ext_info" : "XferExtInfo",
                     "orig_ts" : "XferTimestamp"
                 },
-                "result" : "AccountID",
+                "result" : "boolean",
                 "throws" : [
                     "UnknownHolderID",
                     "CurrencyMismatch",
@@ -1594,24 +1599,28 @@ service purchase.</p>
             },
             "clearBonus" : {
                 "params" : {
-                    "holder" : "AccountHolderID",
-                    "bonus" : "AccountID"
+                    "user" : "AccountHolderExternalID",
+                    "rel_account" : "AccountID",
+                    "bonus_id" : "XferExtID"
                 },
                 "result" : "boolean",
                 "throws" : [
                     "UnknownHolderID",
-                    "UnknownBonus"
+                    "UnknownAccountID",
+                    "AlreadyReleased"
                 ]
             },
             "releaseBonus" : {
                 "params" : {
-                    "holder" : "AccountHolderID",
-                    "bonus" : "AccountID"
+                    "user" : "AccountHolderExternalID",
+                    "rel_account" : "AccountID",
+                    "bonus_id" : "XferExtID"
                 },
                 "result" : "boolean",
                 "throws" : [
                     "UnknownHolderID",
-                    "UnknownBonus"
+                    "UnknownAccountID",
+                    "AlreadyCanceled"
                 ]
             }
         },

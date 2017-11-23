@@ -9,14 +9,16 @@
   "funcs": {
     "claimBonus": {
       "params": {
-        "holder": "AccountHolderID",
+        "user": "AccountHolderExternalID",
+        "rel_account": "AccountID",
+        "alias": "AccountAlias",
         "currency": "CurrencyCode",
         "amount": "Amount",
-        "ext_id": "XferExtID",
+        "bonus_id": "XferExtID",
         "ext_info": "XferExtInfo",
         "orig_ts": "XferTimestamp"
       },
-      "result": "AccountID",
+      "result": "boolean",
       "throws": [
         "UnknownHolderID",
         "CurrencyMismatch",
@@ -28,24 +30,28 @@
     },
     "clearBonus": {
       "params": {
-        "holder": "AccountHolderID",
-        "bonus": "AccountID"
+        "user": "AccountHolderExternalID",
+        "rel_account": "AccountID",
+        "bonus_id": "XferExtID"
       },
       "result": "boolean",
       "throws": [
         "UnknownHolderID",
-        "UnknownBonus"
+        "UnknownAccountID",
+        "AlreadyReleased"
       ]
     },
     "releaseBonus": {
       "params": {
-        "holder": "AccountHolderID",
-        "bonus": "AccountID"
+        "user": "AccountHolderExternalID",
+        "rel_account": "AccountID",
+        "bonus_id": "XferExtID"
       },
       "result": "boolean",
       "throws": [
         "UnknownHolderID",
-        "UnknownBonus"
+        "UnknownAccountID",
+        "AlreadyCanceled"
       ]
     }
   },

@@ -863,8 +863,11 @@ accounts and prevent duplicates.
 
 External Account ID is optional, but can be set only at creation time.
 
-Transit and Bonus account types must have related External and Regular accounts respectively.
-Related account can be set only at creation time.
+Transit and Bonus account types must have related External accounts.
+Related account can be set only at creation time with exception below.
+
+When bonus account is closed all out-of-band cancels and wins gets redirected to related account.
+Therefore, when bonus amount is released. The main Regular account becomes related.
 
 
 `Iface{`
@@ -884,7 +887,8 @@ Related account can be set only at creation time.
                         "System",
                         "Regular",
                         "Transit",
-                        "External"
+                        "External",
+                        "Bonus"
                     ]
                 },
                 "RelatedAccountID" : [
@@ -1591,6 +1595,11 @@ service purchase.
 
 ### 3.4.5. Bonus
 
+Manage claiming, canceling and releasing bonus. To avoid confusion
+with regular transaction cancel, cancel operation is called "clear".
+
+`ext_id` on claim is used as external account ID and as transaction ID.
+
 `Iface{`
 
         {
@@ -1604,14 +1613,16 @@ service purchase.
             "funcs" : {
                 "claimBonus" : {
                     "params" : {
-                        "holder" : "AccountHolderID",
+                        "user" : "AccountHolderExternalID",
+                        "rel_account" : "AccountID",
+                        "alias" : "AccountAlias",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
-                        "ext_id" : "XferExtID",
+                        "bonus_id" : "XferExtID",
                         "ext_info" : "XferExtInfo",
                         "orig_ts" : "XferTimestamp"
                     },
-                    "result" : "AccountID",
+                    "result" : "boolean",
                     "throws" : [
                         "UnknownHolderID",
                         "CurrencyMismatch",
@@ -1623,24 +1634,28 @@ service purchase.
                 },
                 "clearBonus" : {
                     "params" : {
-                        "holder" : "AccountHolderID",
-                        "bonus" : "AccountID"
+                        "user" : "AccountHolderExternalID",
+                        "rel_account" : "AccountID",
+                        "bonus_id" : "XferExtID"
                     },
                     "result" : "boolean",
                     "throws" : [
                         "UnknownHolderID",
-                        "UnknownBonus"
+                        "UnknownAccountID",
+                        "AlreadyReleased"
                     ]
                 },
                 "releaseBonus" : {
                     "params" : {
-                        "holder" : "AccountHolderID",
-                        "bonus" : "AccountID"
+                        "user" : "AccountHolderExternalID",
+                        "rel_account" : "AccountID",
+                        "bonus_id" : "XferExtID"
                     },
                     "result" : "boolean",
                     "throws" : [
                         "UnknownHolderID",
-                        "UnknownBonus"
+                        "UnknownAccountID",
+                        "AlreadyCanceled"
                     ]
                 }
             },
