@@ -1,13 +1,16 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-11-13
+Date: 2017-11-23
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.0.7 - 2017-11-23 - Andrey Galkin
+    - NEW: concat(), cast(), add(), sub(), mul(), div() and mod() helpers
+    - NEW: exposed escape(), identifier() and expr() through helpers
 * v1.0.6 - 2017-11-13 - Andrey Galkin
     - NEW: XferBuilder#lface()
     - NEW: XferBuilder#execute() allow empty query list
@@ -401,6 +404,27 @@ particular database flavour is supported, if helpers are used.
         * Return expression representing source date/time expression
             being applied with `seconds` interval implementation-defined
             way
+    * String escape(value)
+        * *value* any value, including QueryBuilder instance
+    * String identifier(name)
+        * *name* - string to escape as identifier
+    * Expression expr(expr)
+        * *expr* - raw expression
+        * wrap raw expression to avoid escaping as value
+    * Expression concat(args...)
+        * Return expression of argument concatenation
+    * Expression cast(a, type)
+        * Return a cast to type expression
+    * Expression add(a...)
+        * Return addition expression
+    * Expression sub(a, b)
+        * Return subtraction expression
+    * Expression mul(a...)
+        * Return multiplication expression
+    * Expression div(a, b)
+        * Return division expression
+    * Expression mod(a, b)
+        * Return reminder expression
     * any other - implementation is free to add any other meanigful helpers
         
             
