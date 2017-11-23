@@ -1567,6 +1567,9 @@ service purchase.</p>
     }
 </code></pre>
 <h3>3.4.5. Bonus</h3>
+<p>Manage claiming, canceling and releasing bonus. To avoid confusion
+with regular transaction cancel, cancel operation is called "clear".</p>
+<p><code>ext_id</code> on claim is used as external account ID and as transaction ID.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.bonus",
         "version" : "1.0",
