@@ -7,13 +7,18 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-11-13
+Date: 2017-11-23
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v1.0.7 - 2017-11-23 - Andrey Galkin<ul>
+<li>NEW: concat(), cast(), add(), sub(), mul(), div() and mod() helpers</li>
+<li>NEW: exposed escape(), identifier() and expr() through helpers</li>
+</ul>
+</li>
 <li>v1.0.6 - 2017-11-13 - Andrey Galkin<ul>
 <li>NEW: XferBuilder#lface()</li>
 <li>NEW: XferBuilder#execute() allow empty query list</li>
@@ -472,6 +477,47 @@ particular database flavour is supported, if helpers are used.</p>
 <li>Return expression representing source date/time expression
     being applied with <code>seconds</code> interval implementation-defined
     way</li>
+</ul>
+</li>
+<li>String escape(value)<ul>
+<li><em>value</em> any value, including QueryBuilder instance</li>
+</ul>
+</li>
+<li>String identifier(name)<ul>
+<li><em>name</em> - string to escape as identifier</li>
+</ul>
+</li>
+<li>Expression expr(expr)<ul>
+<li><em>expr</em> - raw expression</li>
+<li>wrap raw expression to avoid escaping as value</li>
+</ul>
+</li>
+<li>Expression concat(args...)<ul>
+<li>Return expression of argument concatenation</li>
+</ul>
+</li>
+<li>Expression cast(a, type)<ul>
+<li>Return a cast to type expression</li>
+</ul>
+</li>
+<li>Expression add(a...)<ul>
+<li>Return addition expression</li>
+</ul>
+</li>
+<li>Expression sub(a, b)<ul>
+<li>Return subtraction expression</li>
+</ul>
+</li>
+<li>Expression mul(a...)<ul>
+<li>Return multiplication expression</li>
+</ul>
+</li>
+<li>Expression div(a, b)<ul>
+<li>Return division expression</li>
+</ul>
+</li>
+<li>Expression mod(a, b)<ul>
+<li>Return reminder expression</li>
 </ul>
 </li>
 <li>any other - implementation is free to add any other meanigful helpers</li>
