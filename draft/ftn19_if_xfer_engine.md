@@ -1356,6 +1356,7 @@ The interface is still internal and must not be exposed.
                         "rel_account" : "AccountID",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
+                        "round_id" : "XferExtID",
                         "ext_id" : "XferExtID",
                         "ext_info" : "XferExtInfo",
                         "orig_ts" : "XferTimestamp"
@@ -1381,6 +1382,7 @@ The interface is still internal and must not be exposed.
                         "rel_account" : "AccountID",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
+                        "round_id" : "XferExtID",
                         "ext_id" : "XferExtID",
                         "ext_info" : "XferExtInfo",
                         "orig_ts" : "XferTimestamp"
@@ -1401,7 +1403,7 @@ The interface is still internal and must not be exposed.
                         "rel_account" : "AccountID",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
-                        "rel_bet" : "RelatedBet",
+                        "round_id" : "XferExtID",
                         "ext_id" : "XferExtID",
                         "ext_info" : "XferExtInfo",
                         "orig_ts" : "XferTimestamp"
