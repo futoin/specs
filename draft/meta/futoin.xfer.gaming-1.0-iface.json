@@ -81,8 +81,7 @@
       },
       "result": {
         "xfer_id": "XferID",
-        "balance": "Balance",
-        "bonus_part": "Amount"
+        "balance": "Balance"
       },
       "throws": [
         "UnknownHolderID",
@@ -95,7 +94,11 @@
     "gameBalance": {
       "params": {
         "user": "AccountHolderExternalID",
-        "currency": "CurrencyCode"
+        "currency": "CurrencyCode",
+        "ext_info": {
+          "type": "XferExtInfo",
+          "default": null
+        }
       },
       "result": {
         "balance": "Balance"

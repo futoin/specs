@@ -136,7 +136,7 @@ then it must be used.</p>
 <li>Relatively small amounts with real-time transactions:<ul>
 <li>Bet - gaming bet</li>
 <li>Win - gaming win</li>
-<li>CancelBet - cancel gaming bet due to canceled game</li>
+<li>CancelBet - cancel gaming bet due to canceled game or late bet</li>
 </ul>
 </li>
 <li>Goods and service purchase:<ul>
@@ -1306,11 +1306,17 @@ only for e-gaming and similar projects with real-time transactions.</p>
 <p>Unlike other interfaces, there is no Account ID involved directly as it assumed that there is
 is unique pair of AccountHolderID + CurrencyCode for Regular Account type. However, it's possible
 to have more than one Bonus account types for proper bonus amount processing.</p>
-<p>If there are associated bonus accounts of specified currency then their balance must be used in first place
-in creation order. If more than one account is used for placing of bets then win amount must be distributed
-proportionally. Creation, cancellation and release of bonus accounts is out of scope.</p>
-<p>It must not happen that "cancelBet" is called after any related "win". "ext_info" should include information
-about related game round in "round_id" field.</p>
+<p>If there are associated bonus accounts of specified currency then their balance must be
+used in creation order (date), but only after main account is depleted.</p>
+<p>For simplicity reasons, if main account is transit then "NotEnoughFunds" error is seen as
+"depleted" account even though some funds remain available for betting. Such situation may
+happen only if Bonus and Wallet systems are located on different nodes.</p>
+<p>If more than one account is used for placing of bets then win amount must be distributed
+proportionally excluding non-Bonus accounts for fraud mitigation reasons.</p>
+<p>Creation, cancellation and release of bonus accounts is out of scope.</p>
+<p>It must not happen that "cancelBet" is called after any related "win". "round_id" is used to tie
+bets to wins for proper bonus win calculations and general security.</p>
+<p>The "gameBalance" call may return different amounts based external info details (out of scope).</p>
 <p>The interface is still internal and must not be exposed.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.gaming",
@@ -1392,8 +1398,7 @@ about related game round in "round_id" field.</p>
                 },
                 "result" : {
                     "xfer_id" : "XferID",
-                    "balance" : "Balance",
-                    "bonus_part" : "Amount"
+                    "balance" : "Balance"
                 },
                 "throws" : [
                     "UnknownHolderID",
@@ -1406,7 +1411,11 @@ about related game round in "round_id" field.</p>
             "gameBalance" : {
                 "params" : {
                     "user" : "AccountHolderExternalID",
-                    "currency" : "CurrencyCode"
+                    "currency" : "CurrencyCode",
+                    "ext_info" : {
+                        "type": "XferExtInfo",
+                        "default": null
+                    }
                 },
                 "result" : {
                     "balance" : "Balance"
@@ -1446,7 +1455,7 @@ service purchase.</p>
                         "type" : "Fee",
                         "default" : null
                     },
-                    "rel_auth_id" : {
+                    "rel_preauth" : {
                         "type" : "XferID",
                         "default" : null
                     }
@@ -1462,7 +1471,8 @@ service purchase.</p>
                     "LimitReject",
                     "AlreadyCanceled",
                     "OriginalTooOld",
-                    "OriginalMismatch"
+                    "OriginalMismatch",
+                    "UnknownPreAuth"
                 ]
             },
             "cancelPurchase" : {

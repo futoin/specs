@@ -157,7 +157,7 @@ then it must be used.
 * Relatively small amounts with real-time transactions:
     * Bet - gaming bet
     * Win - gaming win
-    * CancelBet - cancel gaming bet due to canceled game
+    * CancelBet - cancel gaming bet due to canceled game or late bet
 * Goods and service purchase:
     * Purchase - purchase
     * CancelPurchase - cancel previous purchase
@@ -1319,12 +1319,22 @@ Unlike other interfaces, there is no Account ID involved directly as it assumed 
 is unique pair of AccountHolderID + CurrencyCode for Regular Account type. However, it's possible
 to have more than one Bonus account types for proper bonus amount processing.
 
-If there are associated bonus accounts of specified currency then their balance must be used in first place
-in creation order. If more than one account is used for placing of bets then win amount must be distributed
-proportionally. Creation, cancellation and release of bonus accounts is out of scope.
+If there are associated bonus accounts of specified currency then their balance must be
+used in creation order (date), but only after main account is depleted.
 
-It must not happen that "cancelBet" is called after any related "win". "ext_info" should include information
-about related game round in "round_id" field.
+For simplicity reasons, if main account is transit then "NotEnoughFunds" error is seen as
+"depleted" account even though some funds remain available for betting. Such situation may
+happen only if Bonus and Wallet systems are located on different nodes.
+
+If more than one account is used for placing of bets then win amount must be distributed
+proportionally excluding non-Bonus accounts for fraud mitigation reasons.
+
+Creation, cancellation and release of bonus accounts is out of scope.
+
+It must not happen that "cancelBet" is called after any related "win". "round_id" is used to tie
+bets to wins for proper bonus win calculations and general security.
+
+The "gameBalance" call may return different amounts based external info details (out of scope).
 
 The interface is still internal and must not be exposed.
 
@@ -1410,8 +1420,7 @@ The interface is still internal and must not be exposed.
                     },
                     "result" : {
                         "xfer_id" : "XferID",
-                        "balance" : "Balance",
-                        "bonus_part" : "Amount"
+                        "balance" : "Balance"
                     },
                     "throws" : [
                         "UnknownHolderID",
@@ -1424,7 +1433,11 @@ The interface is still internal and must not be exposed.
                 "gameBalance" : {
                     "params" : {
                         "user" : "AccountHolderExternalID",
-                        "currency" : "CurrencyCode"
+                        "currency" : "CurrencyCode",
+                        "ext_info" : {
+                            "type": "XferExtInfo",
+                            "default": null
+                        }
                     },
                     "result" : {
                         "balance" : "Balance"
@@ -1470,7 +1483,7 @@ service purchase.
                             "type" : "Fee",
                             "default" : null
                         },
-                        "rel_auth_id" : {
+                        "rel_preauth" : {
                             "type" : "XferID",
                             "default" : null
                         }
@@ -1486,7 +1499,8 @@ service purchase.
                         "LimitReject",
                         "AlreadyCanceled",
                         "OriginalTooOld",
-                        "OriginalMismatch"
+                        "OriginalMismatch",
+                        "UnknownPreAuth"
                     ]
                 },
                 "cancelPurchase" : {

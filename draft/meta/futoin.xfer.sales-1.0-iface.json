@@ -20,7 +20,7 @@
           "type": "Fee",
           "default": null
         },
-        "rel_auth_id": {
+        "rel_preauth": {
           "type": "XferID",
           "default": null
         }
@@ -36,7 +36,8 @@
         "LimitReject",
         "AlreadyCanceled",
         "OriginalTooOld",
-        "OriginalMismatch"
+        "OriginalMismatch",
+        "UnknownPreAuth"
       ]
     },
     "cancelPurchase": {
