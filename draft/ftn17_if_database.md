@@ -1,13 +1,15 @@
 <pre>
 FTN17: FutoIn Interface - Database
 Version: 1.0
-Date: 2017-11-23
+Date: 2017-11-27
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.0.8 - 2017-11-27 - Andrey Galkin
+    - NEW: least() & greatest() helpers
 * v1.0.7 - 2017-11-23 - Andrey Galkin
     - NEW: concat(), cast(), add(), sub(), mul(), div() and mod() helpers
     - NEW: exposed escape(), identifier() and expr() through helpers
@@ -425,6 +427,10 @@ particular database flavour is supported, if helpers are used.
         * Return division expression
     * Expression mod(a, b)
         * Return reminder expression
+    * Expression least(a...)
+        * Return minimal of arguments expression
+    * Expression greatest(a...)
+        * Return maximal of arguments expression
     * any other - implementation is free to add any other meanigful helpers
         
             
