@@ -1,5 +1,5 @@
 {
-  "iface": "futoin.xfer.sales",
+  "iface": "futoin.xfer.retail",
   "version": "1.0",
   "ftn3rev": "1.7",
   "imports": [
@@ -37,7 +37,7 @@
         "AlreadyCanceled",
         "OriginalTooOld",
         "OriginalMismatch",
-        "UnknownPreAuth"
+        "UnavailablePreAuth"
       ]
     },
     "cancelPurchase": {
@@ -47,7 +47,12 @@
         "currency": "CurrencyCode",
         "amount": "Amount",
         "ext_id": "XferExtID",
-        "orig_ts": "XferTimestamp"
+        "ext_info": "XferExtInfo",
+        "orig_ts": "XferTimestamp",
+        "fee": {
+          "type": "Fee",
+          "default": null
+        }
       },
       "result": "boolean",
       "throws": [
@@ -56,21 +61,68 @@
         "InvalidAmount",
         "LimitReject",
         "OriginalTooOld",
+        "OriginalMismatch",
+        "AlreadyRefunded"
+      ]
+    },
+    "confirmPurchase": {
+      "params": {
+        "xfer_id": "XferID",
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "orig_ts": "XferTimestamp",
+        "fee": {
+          "type": "Fee",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownXferID",
+        "AlreadyCanceled",
+        "OriginalTooOld",
+        "OriginalMismatch"
+      ]
+    },
+    "rejectPurchase": {
+      "params": {
+        "xfer_id": "XferID",
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "orig_ts": "XferTimestamp",
+        "fee": {
+          "type": "Fee",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownXferID",
+        "AlreadyCompleted",
+        "OriginalTooOld",
         "OriginalMismatch"
       ]
     },
     "refund": {
       "params": {
-        "ref_id": "XferID",
+        "purchase_id": "XferID",
+        "purchase_ts": "XferTimestamp",
+        "account": "AccountID",
+        "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
         "ext_id": "XferExtID",
-        "purchase_ts": "XferTimestamp",
+        "ext_info": "XferExtInfo",
         "orig_ts": "XferTimestamp"
       },
       "result": "boolean",
       "throws": [
         "CurrencyMismatch",
+        "NotEnoughFunds",
         "AmountTooLarge",
         "PurchaseNotFound",
         "AlreadyCanceled",
@@ -110,11 +162,7 @@
         "amount": "Amount",
         "ext_id": "XferExtID",
         "ext_info": "XferExtInfo",
-        "orig_ts": "XferTimestamp",
-        "rel_id": {
-          "type": "XferID",
-          "default": null
-        }
+        "orig_ts": "XferTimestamp"
       },
       "result": "boolean",
       "throws": [
@@ -122,19 +170,36 @@
         "OriginalMismatch"
       ]
     },
-    "confirmAuth": {
+    "confirmPreAuth": {
       "params": {
+        "xfer_id": "XferID",
         "account": "AccountID",
         "rel_account": "AccountID",
         "currency": "CurrencyCode",
         "amount": "Amount",
-        "xfer_id": "XferID",
         "orig_ts": "XferTimestamp"
       },
       "result": "boolean",
       "throws": [
         "UnknownXferID",
         "AlreadyCanceled",
+        "OriginalTooOld",
+        "OriginalMismatch"
+      ]
+    },
+    "rejectPreAuth": {
+      "params": {
+        "xfer_id": "XferID",
+        "account": "AccountID",
+        "rel_account": "AccountID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "orig_ts": "XferTimestamp"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownXferID",
+        "AlreadyCompleted",
         "OriginalTooOld",
         "OriginalMismatch"
       ]

@@ -723,7 +723,6 @@ Soft limit should cause transaction rejection.</p>
                     "Purchase",
                     "Refund",
                     "PreAuth",
-                    "ClearAuth",
                     "Bet",
                     "Win",
                     "Bonus",
@@ -1430,11 +1429,13 @@ bets to wins for proper bonus win calculations and general security.</p>
         "requires" : [ "SecureChannel" ]
     }
 </code></pre>
-<h3>3.4.4. Sales</h3>
+<h3>3.4.4. Retail</h3>
 <p>This interface is responsible for processing transactions in scope of goods and 
 service purchase.</p>
+<p>Refunds is assumed to be partial. Otherwise, cancelPurchase must be used.</p>
+<p>Refund is a separate transaction type. Therefore, it does not return xfer fee.</p>
 <pre><code>    {
-        "iface" : "futoin.xfer.sales",
+        "iface" : "futoin.xfer.retail",
         "version" : "1.0",
         "ftn3rev" : "1.7",
         "imports" : [
@@ -1472,7 +1473,7 @@ service purchase.</p>
                     "AlreadyCanceled",
                     "OriginalTooOld",
                     "OriginalMismatch",
-                    "UnknownPreAuth"
+                    "UnavailablePreAuth"
                 ]
             },
             "cancelPurchase" : {
@@ -1482,7 +1483,12 @@ service purchase.</p>
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
                     "ext_id" : "XferExtID",
-                    "orig_ts" : "XferTimestamp"
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
                 },
                 "result" : "boolean",
                 "throws" : [
@@ -1491,21 +1497,68 @@ service purchase.</p>
                     "InvalidAmount",
                     "LimitReject",
                     "OriginalTooOld",
+                    "OriginalMismatch",
+                    "AlreadyRefunded"
+                ]
+            },
+            "confirmPurchase" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "rejectPurchase" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCompleted",
+                    "OriginalTooOld",
                     "OriginalMismatch"
                 ]
             },
             "refund" : {
                 "params" : {
-                    "ref_id" : "XferID",
+                    "purchase_id" : "XferID",
+                    "purchase_ts" : "XferTimestamp",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
                     "ext_id" : "XferExtID",
-                    "purchase_ts" : "XferTimestamp",
+                    "ext_info" : "XferExtInfo",
                     "orig_ts" : "XferTimestamp"
                 },
                 "result" : "boolean",
                 "throws" : [
                     "CurrencyMismatch",
+                    "NotEnoughFunds",
                     "AmountTooLarge",
                     "PurchaseNotFound",
                     "AlreadyCanceled",
@@ -1545,11 +1598,7 @@ service purchase.</p>
                     "amount" : "Amount",
                     "ext_id" : "XferExtID",
                     "ext_info" : "XferExtInfo",
-                    "orig_ts" : "XferTimestamp",
-                    "rel_id" : {
-                        "type" : "XferID",
-                        "default" : null
-                    }
+                    "orig_ts" : "XferTimestamp"
                 },
                 "result" : "boolean",
                 "throws" : [
@@ -1557,19 +1606,36 @@ service purchase.</p>
                     "OriginalMismatch"
                 ]
             },
-            "confirmAuth" : {
+            "confirmPreAuth" : {
                 "params" : {
+                    "xfer_id" : "XferID",
                     "account" : "AccountID",
                     "rel_account" : "AccountID",
                     "currency" : "CurrencyCode",
                     "amount" : "Amount",
-                    "xfer_id" : "XferID",
                     "orig_ts" : "XferTimestamp"
                 },
                 "result" : "boolean",
                 "throws" : [
                     "UnknownXferID",
                     "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "rejectPreAuth" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCompleted",
                     "OriginalTooOld",
                     "OriginalMismatch"
                 ]
@@ -1830,7 +1896,14 @@ with regular transaction cancel, cancel operation is called "clear".</p>
                     "retail_weekly_cnt" : "LimitCount",
                     "retail_monthly_amt" : "LimitAmount",
                     "retail_monthly_cnt" : "LimitCount",
-                    "retail_min_amt" : "LimitAmount"
+                    "retail_min_amt" : "LimitAmount",
+                    "preauth_daily_amt" : "LimitAmount",
+                    "preauth_daily_cnt" : "LimitCount",
+                    "preauth_weekly_amt" : "LimitAmount",
+                    "preauth_weekly_cnt" : "LimitCount",
+                    "preauth_monthly_amt" : "LimitAmount",
+                    "preauth_monthly_cnt" : "LimitCount",
+                    "preauth_min_amt" : "LimitAmount"
                 }
             },
             "DepositsLimitValues" : {

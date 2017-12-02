@@ -24,7 +24,14 @@
         "retail_weekly_cnt": "LimitCount",
         "retail_monthly_amt": "LimitAmount",
         "retail_monthly_cnt": "LimitCount",
-        "retail_min_amt": "LimitAmount"
+        "retail_min_amt": "LimitAmount",
+        "preauth_daily_amt": "LimitAmount",
+        "preauth_daily_cnt": "LimitCount",
+        "preauth_weekly_amt": "LimitAmount",
+        "preauth_weekly_cnt": "LimitCount",
+        "preauth_monthly_amt": "LimitAmount",
+        "preauth_monthly_cnt": "LimitCount",
+        "preauth_min_amt": "LimitAmount"
       }
     },
     "DepositsLimitValues": {
