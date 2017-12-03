@@ -2251,6 +2251,88 @@ other specs.
 
 ## 3.7. Messages
 
-TBD.
+The interface is assumed to be a reliable channel for plain email-like communication
+between user and system represented by operators. It is not a peer-to-peer messaging system.
+
+`Iface{`
+
+        {
+            "iface" : "futoin.xfer.message",
+            "version" : "1.0",
+            "ftn3rev" : "1.7",
+            "imports" : [
+                "futoin.ping:1.0",
+                "futoin.xfer.types:1.0"
+            ],
+            "types" : {
+                "ExtMessageID" : "XferExtID",
+                "MessageID" : "XferID",
+                "MessageSubject" : {
+                    "type" : "string",
+                    "minlen" : 1,
+                    "maxlen" : 64
+                },
+                "MessageBody" : {
+                    "type" : "string",
+                    "minlen" : 1,
+                    "maxlen" : 3000
+                },
+                "MessageData" : {
+                    "type" : "map",
+                    "fields" : {
+                        "subject" : "MessageSubject",
+                        "body" : "MessageBody",
+                        "other" : {
+                            "type" : "map",
+                            "optional" : true,
+                        }
+                    }
+                }
+            },
+            "funcs" : {
+                "userSend" : {
+                    "params" : {
+                        "sender" : "AccountHolderID",
+                        "ext_id" : "ExtMessageID",
+                        "orig_ts" : "XferTimestamp",
+                        "data" : "MessageData",
+                        "rel_id" : {
+                            "type" : "MessageID",
+                            "default" : null
+                        }
+                    },
+                    "result" : "MessageID",
+                    "throws" : [
+                        "LimitReject",
+                        "OriginalTooOld",
+                        "OriginalMismatch",
+                        "UnknownRelID"
+                    ]
+                },
+                "systemSend" : {
+                    "params" : {
+                        "sender" : "AccountHolderID",
+                        "recipient" : "AccountHolderID",
+                        "ext_id" : "ExtMessageID",
+                        "orig_ts" : "XferTimestamp",
+                        "data" : "MessageData",
+                        "rel_id" : {
+                            "type" : "MessageID",
+                            "default" : null
+                        }
+                    },
+                    "result" : "MessageID",
+                    "throws" : [
+                        "LimitReject",
+                        "OriginalTooOld",
+                        "OriginalMismatch",
+                        "UnknownRelID"
+                    ]
+                }
+            },
+            "requires" : [ "SecureChannel" ]
+        }
+
+`}Iface`
 
 =END OF SPEC=

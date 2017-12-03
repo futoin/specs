@@ -1822,6 +1822,7 @@ with regular transaction cancel, cancel operation is called "clear".</p>
 <p>This interface is assumed to be used for operator activities and automatic scheduled tasks.</p>
 <p>Settlement is used to adjust balance to reflect external operations like payment or some
 valuables transfer done outside.</p>
+<p>All transactions are processed as force and may result in negative balance.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.generic",
         "version" : "1.0",
@@ -2181,6 +2182,64 @@ other specs.</p>
     }
 </code></pre>
 <h2>3.7. Messages</h2>
-<p>TBD.</p>
+<p>The interface is assumed to be a reliable channel for plain email-like communication
+between user and system represented by operators. It is not a peer-to-peer messaging system.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.message",
+        "version" : "1.0",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:1.0"
+        ],
+        "types" : {
+            "ExtMessageID" : "XferExtID",
+            "MessageID" : "XferID",
+            "MessageData" : "map"
+        },
+        "funcs" : {
+            "userSend" : {
+                "params" : {
+                    "sender" : "AccountHolderID",
+                    "ext_id" : "ExtMessageID",
+                    "orig_ts" : "XferTimestamp",
+                    "data" : "MessageData",
+                    "rel_id" : {
+                        "type" : "MessageID",
+                        "default" : null
+                    }
+                },
+                "result" : "MessageID",
+                "throws" : [
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch",
+                    "UnknownRelID"
+                ]
+            },
+            "systemSend" : {
+                "params" : {
+                    "sender" : "AccountHolderID",
+                    "recipient" : "AccountHolderID",
+                    "ext_id" : "ExtMessageID",
+                    "orig_ts" : "XferTimestamp",
+                    "data" : "MessageData",
+                    "rel_id" : {
+                        "type" : "MessageID",
+                        "default" : null
+                    }
+                },
+                "result" : "MessageID",
+                "throws" : [
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch",
+                    "UnknownRelID"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
 <p>=END OF SPEC=</p>
 </body></html>
