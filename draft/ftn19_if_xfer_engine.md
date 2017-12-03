@@ -1866,6 +1866,13 @@ Direct payments interface for incoming and outgoing payment processing.
 
 ### 3.4.7. Generic
 
+This interface is assumed to be used for operator activities and automatic scheduled tasks.
+
+Settlement is used to adjust balance to reflect external operations like payment or some
+valuables transfer done outside.
+
+All transactions are processed as force and may result in negative balance.
+
 `Iface{`
 
         {
@@ -1876,12 +1883,27 @@ Direct payments interface for incoming and outgoing payment processing.
                 "futoin.ping:1.0",
                 "futoin.xfer.types:1.0"
             ],
+            "types" : {
+                "CancelableXferType" : {
+                    "type" : "enum",
+                    "items" : [
+                        "Deposit",
+                        "Withdrawal",
+                        "Purchase",
+                        "Refund",
+                        "PreAuth",
+                        "Win",
+                        "Fee",
+                        "Settle",
+                        "Generic"
+                    ]
+                }
+            },
             "funcs" : {
                 "fee" : {
                     "params" : {
                         "account" : "AccountID",
                         "rel_account" : "AccountID",
-                        "holder" : "AccountHolderID",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
                         "reason" : "Reason",
@@ -1895,25 +1917,61 @@ Direct payments interface for incoming and outgoing payment processing.
                         "UnknownHolderID",
                         "CurrencyMismatch",
                         "InvalidAmount",
+                        "NotEnoughFunds",
                         "LimitReject",
                         "OriginalTooOld",
                         "OriginalMismatch"
                     ]
                 },
-                "settleXfer" : {
+                "settle" : {
                     "params" : {
                         "account" : "AccountID",
                         "rel_account" : "AccountID",
                         "currency" : "CurrencyCode",
                         "amount" : "Amount",
-                        "reason" : "Reason"
+                        "reason" : "Reason",
+                        "ext_id" : "XferExtID",
+                        "ext_info" : "XferExtInfo",
+                        "orig_ts" : "XferTimestamp"
                     },
                     "result" : "XferID",
                     "throws" : [
                         "UnknownAccountID",
                         "CurrencyMismatch",
                         "InvalidAmount",
-                        "LimitReject"
+                        "NotEnoughFunds",
+                        "LimitReject",
+                        "OriginalTooOld",
+                        "OriginalMismatch"
+                    ]
+                },
+                "cancel" : {
+                    "params" : {
+                        "xfer_id" : "XferID",
+                        "type" : "CancelableXferType",
+                        "src_account" : "AccountID",
+                        "dst_account" : "AccountID",
+                        "currency" : "CurrencyCode",
+                        "amount" : "Amount",
+                        "orig_ts" : "XferTimestamp",
+                        "xfer_fee" : {
+                            "type" : "Fee",
+                            "default" : null
+                        },
+                        "extra_fee" : {
+                            "type" : "Fee",
+                            "default" : null
+                        }
+                    },
+                    "result" : "boolean",
+                    "throws" : [
+                        "UnknownAccountID",
+                        "CurrencyMismatch",
+                        "InvalidAmount",
+                        "NotEnoughFunds",
+                        "LimitReject",
+                        "OriginalTooOld",
+                        "OriginalMismatch"
                     ]
                 }
             },

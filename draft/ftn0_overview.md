@@ -32,6 +32,7 @@ Authors: Andrey Galkin
 * [FTN4 Ping](./ftn4\_if\_ping.md)
 * [FTN9 Audit Log](./ftn9\_if\_auditlog.md)
 * [FTN17 Database](./ftn17\_if\_database.md)
-* [FTN18 Event Stream](./ftn17\_if\_eventstream.md)
+* [FTN18 Event Stream](./ftn18\_if\_eventstream.md)
+* [FTN19 Transaction Engine](./ftn19\_if\_xfer_engine.md)
 
 =END OF SPEC=
