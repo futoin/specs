@@ -1394,7 +1394,8 @@ The interface is still internal and must not be exposed.
                         "round_id" : "XferExtID",
                         "ext_id" : "XferExtID",
                         "ext_info" : "XferExtInfo",
-                        "orig_ts" : "XferTimestamp"
+                        "orig_ts" : "XferTimestamp",
+                        "reason" : "Reason"
                     },
                     "result" : {
                         "balance" : "Balance"
@@ -1518,7 +1519,8 @@ Refund is a separate transaction type. Therefore, it does not return xfer fee.
                         "fee" : {
                             "type" : "Fee",
                             "default" : null
-                        }
+                        },
+                        "reason" : "Reason"
                     },
                     "result" : "boolean",
                     "throws" : [
@@ -1961,7 +1963,8 @@ All transactions are processed as force and may result in negative balance.
                         "extra_fee" : {
                             "type" : "Fee",
                             "default" : null
-                        }
+                        },
+                        "reason" : "Reason"
                     },
                     "result" : "boolean",
                     "throws" : [
@@ -2231,7 +2234,8 @@ other specs.
                         "dst_amount" : "Amount",
                         "ext_id" : "XferExtID",
                         "ext_info" : "XferExtInfo",
-                        "orig_ts" : "XferTimestamp"
+                        "orig_ts" : "XferTimestamp",
+                        "reason" : "Reason"
                     },
                     "result" : "boolean",
                     "throws" : [
@@ -2284,7 +2288,7 @@ between user and system represented by operators. It is not a peer-to-peer messa
                         "body" : "MessageBody",
                         "other" : {
                             "type" : "map",
-                            "optional" : true,
+                            "optional" : true
                         }
                     }
                 }

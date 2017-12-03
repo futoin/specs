@@ -56,7 +56,8 @@
         "round_id": "XferExtID",
         "ext_id": "XferExtID",
         "ext_info": "XferExtInfo",
-        "orig_ts": "XferTimestamp"
+        "orig_ts": "XferTimestamp",
+        "reason": "Reason"
       },
       "result": {
         "balance": "Balance"

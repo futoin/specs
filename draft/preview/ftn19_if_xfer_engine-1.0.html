@@ -1372,7 +1372,8 @@ bets to wins for proper bonus win calculations and general security.</p>
                     "round_id" : "XferExtID",
                     "ext_id" : "XferExtID",
                     "ext_info" : "XferExtInfo",
-                    "orig_ts" : "XferTimestamp"
+                    "orig_ts" : "XferTimestamp",
+                    "reason" : "Reason"
                 },
                 "result" : {
                     "balance" : "Balance"
@@ -1488,7 +1489,8 @@ service purchase.</p>
                     "fee" : {
                         "type" : "Fee",
                         "default" : null
-                    }
+                    },
+                    "reason" : "Reason"
                 },
                 "result" : "boolean",
                 "throws" : [
@@ -1909,7 +1911,8 @@ valuables transfer done outside.</p>
                     "extra_fee" : {
                         "type" : "Fee",
                         "default" : null
-                    }
+                    },
+                    "reason" : "Reason"
                 },
                 "result" : "boolean",
                 "throws" : [
@@ -2165,7 +2168,8 @@ other specs.</p>
                     "dst_amount" : "Amount",
                     "ext_id" : "XferExtID",
                     "ext_info" : "XferExtInfo",
-                    "orig_ts" : "XferTimestamp"
+                    "orig_ts" : "XferTimestamp",
+                    "reason" : "Reason"
                 },
                 "result" : "boolean",
                 "throws" : [
@@ -2195,7 +2199,27 @@ between user and system represented by operators. It is not a peer-to-peer messa
         "types" : {
             "ExtMessageID" : "XferExtID",
             "MessageID" : "XferID",
-            "MessageData" : "map"
+            "MessageSubject" : {
+                "type" : "string",
+                "minlen" : 1,
+                "maxlen" : 64
+            },
+            "MessageBody" : {
+                "type" : "string",
+                "minlen" : 1,
+                "maxlen" : 3000
+            },
+            "MessageData" : {
+                "type" : "map",
+                "fields" : {
+                    "subject" : "MessageSubject",
+                    "body" : "MessageBody",
+                    "other" : {
+                        "type" : "map",
+                        "optional" : true
+                    }
+                }
+            }
         },
         "funcs" : {
             "userSend" : {

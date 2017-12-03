@@ -84,7 +84,8 @@
         "extra_fee": {
           "type": "Fee",
           "default": null
-        }
+        },
+        "reason": "Reason"
       },
       "result": "boolean",
       "throws": [
