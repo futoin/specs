@@ -109,7 +109,7 @@ and a margin rate to be added to/subtracted from the spot rate.
 
 Relative spread calculations to be done externally before spot & margin rate is set.
 
-Rounding must be done in favor of transaction engine operator.
+Rounding must be done in favour of transaction engine operator.
 
 ### 2.1.6. Events
 
@@ -552,7 +552,17 @@ restrictions.
     * `comment` - user supplied comment
 * `tax_id`
 
-### 2.5.2. Events
+### 2.5.2. Known internal data types
+
+* `api` - define peer API configuration
+    * `{iface}` - interface name without version as key
+        * `flavour=default` - custom implementation
+        * `version={latest}` - assume latest known version of interface
+        * `endpoint` - endpoint URL
+        * `credentials=null` - credentials string
+        * `options={}` - any options to pass for registration
+
+### 2.5.3. Events
 
 * `AH_NEW` - new account holder
 * `AH_UPD` - update of account holder
@@ -900,10 +910,25 @@ Therefore, when bonus amount is released. The main Regular account becomes relat
                 "AccountHolderInternalData" : {
                     "type" : "map"
                 },
+                "AccountHolderInfo" : {
+                    "type" : "map",
+                    "fields" : {
+                        "id" : "AccountHolderID",
+                        "ext_id" : "AccountHolderExternalID",
+                        "group" : "LimitGroup",
+                        "enabled" : "boolean",
+                        "kyc" : "boolean",
+                        "data" : "AccountHolderData",
+                        "internal" : "AccountHolderInternalData",
+                        "created" : "XferTimestamp",
+                        "updated" : "XferTimestamp"
+                    }
+                },
                 "AccountInfo" : {
                     "type" : "map",
                     "fields" : {
                         "id" : "AccountID",
+                        "holder" : "AccountHolderID",
                         "type" : "AccountType",
                         "currency" : "CurrencyCode",
                         "alias" : "AccountAlias",
@@ -1074,17 +1099,7 @@ Therefore, when bonus amount is released. The main Regular account becomes relat
                     "params" : {
                         "id" : "AccountHolderID"
                     },
-                    "result" : {
-                        "id" : "AccountHolderID",
-                        "ext_id" : "AccountHolderExternalID",
-                        "group" : "LimitGroup",
-                        "enabled" : "boolean",
-                        "kyc" : "boolean",
-                        "data" : "AccountHolderData",
-                        "internal" : "AccountHolderInternalData",
-                        "created" : "XferTimestamp",
-                        "updated" : "XferTimestamp"
-                    },
+                    "result" : "AccountHolderInfo",
                     "throws" : [
                         "UnknownHolderID"
                     ]
@@ -1093,17 +1108,7 @@ Therefore, when bonus amount is released. The main Regular account becomes relat
                     "params" : {
                         "ext_id" : "AccountHolderExternalID"
                     },
-                    "result" : {
-                        "id" : "AccountHolderID",
-                        "ext_id" : "AccountHolderExternalID",
-                        "group" : "LimitGroup",
-                        "enabled" : "boolean",
-                        "kyc" : "boolean",
-                        "data" : "AccountHolderData",
-                        "internal" : "AccountHolderInternalData",
-                        "created" : "XferTimestamp",
-                        "updated" : "XferTimestamp"
-                    },
+                    "result" : "AccountHolderInfo",
                     "throws" : [
                         "UnknownHolderID"
                     ]
@@ -2338,5 +2343,10 @@ between user and system represented by operators. It is not a peer-to-peer messa
         }
 
 `}Iface`
+
+### 3.7.1. Events
+
+* MSG - on new message
+* MSG_ERR - on message error
 
 =END OF SPEC=

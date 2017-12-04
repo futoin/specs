@@ -27,10 +27,25 @@
     "AccountHolderInternalData": {
       "type": "map"
     },
+    "AccountHolderInfo": {
+      "type": "map",
+      "fields": {
+        "id": "AccountHolderID",
+        "ext_id": "AccountHolderExternalID",
+        "group": "LimitGroup",
+        "enabled": "boolean",
+        "kyc": "boolean",
+        "data": "AccountHolderData",
+        "internal": "AccountHolderInternalData",
+        "created": "XferTimestamp",
+        "updated": "XferTimestamp"
+      }
+    },
     "AccountInfo": {
       "type": "map",
       "fields": {
         "id": "AccountID",
+        "holder": "AccountHolderID",
         "type": "AccountType",
         "currency": "CurrencyCode",
         "alias": "AccountAlias",
@@ -201,17 +216,7 @@
       "params": {
         "id": "AccountHolderID"
       },
-      "result": {
-        "id": "AccountHolderID",
-        "ext_id": "AccountHolderExternalID",
-        "group": "LimitGroup",
-        "enabled": "boolean",
-        "kyc": "boolean",
-        "data": "AccountHolderData",
-        "internal": "AccountHolderInternalData",
-        "created": "XferTimestamp",
-        "updated": "XferTimestamp"
-      },
+      "result": "AccountHolderInfo",
       "throws": [
         "UnknownHolderID"
       ]
@@ -220,17 +225,7 @@
       "params": {
         "ext_id": "AccountHolderExternalID"
       },
-      "result": {
-        "id": "AccountHolderID",
-        "ext_id": "AccountHolderExternalID",
-        "group": "LimitGroup",
-        "enabled": "boolean",
-        "kyc": "boolean",
-        "data": "AccountHolderData",
-        "internal": "AccountHolderInternalData",
-        "created": "XferTimestamp",
-        "updated": "XferTimestamp"
-      },
+      "result": "AccountHolderInfo",
       "throws": [
         "UnknownHolderID"
       ]

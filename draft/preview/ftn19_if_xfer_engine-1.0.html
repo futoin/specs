@@ -93,7 +93,7 @@ currency. Only associated authoritative source exchange rate must be used in suc
 different rates for conversion to and from base currency. The system should hold a spot rate
 and a margin rate to be added to/subtracted from the spot rate.</p>
 <p>Relative spread calculations to be done externally before spot &amp; margin rate is set.</p>
-<p>Rounding must be done in favor of transaction engine operator.</p>
+<p>Rounding must be done in favour of transaction engine operator.</p>
 <h3>2.1.6. Events</h3>
 <ul>
 <li><code>CURRENCY</code> - update of existing currency</li>
@@ -607,7 +607,21 @@ restrictions.</p>
 </li>
 <li><code>tax_id</code></li>
 </ul>
-<h3>2.5.2. Events</h3>
+<h3>2.5.2. Known internal data types</h3>
+<ul>
+<li><code>api</code> - define peer API configuration<ul>
+<li><code>{iface}</code> - interface name without version as key<ul>
+<li><code>flavour=default</code> - custom implementation</li>
+<li><code>version={latest}</code> - assume latest known version of interface</li>
+<li><code>endpoint</code> - endpoint URL</li>
+<li><code>credentials=null</code> - credentials string</li>
+<li><code>options={}</code> - any options to pass for registration</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>2.5.3. Events</h3>
 <ul>
 <li><code>AH_NEW</code> - new account holder</li>
 <li><code>AH_UPD</code> - update of account holder</li>
@@ -910,10 +924,25 @@ Therefore, when bonus amount is released. The main Regular account becomes relat
             "AccountHolderInternalData" : {
                 "type" : "map"
             },
+            "AccountHolderInfo" : {
+                "type" : "map",
+                "fields" : {
+                    "id" : "AccountHolderID",
+                    "ext_id" : "AccountHolderExternalID",
+                    "group" : "LimitGroup",
+                    "enabled" : "boolean",
+                    "kyc" : "boolean",
+                    "data" : "AccountHolderData",
+                    "internal" : "AccountHolderInternalData",
+                    "created" : "XferTimestamp",
+                    "updated" : "XferTimestamp"
+                }
+            },
             "AccountInfo" : {
                 "type" : "map",
                 "fields" : {
                     "id" : "AccountID",
+                    "holder" : "AccountHolderID",
                     "type" : "AccountType",
                     "currency" : "CurrencyCode",
                     "alias" : "AccountAlias",
@@ -1084,17 +1113,7 @@ Therefore, when bonus amount is released. The main Regular account becomes relat
                 "params" : {
                     "id" : "AccountHolderID"
                 },
-                "result" : {
-                    "id" : "AccountHolderID",
-                    "ext_id" : "AccountHolderExternalID",
-                    "group" : "LimitGroup",
-                    "enabled" : "boolean",
-                    "kyc" : "boolean",
-                    "data" : "AccountHolderData",
-                    "internal" : "AccountHolderInternalData",
-                    "created" : "XferTimestamp",
-                    "updated" : "XferTimestamp"
-                },
+                "result" : "AccountHolderInfo",
                 "throws" : [
                     "UnknownHolderID"
                 ]
@@ -1103,17 +1122,7 @@ Therefore, when bonus amount is released. The main Regular account becomes relat
                 "params" : {
                     "ext_id" : "AccountHolderExternalID"
                 },
-                "result" : {
-                    "id" : "AccountHolderID",
-                    "ext_id" : "AccountHolderExternalID",
-                    "group" : "LimitGroup",
-                    "enabled" : "boolean",
-                    "kyc" : "boolean",
-                    "data" : "AccountHolderData",
-                    "internal" : "AccountHolderInternalData",
-                    "created" : "XferTimestamp",
-                    "updated" : "XferTimestamp"
-                },
+                "result" : "AccountHolderInfo",
                 "throws" : [
                     "UnknownHolderID"
                 ]
@@ -2265,5 +2274,10 @@ between user and system represented by operators. It is not a peer-to-peer messa
         "requires" : [ "SecureChannel" ]
     }
 </code></pre>
+<h3>3.7.1. Events</h3>
+<ul>
+<li>MSG - on new message</li>
+<li>MSG_ERR - on message error</li>
+</ul>
 <p>=END OF SPEC=</p>
 </body></html>
