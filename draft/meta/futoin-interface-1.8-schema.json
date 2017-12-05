@@ -1,0 +1,252 @@
+{
+  "title": "FutoIn interface definition schema",
+  "type": "object",
+  "required": [
+    "iface",
+    "version",
+    "ftn3rev"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "iface": {
+      "type": "string",
+      "pattern": "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)+$",
+      "description": "Unique interface identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Version of the given interface"
+    },
+    "ftn3rev": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Version of the FTN3 spec, according to which the iface is defined"
+    },
+    "types": {
+      "type": "object",
+      "description": "iface types. Must start with Capital",
+      "patternProperties": {
+        "^[A-Z][a-zA-Z0-9]*$": {
+          "type": [
+            "object",
+            "string",
+            "array"
+          ],
+          "uniqueItems": true,
+          "minItems": 1,
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "pattern": "^any|boolean|integer|number|string|map|array|enum|set|[A-Z][a-zA-Z0-9]+$"
+            },
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "minlen": {
+              "type": "number"
+            },
+            "maxlen": {
+              "type": "number"
+            },
+            "regex": {
+              "type": "string"
+            },
+            "elemtype": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^[a-z][a-z0-9_]*$": {
+                  "type": [
+                    "object",
+                    "string",
+                    "array"
+                  ],
+                  "uniqueItems": true,
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "pattern": "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                    },
+                    "optional": {
+                      "type": "boolean",
+                      "description": "If true the field is optional. Defaults to null"
+                    },
+                    "desc": {
+                      "type": "string",
+                      "description": "Result variable description"
+                    }
+                  }
+                }
+              }
+            },
+            "items": {
+              "type": "array",
+              "uniqueItems": true,
+              "additionalItems": false,
+              "items": {
+                "type": [
+                  "string",
+                  "integer"
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 1000
+            },
+            "desc": {
+              "type": "string",
+              "description": "Custom type description"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "funcs": {
+      "type": "object",
+      "description": "Member function declaration",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z][a-zA-Z0-9]*$": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "params": {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^[a-z][a-z0-9_]*$": {
+                  "type": [
+                    "object",
+                    "string",
+                    "array"
+                  ],
+                  "uniqueItems": true,
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "pattern": "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                    },
+                    "default": {
+                      "type": [
+                        "boolean",
+                        "integer",
+                        "number",
+                        "string",
+                        "object",
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "desc": {
+                      "type": "string",
+                      "description": "Parameter description"
+                    }
+                  }
+                }
+              },
+              "description": "List of allowed parameter key-value pairs"
+            },
+            "result": {
+              "type": [
+                "object",
+                "string"
+              ],
+              "additionalProperties": false,
+              "patternProperties": {
+                "^[a-z][a-z0-9_]*$": {
+                  "type": [
+                    "object",
+                    "string",
+                    "array"
+                  ],
+                  "uniqueItems": true,
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "pattern": "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                    },
+                    "desc": {
+                      "type": "string",
+                      "description": "Result variable description"
+                    }
+                  }
+                }
+              },
+              "description": "List of allowed result key-value pairs"
+            },
+            "rawupload": {
+              "type": "boolean",
+              "description": "If not set then arbitrary data upload is not allowed."
+            },
+            "rawresult": {
+              "type": "boolean",
+              "description": "If set then no FutoIn response is assumed. Arbitrary raw data is sent instead."
+            },
+            "throws": {
+              "type": "array",
+              "uniqueItems": true,
+              "description": "List of associative error names, which can be triggered by function execution"
+            },
+            "heavy": {
+              "type": "boolean",
+              "description": "Mark request as \"heavy\" in terms processing"
+            },
+            "maxreqsize": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*(B|K|M)$",
+              "description": "Specify max request size"
+            },
+            "maxrspsize": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*(B|K|M)$",
+              "description": "Specify max response size"
+            },
+            "seclvl": {
+              "type": "string",
+              "description": "Minimum user authentication security level"
+            },
+            "desc": {
+              "type": "string",
+              "description": "Interface Function description"
+            }
+          },
+          "description": "Interface Function declaration"
+        }
+      }
+    },
+    "desc": {
+      "type": "string",
+      "description": "Description of the interface"
+    },
+    "inherit": {
+      "type": "string",
+      "description": "Name:version of interface to be inherited"
+    },
+    "imports": {
+      "type": "array",
+      "uniqueItems": true,
+      "description": "Name:version of interface to be imported as a mixin"
+    },
+    "requires": {
+      "type": "array",
+      "description": "List of conditions for interface operation",
+      "items": {
+        "type": "string",
+        "pattern": "^AllowAnonymous|SecureChannel|BiDirectChannel|MessageSignature|[a-zA-Z0-9]+$"
+      },
+      "uniqueItems": true,
+      "additionalItems": false
+    }
+  }
+}
