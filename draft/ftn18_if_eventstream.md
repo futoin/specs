@@ -1,13 +1,15 @@
 <pre>
 FTN18: FutoIn Interface - Event Stream
-Version: 1.0
-Date: 2017-09-13
+Version: 1.1
+Date: 2017-12-05
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.1 - 2017-12-05 - Andrey Galkin
+    - NEW: FTN3 v1.8 maxreqsize/maxrspsize of 8M limit
 * v1.0 - 2017-09-13 - Andrey Galkin
     - Initial spec
 * DV - 2017-08-27 - Andrey Galkin
@@ -187,7 +189,7 @@ for interface.
 
         {
             "iface" : "futoin.evt.types",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "types" : {
                 "EventID" : {
@@ -238,7 +240,7 @@ for interface.
 
         {
             "iface" : "futoin.evt.gen",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.evt.types:1.0",
@@ -276,8 +278,8 @@ software version changes as a general convention for plug & play approach.
 
         {
             "iface" : "futoin.evt.poll",
-            "version" : "1.0",
-            "ftn3rev" : "1.7",
+            "version" : "{ver}",
+            "ftn3rev" : "1.8",
             "imports" : [
                 "futoin.evt.types:1.0",
                 "futoin.ping:1.0"
@@ -307,7 +309,8 @@ software version changes as a general convention for plug & play approach.
                     "result" : "EventList",
                     "throws" : [
                         "NotRegistered"
-                    ]
+                    ],
+                    "maxrspsize" : "8M"
                 }
             }
         }
@@ -324,8 +327,8 @@ for event delivery.
 
         {
             "iface" : "futoin.evt.push",
-            "version" : "1.0",
-            "ftn3rev" : "1.7",
+            "version" : "{ver}",
+            "ftn3rev" : "1.8",
             "inherit" : "futoin.evt.poll:1.0",
             "funcs" : {
                 "readyToReceive" : {
@@ -356,8 +359,8 @@ This interface must be available on initiating peer of bi-directional communicat
 
         {
             "iface" : "futoin.evt.receiver",
-            "version" : "1.0",
-            "ftn3rev" : "1.7",
+            "version" : "{ver}",
+            "ftn3rev" : "1.8",
             "imports" : [
                 "futoin.evt.types:1.0"
             ],
@@ -373,7 +376,8 @@ This interface must be available on initiating peer of bi-directional communicat
                         "seq" : "SequenceID",
                         "events" : "EventList"
                     },
-                    "result" : "boolean"
+                    "result" : "boolean",
+                    "maxreqsize" : "8M"
                 }
             },
             "requires" : [ "AllowAnonymous" ]

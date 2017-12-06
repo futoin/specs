@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "futoin-asyncsteps": "^1.7.1",
-    "futoin-invoker": "^1.5.4"
+    "futoin-asyncsteps": "^1.9.1",
+    "futoin-invoker": "^1.6.0"
   }
 }

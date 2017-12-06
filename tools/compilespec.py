@@ -148,6 +148,7 @@ def compilespec( spec_file ) :
                         object_pairs_hook = lambda pairs: collections.OrderedDict( pairs )
                 )
                 iface_name = iface['iface']
+                iface["version"] = spec_ver
                 
                 # validate schema
                 schema_file = os.path.join(meta_dir, 'futoin-interface-' + iface['ftn3rev'] + '-schema.json')

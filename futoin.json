@@ -8,6 +8,6 @@
     "yarn" : "*"
   },
   "actions" : {
-    "yarn_upgrade" : "@cid tool exec yarn -- upgrade --latest"
+    "upgrade-deps" : "@cid tool exec yarn -- upgrade --latest"
   }
 }
