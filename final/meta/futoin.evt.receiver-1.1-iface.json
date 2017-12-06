@@ -1,0 +1,27 @@
+{
+  "iface": "futoin.evt.receiver",
+  "version": "1.1",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.evt.types:1.0"
+  ],
+  "types": {
+    "SequenceID": {
+      "type": "integer",
+      "min": 0
+    }
+  },
+  "funcs": {
+    "onEvents": {
+      "params": {
+        "seq": "SequenceID",
+        "events": "EventList"
+      },
+      "result": "boolean",
+      "maxreqsize": "8M"
+    }
+  },
+  "requires": [
+    "AllowAnonymous"
+  ]
+}
