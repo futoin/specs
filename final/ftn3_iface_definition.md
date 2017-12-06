@@ -1,13 +1,15 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.7
-Date: 2017-08-11
+Version: 1.8
+Date: 2017-12-05
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.8 - 2017-12-05 - Andrey Galkin
+    * NEW: "maxreqsize" & "maxrspsize" function definition attribute
 * v1.7 - 2017-08-11 - Andrey Galkin
     * NEW: added support for result as type instead of result object
 * v1.6 - 2017-08-04 - Andrey Galkin
@@ -419,10 +421,22 @@ for all excepted errors.
 ## 1.10. Payload size safety limits
 
 It is assumed that both request and response messages are relatively small. All heavy data should be
-transfered as raw HTTP or other lower level protocol payload. Therefore, a **safety limit
-of 64 KBytes is imposed for any type of payload**. Both Invoker and Executor should control
+transfered as raw HTTP or other lower level protocol payload. Therefore, a default safety limit
+of **64 KBytes** is imposed for any type of payload. Both Invoker and Executor should control
 this limit, unless there is efficient mechanism with O(1) complexity to transfer message
 from peer to peer (e.g. shared memory).
+
+## 1.10.1. Max message size adjustment per function definition
+
+For some cases it may still be desired to transfer larger data in single call using main message
+exchange transport protocol. It can be set per-function with "maxsize" attribute.
+
+However, it is discouraged as it may jeopardize service stability.
+
+Units assumed:
+* 'B' - bytes
+* 'K' - Kilobytes - 1024 bytes
+* 'M' - Megabytes - 1024 kilobytes
 
 ## 1.11. On Behalf Of calls
 
@@ -623,11 +637,11 @@ Using [JSON-SCHEMA][]:
                                 },
                                 "rawupload" : {
                                     "type" : "boolean",
-                                    "desc" : "If not set then arbitrary data upload is not allowed."
+                                    "description" : "If not set then arbitrary data upload is not allowed."
                                 },
                                 "rawresult" : {
                                     "type" : "boolean",
-                                    "desc" : "If set then no FutoIn response is assumed. Arbitrary raw data is sent instead."
+                                    "description" : "If set then no FutoIn response is assumed. Arbitrary raw data is sent instead."
                                 },
                                 "throws" : {
                                     "type" : "array",
@@ -636,11 +650,21 @@ Using [JSON-SCHEMA][]:
                                 },
                                 "heavy" : {
                                     "type" : "boolean",
-                                    "desc" : "Mark request as \"heavy\" in terms processing"
+                                    "description" : "Mark request as \"heavy\" in terms processing"
+                                },
+                                "maxreqsize" :  {
+                                    "type" : "string",
+                                    "pattern" : "^[1-9][0-9]*(B|K|M)$",
+                                    "description" : "Specify max request size"
+                                },
+                                "maxrspsize" :  {
+                                    "type" : "string",
+                                    "pattern" : "^[1-9][0-9]*(B|K|M)$",
+                                    "description" : "Specify max response size"
                                 },
                                 "seclvl" : {
                                     "type" : "string",
-                                    "desc" : "Minimum user authentication security level"
+                                    "description" : "Minimum user authentication security level"
                                 },
                                 "desc" : {
                                     "type" : "string",
