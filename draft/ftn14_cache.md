@@ -25,7 +25,7 @@ mitigation (e.g. by "expiring" ttl for some get requests 10% earlier).
 
         {
             "iface" : "futoin.cache",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.1",
             "funcs" : {
                 "get" : {

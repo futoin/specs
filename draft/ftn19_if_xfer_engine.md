@@ -598,7 +598,7 @@ Common types to use in other interfaces of this spec.
 
         {
             "iface" : "futoin.xfer.types",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.currency.types:1.0"
@@ -719,7 +719,7 @@ Common types in scope for currency processing.
 
         {
             "iface" : "futoin.currency.types",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "types" : {
                 "CurrencyCode" : {
@@ -773,7 +773,7 @@ Currency management API.
 
         {
             "iface" : "futoin.currency.manage",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -821,7 +821,7 @@ Currency information API.
 
         {
             "iface" : "futoin.currency.info",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -883,7 +883,7 @@ Therefore, when bonus amount is released. The main Regular account becomes relat
 
         {
             "iface" : "futoin.xfer.accounts",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -1168,7 +1168,7 @@ Fee is deducted from deposit amount.
 
         {
             "iface" : "futoin.xfer.deposit",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -1232,7 +1232,7 @@ Fee is processed as extra on top of transaction amount.
 
         {
             "iface" : "futoin.xfer.withdraw",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -1346,7 +1346,7 @@ The interface is still internal and must not be exposed.
 
         {
             "iface" : "futoin.xfer.gaming",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -1472,7 +1472,7 @@ Refund is a separate transaction type. Therefore, it does not return xfer fee.
 
         {
             "iface" : "futoin.xfer.retail",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -1695,7 +1695,7 @@ with regular transaction cancel, cancel operation is called "clear".
 
         {
             "iface" : "futoin.xfer.bonus",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -1763,7 +1763,7 @@ Direct payments interface for incoming and outgoing payment processing.
 
         {
             "iface" : "futoin.xfer.direct",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -1884,7 +1884,7 @@ All transactions are processed as force and may result in negative balance.
 
         {
             "iface" : "futoin.xfer.generic",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -1996,7 +1996,7 @@ Internal API for limits configuration.
 
         {
             "iface" : "futoin.xfer.limits",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -2179,7 +2179,7 @@ other specs.
 
         {
             "iface" : "futoin.xfer.peer",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",
@@ -2267,7 +2267,7 @@ between user and system represented by operators. It is not a peer-to-peer messa
 
         {
             "iface" : "futoin.xfer.message",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0",

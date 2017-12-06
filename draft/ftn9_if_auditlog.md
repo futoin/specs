@@ -26,7 +26,7 @@ with handy shortcuts and formatting.
 
         {
             "iface" : "futoin.log",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.1",
             "types" : {
                 "LogLevel" : {

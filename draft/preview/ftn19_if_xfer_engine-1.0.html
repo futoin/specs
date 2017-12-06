@@ -645,7 +645,7 @@ Soft limit should cause transaction rejection.</p>
 <p>Common types to use in other interfaces of this spec.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.types",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.currency.types:1.0"
@@ -758,7 +758,7 @@ there is a strict separation between management and information retrieval.</p>
 <p>Common types in scope for currency processing.</p>
 <pre><code>    {
         "iface" : "futoin.currency.types",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "types" : {
             "CurrencyCode" : {
@@ -806,7 +806,7 @@ there is a strict separation between management and information retrieval.</p>
 <p>Currency management API.</p>
 <pre><code>    {
         "iface" : "futoin.currency.manage",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -848,7 +848,7 @@ there is a strict separation between management and information retrieval.</p>
 <p>Currency information API.</p>
 <pre><code>    {
         "iface" : "futoin.currency.info",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -897,7 +897,7 @@ Related account can be set only at creation time with exception below.</p>
 Therefore, when bonus amount is released. The main Regular account becomes related.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.accounts",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -1171,7 +1171,7 @@ transaction.</p>
 <p>Fee is deducted from deposit amount.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.deposit",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -1228,7 +1228,7 @@ processing of withdrawal transactions. External processing is out of scope.</p>
 <p>Fee is processed as extra on top of transaction amount.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.withdraw",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -1328,7 +1328,7 @@ bets to wins for proper bonus win calculations and general security.</p>
 <p>The interface is still internal and must not be exposed.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.gaming",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -1446,7 +1446,7 @@ service purchase.</p>
 <p>Refund is a separate transaction type. Therefore, it does not return xfer fee.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.retail",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -1661,7 +1661,7 @@ with regular transaction cancel, cancel operation is called "clear".</p>
 <p><code>ext_id</code> on claim is used as external account ID and as transaction ID.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.bonus",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -1723,7 +1723,7 @@ with regular transaction cancel, cancel operation is called "clear".</p>
 <p>Direct payments interface for incoming and outgoing payment processing.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.direct",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -1836,7 +1836,7 @@ valuables transfer done outside.</p>
 <p>All transactions are processed as force and may result in negative balance.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.generic",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -1942,7 +1942,7 @@ valuables transfer done outside.</p>
 <p>Internal API for limits configuration.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.limits",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -2117,7 +2117,7 @@ as already defined above.</p>
 other specs.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.peer",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",
@@ -2199,7 +2199,7 @@ other specs.</p>
 between user and system represented by operators. It is not a peer-to-peer messaging system.</p>
 <pre><code>    {
         "iface" : "futoin.xfer.message",
-        "version" : "1.0",
+        "version" : "{ver}",
         "ftn3rev" : "1.7",
         "imports" : [
             "futoin.ping:1.0",

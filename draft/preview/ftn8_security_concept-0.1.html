@@ -544,7 +544,7 @@ key exchange failure (Client is gone)</li>
 <li>futoin.master.provider.authChannel - authenticate persistent secure channel
     to avoid "sec" part in every message.<pre><code>{
     "iface" : "futoin.master.provider",
-    "version" : "0.1",
+    "version" : "{ver}",
     "ftn3rev" : "1.4",
     "funcs" : {
         "register" : {
@@ -622,7 +622,7 @@ key exchange failure (Client is gone)</li>
 <h2>7.2. MasterService consumer</h2>
 <pre><code>    {
         "iface" : "futoin.master.consumer",
-        "version" : "0.1",
+        "version" : "{ver}",
         "ftn3rev" : "1.4",
         "funcs" : {
             "newSharedKey" : {
@@ -653,7 +653,7 @@ key exchange failure (Client is gone)</li>
 <h2>7.3. AuthService backend provider (Service interface)</h2>
 <pre><code>    {
         "iface" : "futoin.auth.backend",
-        "version" : "0.1",
+        "version" : "{ver}",
         "ftn3rev" : "1.4",
         "funcs" : {
             "getClientInfo" : {
@@ -724,7 +724,7 @@ key exchange failure (Client is gone)</li>
 <h2>7.4. AuthService frontend provider (Client interface)</h2>
 <pre><code>    {
         "iface" : "futoin.auth.frontend",
-        "version" : "0.1",
+        "version" : "{ver}",
         "ftn3rev" : "1.4",
         "funcs" : {
             "signIn" : {
@@ -795,7 +795,7 @@ key exchange failure (Client is gone)</li>
 <h2>7.5. AuthConsumer (Service interface)</h2>
 <pre><code>    {
         "iface" : "futoin.auth.consumer",
-        "version" : "0.1",
+        "version" : "{ver}",
         "ftn3rev" : "1.4",
         "funcs" : {
             "complete" : {
@@ -843,7 +843,7 @@ key exchange failure (Client is gone)</li>
 <h2>7.6. AccessControl provider</h2>
 <pre><code>    {
         "iface" : "futoin.acl.provider",
-        "version" : "0.1",
+        "version" : "{ver}",
         "ftn3rev" : "1.4",
         "funcs" : {
             "checkAccess" : {
@@ -943,7 +943,7 @@ key exchange failure (Client is gone)</li>
 <h2>7.7. AccessControl consumer</h2>
 <pre><code>    {
         "iface" : "futoin.acl.consumer",
-        "version" : "0.1",
+        "version" : "{ver}",
         "ftn3rev" : "1.4",
         "funcs" : {
             "invalidate" : {
@@ -1015,7 +1015,7 @@ key exchange failure (Client is gone)</li>
 <h2>7.8. DefenseService interface</h2>
 <pre><code>    {
         "iface" : "futoin.defense.provider",
-        "version" : "0.1",
+        "version" : "{ver}",
         "ftn3rev" : "1.4",
         "funcs" : {
             "onCall" : {

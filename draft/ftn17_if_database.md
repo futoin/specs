@@ -208,7 +208,7 @@ particular database flavour is supported, if helpers are used.
 
         {
             "iface" : "futoin.db.l1",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
                 "futoin.ping:1.0"
@@ -455,7 +455,7 @@ particular database flavour is supported, if helpers are used.
 
         {
             "iface" : "futoin.db.l2",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.7",
             "inherit" : "futoin.db.l1:1.0",
             "types" : {

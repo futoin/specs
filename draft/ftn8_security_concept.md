@@ -593,7 +593,7 @@ system audit and reaction.
 
         {
             "iface" : "futoin.master.provider",
-            "version" : "0.1",
+            "version" : "{ver}",
             "ftn3rev" : "1.4",
             "funcs" : {
                 "register" : {
@@ -675,7 +675,7 @@ system audit and reaction.
 
         {
             "iface" : "futoin.master.consumer",
-            "version" : "0.1",
+            "version" : "{ver}",
             "ftn3rev" : "1.4",
             "funcs" : {
                 "newSharedKey" : {
@@ -711,7 +711,7 @@ system audit and reaction.
 
         {
             "iface" : "futoin.auth.backend",
-            "version" : "0.1",
+            "version" : "{ver}",
             "ftn3rev" : "1.4",
             "funcs" : {
                 "getClientInfo" : {
@@ -787,7 +787,7 @@ system audit and reaction.
 
         {
             "iface" : "futoin.auth.frontend",
-            "version" : "0.1",
+            "version" : "{ver}",
             "ftn3rev" : "1.4",
             "funcs" : {
                 "signIn" : {
@@ -863,7 +863,7 @@ system audit and reaction.
 
         {
             "iface" : "futoin.auth.consumer",
-            "version" : "0.1",
+            "version" : "{ver}",
             "ftn3rev" : "1.4",
             "funcs" : {
                 "complete" : {
@@ -916,7 +916,7 @@ system audit and reaction.
 
         {
             "iface" : "futoin.acl.provider",
-            "version" : "0.1",
+            "version" : "{ver}",
             "ftn3rev" : "1.4",
             "funcs" : {
                 "checkAccess" : {
@@ -1021,7 +1021,7 @@ system audit and reaction.
 
         {
             "iface" : "futoin.acl.consumer",
-            "version" : "0.1",
+            "version" : "{ver}",
             "ftn3rev" : "1.4",
             "funcs" : {
                 "invalidate" : {
@@ -1100,7 +1100,7 @@ system audit and reaction.
 
         {
             "iface" : "futoin.defense.provider",
-            "version" : "0.1",
+            "version" : "{ver}",
             "ftn3rev" : "1.4",
             "funcs" : {
                 "onCall" : {

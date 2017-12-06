@@ -32,7 +32,7 @@ Note: message multiplexing must be enabled to match request and response message
 
         {
             "iface" : "futoin.burst",
-            "version" : "0.1",
+            "version" : "{ver}",
             "ftn3rev" : "1.4",
             "funcs" : {
                 "noResultBurst" : {

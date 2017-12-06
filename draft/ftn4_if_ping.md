@@ -31,7 +31,7 @@ This version requires authentication by default.
 
         {
             "iface" : "futoin.ping",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.1",
             "funcs" : {
                 "ping" : {
@@ -61,7 +61,7 @@ This version requires authentication by default.
 
         {
             "iface" : "futoin.anonping",
-            "version" : "1.0",
+            "version" : "{ver}",
             "ftn3rev" : "1.1",
             "inherit" : "futoin.ping:1.0",
             "requires" : [
