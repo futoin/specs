@@ -1,13 +1,16 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.9
-Date: 2017-11-17
+Version: 1.10
+Date: 2017-12-06
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.10 - 2017-12-06 - Andrey Galkin
+    * NEW: added max queue length for `Mutex` and `Throttle`
+    * NEW: `Limiter` primitive
 * v1.9 - 2017-11-17 - Andrey Galkin
     * NEW: async_stack state variable
     * NEW: adding steps in error handler
@@ -497,7 +500,7 @@ Implemented as `Throttle` class.
 
 ### 1.11.3. API details
 
-A special `.sync(obj, step, err_handler)` API is available to synchronized against
+A special `.sync(obj, step, err_handler)` API is available to synchronize against
 any object supporting synchronization protocol `.sync(as, step, err_handler)`.
 
 Synchronization object is allowed to add own steps and is responsible for adding
@@ -520,6 +523,17 @@ lock state of parent step.
 ### 1.11.5. Deadlock detection
 
 Deadlock detection is optional and is not mandatory required.
+
+### 1.11.6. Max queue limits
+
+It may be required to limit maximum number of pending AsyncSteps flows. If overall
+queue limit is reached then new entries must get "DefenseRejected" error.
+
+### 1.11.7. Processing limits
+
+Request processing stability requires to limit both simultaneous connections and
+request rate. Therefore a special synchronization primitive `Limiter` wrapping
+`Mutex` and `Throttle` is introduced to impose limits in scope.
 
 # 2. Async Steps API
 
@@ -642,16 +656,30 @@ However, they are grouped by semantical scope of use.
 
 * Must implemenet ISync interface
 * Functions:
-    * *c-tor(unsigned integer max=1)*
+    * *c-tor(unsigned integer max=1, unsigned integer max_queue=null)*
         * set maximum number of parallel AsyncSteps entering critical section
+        * *max_queue* - optionally, limit queue length
 
 ### 2.4. `Throttle` class
 
 * Must implemenet ISync interface
 * Functions:
-    * *c-tor(unsigned integer max, unsigned integer period_ms=1000)*
-        * set maximum number of critical section entries with specification time period.
+    * *c-tor(unsigned integer max, unsigned integer period_ms=1000, unsigned integer max_queue=null)*
+        * set maximum number of critical section entries within specification time period.
         * *period_ms* - time period in milliseconds
+        * *max_queue* - optionally, limit queue length
+
+### 2.5. `Limiter` class
+
+* Must implemenet ISync interface
+* Functions:
+    * *c-tor(options)*
+        * Complex limit handling
+        * *options.concurrent=1*  - maximum concurrent flows
+        * *options.max_queue=0* - maximum queued
+        * *options.rate=1*  - maximum entries in period
+        * *options.period_ms=1000*  - period length
+        * *options.burst=0*  - maximum queue for rate limiting
 
 # 3. Examples
 
