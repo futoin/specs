@@ -1,7 +1,7 @@
 <pre>
 FTN12: FutoIn Async API
 Version: 1.10DV
-Date: 2017-11-17
+Date: 2017-12-06
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -10,6 +10,7 @@ Authors: Andrey Galkin
 
 * v1.10 - 2017-12-06 - Andrey Galkin
     * NEW: added max queue length for `Mutex` and `Throttle`
+    * NEW: `Limiter` primitive
 * v1.9 - 2017-11-17 - Andrey Galkin
     * NEW: async_stack state variable
     * NEW: adding steps in error handler
@@ -528,6 +529,12 @@ Deadlock detection is optional and is not mandatory required.
 It may be required to limit maximum number of pending AsyncSteps flows. If overall
 queue limit is reached then new entries must get "DefenseRejected" error.
 
+### 1.11.7. Processing limits
+
+Request processing stability requires to limit both simultaneous connections and
+request rate. Therefore a special synchronization primitive `Limiter` wrapping
+`Mutex` and `Throttle` is introduced to impose limits in scope.
+
 # 2. Async Steps API
 
 ## 2.1. Types
@@ -661,6 +668,18 @@ However, they are grouped by semantical scope of use.
         * set maximum number of critical section entries within specification time period.
         * *period_ms* - time period in milliseconds
         * *max_queue* - optionally, limit queue length
+
+### 2.5. `Limiter` class
+
+* Must implemenet ISync interface
+* Functions:
+    * *c-tor(options)*
+        * Complex limit handling
+        * *options.concurrent=1*  - maximum concurrent flows
+        * *options.max_queue=0* - maximum queued
+        * *options.rate=1*  - maximum entries in period
+        * *options.period_ms=1000*  - period length
+        * *options.burst=0*  - maximum queue for rate limiting
 
 # 3. Examples
 
