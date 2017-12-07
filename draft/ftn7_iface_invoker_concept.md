@@ -144,14 +144,21 @@ connections and maximum requests per second. To avoid hammering remote side with
 which are going to be rejected with `DefenseError`, Invoker should thottle itself.
 
 A concept of limit zones is introduced. Each limit zone can be configured through `CCM.limitZone()`.
-There is always one "default" zone with implementation defined limits, but the following values
-are recommended:
+There are always "default" and "unlimited" zones with implementation defined limits,
+but the following values are recommended:
 
-* *concurrent=8*  - maximum active requests at any single time
-* *max_queue=32* - pending requests
-* *rate=10*  - requests per period
-* *period_ms=1000*  - period of one second
-* *burst=null*  - unlimited (max concurrent by fact)
+* "default"
+    * *concurrent=8*  - maximum active requests at any single time
+    * *max_queue=32* - pending requests
+    * *rate=10*  - requests per period
+    * *period_ms=1000*  - period of one second
+    * *burst=null*  - unlimited (max concurrent by fact)
+* "unlimited"
+    * *concurrent=int_max*
+    * *max_queue=null*
+    * *rate=int_max*
+    * *period_ms=1000*
+    * *burst=null*
 
 Non-default limit zone can be choosen through `limitZone` option during endpoint registration.
 

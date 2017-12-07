@@ -131,14 +131,25 @@ CCM must automatically use "-internal" credentials for "sec" field.</p>
 connections and maximum requests per second. To avoid hammering remote side with requests
 which are going to be rejected with <code>DefenseError</code>, Invoker should thottle itself.</p>
 <p>A concept of limit zones is introduced. Each limit zone can be configured through <code>CCM.limitZone()</code>.
-There is always one "default" zone with implementation defined limits, but the following values
-are recommended:</p>
+There are always "default" and "unlimited" zones with implementation defined limits,
+but the following values are recommended:</p>
 <ul>
+<li>"default"<ul>
 <li><em>concurrent=8</em>  - maximum active requests at any single time</li>
 <li><em>max_queue=32</em> - pending requests</li>
 <li><em>rate=10</em>  - requests per period</li>
 <li><em>period_ms=1000</em>  - period of one second</li>
 <li><em>burst=null</em>  - unlimited (max concurrent by fact)</li>
+</ul>
+</li>
+<li>"unlimited"<ul>
+<li><em>concurrent=int_max</em></li>
+<li><em>max_queue=null</em></li>
+<li><em>rate=int_max</em></li>
+<li><em>period_ms=1000</em></li>
+<li><em>burst=null</em></li>
+</ul>
+</li>
 </ul>
 <p>Non-default limit zone can be choosen through <code>limitZone</code> option during endpoint registration.</p>
 <h1>2. Invoker interfaces</h1>
