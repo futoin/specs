@@ -1,6 +1,6 @@
 <pre>
 FTN7: FutoIn Invoker Concept
-Version: 1.7DV
+Version: 1.7
 Date: 2017-12-07
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin

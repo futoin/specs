@@ -1,13 +1,15 @@
 <pre>
 FTN7: FutoIn Invoker Concept
-Version: 1.6
-Date: 2017-08-18
+Version: 1.7
+Date: 2017-12-07
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.7 - 2017-12-07 - Andrey Galkin
+    * NEW: added request limiter zones
 * v1.6 - 2017-08-18 - Andrey Galkin
     * NEW: '-internal" auto-set credentials for internal comms
 * v1.5 - 2015-03-08
@@ -135,6 +137,32 @@ Invoker should transparently handle transitional communication errors with impli
 Please referer to [FTN6 Interface Executor Concept](./ftn6_iface_executor_concept.md) for details.
 **HMAC is supported only by AdvancedCCM.**
 
+## 1.6. Request throttling
+
+For DoS protection and fair use of shared resources, endpoint side may limit maximum simultaneous
+connections and maximum requests per second. To avoid hammering remote side with requests
+which are going to be rejected with `DefenseError`, Invoker should thottle itself.
+
+A concept of limit zones is introduced. Each limit zone can be configured through `CCM.limitZone()`.
+There are always "default" and "unlimited" zones with implementation defined limits,
+but the following values are recommended:
+
+* "default"
+    * *concurrent=8*  - maximum active requests at any single time
+    * *max_queue=32* - pending requests
+    * *rate=10*  - requests per period
+    * *period_ms=1000*  - period of one second
+    * *burst=null*  - unlimited (max concurrent by fact)
+* "unlimited"
+    * *concurrent=int_max*
+    * *max_queue=null*
+    * *rate=int_max*
+    * *period_ms=1000*
+    * *burst=null*
+
+Non-default limit zone can be choosen through `limitZone` option during endpoint registration.
+
+
 # 2. Invoker interfaces
 
 Reference Invoker concept is built around [FTN12 Async API](./ftn12\_async\_api.md)
@@ -181,6 +209,8 @@ Simple CCM:
     * *alias* - register alias for *name*
 1. void close()
     * Shutdown CCM processing
+1. void limitZone( name, options )
+    * configure named AsyncSteps v1.10 `Limiter` object to use for request throttling
 
 Advanced CCM extensions:
 
@@ -289,6 +319,7 @@ The following URL schemes should be supported:
 * *hmacAlgo* - one of pre-defined or custom hash algorithms for use with HMAC
 * *sendOnBehalfOf*=true - control, if on-behalf-of field should be sent with user information
     when interface is used from Executor's request processing task
+* *limitZone=default* - name of limit zone to use for invoker requests
 
 ## 2.2. Native FutoIn interface interface
 
