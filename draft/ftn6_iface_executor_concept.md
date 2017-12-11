@@ -1,14 +1,14 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.7DV
-Date: 2017-12-09
+Version: 1.7
+Date: 2017-12-10
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.7 - 2017-12-09 - Andrey Galkin
+* v1.7 - 2017-12-10 - Andrey Galkin
     * NEW: request processing limits for DoS protection and fair use reasons
 * v1.6 - 2017-08-18 - Andrey Galkin
     * NEW: RequestInfo.result(replace)

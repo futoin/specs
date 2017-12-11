@@ -1,13 +1,15 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.6
-Date: 2017-08-18
+Version: 1.7
+Date: 2017-12-10
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.7 - 2017-12-10 - Andrey Galkin
+    * NEW: request processing limits for DoS protection and fair use reasons
 * v1.6 - 2017-08-18 - Andrey Galkin
     * NEW: RequestInfo.result(replace)
     * NEW: "-internal" in "sec" for internal channel calls
@@ -203,6 +205,27 @@ as security level.
 
 Normally, internal channel can exist only with the same process.
 
+### 1.5. External call limits
+
+For general service stability and fair use, it is required to limit both
+concurrent requests and requests per period from single client. Such
+limits should apply as soon as possible before any other processing. As a
+consequence, all requested are treated as anonymous.
+
+However, authorized users may need much higher resource quota. It should
+be possible to apply specialized limits based on the following strategies:
+
+* assign custom limit to stateful channel after first successful request
+* select custom limit based on static list of client's network addresses
+* select custom limit based on dynamic list of client's network addresses
+    - can be populated after first successful request
+    - entries should have meaningful time-to-live (60-3600 seconds)
+
+There must be the "default" limit which should match FTN7 Invoker defaults.
+
+All limits must apply process-wide, but can its statistics can be aggregated and
+processed by defense system asynchronously.
+
 # 2. Native Executor interface requirements
 
 Language/platform should support runtime introspection and
@@ -332,6 +355,13 @@ associated RequestInfo instance.
     * store initialization to cache
 1. void close()
     * Shutdown Executor processing
+1. void limitConf(name, options)
+    * Setup configuration of custom limit
+    * *name* - custom limit name
+    * *options* - AsyncSteps Limiter options
+1. void addressLimitMap(map)
+    * Configure static address to custom limit mapping
+    * *map* - custom limit name to list of CIDR addresses
 
 
 ## 2.9. Interface Implementation
