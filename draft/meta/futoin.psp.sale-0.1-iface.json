@@ -1,0 +1,58 @@
+{
+  "iface": "futoin.psp.sale",
+  "version": "0.1",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.psp.types:{ver}"
+  ],
+  "funcs": {
+    "methods": {
+      "params": {
+        "currency": "CurrencyCode"
+      },
+      "result": "MethodInfoList",
+      "throws": [
+        "UnknownCurrency"
+      ]
+    },
+    "sale": {
+      "params": {
+        "method": "MethodAlias",
+        "ext_id": "XferExtID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "invoice": {
+          "type": "InvoiceID",
+          "default": null
+        }
+      },
+      "result": {
+        "id": "XferID",
+        "url": "RedirectURL"
+      },
+      "throws": [
+        "UnknownCurrency",
+        "UnknownMethod",
+        "UnknownInvoice",
+        "LimitRejected"
+      ]
+    },
+    "status": {
+      "params": {
+        "id": "XferID"
+      },
+      "result": {
+        "method": "MethodAlias",
+        "ext_id": "XferExtID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "info": "SaleResult"
+      },
+      "throws": [
+        "UnknownXferID",
+        "OriginalTooOld",
+        "OriginalMismatch"
+      ]
+    }
+  }
+}

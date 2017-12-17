@@ -1,0 +1,102 @@
+{
+  "iface": "futoin.psp.types",
+  "version": "0.1",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.currency.types:1.0",
+    "futoin.xfer.types:1.0"
+  ],
+  "types": {
+    "AVSCode": {
+      "type": "string",
+      "regex": "^[A-z0-9]{1}$"
+    },
+    "ComisionRate": {
+      "type": "string",
+      "regex": "^0(\\.[0-9]{1,12})?$"
+    },
+    "CVVCode": {
+      "type": "string",
+      "regex": "^[A-z0-9]{1}$"
+    },
+    "InvoiceID": "XferExtID",
+    "MethodAlias": {
+      "type": "string",
+      "regex": "^[a-b][a-b0-9_]{1,30}[a-b0-9]$"
+    },
+    "MethodInfo": {
+      "type": "map",
+      "fields": {
+        "alias": "MethodAlias",
+        "min": "Amount",
+        "max": "Amount",
+        "fee": {
+          "type": "Amount",
+          "optional": true
+        },
+        "commision": {
+          "type": "ComisionRate",
+          "optional": true
+        },
+        "only_in": {
+          "type": "RegionList",
+          "optional": true
+        },
+        "except_for": {
+          "type": "RegionList",
+          "optional": true
+        }
+      }
+    },
+    "MethodInfoList": {
+      "type": "array",
+      "elemtype": "MethodInfo",
+      "maxlen": 100
+    },
+    "RedirectURL": {
+      "type": "string",
+      "regex": "^(https://[a-z0-9-]+(\\.[a-z0-9-]+)+/[A-Za-z0-9\\-._~%:/?#[\\]@!$&'()*+,;=])?$"
+    },
+    "Region": {
+      "type": "string",
+      "regex": "^[IKL]:[A-Z]{1,16}(:[A-Z0-9]{1,16})?$",
+      "desc": "T:Code, see the spec"
+    },
+    "RegionList": {
+      "type": "array",
+      "elemtype": "Region",
+      "minlen": 1,
+      "maxlen": 1000
+    },
+    "SaleResult": {
+      "type": "map",
+      "fields": {
+        "reason": {
+          "type": "string",
+          "optional": true
+        },
+        "auth_code": {
+          "type": "string",
+          "optional": true
+        },
+        "avs_code": {
+          "type": "AVSCode",
+          "optional": true
+        },
+        "cvv_code": {
+          "type": "CVVCode",
+          "optional": true
+        },
+        "passed_3ds": {
+          "type": "boolean",
+          "optional": true
+        },
+        "other": {
+          "type": "any",
+          "optional": true
+        }
+      }
+    },
+    "PaymentToken": "UUIDB64"
+  }
+}

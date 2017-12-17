@@ -1,0 +1,9 @@
+{
+  "iface": "futoin.psp.payout",
+  "version": "0.1",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.psp.types:{ver}"
+  ],
+  "funcs": {}
+}

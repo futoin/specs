@@ -1,0 +1,86 @@
+{
+  "iface": "futoin.psp.billing",
+  "version": "0.1",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.psp.types:{ver}"
+  ],
+  "types": {
+    "TermsAndConditions": {
+      "type": "array",
+      "elemtype": "string"
+    }
+  },
+  "funcs": {
+    "methods": {
+      "params": {
+        "currency": "CurrencyCode"
+      },
+      "result": "MethodInfoList",
+      "throws": [
+        "UnknownCurrency"
+      ]
+    },
+    "sale": {
+      "params": {
+        "method": "MethodAlias",
+        "ext_id": "XferExtID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "tc": "TermsAndConditions",
+        "invoice": {
+          "type": "InvoiceID",
+          "default": null
+        }
+      },
+      "result": {
+        "id": "XferID",
+        "url": "RedirectURL"
+      },
+      "throws": [
+        "UnknownCurrency",
+        "UnknownMethod",
+        "UnknownInvoice",
+        "LimitRejected",
+        "UnacceptableTC"
+      ]
+    },
+    "status": {
+      "params": {
+        "id": "XferID"
+      },
+      "result": {
+        "method": "MethodAlias",
+        "ext_id": "XferExtID",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "info": "SaleResult",
+        "token": "PaymentToken"
+      },
+      "throws": [
+        "UnknownXferID",
+        "OriginalTooOld",
+        "OriginalMismatch"
+      ]
+    },
+    "tokenSale": {
+      "params": {
+        "token": "PaymentToken",
+        "currency": "CurrencyCode",
+        "amount": "Amount",
+        "invoice": {
+          "type": "InvoiceID",
+          "default": null
+        }
+      },
+      "result": {
+        "id": "XferID",
+        "info": "SaleResult"
+      },
+      "throws": [
+        "LimitRejected",
+        "UnknownToken"
+      ]
+    }
+  }
+}
