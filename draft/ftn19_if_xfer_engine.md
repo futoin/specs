@@ -740,7 +740,7 @@ Common types in scope for currency processing.
                 "CurrencySymbol" : {
                     "type" : "string",
                     "minlen" : 1,
-                    "maxlen" : 3
+                    "maxlen" : 10
                 },
                 "Currency" : {
                     "type" : "map",
