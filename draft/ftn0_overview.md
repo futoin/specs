@@ -36,6 +36,11 @@ Authors: Andrey Galkin
 
 ## 5.2. Financial Transactions
 * [FTN19 Transaction Engine](./ftn19\_if\_xfer\_engine.md)
+    * [FTN19.1 Transaction Engine - Currencies](./ftn19.1\_if\_currencies.md)
+    * [FTN19.2 Transaction Engine - Limits](./ftn19.2\_if\_xfer\_limits.md)
+    * [FTN19.3 Transaction Engine - Accounts](./ftn19.3\_if\_xfer\_accounts.md)
+    * [FTN19.4 Transaction Engine - Transactions](./ftn19.4\_if\_xfers.md)
+    * [FTN19.5 Transaction Engine - Messages](./ftn19.5\_if\_xfer_msg.md)
 * [FTN20 Payment Service Provider](./ftn20\_if\_psp.md)
 
 =END OF SPEC=

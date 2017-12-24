@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn19.2_if_xfer_limits.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN19.2: FutoIn Interface - Transaction Engine - Limits
+Version: 1.0DV
+Date: 2017-12-24
+Copyright: 2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>DV - 2017-12-24 - Andrey Galkin<ul>
+<li>Split into sub-specs</li>
+</ul>
+</li>
+<li>DV - 2017-08-27 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This is sub-specification of main <a href="./ftn19_if_xfer_engine.html">FTN19: Transaction Engine</a>.</p>
+<h1>2. Concept (Limits)</h1>
+<p>Limits are important to minimize consequences of potential design &amp; software issues,
+to comply with AML/CTF requirements and to protect against risks of unreliable
+personnel and partners.</p>
+<p>Any action in system must have reasonable limits. Some limits may be used to trigger
+additional checks and/or blocking risk analysis.</p>
+<p>Periods are accounted per calendar with operator configured timezone. Per account
+holder limits are accounted in base currency.</p>
+<p><em>Note: risk assessment must be done for all activity even if limits are not hit, but that should be done asynchronously.</em></p>
+<h2>2.1. Limit groups</h2>
+<p>It's not feasible to configure most limits individually as it may eventually lead to configuration errors. It would
+also make limits practically unmanageable. Therefore, only a small number of limit groups (sets) should be present.</p>
+<p>Each account holder must be associated with one of the global limit groups.</p>
+<h2>2.2. Limit domains</h2>
+<p>Transaction engine assumes different domains of operations. Each domain
+has quite specific limit requirements.</p>
+<p>General naming convention:</p>
+<ul>
+<li><code>_amt</code> postfix means amount limit</li>
+<li><code>_cnt</code> postfix means count limit</li>
+<li><code>_daily_</code>, <code>_weekly_</code>, <code>_monthly_</code> suffixes mean daily/weekly/monthly periods</li>
+<li>prefixes define domain/scope of the limit</li>
+</ul>
+<p>Continuous accounting must be present based on the following criteria per account holder.</p>
+<ol>
+<li><code>Retail</code> - purchase of goods and services<ul>
+<li>Limit types:<ul>
+<li><code>retail_daily_amt</code></li>
+<li><code>retail_daily_cnt</code></li>
+<li><code>retail_weekly_amt</code></li>
+<li><code>retail_weekly_cnt</code></li>
+<li><code>retail_monthly_amt</code></li>
+<li><code>retail_monthly_cnt</code></li>
+</ul>
+</li>
+<li>Accounting for affected transactions:<ul>
+<li>On blocking of balance - increase Used for blocked part</li>
+<li>On unblocking of balance - decrease Used for unblocked part</li>
+<li>On decreasing balance - increase Used</li>
+<li>On increasing balance - no action</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Deposits</code> - in/out transfers of own money<ul>
+<li>Limit types:<ul>
+<li>Deposits:<ul>
+<li><code>deposit_daily_amt</code></li>
+<li><code>deposit_daily_cnt</code></li>
+<li><code>deposit_weekly_amt</code></li>
+<li><code>deposit_weekly_cnt</code></li>
+<li><code>deposit_monthly_amt</code></li>
+<li><code>deposit_monthly_cnt</code></li>
+</ul>
+</li>
+<li>Withdrawals:<ul>
+<li><code>withdrawal_daily_amt</code></li>
+<li><code>withdrawal_daily_cnt</code></li>
+<li><code>withdrawal_weekly_amt</code></li>
+<li><code>withdrawal_weekly_cnt</code></li>
+<li><code>withdrawal_monthly_amt</code></li>
+<li><code>withdrawal_monthly_cnt</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Accounting for affected transactions: Deposits &amp; Withdrawals<ul>
+<li>canceled transactions should decrease statistics</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Payments</code> - transfers to other users<ul>
+<li>Limit types:<ul>
+<li>Outbound:<ul>
+<li><code>outbound_daily_amt</code></li>
+<li><code>outbound_daily_cnt</code></li>
+<li><code>outbound_weekly_amt</code></li>
+<li><code>outbound_weekly_cnt</code></li>
+<li><code>outbound_monthly_amt</code></li>
+<li><code>outbound_monthly_cnt</code></li>
+</ul>
+</li>
+<li>Inbound:<ul>
+<li><code>inbound_daily_amt</code></li>
+<li><code>inbound_daily_cnt</code></li>
+<li><code>inbound_weekly_amt</code></li>
+<li><code>inbound_weekly_cnt</code></li>
+<li><code>inbound_monthly_amt</code></li>
+<li><code>inbound_monthly_cnt</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Accounting for affected transactions: Deposits &amp; Withdrawals<ul>
+<li>canceled transactions should decrease statistics</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Gaming</code> - in-game activity<ul>
+<li>Limit types:<ul>
+<li>Bets:<ul>
+<li><code>bet_daily_amt</code></li>
+<li><code>bet_daily_cnt</code></li>
+<li><code>bet_weekly_amt</code></li>
+<li><code>bet_weekly_cnt</code></li>
+<li><code>bet_monthly_amt</code></li>
+<li><code>bet_monthly_cnt</code></li>
+</ul>
+</li>
+<li>Wins:<ul>
+<li><code>win_daily_amt</code></li>
+<li><code>win_daily_cnt</code></li>
+<li><code>win_weekly_amt</code></li>
+<li><code>win_weekly_cnt</code></li>
+<li><code>win_monthly_amt</code></li>
+<li><code>win_monthly_cnt</code></li>
+</ul>
+</li>
+<li>Profitability:<ul>
+<li><code>profit_daily_amt</code></li>
+<li><code>profit_weekly_amt</code></li>
+<li><code>profit_monthly_amt</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Accounting for affected transactions: Deposits &amp; Withdrawals<ul>
+<li>canceled transactions should decrease statistics</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Misc</code> - not fitting other domains<ul>
+<li>Limit types:<ul>
+<li>Messages:<ul>
+<li><code>message_daily_cnt</code></li>
+<li><code>message_weekly_cnt</code></li>
+<li><code>message_monthly_cnt</code></li>
+</ul>
+</li>
+<li>Failure:<ul>
+<li><code>failure_daily_cnt</code></li>
+<li><code>failure_weekly_cnt</code></li>
+<li><code>failure_monthly_cnt</code></li>
+</ul>
+</li>
+<li>Limit hits:<ul>
+<li><code>limithit_daily_cnt</code></li>
+<li><code>limithit_weekly_cnt</code></li>
+<li><code>limithit_monthly_cnt</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Personnel</code> - limits of operations done by specific employee<ul>
+<li>Limit types:<ul>
+<li>Messages:<ul>
+<li><code>message_daily_cnt</code></li>
+<li><code>message_weekly_cnt</code></li>
+<li><code>message_monthly_cnt</code></li>
+</ul>
+</li>
+<li>Manual transactions:<ul>
+<li><code>manual_daily_amt</code></li>
+<li><code>manual_daily_cnt</code></li>
+<li><code>manual_weekly_amt</code></li>
+<li><code>manual_weekly_cnt</code></li>
+<li><code>manual_monthly_amt</code></li>
+<li><code>manual_monthly_cnt</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2>2.3. Limit types:</h2>
+<h3>2.3.1. Per account limits</h3>
+<p>Such limit is set per single account in currency of the account.</p>
+<ol>
+<li>Overdraft - negative balance limit set by system</li>
+</ol>
+<h3>2.3.2. Account holder limits</h3>
+<p>These are personal user limits which user configures based on own will. Such limits are bound
+by system limits and act as threshold value.</p>
+<ol>
+<li>Extended verification - requires system to get implementation-defined additional confirmation
+    of user activity. For example, input of Two-Factor Authentication code.<ul>
+<li><code>retail_daily_amt</code></li>
+</ul>
+</li>
+<li>Soft limits - user configured restrictions<ul>
+<li><code>retail_daily_amt</code></li>
+<li><code>withdrawal_daily_amt</code></li>
+<li><code>bet_daily_amt</code></li>
+<li><code>outbound_daily_amt</code></li>
+</ul>
+</li>
+</ol>
+<h3>2.3.3. Group system limits</h3>
+<ol>
+<li>Hard limits<ul>
+<li>All fields of the same name as statitics field act as maximum limit</li>
+<li><code>Retail</code><ul>
+<li><code>retail_min_amt</code> - minimal transaction amount</li>
+</ul>
+</li>
+<li><code>Deposits</code><ul>
+<li><code>deposit_min_amt</code> - minimal deposit amount</li>
+<li><code>withdrawal_min_amt</code> - minimal withdrawal amount</li>
+</ul>
+</li>
+<li><code>Payments</code> <ul>
+<li><code>outbound_min_amt</code> - minimal outbound payment amount</li>
+</ul>
+</li>
+<li><code>Gaming</code><ul>
+<li><code>bet_min_amt</code> - minimal bet amount</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Synchronous risk assessment<ul>
+<li>All fields of the same name as statitics field act as threshold value</li>
+<li><code>Retail</code></li>
+<li><code>Deposits</code></li>
+<li><code>Payments</code></li>
+</ul>
+</li>
+<li>Extended confirmation<ul>
+<li>All fields of the same name as statitics field act as threshold value</li>
+<li><code>Retail</code> - only for purchases</li>
+<li><code>Deposits</code> - only for withdrwals</li>
+<li><code>Payments</code> - only for outbound payments</li>
+</ul>
+</li>
+</ol>
+<h2>2.4. Events</h2>
+<ul>
+<li><code>LIM_NEW</code> - on new limits group</li>
+<li><code>LIM_SET</code> - update of account holder limits</li>
+</ul>
+<h1>3. Interface (Limits)</h1>
+<p>Internal API for limits configuration &amp; processing.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.limits",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "types" : {
+            "OptionalLimitValues" : [ "LimitValues", "boolean" ],
+            "LimitGroups" : {
+                "type" : "array",
+                "elemtype" : "LimitGroup"
+            },
+            "RetailLimitValues" : {
+                "type" : "LimitValues",
+                "fields" : {
+                    "retail_daily_amt" : "LimitAmount",
+                    "retail_daily_cnt" : "LimitCount",
+                    "retail_weekly_amt" : "LimitAmount",
+                    "retail_weekly_cnt" : "LimitCount",
+                    "retail_monthly_amt" : "LimitAmount",
+                    "retail_monthly_cnt" : "LimitCount",
+                    "retail_min_amt" : "LimitAmount",
+                    "preauth_daily_amt" : "LimitAmount",
+                    "preauth_daily_cnt" : "LimitCount",
+                    "preauth_weekly_amt" : "LimitAmount",
+                    "preauth_weekly_cnt" : "LimitCount",
+                    "preauth_monthly_amt" : "LimitAmount",
+                    "preauth_monthly_cnt" : "LimitCount",
+                    "preauth_min_amt" : "LimitAmount"
+                }
+            },
+            "DepositsLimitValues" : {
+                "type" : "LimitValues",
+                "fields" : {
+                    "deposit_daily_amt" : "LimitAmount",
+                    "deposit_daily_cnt" : "LimitCount",
+                    "withdrawal_daily_amt" : "LimitAmount",
+                    "withdrawal_daily_cnt" : "LimitCount",
+                    "deposit_weekly_amt" : "LimitAmount",
+                    "deposit_weekly_cnt" : "LimitCount",
+                    "withdrawal_weekly_amt" : "LimitAmount",
+                    "withdrawal_weekly_cnt" : "LimitCount",
+                    "deposit_monthly_amt" : "LimitAmount",
+                    "deposit_monthly_cnt" : "LimitCount",
+                    "withdrawal_monthly_amt" : "LimitAmount",
+                    "withdrawal_monthly_cnt" : "LimitCount",
+                    "deposit_min_amt" : "LimitAmount",
+                    "withdrawal_min_amt" : "LimitAmount"
+                }
+            },
+            "PaymentsLimitValues" : {
+                "type" : "LimitValues",
+                "fields" : {
+                    "outbound_daily_amt" : "LimitAmount",
+                    "outbound_daily_cnt" : "LimitCount",
+                    "inbound_daily_amt" : "LimitAmount",
+                    "inbound_daily_cnt" : "LimitCount",
+                    "outbound_weekly_amt" : "LimitAmount",
+                    "outbound_weekly_cnt" : "LimitCount",
+                    "inbound_weekly_amt" : "LimitAmount",
+                    "inbound_weekly_cnt" : "LimitCount",
+                    "outbound_monthly_amt" : "LimitAmount",
+                    "outbound_monthly_cnt" : "LimitCount",
+                    "inbound_monthly_amt" : "LimitAmount",
+                    "inbound_monthly_cnt" : "LimitCount",
+                    "outbound_min_amt" : "LimitAmount"
+                }
+            },
+            "GamingLimitValues" : {
+                "type" : "LimitValues",
+                "fields" : {
+                    "bet_daily_amt" : "LimitAmount",
+                    "bet_daily_cnt" : "LimitCount",
+                    "win_daily_amt" : "LimitAmount",
+                    "win_daily_cnt" : "LimitCount",
+                    "profit_daily_amt" : "LimitAmount",
+                    "bet_weekly_amt" : "LimitAmount",
+                    "bet_weekly_cnt" : "LimitCount",
+                    "win_weekly_amt" : "LimitAmount",
+                    "win_weekly_cnt" : "LimitCount",
+                    "profit_weekly_amt" : "LimitAmount",
+                    "bet_monthly_amt" : "LimitAmount",
+                    "bet_monthly_cnt" : "LimitCount",
+                    "win_monthly_amt" : "LimitAmount",
+                    "win_monthly_cnt" : "LimitCount",
+                    "profit_monthly_amt" : "LimitAmount",
+                    "bet_min_amt" : "LimitAmount"
+                }
+            },
+            "MiscLimitValues" : {
+                "type" : "LimitValues",
+                "fields" : {
+                    "message_daily_cnt" : "LimitCount",
+                    "failure_daily_cnt" : "LimitCount",
+                    "limithit_daily_cnt" : "LimitCount",
+                    "message_weekly_cnt" : "LimitCount",
+                    "failure_weekly_cnt" : "LimitCount",
+                    "limithit_weekly_cnt" : "LimitCount",
+                    "message_monthly_cnt" : "LimitCount",
+                    "failure_monthly_cnt" : "LimitCount",
+                    "limithit_monthly_cnt" : "LimitCount"
+                }
+            },
+            "PersonnelLimitValues" : {
+                "type" : "LimitValues",
+                "fields" : {
+                    "message_daily_cnt" : "LimitCount",
+                    "manual_daily_amt" : "LimitAmount",
+                    "manual_daily_cnt" : "LimitCount",
+                    "message_weekly_cnt" : "LimitCount",
+                    "manual_weekly_amt" : "LimitAmount",
+                    "manual_weekly_cnt" : "LimitCount",
+                    "message_monthly_cnt" : "LimitCount",
+                    "manual_monthly_amt" : "LimitAmount",
+                    "manual_monthly_cnt" : "LimitCount"
+                }
+            }
+        },
+        "funcs" : {
+            "setLimits" : {
+                "params" : {
+                    "group" : "LimitGroup",
+                    "domain" : "LimitDomain",
+                    "currency" : "CurrencyCode",
+                    "hard" : "LimitValues",
+                    "check" : "OptionalLimitValues",
+                    "risk" : "OptionalLimitValues"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownGroup",
+                    "UnknownCurrency"
+                ]
+            },
+            "getLimits" : {
+                "params" : {
+                    "group" : "LimitGroup",
+                    "domain" : "LimitDomain"
+                },
+                "result" : {
+                    "currency" : "CurrencyCode",
+                    "hard" : "LimitValues",
+                    "check" : "OptionalLimitValues",
+                    "risk" : "OptionalLimitValues"
+                },
+                "throws" : [
+                    "UnknownGroup",
+                    "UnknownCurrency",
+                    "LimitsNotSet"
+                ]
+            },
+            "addLimitGroup" : {
+                "params" : {
+                    "group" : "LimitGroup"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "AlreadyExists"
+                ]
+            },
+            "getLimitGroups" : {
+                "result" : "LimitGroups"
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<p>=END OF SPEC=</p>
+</body></html>

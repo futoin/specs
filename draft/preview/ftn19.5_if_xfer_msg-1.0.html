@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn19.5_if_xfer_msg.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN19.5: FutoIn Interface - Transaction Engine - Messages
+Version: 1.0DV
+Date: 2017-12-24
+Copyright: 2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>DV - 2017-12-24 - Andrey Galkin<ul>
+<li>Split into sub-specs</li>
+</ul>
+</li>
+<li>DV - 2017-08-27 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This is sub-specification of main <a href="./ftn19_if_xfer_engine.html">FTN19: Transaction Engine</a>.</p>
+<h1>2. Concept (Messages)</h1>
+<p>Due to security and traceability considerations use of third-party communication channels
+may be undesired. A basic plain text in-system messaging feature is required for
+operator &lt;-&gt; user communication in scope of transaction processing.</p>
+<p>All other types of communications must be handled externally.</p>
+<h1>3. Interface (Messages)</h1>
+<p>The interface is assumed to be a reliable channel for plain email-like communication
+between user and system represented by operators. It is not a peer-to-peer messaging system.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.message",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "types" : {
+            "ExtMessageID" : "XferExtID",
+            "MessageID" : "XferID",
+            "MessageSubject" : {
+                "type" : "string",
+                "minlen" : 1,
+                "maxlen" : 64
+            },
+            "MessageBody" : {
+                "type" : "string",
+                "minlen" : 1,
+                "maxlen" : 3000
+            },
+            "MessageData" : {
+                "type" : "map",
+                "fields" : {
+                    "subject" : "MessageSubject",
+                    "body" : "MessageBody",
+                    "other" : {
+                        "type" : "map",
+                        "optional" : true
+                    }
+                }
+            }
+        },
+        "funcs" : {
+            "userSend" : {
+                "params" : {
+                    "sender" : "AccountHolderID",
+                    "ext_id" : "ExtMessageID",
+                    "orig_ts" : "XferTimestamp",
+                    "data" : "MessageData",
+                    "rel_id" : {
+                        "type" : "MessageID",
+                        "default" : null
+                    }
+                },
+                "result" : "MessageID",
+                "throws" : [
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch",
+                    "UnknownRelID"
+                ]
+            },
+            "systemSend" : {
+                "params" : {
+                    "sender" : "AccountHolderID",
+                    "recipient" : "AccountHolderID",
+                    "ext_id" : "ExtMessageID",
+                    "orig_ts" : "XferTimestamp",
+                    "data" : "MessageData",
+                    "rel_id" : {
+                        "type" : "MessageID",
+                        "default" : null
+                    }
+                },
+                "result" : "MessageID",
+                "throws" : [
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch",
+                    "UnknownRelID"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h3>3.7.1. Events</h3>
+<ul>
+<li>MSG - on new message</li>
+<li>MSG_ERR - on message error</li>
+</ul>
+<p>=END OF SPEC=</p>
+</body></html>

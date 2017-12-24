@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn19.3_if_xfer_accounts.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN19.3: FutoIn Interface - Transaction Engine - Accounts
+Version: 1.0DV
+Date: 2017-12-24
+Copyright: 2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>DV - 2017-12-24 - Andrey Galkin<ul>
+<li>Split into sub-specs</li>
+</ul>
+</li>
+<li>DV - 2017-08-27 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This is sub-specification of main <a href="./ftn19_if_xfer_engine.html">FTN19: Transaction Engine</a>.</p>
+<h1>2. Concept (Accounts)</h1>
+<p>Each account must have the following properties:</p>
+<ol>
+<li><code>Currency</code></li>
+<li><code>Balance</code></li>
+<li><code>Reservation</code></li>
+<li><code>Overdraft</code></li>
+</ol>
+<h2>2.1. Types</h2>
+<p>The following types of accounts are assumed:</p>
+<ol>
+<li><code>System</code> - internal source &amp; sink which have no limit restrictions</li>
+<li><code>Regular</code> - used for accumulation of funds, supports operation limits</li>
+<li><code>Transit</code> - similar to Regular, but forbids direct operations by account holder</li>
+<li><code>External</code> - similar to Transit, but used for accounting of external systems</li>
+<li><code>Bonus</code> - a temporary account used for bonus amounts processing</li>
+</ol>
+<h2>2.2. Events</h2>
+<ul>
+<li><code>ACCT_NEW</code> - on account being created</li>
+<li><code>ACCT_UPD</code> - on account information being updated, but not balance</li>
+<li><code>ACCT_BAL</code> - on account balance change</li>
+<li><code>ACCT_CONV</code> - on account currency being converted to another one</li>
+<li><code>ACCT_CLOSE</code> - on account being closed</li>
+</ul>
+<h2>2.3. Account holder</h2>
+<p>There is strict Know Your Customer (KYC) and related limit requirements for financial
+systems in scope of AML/CTF efforts. It's the primary reason to introduce such entity.</p>
+<p>As account holder information varies across the Globe, it should be abstract enough
+to hold arbitrary data provided by actual implementation.</p>
+<p>However, if data type is already defined as part of spec - it must be used instead of
+optional extensions.</p>
+<h3>2.3.1. Known data types</h3>
+<p>All data may be in national Unicode format. However, some fields may have
+restrictions.</p>
+<ul>
+<li><code>full_name</code></li>
+<li><code>other_names</code> = {} - other names, if applicable<ul>
+<li><code>first</code></li>
+<li><code>last</code></li>
+<li><code>middle</code></li>
+<li><code>father</code></li>
+<li><code>latin_first</code> - first name in latin as in ICAO ID</li>
+<li><code>latin_last</code> - last name in latin as in ICAO ID</li>
+</ul>
+</li>
+<li><code>dob</code> - date of birth</li>
+<li><code>sex</code> = [M, F, O] - Male, Female, Other</li>
+<li><code>title</code> - arbitrary string like 'Mr.', 'Dr.', 'Sir', etc.</li>
+<li><code>citizenship</code> = [] - Country List</li>
+<li><code>resident</code> = [] - Country List</li>
+<li><code>home_address</code> = {} - primary contact address<ul>
+<li><code>country</code></li>
+<li><code>region</code> = null - state, province, etc. if applicable</li>
+<li><code>city</code></li>
+<li><code>street</code></li>
+<li><code>building</code></li>
+<li><code>room</code></li>
+</ul>
+</li>
+<li><code>other_addresses</code> = [ {} ] - list of other contact addresses</li>
+<li><code>main_email</code> - primary contact email</li>
+<li><code>other_emails</code> = [] - list of contact emails</li>
+<li><code>main_phone</code> - primary contact phone</li>
+<li><code>other_phones</code> = [] - list of contact phones</li>
+<li><code>ids</code> = [ {}, ... ] - list of IDs<ul>
+<li><code>type</code> - arbitrary string<ul>
+<li><code>ICAO</code> - ICAO-compliant ID/passport</li>
+<li><code>NATID</code> - national ID</li>
+<li><code>DL</code> - Driver License</li>
+</ul>
+</li>
+<li><code>num</code> - arbitrary string identifying document ID</li>
+<li><code>country</code> - the country issued the document</li>
+<li><code>issuer</code></li>
+<li><code>iss_date</code> - date issued</li>
+<li><code>exp_date</code> - valid through date</li>
+<li><code>doc_ids</code> = [] - list of associated uploaded documents</li>
+<li><code>comment</code> - user supplied comment</li>
+</ul>
+</li>
+<li><code>tax_id</code></li>
+</ul>
+<h3>2.3.2. Known internal data types</h3>
+<ul>
+<li><code>api</code> - define peer API configuration<ul>
+<li><code>{iface}</code> - interface name without version as key<ul>
+<li><code>flavour=default</code> - custom implementation</li>
+<li><code>version={latest}</code> - assume latest known version of interface</li>
+<li><code>endpoint</code> - endpoint URL</li>
+<li><code>credentials=null</code> - credentials string</li>
+<li><code>options={}</code> - any options to pass for registration</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>2.3.3. Events</h3>
+<ul>
+<li><code>AH_NEW</code> - new account holder</li>
+<li><code>AH_UPD</code> - update of account holder</li>
+<li><code>AH_BLOCK</code> - on account holder being blocked</li>
+</ul>
+<h1>3. Interface (Accounts)</h1>
+<p>Account management API for internal use only.</p>
+<p>Merge functionality should be rarely used to workaround multiple registrations per single person
+which may happen in some scenarios.</p>
+<p>It's assumed there is a unique Account Alias per Account Holder - it should be used to create
+accounts and prevent duplicates.</p>
+<p>External Account ID is optional, but can be set only at creation time.</p>
+<p>Transit and Bonus account types must have related External accounts.
+Related account can be set only at creation time with exception below.</p>
+<p>When bonus account is closed all out-of-band cancels and wins gets redirected to related account.
+Therefore, when bonus amount is released. The main Regular account becomes related.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.accounts",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "types" : {
+            "AccountType" : {
+                "type" : "enum",
+                "items": [
+                    "System",
+                    "Regular",
+                    "Transit",
+                    "External",
+                    "Bonus"
+                ]
+            },
+            "RelatedAccountID" : [
+                "AccountID",
+                "boolean"
+            ],
+            "AccountHolderData" : {
+                "type" : "map"
+            },
+            "AccountHolderInternalData" : {
+                "type" : "map"
+            },
+            "AccountHolderInfo" : {
+                "type" : "map",
+                "fields" : {
+                    "id" : "AccountHolderID",
+                    "ext_id" : "AccountHolderExternalID",
+                    "group" : "LimitGroup",
+                    "enabled" : "boolean",
+                    "kyc" : "boolean",
+                    "data" : "AccountHolderData",
+                    "internal" : "AccountHolderInternalData",
+                    "created" : "XferTimestamp",
+                    "updated" : "XferTimestamp"
+                }
+            },
+            "AccountInfo" : {
+                "type" : "map",
+                "fields" : {
+                    "id" : "AccountID",
+                    "holder" : "AccountHolderID",
+                    "type" : "AccountType",
+                    "currency" : "CurrencyCode",
+                    "alias" : "AccountAlias",
+                    "enabled" : "boolean",
+                    "balance" : "Balance",
+                    "reserved" : "Amount",
+                    "overdraft" : "Amount",
+                    "ext_id" : {
+                        "type" : "AccountExternalID",
+                        "optional" : true
+                    },
+                    "rel_id" : {
+                        "type" : "RelatedAccountID",
+                        "optional" : true
+                    },
+                    "created" : "XferTimestamp",
+                    "updated" : "XferTimestamp"
+                }
+            },
+            "AccountInfoList" : {
+                "type" : "array",
+                "elemtype" : "AccountInfo"
+            }
+        },
+        "funcs" : {
+            "addAccount" : {
+                "params" : {
+                    "holder" : "AccountID",
+                    "type" : "AccountType",
+                    "currency" : "CurrencyCode",
+                    "alias" : "AccountAlias",
+                    "enabled" : {
+                        "type" : "boolean",
+                        "default" : true
+                    },
+                    "ext_id" : {
+                        "type" : "AccountExternalID",
+                        "default" : null
+                    },
+                    "rel_id" :  {
+                        "type" : "RelatedAccountID",
+                        "default" : null
+                    }
+                },
+                "result" : "AccountExternalID",
+                "throws" : [
+                    "UnknownHolderID",
+                    "UnknownCurrency",
+                    "Duplicate"
+                ]
+            },
+            "updateAccount" : {
+                "params" : {
+                    "id" : "AccountID",
+                    "alias" : {
+                        "type" : "AccountAlias",
+                        "default" : null
+                    },
+                    "enabled" : {
+                        "type" : "boolean",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownAccountID",
+                    "Duplicate"
+                ]
+            },
+            "setOverdraft" : {
+                "params" : {
+                    "id" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "overdraft" : "Amount"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch"
+                ]
+            },
+            "getAccount": {
+                "params" : {
+                    "id" : "AccountID"
+                },
+                "result" : "AccountInfo",
+                "throws" : [
+                    "UnknownAccountID"
+                ]
+            },
+            "getAccountExt": {
+                "params" : {
+                    "holder" : "AccountID",
+                    "ext_id" : "AccountExternalID"
+                },
+                "result" : "AccountInfo",
+                "throws" : [
+                    "UnknownAccountID"
+                ]
+            },
+            "listAccounts": {
+                "params" : {
+                    "holder" : "AccountHolderID"
+                },
+                "result" : "AccountInfoList",
+                "throws" : [
+                    "UnknownHolderID"
+                ]
+            },
+            "convertAccount" : {
+                "params" : {
+                    "id" : "AccountID",
+                    "currency" : "CurrencyCode"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownHolderID",
+                    "UnknownCurrency"
+                ],
+                "desc" : "For rare cases when some currency needs to be disabled"
+            },
+            "addAccountHolder" : {
+                "params" : {
+                    "ext_id" : "AccountHolderExternalID",
+                    "group" : "LimitGroup",
+                    "enabled" : "boolean",
+                    "kyc" : "boolean",
+                    "data" : "AccountHolderData",
+                    "internal" : "AccountHolderInternalData"
+                },
+                "result" : "AccountHolderID",
+                "throws" : [
+                    "UnknownLimitGroup",
+                    "DuplicateExtID"
+                ]
+            },
+            "updateAccountHolder" : {
+                "params" : {
+                    "id" : "AccountHolderID",
+                    "group" : {
+                        "type" : "LimitGroup",
+                        "default" : null
+                    },
+                    "enabled" : {
+                        "type" : "boolean",
+                        "default" : null
+                    },
+                    "kyc" : {
+                        "type" : "boolean",
+                        "default" : null
+                    },
+                    "data" : {
+                        "type" : "AccountHolderData",
+                        "default" : null
+                    },
+                    "internal" : {
+                        "type" : "AccountHolderInternalData",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownHolderID",
+                    "UnknownLimitGroup"
+                ]
+            },
+            "getAccountHolder" : {
+                "params" : {
+                    "id" : "AccountHolderID"
+                },
+                "result" : "AccountHolderInfo",
+                "throws" : [
+                    "UnknownHolderID"
+                ]
+            },
+            "getAccountHolderExt" : {
+                "params" : {
+                    "ext_id" : "AccountHolderExternalID"
+                },
+                "result" : "AccountHolderInfo",
+                "throws" : [
+                    "UnknownHolderID"
+                ]
+            },
+            "mergeAccountHolders" : {
+                "params" : {
+                    "id" : "AccountHolderID",
+                    "other_id" : "AccountHolderID"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownHolderID"
+                ]
+            },
+            "getLimitStats" : {
+                "params" : {
+                    "holder" : "AccountHolderID",
+                    "domain" : "LimitDomain"
+                },
+                "result" : {
+                    "currency" : "CurrencyCode",
+                    "stats" : "LimitValues"
+                },
+                "throws" : [
+                    "UnknownHolderID"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<p>=END OF SPEC=</p>
+</body></html>

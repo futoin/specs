@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn19.4_if_xfers.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN19.4: FutoIn Interface - Transaction Engine - Transactions
+Version: 1.0DV
+Date: 2017-12-24
+Copyright: 2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>DV - 2017-12-24 - Andrey Galkin<ul>
+<li>Split into sub-specs</li>
+</ul>
+</li>
+<li>DV - 2017-08-27 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This is sub-specification of main <a href="./ftn19_if_xfer_engine.html">FTN19: Transaction Engine</a>.</p>
+<h1>2. Concept (Transactions)</h1>
+<h2>2.1. Types</h2>
+<p>The following list is recommendation. Particular implementation may
+omit some or add additional types. However, if type is already listed in the spec
+then it must be used.</p>
+<ul>
+<li>Large amounts with extra checks:<ul>
+<li>Deposit - funds deposit from external source</li>
+<li>Withdrawal - funds withdrawal to external destination</li>
+<li>CancelWithdrawal - cancel not completed withdrawal</li>
+</ul>
+</li>
+<li>Relatively small amounts with real-time transactions:<ul>
+<li>Bet - gaming bet</li>
+<li>Win - gaming win</li>
+<li>CancelBet - cancel gaming bet due to canceled game or late bet</li>
+</ul>
+</li>
+<li>Goods and service purchase:<ul>
+<li>Purchase - purchase</li>
+<li>CancelPurchase - cancel previous purchase</li>
+<li>Refund - full or partial refund of Purchase</li>
+<li>PreAuth - block account balance for later Purchase</li>
+<li>ClearAuth - clear previous PreAuth balance</li>
+</ul>
+</li>
+<li>Bonus &amp; Loyalty:<ul>
+<li>Bonus - a special type of stimulation/promotion deposit which adds withdrawal block</li>
+<li>ReleaseBonus - move bonus amount to regular account and free it of any restrictions</li>
+<li>CancelBonus - close bonus account</li>
+</ul>
+</li>
+<li>Misc.:<ul>
+<li>Fee - any type of fee which may force negative balance</li>
+<li>Settle - settlement related to External accounts</li>
+<li>Generic - generic transaction not related to others, e.g. peer-to-peer</li>
+</ul>
+</li>
+</ul>
+<h2>2.2. Fees</h2>
+<p>As many transaction processing types involve expenses for operator they may be accompanied
+by Fee transaction which should be atomically processed with relates transaction.</p>
+<p>Fees due to operation initiatied by account holder action should not allow account
+balance to become negative. Other type of fees may result in negative account balance,
+if the cause is unavoidable.</p>
+<h2>2.3. Transaction processing &amp; error recovery</h2>
+<ol>
+<li>Duplicate check must be performed based on pair of <code>rel_account</code> and <code>ext_id</code>.<ul>
+<li>All provided data must be checked for mismatch.</li>
+<li>Original result must be returned without any other processing done.</li>
+</ul>
+</li>
+<li>If transaction is already canceled then "AlreadyCanceled" error must be raised.<ul>
+<li>This workaround cases when cancel is delivered before original request.</li>
+</ul>
+</li>
+<li>Transaction cancellation;<ul>
+<li>It must be possible to cancel only balance decreasing transactions due to external
+    processing cancel (e.g. canceled game or not possible to complete withdrawal).</li>
+<li>It must not be possible to cancel transaction, if there are related transactions done.</li>
+</ul>
+</li>
+<li><code>orig_ts</code> and similar fields must always point to original initiation time in external system.<ul>
+<li>Transaction engine may refuse processing of too old requests which get archived</li>
+<li><code>orig_ts</code> is approximate value with 24h precision - it's minor mismatch must not cause failure</li>
+</ul>
+</li>
+</ol>
+<h2>2.4. Transaction use case</h2>
+<p>In all cases, if not noted otherwise, Withdrawals, Refunds, Wins, ClearBonus go in opposite direction
+of Deposits, Purchases, Bets and Bonus respectively. </p>
+<p>Pre-authorizations must be reserved only on Regular accounts.</p>
+<h3>2.4.1. Online bank</h3>
+<ol>
+<li>Natural persons &amp; companies have Regular accounts</li>
+<li>Funds deposit in bank branch goes from System(Bank) to Regular(User) account</li>
+<li>Transfers to another bank go from Regular(User) to External(OtherBank) correspondent account</li>
+<li>Inter-bank settlement goes as transaction between External(OtherBank) and System(Bank) accounts</li>
+<li>Purchases from Regular(Person) to Regular(Company) accounts</li>
+<li>Fees go from Regular(User) to System(Bank) accounts</li>
+<li>In-bank transfers go from Regular(User) to Regular(User)</li>
+</ol>
+<h3>2.4.2. General integration of third-party service (Payments, Gaming, Retail, etc.)</h3>
+<p>Third-party service may be integrated through External(Service) accounts:</p>
+<ul>
+<li>Purchases go from Regular(User) to External(Service) accounts</li>
+<li>Deposits go from External(Service) to Regular(User) accounts</li>
+<li>Settlement is done from/to System(Bank) to External(Service)</li>
+<li>External(Service) account should be constrained by negative balance limit</li>
+</ul>
+<h3>2.4.3. Closed loop online gaming system</h3>
+<ol>
+<li>Players get single per currency Regular accounts and unlimited number of Bonus accounts</li>
+<li>Deposits go from System(Service) to Regular(Player)</li>
+<li>Bets go from Regular(Player) to System(Service)<ul>
+<li>Associated Bonus(Player) accounts are used in first place by time of claim</li>
+<li>Bets go from Bonus(Player) to System(Service) account</li>
+<li>It's possible to have more than one transaction per single bet</li>
+</ul>
+</li>
+<li>Purchases go from Regular(Player) to System(Service)</li>
+<li>Bonus goes from System(Service) to Bonus(Player) accounts</li>
+</ol>
+<h3>2.4.4. Online gaming service provider</h3>
+<ol>
+<li>Players get Transit account, single per currency</li>
+<li>No deposits or withdrawals are assumed</li>
+<li>Bets go from External(Operator) to Transit(Player) to System(Service)</li>
+<li>Purchases go from External(Operator) to Transit(Player) to System(Service)</li>
+<li>Bonus amount is not processed separately in transaction, but should be availabe in extended
+    info for fine reporting (out of scope)</li>
+<li>Settlement is done between Externa(Operator) and System(Service) accounts</li>
+<li>External(Operator) account should be constrained by negative balance limit</li>
+</ol>
+<h3>2.4.5. Online gaming operator</h3>
+<ol>
+<li>Players get single per currency Regular accounts and unlimited number of Bonus accounts</li>
+<li>In-house Deposits go from System(Operator) to Regular(Player)</li>
+<li>Payments Deposits go from External(Payments) to Regular(Player) accounts</li>
+<li>Bets go from Regular(Player) to External(Service) accounts</li>
+<li>Purchases go from Regular(Player) to External(Service) accounts</li>
+<li>Purchases in Operator go from Regular(Player) to System(Operator) accounts</li>
+<li>External(Payments) and External(Service) accounts should be constrained by negative balance limit</li>
+<li>Settlement is done between System(Operator) and External accounts</li>
+</ol>
+<h3>2.4.6. Online gaming pass-through aggregator</h3>
+<p>The difference to Operator case, is that Operator has own system and Regular accounts are managed externally there.</p>
+<p>Aggregator acts as a proxy. For Services, it shows as Operator, but for Operator it shows as Service. This allows
+chaining multiple Aggregators - typical case in modern online gaming.</p>
+<p>Even if aggregator supports Payments as part of business, it should be provided as separate Payments service on
+architecture level.</p>
+<ol>
+<li>For each Player a single per currency Transit account is created</li>
+<li>No deposits or withdrawals are assumed</li>
+<li>Bets go from External(Operator) to Transit(Player) to External(Service) accounts</li>
+<li>Purchases follow Bets scheme, except Bonus processing</li>
+<li>External(Operator) and External(Service) accounts should be constrained by negative balance limit</li>
+<li>Settlement is done between System(Aggregator) and External accounts</li>
+</ol>
+<h3>2.4.7. Payments provider</h3>
+<ol>
+<li>For each User a Transit account is created, Operators have External account</li>
+<li>No gaming or sales transactions are assumed</li>
+<li>Deposits go from System(Payments) to Transit(User) to External(Operator) accounts</li>
+<li>Settlement is done between System(Payments) and External(Operator) accounts</li>
+<li>External(Operator) accounts should be constrained by negative balance limit</li>
+</ol>
+<h3>2.4.8. Payments aggregator</h3>
+<ol>
+<li>For each User a Transit account is created, Operators and Payment providers have External accounts</li>
+<li>No gaming or sales transactions are assumed</li>
+<li>Deposits go from External(Payments) to Transit(User) to External(Operator) accounts</li>
+<li>Settlement is done between System(Aggregator) and External accounts</li>
+<li>External accounts should be constrained by negative balance limit</li>
+</ol>
+<h2>2.5. Unattended external processing</h2>
+<p>There are cases when user wallet is managed outside of the system while transaction engine
+has control only over Transit account. All operations on Transit account must require online
+communication with external peer systems.</p>
+<p>Similar to that synchronous risk assessment can be done in scope of single transaction processing.</p>
+<p>Transaction engine should automatically workaround interruptions and repeated calls for error recovery.</p>
+<p>There should be unified interface for transaction operation with only difference - time required
+for operation.</p>
+<h2>2.6. Human-involved external processing</h2>
+<p>Some operations like withdrawals, purchases or manual risk analysis require
+relatively long interruption for human confirmation/rejection. Interface for such operations
+assumes such interruption by splitting processing into different API calls.</p>
+<h2>2.7. Events</h2>
+<ul>
+<li>'XFER_NEW' - new xfer added</li>
+<li>'XFER_UPD' - on xfer status update</li>
+<li>'XFER_ERR' - on internal xfer failure</li>
+<li>'XFER_EXTERR' - on external xfer failure</li>
+</ul>
+<h1>3. Interface (Transaction)</h1>
+<p><em>The interfaces defined here as well as in other parts of FTN19 are designed for INTERNAL USE.</em></p>
+<p>Specific instances of transaction engine may support only subset of all
+possible transaction processing features. Therefore, each part is split
+into own interface/module.</p>
+<p>General notes for cancellation: even if transaction is not known, it must be marked
+as canceled. So, if original transaction request comes after cancel request, it should
+get "AlreadyCanceled" status.</p>
+<p>A special system "External" account ID is assumed in "rel_account" field. It is used as
+source of/sink for transaction credits. Primary reason is to manage limits per external
+system. It may also aid integrity checks.</p>
+<h2>3.1. Deposits</h2>
+<p>Processing of deposit transactions. Actual external processing &amp; integration
+is out of scope. The interface is only responsible for "recording" fact of
+transaction.</p>
+<p>Fee is deducted from deposit amount.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.deposit",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "funcs" : {
+            "preDepositCheck" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject"
+                ],
+                "desc" : "Check if system allows deposit"
+            },
+            "onDeposit" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.2. Withdrawals</h2>
+<p>Similar to deposits, this interface is only reponsible for in-system
+processing of withdrawal transactions. External processing is out of scope.</p>
+<p>Fee is processed as extra on top of transaction amount.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.withdraw",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "funcs" : {
+            "startWithdrawal" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : {
+                    "xfer_id" : "XferID",
+                    "wait_user" : "boolean"
+                },
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "NotEnoughFunds",
+                    "AlreadyCanceled"
+                ]
+            },
+            "confirmWithdrawal" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "rejectWithdrawal" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCompleted",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.3. Gaming</h2>
+<p>This module is focused on processing of gaming transactions. It should be supported
+only for e-gaming and similar projects with real-time transactions.</p>
+<p>Unlike other interfaces, there is no Account ID involved directly as it assumed that there is
+is unique pair of AccountHolderID + CurrencyCode for Regular Account type. However, it's possible
+to have more than one Bonus account types for proper bonus amount processing.</p>
+<p>If there are associated bonus accounts of specified currency then their balance must be
+used in creation order (date), but only after main account is depleted.</p>
+<p>For simplicity reasons, if main account is transit then "NotEnoughFunds" error is seen as
+"depleted" account even though some funds remain available for betting. Such situation may
+happen only if Bonus and Wallet systems are located on different nodes.</p>
+<p>If more than one account is used for placing of bets then win amount must be distributed
+proportionally excluding non-Bonus accounts for fraud mitigation reasons.</p>
+<p>Creation, cancellation and release of bonus accounts is out of scope.</p>
+<p>It must not happen that "cancelBet" is called after any related "win". "round_id" is used to tie
+bets to wins for proper bonus win calculations and general security.</p>
+<p>The "gameBalance" call may return different amounts based external info details (out of scope).</p>
+<p>The interface is still internal and must not be exposed.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.gaming",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "types" : {
+            "RelatedBetPH" : {
+                "type" : "enum",
+                "items" : [
+                    "%FreeSpin%",
+                    "%Prize%",
+                    "%Award%"
+                ]
+            },
+            "RelatedBet" : [ "XferExtID", "RelatedBetPH" ]
+        },
+        "funcs" : {
+            "bet" : {
+                "params" : {
+                    "user" : "AccountHolderExternalID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "round_id" : "XferExtID",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : {
+                    "xfer_id" : "XferID",
+                    "balance" : "Balance",
+                    "bonus_part" : "Amount"
+                },
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "OutOfBalance",
+                    "LimitReject",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "cancelBet" : {
+                "params" : {
+                    "user" : "AccountHolderExternalID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "round_id" : "XferExtID",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "reason" : "Reason"
+                },
+                "result" : {
+                    "balance" : "Balance"
+                },
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "win" : {
+                "params" : {
+                    "user" : "AccountHolderExternalID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "round_id" : "XferExtID",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : {
+                    "xfer_id" : "XferID",
+                    "balance" : "Balance"
+                },
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "gameBalance" : {
+                "params" : {
+                    "user" : "AccountHolderExternalID",
+                    "currency" : "CurrencyCode",
+                    "ext_info" : {
+                        "type": "XferExtInfo",
+                        "default": null
+                    }
+                },
+                "result" : {
+                    "balance" : "Balance"
+                },
+                "throws" : [
+                    "UnknownHolderID",
+                    "UnknownCurrency",
+                    "CurrencyMismatch"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.4. Retail</h2>
+<p>This interface is responsible for processing transactions in scope of goods and 
+service purchase.</p>
+<p>Refunds is assumed to be partial. Otherwise, cancelPurchase must be used.</p>
+<p>Refund is a separate transaction type. Therefore, it does not return xfer fee.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.retail",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "funcs" : {
+            "purchase" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    },
+                    "rel_preauth" : {
+                        "type" : "XferID",
+                        "default" : null
+                    }
+                },
+                "result" : {
+                    "xfer_id" : "XferID",
+                    "wait_user" : "boolean"
+                },
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch",
+                    "UnavailablePreAuth"
+                ]
+            },
+            "cancelPurchase" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    },
+                    "reason" : "Reason"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch",
+                    "AlreadyRefunded"
+                ]
+            },
+            "confirmPurchase" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "rejectPurchase" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCompleted",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "refund" : {
+                "params" : {
+                    "purchase_id" : "XferID",
+                    "purchase_ts" : "XferTimestamp",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "CurrencyMismatch",
+                    "NotEnoughFunds",
+                    "AmountTooLarge",
+                    "PurchaseNotFound",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "preAuth" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : {
+                    "xfer_id" : "XferID",
+                    "wait_user" : "boolean"
+                },
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "clearPreAuth" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "confirmPreAuth" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "rejectPreAuth" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCompleted",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.5. Bonus</h2>
+<p>Manage claiming, canceling and releasing bonus. To avoid confusion
+with regular transaction cancel, cancel operation is called "clear".</p>
+<p><code>ext_id</code> on claim is used as external account ID and as transaction ID.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.bonus",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "funcs" : {
+            "claimBonus" : {
+                "params" : {
+                    "user" : "AccountHolderExternalID",
+                    "rel_account" : "AccountID",
+                    "alias" : "AccountAlias",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "bonus_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "clearBonus" : {
+                "params" : {
+                    "user" : "AccountHolderExternalID",
+                    "rel_account" : "AccountID",
+                    "bonus_id" : "XferExtID"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownHolderID",
+                    "UnknownAccountID",
+                    "AlreadyReleased"
+                ]
+            },
+            "releaseBonus" : {
+                "params" : {
+                    "user" : "AccountHolderExternalID",
+                    "rel_account" : "AccountID",
+                    "bonus_id" : "XferExtID"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownHolderID",
+                    "UnknownAccountID",
+                    "AlreadyCanceled"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.6. Direct Payments</h2>
+<p>Direct payments interface for incoming and outgoing payment processing.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.direct",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "funcs" : {
+            "startOutbound" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : {
+                    "xfer_id" : "XferID",
+                    "wait_user" : "boolean"
+                },
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch",
+                    "NotEnoughFunds",
+                    "AlreadyCanceled"
+                ]
+            },
+            "confirmOutbound" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCanceled",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "rejectOutbound" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownXferID",
+                    "AlreadyCompleted",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "onInbound" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "xfer_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    }
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.7. Generic</h2>
+<p>This interface is assumed to be used for operator activities and automatic scheduled tasks.</p>
+<p>Settlement is used to adjust balance to reflect external operations like payment or some
+valuables transfer done outside.</p>
+<p>All transactions are processed as force and may result in negative balance.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.generic",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "types" : {
+            "CancelableXferType" : {
+                "type" : "enum",
+                "items" : [
+                    "Deposit",
+                    "Withdrawal",
+                    "Purchase",
+                    "Refund",
+                    "PreAuth",
+                    "Win",
+                    "Fee",
+                    "Settle",
+                    "Generic"
+                ]
+            }
+        },
+        "funcs" : {
+            "fee" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "reason" : "Reason",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "force" : "boolean"
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownHolderID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "NotEnoughFunds",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "settle" : {
+                "params" : {
+                    "account" : "AccountID",
+                    "rel_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "reason" : "Reason",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "NotEnoughFunds",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            },
+            "cancel" : {
+                "params" : {
+                    "xfer_id" : "XferID",
+                    "type" : "CancelableXferType",
+                    "src_account" : "AccountID",
+                    "dst_account" : "AccountID",
+                    "currency" : "CurrencyCode",
+                    "amount" : "Amount",
+                    "orig_ts" : "XferTimestamp",
+                    "xfer_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    },
+                    "extra_fee" : {
+                        "type" : "Fee",
+                        "default" : null
+                    },
+                    "reason" : "Reason"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "NotEnoughFunds",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.8. Cluster peer interface</h2>
+<p>It is assumed that all external systems operate on the same transaction interfaces
+as already defined above.</p>
+<p>External IDs in "current" systems refer to internal IDs in "other" system and vice-versa.</p>
+<p>This interface is left as placeholder for system-to-system interface not defined in
+other specs.</p>
+<pre><code>    {
+        "iface" : "futoin.xfer.peer",
+        "version" : "{ver}",
+        "ftn3rev" : "1.7",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.xfer.types:{ver}"
+        ],
+        "funcs" : {
+            "pair" : {
+                "params" : {
+                    "ext_id" : "AccountExternalID",
+                    "currency" : "CurrencyCode",
+                    "alias" : "AccountAlias"
+                },
+                "result" : "AccountID",
+                "throws" : [
+                    "CurrencyMismatch"
+                ]
+            },
+            "rawXfer" : {
+                "params" : {
+                    "to_external" : "boolean",
+                    "xfer_type" : "XferType",
+                    "orig_currency" : "CurrencyCode",
+                    "orig_amount" : "Amount",
+                    "src_account" : "AccountID",
+                    "src_currency" : "CurrencyCode",
+                    "src_amount" : "Amount",
+                    "dst_account" : "AccountID",
+                    "dst_currency" : "CurrencyCode",
+                    "dst_amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp"
+                },
+                "result" : "XferID",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch",
+                    "NotEnoughFunds",
+                    "AlreadyCanceled"
+                ]
+            },
+            "cancelXfer" : {
+                "params" : {
+                    "to_external" : "boolean",
+                    "xfer_type" : "XferType",
+                    "orig_currency" : "CurrencyCode",
+                    "orig_amount" : "Amount",
+                    "src_account" : "AccountID",
+                    "src_currency" : "CurrencyCode",
+                    "src_amount" : "Amount",
+                    "dst_account" : "AccountID",
+                    "dst_currency" : "CurrencyCode",
+                    "dst_amount" : "Amount",
+                    "ext_id" : "XferExtID",
+                    "ext_info" : "XferExtInfo",
+                    "orig_ts" : "XferTimestamp",
+                    "reason" : "Reason"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownAccountID",
+                    "CurrencyMismatch",
+                    "InvalidAmount",
+                    "LimitReject",
+                    "OriginalTooOld",
+                    "OriginalMismatch"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<p>=END OF SPEC=</p>
+</body></html>
