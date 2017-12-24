@@ -6,8 +6,24 @@
     "futoin.ping:1.0",
     "futoin.currency.types:1.0"
   ],
+  "types": {
+    "ListOffset": {
+      "type": "integer",
+      "min": 0
+    }
+  },
   "funcs": {
     "listCurrencies": {
+      "params": {
+        "from": {
+          "type": "ListOffset",
+          "default": 0
+        },
+        "only_enabled": {
+          "type": "boolean",
+          "default": false
+        }
+      },
       "result": "CurrencyList"
     },
     "getCurrency": {

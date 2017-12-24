@@ -5,7 +5,7 @@
   "types": {
     "CurrencyCode": {
       "type": "string",
-      "regex": "^[ICKL]:[A-Z]{1,7}$",
+      "regex": "^((I:[A-Z]{3})|([CKL]:[A-Za-z0-9*.-_]{1,16}))$",
       "desc": "T:Code, see the spec"
     },
     "DecimalPlaces": {
@@ -21,7 +21,7 @@
     "CurrencySymbol": {
       "type": "string",
       "minlen": 1,
-      "maxlen": 10
+      "maxlen": 18
     },
     "Currency": {
       "type": "map",
@@ -35,7 +35,8 @@
     },
     "CurrencyList": {
       "type": "array",
-      "elemtype": "Currency"
+      "elemtype": "Currency",
+      "maxlen": 1000
     },
     "ExRate": {
       "type": "string",

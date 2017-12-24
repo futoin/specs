@@ -724,7 +724,7 @@ Common types in scope for currency processing.
             "types" : {
                 "CurrencyCode" : {
                     "type" : "string",
-                    "regex" : "^[ICKL]:[A-Z]{1,7}$",
+                    "regex" : "^((I:[A-Z]{3})|([CKL]:[A-Za-z0-9*.-_]{1,16}))$",
                     "desc" : "T:Code, see the spec"
                 },
                 "DecimalPlaces": {
@@ -740,7 +740,7 @@ Common types in scope for currency processing.
                 "CurrencySymbol" : {
                     "type" : "string",
                     "minlen" : 1,
-                    "maxlen" : 10
+                    "maxlen" : 18
                 },
                 "Currency" : {
                     "type" : "map",
@@ -754,7 +754,8 @@ Common types in scope for currency processing.
                 },
                 "CurrencyList" : {
                     "type" : "array",
-                    "elemtype" : "Currency"
+                    "elemtype" : "Currency",
+                    "maxlen" : 1000
                 },
                 "ExRate" : {
                     "type" : "string",
@@ -827,8 +828,24 @@ Currency information API.
                 "futoin.ping:1.0",
                 "futoin.currency.types:1.0"
             ],
+            "types" : {
+                "ListOffset" : {
+                    "type" : "integer",
+                    "min" : 0
+                }
+            },
             "funcs" : {
                 "listCurrencies" : {
+                    "params" : {
+                        "from" : {
+                            "type" : "ListOffset",
+                            "default" : 0
+                        },
+                        "only_enabled" : {
+                            "type" : "boolean",
+                            "default" : false
+                        }
+                    },
                     "result" : "CurrencyList"
                 },
                 "getCurrency" : {
