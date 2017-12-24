@@ -3,7 +3,7 @@
   "version": "0.1",
   "ftn3rev": "1.8",
   "imports": [
-    "futoin.psp.types:{ver}"
+    "futoin.psp.types:0.1"
   ],
   "funcs": {}
 }

@@ -150,6 +150,11 @@ def compilespec( spec_file ) :
                 iface_name = iface['iface']
                 iface["version"] = spec_ver
                 
+                if 'imports' in iface:
+                    iface['imports'] = [ v.replace('{ver}', spec_ver) for v in iface['imports'] ]
+                if 'inherit' in iface:
+                    iface['inherit'] = iface['inherit'].replace('{ver}', spec_ver)
+                
                 # validate schema
                 schema_file = os.path.join(meta_dir, 'futoin-interface-' + iface['ftn3rev'] + '-schema.json')
                 with open(schema_file, 'r') as sf:
