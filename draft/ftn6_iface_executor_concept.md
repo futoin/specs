@@ -1,6 +1,6 @@
 <pre>
 FTN6: FutoIn Executor Concept
-Version: 1.7
+Version: 1.8DV
 Date: 2017-12-10
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -8,6 +8,8 @@ Authors: Andrey Galkin
 
 # CHANGES
 
+* v1.8 - 2017-12-26 - Andrey Galkin
+    * NEW: RequestInfo.ccm() shortcut
 * v1.7 - 2017-12-10 - Andrey Galkin
     * NEW: request processing limits for DoS protection and fair use reasons
 * v1.6 - 2017-08-18 - Andrey Galkin
@@ -284,6 +286,7 @@ are assumed.
 1. stream rawInput() - return raw input stream or throws error
 1. stream rawOutput() - return raw output stream (no result variables are expected) or throws error
 1. Executor executor() - get reference to Executor
+1. CCM ccm() - shortcut for executor().ccm()
 1. ChannelContext channel() - get reference to ChannelContext
 1. void cancelAfter( timeout_ms ) - set to abort request after specified timeout_ms from the
     moment of call. It must override any previous cancelAfter() call.
