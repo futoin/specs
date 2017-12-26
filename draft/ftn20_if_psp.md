@@ -191,7 +191,7 @@ Common types to use in PSP interfaces.
 ### 3.2.1. Sales interface
 
 This interface is focused on goods and services sale with optional
-partial or full refund of transaction.
+partial or full refund of transactions.
 
 1. Payment is initiated with "sale" call from Merchant's system.
     - Note: optional invoice with details can be set in advance.
@@ -421,7 +421,7 @@ as recurring payments must be processed without client's confirmation.
 
 `}Iface`
 
-## 3.3. Client facing interfaces
+## 3.4. Management interface
 
 TBD.
 

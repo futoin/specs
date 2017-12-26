@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn15_native_event.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN15: Native Event API
+Version: 1.1
+Date: 2017-12-26
+Copyright: 2015-2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.1 - 2017-12-26 - Andrey Galkin<ul>
+<li>NEW: fail on unknown event names</li>
+<li>NEW: control of max listeners per event</li>
+</ul>
+</li>
+<li>v1.0 - 2015-01-19</li>
+</ul>
+<h1>1. Concept</h1>
+<p>There is nothing new in this specification, but a formalization for
+referencing of a well known API pattern in JavaScript world.</p>
+<p>Any object may have on(), off(), once() and emit() methods to
+register event handler, unregister event handler, register event
+handler to catch only once and emit events.</p>
+<p>Event handler must get executed with no emit() call in function stack.</p>
+<p>Allowed event name list must be provided during initialization. Public
+API must fail on unknown event, if applicable.</p>
+<p>There should be soft control of max listeners per event and
+implementation-defined warning when limit is reached.</p>
+<p>All manipulations of EventEmitter settings should be done through
+API which is not exposed through target object.</p>
+<h1>2. Native API</h1>
+<ul>
+<li>class EventEmitter:<ul>
+<li>c-tor( event_list, max_listeners=8 )<ul>
+<li><code>event_list</code> - whitelist of allowed event names</li>
+<li><code>max_listeners</code> - default threshol for the warning</li>
+</ul>
+</li>
+<li>void on( event, handler )<ul>
+<li>register event handler</li>
+<li><em>event</em> - event name (string)</li>
+<li><em>handler</em> - callable, receiving optional emit() arguments</li>
+</ul>
+</li>
+<li>void once( event, handler )<ul>
+<li>the same as on(), but handler is fired only on first event</li>
+</ul>
+</li>
+<li>void off( event, handler )<ul>
+<li>unregister handler from the event</li>
+<li><em>event</em> - event name (string)</li>
+<li><em>handler</em> - the handler originally passed to on() or once()</li>
+</ul>
+</li>
+<li>void emit( event [, arg1, arg2, ...] )<ul>
+<li>Fire an event</li>
+<li><em>event</em> - event name (string)</li>
+<li><em>args</em> - optional arguments to be passed to event handler</li>
+</ul>
+</li>
+<li>static void setMaxListeners( instance, max_listeners )<ul>
+<li><code>instance</code> - target object with event emitter</li>
+<li><code>max_listeners</code> - threshol for the warning</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>=END OF SPEC=</p>
+</body></html>
