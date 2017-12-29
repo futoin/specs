@@ -34,7 +34,7 @@ message "Security-defined extension" element.
 
 ## 2.1. Clear text method
 
-Clear text directly corresponds to [HTTP Basic Authentication][HTTP Basic Auth].
+Clear text directly corresponds to [HTTP Basic Authentication][http-basic-auth].
 
 Main parameters are:
 
@@ -46,6 +46,9 @@ HTTP requests headers.
 
 **Use of this method is discouraged and should be limited to
 not important functionality accessed through SecureChannel.**
+
+The Secret used in clear text requests must be separate from all other
+secrets to provent exposure of those.
 
 ### 2.1.1. Clear text request "sec" field structured format
 
@@ -154,9 +157,182 @@ as used for request signing.
 
 # 3. Interface
 
+## 3.1. Request authentication
+
+The interface is used only to process stateless authentication requests.
+It is designed the way when MAC secret is always kept inside AuthService to
+minimize risk of exposure.
+
+`Iface{`
+
+        {
+            "iface" : "futoin.auth.stateless",
+            "version" : "{ver}",
+            "ftn3rev" : "1.8",
+            "imports" : [
+                "futoin.ping:1.0",
+                "futoin.auth.types:{ver}"
+            ],
+            "types" : {
+                "ClearSecField" : {
+                    "type" : "map",
+                    "fields" : {
+                        "user" : "LocalUserID",
+                        "secret" : "ClearSecret"
+                    }
+                },
+                "MACSecField" : {
+                    "type" : "map",
+                    "fields" : {
+                        "user" : "LocalUserID",
+                        "algo" : "MACAlgo",
+                        "sig" : "MACValue"
+                    }
+                },
+                "MessageAuth" : {
+                    "type" : "map",
+                    "fields" : {
+                        "local_id" : "LocalUserID",
+                        "global_id" : "GlobalUserID"
+                    }
+                }
+            },
+            "funcs" : {
+                "clearAuth" : {
+                    "params" : {
+                        "sec" : "ClearSecField"
+                    },
+                    "result" : "MessageAuth",
+                    "throws" : [
+                        "SecurityError"
+                    ]
+                },
+                "checkMAC" : {
+                    "params" : {
+                        "base" : "MACBase",
+                        "sec" : "MACSecField"
+                    },
+                    "result" : "MessageAuth",
+                    "throws" : [
+                        "SecurityError"
+                    ]
+                },
+                "genMAC" : {
+                    "params" : {
+                        "base" : "MACBase",
+                        "user" : "LocalUserID",
+                        "algo" : "MACAlgo"
+                    },
+                    "result" : "MACSecField",
+                    "throws" : [
+                        "SecurityError"
+                    ]
+                }
+            },
+            "requires" : [
+                "SecureChannel"
+            ]
+        }
+
+`}Iface`
+
+## 3.2. User management
+
+`Iface{`
+
+        {
+            "iface" : "futoin.auth.stateless.manage",
+            "version" : "{ver}",
+            "ftn3rev" : "1.8",
+            "imports" : [
+                "futoin.ping:1.0",
+                "futoin.auth.types:{ver}"
+            ],
+            "funcs" : {
+                "setup" : {
+                    "params" : {
+                        "domain" : "Domain",
+                        "clear_auth" : {
+                            "type" : "boolean",
+                            "default" : false
+                        },
+                        "mac_auth" : {
+                            "type" : "boolean",
+                            "default" : true
+                        }
+                    }
+                },
+                "ensureUser" : {
+                    "params" : {
+                        "user" : "LocalUser",
+                        "global_id" : {
+                            "type": "GlobalUserID",
+                            "default" : null,
+                            "desc" : "Defaults to auto-generated"
+                        }
+                    },
+                    "result" : "LocalUserID",
+                    "throws" : [
+                        "GlobalUserIDMismatch"
+                    ]
+                },
+                "setClearSecret" : {
+                    "params" : {
+                        "user" : "LocalUser",
+                        "secret" : {
+                            "type" : "ClearSecret",
+                            "default" : null
+                        }
+                    },
+                    "result" : "boolean",
+                    "throws" : [
+                        "UnknownUser"
+                    ]
+                },
+                "getClearSecret" : {
+                    "params" : {
+                        "user" : "LocalUser"
+                    },
+                    "result" : "ClearSecret",
+                    "throws" : [
+                        "UnknownUser",
+                        "NotSet"
+                    ]
+                },
+                "setMACSecret" : {
+                    "params" : {
+                        "user" : "LocalUser",
+                        "secret" : {
+                            "type" : "MACSecret",
+                            "default" : null
+                        }
+                    },
+                    "result" : "boolean",
+                    "throws" : [
+                        "UnknownUser"
+                    ]
+                },
+                "getMACSecret" : {
+                    "params" : {
+                        "user" : "LocalUser"
+                    },
+                    "result" : "MACSecret",
+                    "throws" : [
+                        "UnknownUser",
+                        "NotSet"
+                    ]
+                }
+            },
+            "requires" : [
+                "SecureChannel"
+            ]
+        }
+
+`}Iface`
 
 
-[HTTP Basic Auth]: https://tools.ietf.org/html/rfc1945#section-11
+
+[http-basic-auth]: https://tools.ietf.org/html/rfc1945#section-11
 [FTN3]: ./ftn3_iface_definition.md
 [FTN8]: ./ftn8_security_concept.md
 [base64]: http://www.ietf.org/rfc/rfc2045.txt "RFC2045 section 6.8"

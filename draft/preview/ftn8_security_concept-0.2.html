@@ -77,6 +77,20 @@ fully distributed.</p>
 <li>user must be able to overview everything from single dashboard</li>
 </ul>
 </li>
+<li>Often used secrets must be updated in reasonable period<ul>
+<li>both usage time and number of secret applications must be taken into account</li>
+</ul>
+</li>
+<li>Avoid information leak<ul>
+<li>Do not use sequential IDs</li>
+<li>Do not expose object existence on error<ul>
+<li>Always throw general "SecurityError" with generic error info</li>
+<li>Prevent time-based attacks - make consistent delays on any SecurityError</li>
+</ul>
+</li>
+<li>Do not use descriptive identifiers in tokens</li>
+</ul>
+</li>
 </ol>
 <h2>2.2. Security Contexts</h2>
 <p>There are three major security contexts:</p>
@@ -452,7 +466,84 @@ with MAC using exactly the same secret key and MAC algorithm.</p>
         "iface" : "futoin.auth.types",
         "version" : "{ver}",
         "ftn3rev" : "1.8",
+        "imports" : [
+            "futoin.types:1.0"
+        ],
         "types" : {
+            "FTNRequest" : {
+                "type" : "map",
+                "fields" : {
+                    "f" : "string",
+                    "p" : "map",
+                    "rid" : {
+                        "type" : "string",
+                        "optional" : true
+                    },
+                    "sec" : {
+                        "type" : "any",
+                        "optional" : true
+                    },
+                    "obf" : {
+                        "type" : "any",
+                        "optional" : true
+                    }
+                }
+            },
+            "FTNResponse" : {
+                "type" : "map",
+                "fields" : {
+                    "r" : "any",
+                    "rid" : {
+                        "type" : "string",
+                        "optional" : true
+                    },
+                    "sec" : {
+                        "type" : "any",
+                        "optional" : true
+                    }
+                }
+            },
+            "LocalUserID" : "UUIDB64",
+            "LocalUser" : {
+                "type" : "string",
+                "regex" : "^[a-zA-Z]([a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9])?$"
+            },
+            "GlobalUserID" : "Email",
+            "ClearSecret" : {
+                "type" : "string",
+                "minlen" : 8,
+                "maxlen" : 32
+            },
+            "MACAlgo" : {
+                "type" : "enum",
+                "items" : [
+                    "HMAC-MD5",
+                    "HMAC-SHA-224",
+                    "HMAC-SHA-256",
+                    "HMAC-SHA-384",
+                    "HMAC-SHA-512",
+                    "HMAC-SHA3-224",
+                    "HMAC-SHA3-256",
+                    "HMAC-SHA3-384",
+                    "HMAC-SHA3-512",
+                    "KMAC128",
+                    "KMAC256"
+                ]
+            },
+            "MACSecret" : {
+                "type" : "Base64",
+                "minlen" : 32,
+                "maxlen" : 128
+            },
+            "MACValue" : {
+                "type" : "Base64",
+                "minlen" : 1,
+                "maxlen" : 128
+            },
+            "MACBase" : {
+                "type" : "string",
+                "minlen" : 8
+            }
         }
     }
 </code></pre>

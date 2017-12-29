@@ -1,5 +1,5 @@
 <pre>
-FTN8.2: FutoIn Security Concept - Service Authentication
+FTN8.3: FutoIn Security Concept - Service Authentication
 Version: 0.2DV
 Date: 2017-12-27
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)

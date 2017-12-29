@@ -14,6 +14,12 @@ Authors: Andrey Galkin
 
 # 2. Security
 * [FTN8 Security Concept](./ftn8\_security\_concept.md)
+    * [FTN8.1: Stateless Authentication](./ftn8.1\_stateless\_auth.md)
+    * [FTN8.2: Service Authentication](./ftn8.2\_service\_auth.md)
+    * [FTN8.3: Client Authentication](./ftn8.3\_client\_auth.md)
+    * [FTN8.4: Access Control](./ftn8.4\_access\_control.md)
+    * [FTN8.5: Defense System](./ftn8.5\_defense.md)
+
 
 
 # 3. Language and Platform specific interface concept
@@ -37,11 +43,11 @@ Authors: Andrey Galkin
 
 ## 5.2. Financial Transactions
 * [FTN19 Transaction Engine](./ftn19\_if\_xfer\_engine.md)
-    * [FTN19.1 Transaction Engine - Currencies](./ftn19.1\_if\_currencies.md)
-    * [FTN19.2 Transaction Engine - Limits](./ftn19.2\_if\_xfer\_limits.md)
-    * [FTN19.3 Transaction Engine - Accounts](./ftn19.3\_if\_xfer\_accounts.md)
-    * [FTN19.4 Transaction Engine - Transactions](./ftn19.4\_if\_xfers.md)
-    * [FTN19.5 Transaction Engine - Messages](./ftn19.5\_if\_xfer_msg.md)
+    * [FTN19.1 Currencies](./ftn19.1\_if\_currencies.md)
+    * [FTN19.2 Limits](./ftn19.2\_if\_xfer\_limits.md)
+    * [FTN19.3 Accounts](./ftn19.3\_if\_xfer\_accounts.md)
+    * [FTN19.4 Transactions](./ftn19.4\_if\_xfers.md)
+    * [FTN19.5 Messages](./ftn19.5\_if\_xfer_msg.md)
 * [FTN20 Payment Service Provider](./ftn20\_if\_psp.md)
 
 =END OF SPEC=

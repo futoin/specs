@@ -1,0 +1,87 @@
+{
+  "iface": "futoin.auth.stateless.manage",
+  "version": "0.2",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.auth.types:0.2"
+  ],
+  "funcs": {
+    "setup": {
+      "params": {
+        "domain": "Domain",
+        "clear_auth": {
+          "type": "boolean",
+          "default": false
+        },
+        "mac_auth": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "ensureUser": {
+      "params": {
+        "user": "LocalUser",
+        "global_id": {
+          "type": "GlobalUserID",
+          "default": null,
+          "desc": "Defaults to auto-generated"
+        }
+      },
+      "result": "LocalUserID",
+      "throws": [
+        "GlobalUserIDMismatch"
+      ]
+    },
+    "setClearSecret": {
+      "params": {
+        "user": "LocalUser",
+        "secret": {
+          "type": "ClearSecret",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownUser"
+      ]
+    },
+    "getClearSecret": {
+      "params": {
+        "user": "LocalUser"
+      },
+      "result": "ClearSecret",
+      "throws": [
+        "UnknownUser",
+        "NotSet"
+      ]
+    },
+    "setMACSecret": {
+      "params": {
+        "user": "LocalUser",
+        "secret": {
+          "type": "MACSecret",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownUser"
+      ]
+    },
+    "getMACSecret": {
+      "params": {
+        "user": "LocalUser"
+      },
+      "result": "MACSecret",
+      "throws": [
+        "UnknownUser",
+        "NotSet"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}
