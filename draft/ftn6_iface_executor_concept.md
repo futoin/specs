@@ -1,14 +1,15 @@
 <pre>
 FTN6: FutoIn Executor Concept
 Version: 1.8DV
-Date: 2017-12-10
+Date: 2017-12-27
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.8 - 2017-12-26 - Andrey Galkin
+* v1.8 - 2017-12-27 - Andrey Galkin
+    * CHANGED: deprecating HMAC format in favor of general FTN8 MAC
     * NEW: RequestInfo.ccm() shortcut
 * v1.7 - 2017-12-10 - Andrey Galkin
     * NEW: request processing limits for DoS protection and fair use reasons
@@ -67,7 +68,7 @@ Executor is responsible for (actions are done in AsyncSteps):
 1. converting request from transport-level representation to internal message format
 2. gathering basic request-response info
 3. checking interface constraints
-4. checking message security (HMAC) or authenticating user by credentials
+4. checking message authentication code (MAC) or authenticating user by credentials
 5. passing control to implementation of specific interfaces with required major version
 6. catching exceptions or normal result
 7. converting response to transport-level representation
@@ -91,7 +92,7 @@ Executor is responsible for (actions are done in AsyncSteps):
 
 
 Executor should be tighly integrated with MasterService implementation, if supported.
-General FutoIn message verification should be based on HMAC checking.
+General FutoIn message verification should be based on MAC checking.
 
 Executor should also integrate with AuthService as consumer, if real human users expected to use the service.
 
@@ -142,25 +143,17 @@ Example:
         * Either local-transport Executor in scope of single operating system
         * Or HTTP/WS Executor, but accessible from private network only
 
-## 1.3. HMAC generation
+## 1.3. Message Access Code (MAC) support
 
-See [HMAC][] for details
+Message Access Code logic is defined in [FTN8](./ftn8\_security\_concept.md).
 
 ### 1.3.1 Rules of HMAC generation for payload
 
-* Payload has a tree structure and coded in JSON or any alternative format
-* All keys and fields are feed to HMAC generator in text representation
-* Top level "sec" field is skipped, if present (in case of request validation)
-* For each nested level, starting from the very root of tree-like payload structure:
-    * Key-value pairs are processing in ascending order based on Unicode comparison rules
-    * Key is feed into HMAC generator
-    * ':' separator is feed into HMAC generator
-    * If value is subtree then recurse this algorithm
-    * else if value is string then feed into HMAC generator
-    * Otherwise, feed textual JSON representation to HMAC generator
-    * ';' separator is feed into HMAC generator
+See FTN8.
 
 ### 1.3.2. Request "sec" field coding with HMAC data
+
+**Note: deprecated, use FTN8 MAC format**
 
 The "sec" field is normally used for Basic Auth in "{user}:{password}" format.
 However, a special "-hmac" user name is reserved for HMAC message signature.
@@ -178,6 +171,8 @@ Where:
 
 ### 1.3.3. Predefined HMAC algorithms
 
+**Note: deprecated, use FTN8 MAC format**
+
 * "MD5" - MD5 128-bit (acceptably secure, even though MD5 itself is weak)
 * "SHA224" - SHA v2 224-bit (acceptably secure)
 * "SHA256" - SHA v2 256-bit (acceptably secure)
@@ -189,6 +184,8 @@ Where:
 However, server may reject unsupported algorithms through configuration*
 
 ### 1.3.4. Response "sec" field with HMAC
+
+**Note: deprecated, use FTN8 MAC format**
 
 If request comes signed with HMAC then response must also be signed
 with HMAC using exactly the same secret key and hashing algorithm.
@@ -409,7 +406,6 @@ in the strict order as listed above.*
 
 Various specification can extend this interface with additional functionality.
 
-[hmac]: http://www.ietf.org/rfc/rfc2104.txt "RFC2104 HMAC"
 [base64]: http://www.ietf.org/rfc/rfc2045.txt "RFC2045 section 6.8"
 [RAII]: http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization "Resource Acquisition Is Initialization"
 

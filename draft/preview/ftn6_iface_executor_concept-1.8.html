@@ -7,14 +7,15 @@
 <pre>
 FTN6: FutoIn Executor Concept
 Version: 1.8DV
-Date: 2017-12-10
+Date: 2017-12-27
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.8 - 2017-12-26 - Andrey Galkin<ul>
+<li>v1.8 - 2017-12-27 - Andrey Galkin<ul>
+<li>CHANGED: deprecating HMAC format in favor of general FTN8 MAC</li>
 <li>NEW: RequestInfo.ccm() shortcut</li>
 </ul>
 </li>
@@ -83,7 +84,7 @@ compilers and/or converters.</p>
 <li>converting request from transport-level representation to internal message format</li>
 <li>gathering basic request-response info</li>
 <li>checking interface constraints</li>
-<li>checking message security (HMAC) or authenticating user by credentials</li>
+<li>checking message authentication code (MAC) or authenticating user by credentials</li>
 <li>passing control to implementation of specific interfaces with required major version</li>
 <li>catching exceptions or normal result</li>
 <li>converting response to transport-level representation</li>
@@ -106,7 +107,7 @@ Client          ||  Executor           Implementation
 </li>
 </ol>
 <p>Executor should be tighly integrated with MasterService implementation, if supported.
-General FutoIn message verification should be based on HMAC checking.</p>
+General FutoIn message verification should be based on MAC checking.</p>
 <p>Executor should also integrate with AuthService as consumer, if real human users expected to use the service.</p>
 <p><em>Note: Executor is allowed to pass control to implementation only if requested major version of
 interfaces exactly matches implemented version and minor version is greater than or equal
@@ -151,25 +152,12 @@ Example:</p>
 </ol>
 </li>
 </ul>
-<h2>1.3. HMAC generation</h2>
-<p>See <a href="http://www.ietf.org/rfc/rfc2104.txt" title="RFC2104 HMAC">HMAC</a> for details</p>
+<h2>1.3. Message Access Code (MAC) support</h2>
+<p>Message Access Code logic is defined in <a href="./ftn8_security_concept.html">FTN8</a>.</p>
 <h3>1.3.1 Rules of HMAC generation for payload</h3>
-<ul>
-<li>Payload has a tree structure and coded in JSON or any alternative format</li>
-<li>All keys and fields are feed to HMAC generator in text representation</li>
-<li>Top level "sec" field is skipped, if present (in case of request validation)</li>
-<li>For each nested level, starting from the very root of tree-like payload structure:<ul>
-<li>Key-value pairs are processing in ascending order based on Unicode comparison rules</li>
-<li>Key is feed into HMAC generator</li>
-<li>':' separator is feed into HMAC generator</li>
-<li>If value is subtree then recurse this algorithm</li>
-<li>else if value is string then feed into HMAC generator</li>
-<li>Otherwise, feed textual JSON representation to HMAC generator</li>
-<li>';' separator is feed into HMAC generator</li>
-</ul>
-</li>
-</ul>
+<p>See FTN8.</p>
 <h3>1.3.2. Request "sec" field coding with HMAC data</h3>
+<p><strong>Note: deprecated, use FTN8 MAC format</strong></p>
 <p>The "sec" field is normally used for Basic Auth in "{user}:{password}" format.
 However, a special "-hmac" user name is reserved for HMAC message signature.</p>
 <p>The HMAC signature has the following format:
@@ -181,6 +169,7 @@ However, a special "-hmac" user name is reserved for HMAC message signature.</p>
 <li>{signature} - Base64 encoded hash</li>
 </ul>
 <h3>1.3.3. Predefined HMAC algorithms</h3>
+<p><strong>Note: deprecated, use FTN8 MAC format</strong></p>
 <ul>
 <li>"MD5" - MD5 128-bit (acceptably secure, even though MD5 itself is weak)</li>
 <li>"SHA224" - SHA v2 224-bit (acceptably secure)</li>
@@ -192,6 +181,7 @@ However, a special "-hmac" user name is reserved for HMAC message signature.</p>
 <p><em>Note: MD5 and SHA2 are mandatory to be implemented on server, SHA3 - if supported by runtime.
 However, server may reject unsupported algorithms through configuration</em></p>
 <h3>1.3.4. Response "sec" field with HMAC</h3>
+<p><strong>Note: deprecated, use FTN8 MAC format</strong></p>
 <p>If request comes signed with HMAC then response must also be signed
 with HMAC using exactly the same secret key and hashing algorithm.</p>
 <p>Only Base64-encoded signature in sent back in the "sec" field.</p>

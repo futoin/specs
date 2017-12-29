@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn8.1_stateless_auth.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN8.1: FutoIn Security Concept - Stateless Authentication
+Version: 0.2DV
+Date: 2017-12-27
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v0.2 - 2017-12-27 - Andrey Galkin<ul>
+<li>CHANGED: heavily revised &amp; split into sub-specs</li>
+<li>CHANGED: replaced HMAC with more generic MAC method</li>
+</ul>
+</li>
+<li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>The ultimate goal is to authenticate user based on local user ID
+and pre-shared secret (password) without automatic Secret renewal.</p>
+<p>The following methods are defined:</p>
+<ol>
+<li>Clear Text</li>
+<li>Simple MAC based on Secret</li>
+</ol>
+<h1>2. Concept</h1>
+<p>This scheme does no support foreign users. </p>
+<p>The following "sec" field definition refer to <a href="./ftn3_iface_definition.html">FTN3</a> request
+message "Security-defined extension" element.</p>
+<h2>2.1. Clear text method</h2>
+<p>Clear text directly corresponds to <a href="https://tools.ietf.org/html/rfc1945#section-11">HTTP Basic Authentication</a>.</p>
+<p>Main parameters are:</p>
+<ul>
+<li><code>{user}</code> - local user ID</li>
+<li><code>{secret}</code> - arbitrary string used for Clear Text</li>
+</ul>
+<p>However, this sub-spec allows using "login:password" pairs outside of
+HTTP requests headers.</p>
+<p><strong>Use of this method is discouraged and should be limited to
+not important functionality accessed through SecureChannel.</strong></p>
+<h3>2.1.1. Clear text request "sec" field structured format</h3>
+<p class="futoin-schema">Schema: futoin-sec-credentials</p>
+
+<pre><code>    {
+        "title" : "FutoIn 'sec' field - Credentials",
+        "type" : "object",
+        "additionalProperties" : false,
+        "required" : [ "user" ],
+        "properties" : {
+            "user" : {
+                "type" : "string",
+                "description" : "Unique user identification"
+            },
+            "secret" : {
+                "type" : "string",
+                "description" : "Any type of secret, typically password"
+            }
+        }
+    }
+</code></pre>
+<h3>2.1.2. Clear text request "sec" field format as string</h3>
+<p>String representation format is <code>"{user}:{secret}"</code> without brackets. Such
+format is size efficient for transmission.</p>
+<h3>2.1.3. Clear text response "sec" field</h3>
+<p>The field must not be present as there is no point for that.</p>
+<h3>2.1.4. Clear text security level</h3>
+<p><code>Info</code> authentication level must be assigned.</p>
+<h2>2.2. Simple MAC method</h2>
+<p>Please refer to main <a href="./ftn8_security_concept.html">FTN8</a> spec for details of generation and validation.</p>
+<p>Main parameters are:</p>
+<ul>
+<li><code>{user}</code> - local user ID,</li>
+<li><code>{algo}</code> - MAC algorithm to use,</li>
+<li><code>{sig}</code> - actual MAC value encoded as <a href="http://www.ietf.org/rfc/rfc2045.txt" title="RFC2045 section 6.8">base64</a> string with or without trailing padding.</li>
+</ul>
+<p>The method has serious advantages over clear text method:</p>
+<ul>
+<li>Shared Secret does not need to be transmitted in messages.</li>
+<li>Both request and response can be signed to protect from external modifications.</li>
+</ul>
+<p>There are still some problems:</p>
+<ul>
+<li>Once Secret is bruteforced, it easy to fake any messages.</li>
+<li>The same message can be easily replayed, but protocols should be designed the way
+    which minimizes replay issues (e.g. using transaction IDs).</li>
+</ul>
+<p>However, it's still relatively simple to implement with meaningful advantages.</p>
+<h3>2.2.1. Simple MAC request "sec" field structured format</h3>
+<p class="futoin-schema">Schema: futoin-sec-simple-mac</p>
+
+<pre><code>    {
+        "title" : "FutoIn 'sec' field - Simple MAC",
+        "type" : "object",
+        "additionalProperties" : false,
+        "required" : [ "user", "algo", "sig" ],
+        "properties" : {
+            "user" : {
+                "type" : "string",
+                "description" : "Unique user identification"
+            },
+            "algo" : {
+                "type" : "string",
+                "description" : "MAC algo name as defined in FTN8"
+            },
+            "sig" : {
+                "type" : "string",
+                "description" : "Base64 encoded MAC"
+            }
+        }
+    }
+</code></pre>
+<h3>2.2.2. Simple MAC request "sec" field string format</h3>
+<p>Prefered for message size reduction.</p>
+<p><code>"-mac:{user}:{algo}:{sig}"</code></p>
+<h3>2.2.3. Simple MAC response "sec" field</h3>
+<p>Response must be authenticated by the same Secret and the same hash algorithm
+as used for request signing.</p>
+<h3>2.2.4. Simple MAC security level</h3>
+<p><code>SafeOps</code> authentication level must be assigned.</p>
+<h1>3. Interface</h1>
+<p>=END OF SPEC=</p>
+</body></html>

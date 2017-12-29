@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn8.4_access_control.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN8.4: FutoIn Security Concept - Access Control
+Version: 0.2DV
+Date: 2017-12-27
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v0.2 - 2017-12-27 - Andrey Galkin<ul>
+<li>CHANGED: heavily revised &amp; split into sub-specs</li>
+</ul>
+</li>
+<li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This sub-specification of <a href="./ftn8_security_concept.html">FTN8</a> covers
+Access Control specification.</p>
+<h1>5. Access Control Service</h1>
+<p>In many cases, there is a fixed number of object types, like users, posts, files, etc.
+And there is a variable size of objects per type, many users, posts and files. Every
+object can have Create/Read/Update/Delete action.</p>
+<p>We can see a hierarchy here: Service -&gt; Object Types -&gt; Individual Objects -&gt; Individual Object Action.</p>
+<p>Another type of hierarchy can be: Service -&gt; Interface -&gt; Function.</p>
+<p>In all cases it is possible to unify access control system to operate on neutral
+tree-like structure of identifiers. On low level, Client access is controlled on specific
+end-object+action. The details of how access is granted (e.g. roles, individual permissions, ownership, etc.)
+are AccessControlService implementation details. However, access can be granted by parent node and/or
+access control tree mask, where some of parent nodes can be "any".</p>
+<p>Doing an API call for every action may produce a significant overhead. It is important to design
+effective caching mechanism with stable invalidation for security reasons.</p>
+<h2>5.1. Access Control descriptor</h2>
+<p>There must be a common notation to identify object of checked control. In API, the access notation is
+an ordered array, where the first item is the top most in scope.</p>
+<p>Descriptor scope is specific to context. In Service context, scope is the Service. In Access Control Service,
+the scope is a common set of all Services registered to the system (meaning the first element is Service identifier).</p>
+<p><em>Example: ["root_node", "object_type", "action"]</em></p>
+<p>In some cases, wildcard is desired for some items. Example: grant update access to all users.
+Wildcard is marked as null value in place of item in the descriptor array.</p>
+<p><em>Example: ["root_node", null, "action"]</em></p>
+<p>For human readable purpose, the same descriptor can be written in string form, each item being separated by
+dot "." and wildcard null being replaced by star "*".</p>
+<p><em>Example: "root.object_type.action", "root.</em>.action"*</p>
+<h2>5.2. Access Control check</h2>
+<ul>
+<li>Client performs a request to Service</li>
+<li>Service calls AccessControlService providing client ID and access descriptor</li>
+<li>AccessControlService checks access implementation-dependent way</li>
+<li>If access is not granted, AccessControlService returns "Forbidden" exception</li>
+<li>AccessControlService returns<ul>
+<li>matched access control descriptor (access can be granted by parent item)</li>
+<li>cache Time-to-Live</li>
+<li>required auth security level</li>
+</ul>
+</li>
+<li>Service caches response by descriptor to optimize checks next time</li>
+<li>Service checks if current auth security level satisfy requirements</li>
+<li>Service continues request processing</li>
+</ul>
+<h2>5.3. Example</h2>
+<pre><code>    Client                     Service                      AccessControlService
+       |                          |                              |
+       |-------- request -------&gt; |                              |
+       |                          |--------- checkAccess ------&gt; |
+       |                          | &lt;-- validation constraints --|
+       | &lt;------ response --------|                              |
+       |                          |                              |
+</code></pre>
+<h1>3. Interface.</h1>
+<p>To be revised.</p>
+<p>=END OF SPEC=</p>
+</body></html>

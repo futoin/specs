@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn8.2_service_auth.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN8.2: FutoIn Security Concept - Service Authentication
+Version: 0.2DV
+Date: 2017-12-27
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v0.2 - 2017-12-27 - Andrey Galkin<ul>
+<li>CHANGED: heavily revised &amp; split into sub-specs</li>
+</ul>
+</li>
+<li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This sub-specification of <a href="./ftn8_security_concept.html">FTN8</a> covers
+Service authentication.</p>
+<p>Service is assumed to be a standalone software or equal - high number of
+unattended requests.</p>
+<h1>2. Concept</h1>
+<h2>2.1. Overall goals</h2>
+<ol>
+<li></li>
+</ol>
+<h2>2.x. Secure symmetric key exchange</h2>
+<p>Symmetric key is assumed under "Secret"</p>
+<ol>
+<li>Service makes initial call:<ul>
+<li>generates a temporary assymetric key</li>
+<li>requests a new key from AuthService providing:<ul>
+<li>the temporary public key for response encryption</li>
+<li>current active key ID</li>
+<li>list of supported Secret types</li>
+<li>purpose of Secret (HMAC, Documents, AuthPayload, etc.)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>AuthService processes the request:<ul>
+<li>ensures request is authentic based on HMAC signature</li>
+<li>generates a new secret</li>
+<li>cleans up old secrets ensuring active key ID remains</li>
+<li>sends back the new key encrypted by the temporary public key</li>
+</ul>
+</li>
+<li>Service processes response:<ul>
+<li>decrypts the payload using the temporary private key</li>
+<li>injects the new secret key as primary</li>
+</ul>
+</li>
+<li>Service gradually starts using the new Secret</li>
+<li>Both the new Secret and the previous Secret are active</li>
+</ol>
+<p>Goals met:</p>
+<ul>
+<li>Forward secrecy even if any key gets compromised</li>
+<li>Works over unencrypted/untrusted channels</li>
+<li>Ensure rolling Secret updates without communication interruptions</li>
+<li>AuthService controls Secret quality</li>
+<li>Resource-heavy assymetric key generation is responsibility of Service to
+    protected AuthService</li>
+<li>Initiating Service (acting as Invoker) is responsible for periodic key exchange<ul>
+<li>It can not do that at all to reduce complexity, if acceptable</li>
+<li>It avoids overcomplicating design with AuthService-to-Service callbacks</li>
+</ul>
+</li>
+</ul>
+<h2>2.x. HTTP notes</h2>
+<ol>
+<li>HTTP <code>Referer</code> header must be empty</li>
+</ol>
+<h1>3. Interface</h1>
+<p>=END OF SPEC=</p>
+</body></html>

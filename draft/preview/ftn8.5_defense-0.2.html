@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn8.5_defense.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN8.5: FutoIn Security Concept - Defense System
+Version: 0.2DV
+Date: 2017-12-27
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v0.2 - 2017-12-27 - Andrey Galkin<ul>
+<li>CHANGED: heavily revised &amp; split into sub-specs</li>
+</ul>
+</li>
+<li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This sub-specification of <a href="./ftn8_security_concept.html">FTN8</a> covers
+Defense System specification.</p>
+<h1>2. Concept</h1>
+<p>To be revised.</p>
+<h1>3. Defense system integration</h1>
+<p>Security is common responsibility. Every node of the system must be a defense barrier for
+both attacks and simple misconfiguration.</p>
+<p>Typically, more farther node from actual attacker should have a dynamic failure rate
+limit to avoid a closer node being banned, leading to Denial of Service of specific 
+functionality.</p>
+<p>Each service must detect attacking Clients/Services and deny access before security limit
+is triggered on another host.</p>
+<p><em>Note: all hit or approaching limits must be reported to administration for actions to be 
+taken</em></p>
+<p><strong>Any error, which never happens by race condition, mistake, etc. must immediately trigger
+defense system action</strong> Example: session token validation by other Service.</p>
+<h2>3.1. Possible limit types</h2>
+<ul>
+<li>Limit per period from the same client and/or host and/or network<ul>
+<li>Request count</li>
+<li>Security failures</li>
+</ul>
+</li>
+<li>Dynamic limits<ul>
+<li>Limit can be risen and lowered dynamically (e.g. AuthService rices limits per Services
+based on number of active users)</li>
+</ul>
+</li>
+</ul>
+<h1>6. Defense Systems</h1>
+<p>Any open system requires effective reaction to errors generated
+by misconfiguration and intentional attacks. It is also required
+to impose limits on utilization of resources for normal operation.</p>
+<p>There are no requirements on how defense system must behave to
+identify possible attacks and misconfiguration, and how to react
+to them. It is like a fraud detection system - a full time job type
+of thing.</p>
+<p>However, this specification defines a universal interface for
+system audit and reaction.</p>
+<h2>6.1. Example</h2>
+<ul>
+<li>
+<p>Successful call (common):</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                  [defense action]                       |
+   |                      [process]                          |
+   |                          |----------- onResult() -----&gt; |
+   | &lt;------ response --------|                              |
+   |                          |                              |
+</code></pre>
+</li>
+<li>
+<p>Failed call (common):</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                  [defense action]                       |
+   |                      [process]                          |
+   |                          |----------- onFail() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                  [defense action]                       |
+   | &lt;------ response --------|                              |
+   |                          |                              |
+</code></pre>
+</li>
+<li>
+<p>Defense with drop:</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                       [drop]                            |
+   |                          |                              |
+</code></pre>
+</li>
+<li>
+<p>Defense with reject / reauth:</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                  [defense action]                       |
+   | &lt;-- response failure ----|                              |
+   |                          |                              |
+</code></pre>
+</li>
+<li>
+<p>Defense with request delay:</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                       [delay]                           |
+   |                      [process]                          |
+   |                          |----------- onResult() -----&gt; |
+   | &lt;------ response --------|                              |
+   |                          |                              |
+</code></pre>
+</li>
+<li>
+<p>Defense with response delay:</p>
+<pre><code>Client                     Service                      DefenseService
+   |                          |                              |
+   |-------- request -------&gt; |                              |
+   |                          |----------- onCall() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                  [defense action]                       |
+   |                      [process]                          |
+   |                          |----------- onFail() -------&gt; |
+   |                          | &lt;----- defense action -------|
+   |                       [delay]                           |
+   | &lt;------ response --------|                              |
+   |                          |                              |
+</code></pre>
+</li>
+</ul>
+<h1>3. Interface</h1>
+<p>To be revised.</p>
+<pre><code>    {
+        "iface" : "futoin.defense.provider",
+        "version" : "{ver}",
+        "ftn3rev" : "1.4",
+        "funcs" : {
+            "onCall" : {
+                "params" : {
+                    "client_id" : {
+                        "type" : "string",
+                        "desc" : "Unique Client ID"
+                    },
+                    "client_addr" : {
+                        "type" : "string",
+                        "desc" : "IPv4:addr, IPv6:addr or other-type:addr, optionally followed by :port or :path"
+                    },
+                    "request" : {
+                        "type" : "map",
+                        "desc" : "Original request data"
+                    }
+                },
+                "result" : {
+                    "act" : {
+                        "type" : "string",
+                        "desc" : "one of: pass, drop, reject, reauth, delay"
+                    },
+                    "delay" : {
+                        "type" : "number",
+                        "desc" : "delay response (processing for 'delay') for specific absolute time in microseconds since request was made for _any_ action"
+                    },
+                    "refid" : {
+                        "type" : "string",
+                        "desc" : "Reference ID for onResult()"
+                    }
+                },
+                "desc" : "Call before processing each client's call"
+            },
+            "onResult" : {
+                "params" : {
+                    "refid" : {
+                        "type" : "string",
+                        "desc" : "Reference ID for onCall()"
+                    },
+                    "response" : {
+                        "type" : "map",
+                        "desc" : "Original response data"
+                    }
+                },
+                "desc" : "Call after processing each client's call"
+            },
+            "onFail" : {
+                "params" : {
+                    "refid" : {
+                        "type" : "string",
+                        "desc" : "Reference ID for onCall()"
+                    },
+                    "error" : {
+                        "type" : "string",
+                        "desc" : "Generated error"
+                    }
+                },
+                "result" : {
+                    "delay" : {
+                        "type" : "number",
+                        "desc" : "delay response for specific absolute time in microseconds since request was made"
+                    }
+                },
+                "desc" : "Call before processing each client's call"
+            }
+        },
+        "requires" : [
+            "SecureChannel"
+        ],
+        "desc" : "AuthService Backend Provider interface"
+    }
+</code></pre>
+<p>=END OF SPEC=</p>
+</body></html>

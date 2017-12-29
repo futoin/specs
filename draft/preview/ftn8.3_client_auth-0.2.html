@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn8.3_client_auth.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN8.3: FutoIn Security Concept - Client Authentication
+Version: 0.2DV
+Date: 2017-12-27
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v0.2 - 2017-12-27 - Andrey Galkin<ul>
+<li>CHANGED: heavily revised &amp; split into sub-specs</li>
+</ul>
+</li>
+<li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This sub-specification of <a href="./ftn8_security_concept.html">FTN8</a> covers
+Client authentication.</p>
+<p>Client is assumed to be a living being like human - limited number of requests
+through software running under Client's control.</p>
+<p>The ultimate goal is to concentrate primary Client authentication logic
+in AuthService as defined in the main spec while Client-to-Service authentication
+is derived and perhaps more difficult to break.</p>
+<h1>2. Concept</h1>
+<h2>2.1. Client registration</h2>
+<p>There is an <em>open</em> list of possible use cases:</p>
+<ol>
+<li>By adminstrator of AuthService.</li>
+<li>Via self-registration form.</li>
+<li>By Service which creates users on demand.</li>
+</ol>
+<h2>2.2. Client Authentication</h2>
+<h3>2.2.1. Authentication of requests</h3>
+<ol>
+<li>Each non-anonymous request must be undoubtedly associated with user account<ul>
+<li>especially important when single Client session has multiple user accounts</li>
+</ul>
+</li>
+<li>Service passes request to AuthService for authentication</li>
+<li>AuthService does authentication implementation-defined way<ul>
+<li>user must be active</li>
+<li>user session must still be valid</li>
+</ul>
+</li>
+<li>AuthService returns user local and global IDs for further processing<ul>
+<li>otherwise, <code>PleaseReauth</code> standard error is thrown</li>
+</ul>
+</li>
+</ol>
+<h3>2.2.2. <code>PleaseReauth</code> handling in Client code</h3>
+<ol>
+<li>Client must be immediately redirected to associated AuthService login page.</li>
+<li>Upon successful authentication and return, implementation may restore state and
+    continue execution as if no interruption occured.</li>
+</ol>
+<p><em>Note: this logic does not apply to Service-to-Service calls</em></p>
+<h3>2.2.3. Login page logic</h3>
+<ol>
+<li>Client passes implementation-defined authentication procedure on AuthService page.</li>
+<li>HTTP session cookie or its equivalent is set on Client's device.</li>
+</ol>
+<h3>2.2.4. Multiple user accounts</h3>
+<p>It's assumed that single Client can use multiple user accounts at the same time. Therefore:</p>
+<ol>
+<li>Both Service and AuthService must be aware of possible multiple account cases.</li>
+<li>Login as different user must always be available.</li>
+<li>If multiple user accounts are authenticated in session then current account selection must be available.</li>
+</ol>
+<h3>2.2.5. Sessions of foreign users</h3>
+<ol>
+<li>Foreign user's home service must be aware of all related session and be able to invalidate them</li>
+<li>Local AuthService must listen to foreign user updates from user's home AuthService</li>
+</ol>
+<h3>2.2.6. Secure redirection between Service and AuthService</h3>
+<p>The important aspects:</p>
+<ol>
+<li>AuthService may want to protect from potential DoS attacks caused by Service redirects</li>
+<li>AuthService may want to ask user only for action on behalf of Service only if</li>
+</ol>
+<h1>3. Interface</h1>
+<p>=END OF SPEC=</p>
+</body></html>
