@@ -90,13 +90,10 @@ Common types to use in other interfaces of this spec.
             "version" : "{ver}",
             "ftn3rev" : "1.7",
             "imports" : [
+                "futoin.types:1.0",
                 "futoin.currency.types:{ver}"
             ],
             "types" : {
-                "UUIDB64" : {
-                    "type" : "string",
-                    "regex" : "^[A-Za-z0-9+/]{22}$"
-                },
                 "AccountID" : "UUIDB64",
                 "AccountHolderID" : "UUIDB64",
                 "AccountExternalID" : {

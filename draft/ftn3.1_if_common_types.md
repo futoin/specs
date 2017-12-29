@@ -1,6 +1,6 @@
 <pre>
 FTN3.1: FutoIn Interface - Common Types
-Version: 1.0
+Version: 1.0DV
 Date: 2017-12-29
 Copyright: 2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -32,7 +32,7 @@ Just a standard spec with common types.
             "types" : {
                 "Base64" : {
                     "type" : "string",
-                    "regex" : "^[a-zA-Z0-9+/]$",
+                    "regex" : "^[a-zA-Z0-9+/]*$",
                     "desc" : "Use min/maxlen to control length"
                 },
                 "UUIDB64" : {
