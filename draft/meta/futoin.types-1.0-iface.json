@@ -1,0 +1,40 @@
+{
+  "iface": "futoin.types",
+  "version": "1.0",
+  "ftn3rev": "1.8",
+  "types": {
+    "Base64": {
+      "type": "string",
+      "regex": "^[a-zA-Z0-9+/]$",
+      "desc": "Use min/maxlen to control length"
+    },
+    "UUIDB64": {
+      "type": "Base64",
+      "minlen": 22,
+      "maxlen": 22,
+      "desc": "UUID in Base64 without padding"
+    },
+    "UUID": {
+      "type": "string",
+      "regex": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
+      "desc": "Canonical UUID with separators"
+    },
+    "NotNegativeInteger": {
+      "type": "integer",
+      "min": 0
+    },
+    "PositiveInteger": {
+      "type": "integer",
+      "min": 1
+    },
+    "Domain": {
+      "type": "string",
+      "regex": "^[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}$"
+    },
+    "Email": {
+      "type": "string",
+      "regex": "^[a-zA-Z0-9._%+-]+@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}$",
+      "maxlen": 254
+    }
+  }
+}

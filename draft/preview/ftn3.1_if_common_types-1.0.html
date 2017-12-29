@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn3.1_if_common_types.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN3.1: FutoIn Interface - Common Types
+Version: 1.0
+Date: 2017-12-29
+Copyright: 2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.0 - 2017-12-29 - Andrey Galkin<ul>
+<li>Initial spec</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>Many specifications require the same basic types like UUID
+or Base64 string. This standalone specification under main
+FTN3 provides such complex basic types.</p>
+<h1>2. Concept</h1>
+<p>Just a standard spec with common types.</p>
+<h1>3. Interfaca</h1>
+<pre><code>    {
+        "iface" : "futoin.types",
+        "version" : "{ver}",
+        "ftn3rev" : "1.8",
+        "types" : {
+            "Base64" : {
+                "type" : "string",
+                "regex" : "^[a-zA-Z0-9+/]$",
+                "desc" : "Use min/maxlen to control length"
+            },
+            "UUIDB64" : {
+                "type" : "Base64",
+                "minlen" : 22,
+                "maxlen" : 22,
+                "desc" : "UUID in Base64 without padding"
+            },
+            "UUID" : {
+                "type" : "string",
+                "regex" : "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
+                "desc" : "Canonical UUID with separators"
+            },
+            "NotNegativeInteger" : {
+                "type" : "integer",
+                "min" : 0
+            },
+            "PositiveInteger" : {
+                "type" : "integer",
+                "min" : 1
+            },
+            "Domain" : {
+                "type" : "string",
+                "regex" : "^[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}$"
+            },
+            "Email" : {
+                "type" : "string",
+                "regex" : "^[a-zA-Z0-9._%+-]+@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}$",
+                "maxlen" : 254
+            }
+        }
+    }
+</code></pre>
+<p>=END OF SPEC=</p>
+</body></html>

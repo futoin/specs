@@ -29,6 +29,7 @@ Authors: Andrey Galkin
 
 # 5. Interfaces
 ## 5.1. Core
+* [FTN3.1 Common Types](./ftn3.1\_if\_common\_types.md)
 * [FTN4 Ping](./ftn4\_if\_ping.md)
 * [FTN9 Audit Log](./ftn9\_if\_auditlog.md)
 * [FTN17 Database](./ftn17\_if\_database.md)
