@@ -3,14 +3,15 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "key",
+    "msid",
     "algo",
+    "kds",
     "sig"
   ],
   "properties": {
-    "key": {
+    "msid": {
       "type": "string",
-      "description": "Unique master key ID"
+      "description": "Unique Master Secret ID"
     },
     "algo": {
       "type": "string",
@@ -18,7 +19,7 @@
     },
     "kds": {
       "type": "string",
-      "description": "Derived key strategy"
+      "description": "Key Derivation Strategy"
     },
     "prm": {
       "type": "string",

@@ -12,6 +12,8 @@ Authors: Andrey Galkin
     - CHANGED: heavily revised & split into sub-specs
     - CHANGED: moved HMAC logic from FTN6 spec to MAC section here
     - NEW: added different MAC schemes support
+    - NEW: completed of local authentication & authorization spec
+    - NEW: completed Client Single Sign-On
 * v0.1 - 2014-06-03 - Andrey Galkin
     - Initial draft
 
@@ -27,7 +29,7 @@ fully distributed.
 ## 1.1. Sub-specifications
 
 * [FTN8.1: Stateless Authentication](./ftn8.1\_stateless\_auth.md)
-* [FTN8.2: Master Key Authentication](./ftn8.2\_master\_auth.md)
+* [FTN8.2: Master Secret Authentication](./ftn8.2\_master\_auth.md)
 * [FTN8.3: Client Authentication](./ftn8.3\_client\_auth.md)
 * [FTN8.4: Access Control](./ftn8.4\_access\_control.md)
 * [FTN8.5: Defense System](./ftn8.5\_defense.md)
@@ -487,8 +489,8 @@ salt should be of recommended size, if applicable.
 
 Based on strategy, no key ID or a fixed minimal derived key ID may be used for current
 version of the specification to minimize performance impact and simplify Executor's
-derived key caching logic. Master key itself should provide enough entropy to ensure
-derived key's quality. So, key update gets bound to frequency of master key update.
+derived key caching logic. Master Secret itself should provide enough entropy to ensure
+derived key's quality. So, key update gets bound to frequency of Master Secret update.
 Key derivation would be used only to get different keys based on purpose.
 
 #### 2.11.4.2. Key purpose name
@@ -515,15 +517,15 @@ to reject requests with "SecurityError" on mismatch.
 
 #### 2.11.4.4. Key derivation strategies names
 
-1. `HKDF0` - use [HKDF][] with empty "salt" and use purpose string for "info" to
-    derive unique keys per purpose from shared master Secret.
-    - empty salt should be OK with quality master key
+1. `HKDF0` - use [HKDF][] with empty "salt" and purpose name for "info" to
+    derive unique keys per purpose from shared Master Secret.
+    - empty salt should be OK with quality Master Secret
     - "prm" must not be sent or be empty
-    - default for MAC purpose
-2. `HKDF` - use [HKDF][] with UUID for "salt" and use purpose string
-    for "info" to derive unique keys per purpose from shared master Secret.
+    - default for `MAC` and `EXPOSED` purpose
+2. `HKDF` - use [HKDF][] with UUID for "salt" and purpose name for "info" to
+    derive unique keys per purpose from shared Master Secret.
     - "salt" must be sent in "prm" field
-    - default for encryption purpose
+    - default for `ENC` purpose
 
 ## 2.12. Security Levels
 
@@ -592,7 +594,7 @@ It's important to understand characteristics of performed user authentication in
                 "type" : "string",
                 "minlen" : 8
             },
-            "MasterKeyID" : "UUIDB64",
+            "MasterSecretID" : "UUIDB64",
             "KeyDerivationStrategy" : {
                 "type" : "enum",
                 "items" : [
@@ -633,7 +635,7 @@ It's important to understand characteristics of performed user authentication in
                 "type" : "Base64",
                 "minlen" : 1
             },
-            "EncryptedMasterKey" : {
+            "EncryptedMasterSecret" : {
                 "type" : "Base64",
                 "minlen" : 1
             }

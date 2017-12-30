@@ -5,16 +5,16 @@
 <link rel="stylesheet" type="text/css" href="../../css/specs.css">
 </head><body>
 <pre>
-FTN8.3: FutoIn Security Concept - Master Key Authentication
+FTN8.3: FutoIn Security Concept - Master Secret Authentication
 Version: 0.2DV
-Date: 2017-12-29
+Date: 2017-12-30
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v0.2 - 2017-12-29 - Andrey Galkin<ul>
+<li>v0.2 - 2017-12-30 - Andrey Galkin<ul>
 <li>CHANGED: heavily revised &amp; split into sub-specs</li>
 </ul>
 </li>
@@ -25,7 +25,7 @@ Authors: Andrey Galkin
 </ul>
 <h1>1. Intro</h1>
 <p>This sub-specification of <a href="./ftn8_security_concept.html">FTN8</a> covers
-more secure Master Key Authentication with dynamically updated shared secrets.</p>
+more secure Master Secret Authentication with dynamically updated shared secrets.</p>
 <p>Service is assumed to be a unattended software or equal - high number of
 unattended requests.</p>
 <h1>2. Concept</h1>
@@ -38,50 +38,51 @@ unattended requests.</p>
     existing shared Secret.</li>
 <li>Ensure temporary key and new Secret quality by AuthService.</li>
 <li>Use one of supported key derivation strategies:<ul>
-<li>do not lock on one method</li>
-<li>allow tradeoff between performance and extra security at use time</li>
+<li>do not lock on one method,</li>
+<li>allow tradeoff between performance and extra security at use time.</li>
 </ul>
 </li>
-<li>Key exchange interval solely depends on Invoker, but AuthService
+<li>Secret exchange interval solely depends on Invoker, but AuthService
     may deactivate too old/too used keys (defined by configuration).</li>
 </ol>
-<h2>2.2. Secure symmetric key exchange</h2>
+<h2>2.2. Secure Master Secret exchange</h2>
 <ol>
 <li>Service makes initial call:<ul>
-<li>generates a temporary assymetric key</li>
-<li>requests a new key from AuthService providing:<ul>
-<li>the temporary public key for response encryption</li>
-<li>current active key ID as part of MAC</li>
+<li>generates a temporary assymetric key,</li>
+<li>requests a new Master Secret from AuthService providing:<ul>
+<li>the temporary public key for response encryption,</li>
+<li>current active Master Secret ID as part of MAC.</li>
 </ul>
 </li>
 </ul>
 </li>
 <li>AuthService processes the request:<ul>
-<li>ensures request is authentic based on MAC signature</li>
-<li>generates a new Secret</li>
-<li>cleans up old secrets ensuring current active key ID remains</li>
-<li>sends back the new key encrypted by the temporary public key</li>
+<li>ensures request is authentic based on MAC signature,</li>
+<li>generates a new Secret,</li>
+<li>cleans up old secrets ensuring current active Master Secret ID remains,</li>
+<li>sends back the new Master Secret encrypted by the temporary public key.</li>
 </ul>
 </li>
 <li>Service processes response:<ul>
-<li>decrypts the payload using the temporary private key</li>
-<li>injects the new secret key as primary</li>
+<li>decrypts the payload using the temporary private key,</li>
+<li>injects the new Master Secret as primary.</li>
 </ul>
 </li>
-<li>Service gradually starts using the new Secret</li>
-<li>Both the new Secret and the previous Secret are active</li>
+<li>Service gradually starts using the new Secret.</li>
+<li>Both the new Secret and the previous Secret are active.</li>
 </ol>
 <p>Goals met:</p>
 <ul>
-<li>Forward secrecy even if any key gets compromised</li>
-<li>Works over unencrypted/untrusted channels, but discouraged</li>
-<li>Ensure rolling Secret updates without communication interruptions</li>
-<li>AuthService controls Secret quality</li>
+<li>Forward secrecy even if any secret gets compromised.</li>
+<li>Works over unencrypted/untrusted channels, but discouraged.</li>
+<li>Ensure rolling Secret updates without communication interruptions.</li>
+<li>AuthService controls Secret quality.</li>
 <li>Resource-heavy assymetric key generation is responsibility of Service to
-    protect AuthService of heavy load</li>
-<li>Initiating Service (acting as Invoker) is responsible for periodic key exchange<ul>
-<li>It can not do that at all to reduce complexity, if static key is acceptable</li>
-<li>It avoids overcomplicating design with AuthService-to-Service callbacks</li>
+    protect AuthService of heavy load.</li>
+<li>Initiating Service (acting as Invoker) is responsible for periodic
+    Master Secret exchange.<ul>
+<li>It can not do that at all to reduce complexity, if static key is acceptable.</li>
+<li>It avoids overcomplicating design with AuthService-to-Service callbacks.</li>
 </ul>
 </li>
 </ul>
@@ -92,11 +93,11 @@ unattended requests.</p>
     "title" : "FutoIn 'sec' field - Master MAC",
     "type" : "object",
     "additionalProperties" : false,
-    "required" : [ "key", "algo", "sig" ],
+    "required" : [ "msid", "algo", "kds", "sig" ],
     "properties" : {
-        "key" : {
+        "msid" : {
             "type" : "string",
-            "description" : "Unique master key ID"
+            "description" : "Unique Master Secret ID"
         },
         "algo" : {
             "type" : "string",
@@ -104,7 +105,7 @@ unattended requests.</p>
         },
         "kds" : {
             "type" : "string",
-            "description" : "Derived key strategy"
+            "description" : "Key Derivation Strategy"
         },
         "prm" : {
             "type" : "string",
@@ -118,7 +119,7 @@ unattended requests.</p>
 }
 </code></pre>
 <h2>2.4 "sec" field string format</h2>
-<p><code>"-mmac:{key}:{algo}:{dks}:{prm}:{sig}"</code></p>
+<p><code>"-mmac:{msid}:{algo}:{dks}:{prm}:{sig}"</code></p>
 <h2>2.5. Master MAC response "sec" field</h2>
 <p>Response must be authenticated by the same Secret and the same hash algorithm
 as used for request signing.</p>
@@ -126,7 +127,7 @@ as used for request signing.</p>
 <p><code>PrivilegedOps</code> security level must be assigned.</p>
 <h1>3. Interface</h1>
 <h2>3.1. Message authentication</h2>
-<p>Provide Master key based authentication to Executor.</p>
+<p>Provide Master Secret based authentication to Executor.</p>
 <p>It is designed the way when MAC secret is always kept inside AuthService to
 minimize risk of exposure.</p>
 <pre><code>{
@@ -141,7 +142,7 @@ minimize risk of exposure.</p>
         "MACSecField" : {
             "type" : "map",
             "fields" : {
-                "key" : "MasterKeyID",
+                "msid" : "MasterSecretID",
                 "algo" : "MACAlgo",
                 "kds" : "KeyDerivationStrategy",
                 "prm" : {
@@ -187,10 +188,10 @@ minimize risk of exposure.</p>
     ]
 }
 </code></pre>
-<h2>3.2. Key exchange</h2>
+<h2>3.2. Secret exchange</h2>
 <p>Perform periodic secure symmetric Master Secret exchange initiated by Service.</p>
 <pre><code>{
-    "iface" : "futoin.auth.master.key",
+    "iface" : "futoin.auth.master.exchange",
     "version" : "{ver}",
     "ftn3rev" : "1.8",
     "imports" : [
@@ -198,14 +199,14 @@ minimize risk of exposure.</p>
         "futoin.auth.types:{ver}"
     ],
     "funcs" : {
-        "getNewSecret" : {
+        "getNewEncryptedSecret" : {
             "params" : {
                 "type" : "PublicKeyType",
                 "pubkey" : "PublicKey"
             },
             "result" : {
-                "new_id" : "MasterKeyID",
-                "new_ekey" : "EncryptedMasterKey"
+                "id" : "MasterSecretID",
+                "esecret" : "EncryptedMasterSecret"
             },
             "throws" : [
                 "SecurityError"
@@ -249,13 +250,13 @@ configuration.</p>
         "futoin.auth.types:{ver}"
     ],
     "funcs" : {
-        "getNewMasterSecret" : {
+        "getNewPlainSecret" : {
             "params" : {
                 "user" : "LocalUser"
             },
             "result" : {
-                "new_id" : "MasterKeyID",
-                "new_key" : "Base64"
+                "id" : "MasterSecretID",
+                "secret" : "Base64"
             },
             "throws" : [
                 "UnknownUser",

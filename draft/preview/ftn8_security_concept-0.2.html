@@ -18,6 +18,8 @@ Authors: Andrey Galkin
 <li>CHANGED: heavily revised &amp; split into sub-specs</li>
 <li>CHANGED: moved HMAC logic from FTN6 spec to MAC section here</li>
 <li>NEW: added different MAC schemes support</li>
+<li>NEW: completed of local authentication &amp; authorization spec</li>
+<li>NEW: completed Client Single Sign-On</li>
 </ul>
 </li>
 <li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
@@ -34,7 +36,7 @@ fully distributed.</p>
 <h2>1.1. Sub-specifications</h2>
 <ul>
 <li><a href="./ftn8.1_stateless_auth.html">FTN8.1: Stateless Authentication</a></li>
-<li><a href="./ftn8.2_master_auth.html">FTN8.2: Master Key Authentication</a></li>
+<li><a href="./ftn8.2_master_auth.html">FTN8.2: Master Secret Authentication</a></li>
 <li><a href="./ftn8.3_client_auth.html">FTN8.3: Client Authentication</a></li>
 <li><a href="./ftn8.4_access_control.html">FTN8.4: Access Control</a></li>
 <li><a href="./ftn8.5_defense.html">FTN8.5: Defense System</a></li>
@@ -467,8 +469,8 @@ different ways.</p>
 salt should be of recommended size, if applicable.</p>
 <p>Based on strategy, no key ID or a fixed minimal derived key ID may be used for current
 version of the specification to minimize performance impact and simplify Executor's
-derived key caching logic. Master key itself should provide enough entropy to ensure
-derived key's quality. So, key update gets bound to frequency of master key update.
+derived key caching logic. Master Secret itself should provide enough entropy to ensure
+derived key's quality. So, key update gets bound to frequency of Master Secret update.
 Key derivation would be used only to get different keys based on purpose.</p>
 <h4>2.11.4.2. Key purpose name</h4>
 <p>Below is list of ASCII values to use for altering key derivation logic.</p>
@@ -489,17 +491,17 @@ that Invoker may be clustered with unique derived key at every node.</p>
 to reject requests with "SecurityError" on mismatch.</p>
 <h4>2.11.4.4. Key derivation strategies names</h4>
 <ol>
-<li><code>HKDF0</code> - use [HKDF][] with empty "salt" and use purpose string for "info" to
-    derive unique keys per purpose from shared master Secret.<ul>
-<li>empty salt should be OK with quality master key</li>
+<li><code>HKDF0</code> - use [HKDF][] with empty "salt" and purpose name for "info" to
+    derive unique keys per purpose from shared Master Secret.<ul>
+<li>empty salt should be OK with quality Master Secret</li>
 <li>"prm" must not be sent or be empty</li>
-<li>default for MAC purpose</li>
+<li>default for <code>MAC</code> and <code>EXPOSED</code> purpose</li>
 </ul>
 </li>
-<li><code>HKDF</code> - use [HKDF][] with UUID for "salt" and use purpose string
-    for "info" to derive unique keys per purpose from shared master Secret.<ul>
+<li><code>HKDF</code> - use [HKDF][] with UUID for "salt" and purpose name for "info" to
+    derive unique keys per purpose from shared Master Secret.<ul>
 <li>"salt" must be sent in "prm" field</li>
-<li>default for encryption purpose</li>
+<li>default for <code>ENC</code> purpose</li>
 </ul>
 </li>
 </ol>
@@ -567,7 +569,7 @@ to reject requests with "SecurityError" on mismatch.</p>
             "type" : "string",
             "minlen" : 8
         },
-        "MasterKeyID" : "UUIDB64",
+        "MasterSecretID" : "UUIDB64",
         "KeyDerivationStrategy" : {
             "type" : "enum",
             "items" : [
@@ -608,7 +610,7 @@ to reject requests with "SecurityError" on mismatch.</p>
             "type" : "Base64",
             "minlen" : 1
         },
-        "EncryptedMasterKey" : {
+        "EncryptedMasterSecret" : {
             "type" : "Base64",
             "minlen" : 1
         }

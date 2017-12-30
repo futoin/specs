@@ -47,7 +47,7 @@
       "type": "string",
       "minlen": 8
     },
-    "MasterKeyID": "UUIDB64",
+    "MasterSecretID": "UUIDB64",
     "KeyDerivationStrategy": {
       "type": "enum",
       "items": [
@@ -88,7 +88,7 @@
       "type": "Base64",
       "minlen": 1
     },
-    "EncryptedMasterKey": {
+    "EncryptedMasterSecret": {
       "type": "Base64",
       "minlen": 1
     }

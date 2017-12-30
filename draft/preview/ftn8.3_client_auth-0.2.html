@@ -14,8 +14,9 @@ Authors: Andrey Galkin
 
 <h1>CHANGES</h1>
 <ul>
-<li>v0.2 - 2017-12-27 - Andrey Galkin<ul>
+<li>v0.2 - 2017-12-30 - Andrey Galkin<ul>
 <li>CHANGED: heavily revised &amp; split into sub-specs</li>
+<li>NEW: Client Single Sign-On</li>
 </ul>
 </li>
 <li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
@@ -23,36 +24,54 @@ Authors: Andrey Galkin
 </ul>
 </li>
 </ul>
-<h1>WARNING</h1>
-<p><strong>INCOMPLETE: just peaces from old FTN8 v0.1</strong></p>
-<p>To be revised</p>
 <h1>1. Intro</h1>
 <p>This sub-specification of <a href="./ftn8_security_concept.html">FTN8</a> covers
-Client authentication.</p>
-<p>Client is assumed to be a living being like human - limited number of requests
-through software running under Client's control.</p>
-<p>The ultimate goal is to concentrate primary Client authentication logic
-in AuthService as defined in the main spec while Client-to-Service authentication
-is derived and perhaps more difficult to break.</p>
+Client authentication and Service authorization.</p>
+<p>Client is assumed to be a software under control of User.
+User is a living being like human.</p>
+<p>The ultimate goal is to concentrate primary User and Client authentication logic
+in AuthService as defined in the main spec while Service itself has minimal
+responsibility.</p>
 <h1>2. Concept</h1>
-<h2>2.1. Client registration</h2>
+<h2>2.1. User registration</h2>
 <p>There is an <em>open</em> list of possible use cases:</p>
 <ol>
 <li>By adminstrator of AuthService.</li>
 <li>Via self-registration form.</li>
 <li>By Service which creates users on demand.</li>
 </ol>
-<h2>2.2. Client Authentication</h2>
-<h3>2.2.1. Authentication of requests</h3>
+<h2>2.2. Client authentication and sessions</h2>
+<h3>2.2.1. Authentication of Client requests</h3>
+<p>At least for HTTP-based Clients, there is doubtful security of using
+stateless or MAC-based request signing authentication as modern browsers
+support protection of cookies from exposure to applications on page.</p>
+<p>Therefore, this sub-spec is focused on cookie-based authentication. The cookie
+must be bound to particular Service. It must not be possible to re-use it in
+other Service.</p>
 <ol>
-<li>Each non-anonymous request must be undoubtedly associated with user account<ul>
-<li>especially important when single Client session has multiple user accounts</li>
+<li>Each non-anonymous request must be undoubtedly associated with User account.<ul>
+<li>Especially important when single Client session has multiple User sessions.</li>
+<li>Selection of active session token is responsibility of Service implementation.<ul>
+<li>One strategy is to switch profiles to always have a single active token:<ul>
+<li>It may be dangerous when some of the windows/tabs is in outdated state.</li>
 </ul>
 </li>
-<li>Service passes request to AuthService for authentication</li>
-<li>AuthService does authentication implementation-defined way<ul>
-<li>user must be active</li>
-<li>user session must still be valid</li>
+<li>Another strategy, is to identify sessions in API.<ul>
+<li>Actual API should be agnostics to multi-sessions.</li>
+<li>So, prefer a separate API endpoint associated with cookie index.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>The session token generation and validation is duty of AuthService.</li>
+</ul>
+</li>
+<li>Service passes active session token to AuthService.</li>
+<li>AuthService does authentication implementation-defined way:<ul>
+<li>User must be active,</li>
+<li>User session must still be valid.</li>
+<li>For performance and scalability reasons, local proxy AuthService can be
+    used, if it ensures proper global session invalidation.</li>
 </ul>
 </li>
 <li>AuthService returns user local and global IDs for further processing<ul>
@@ -62,33 +81,123 @@ is derived and perhaps more difficult to break.</p>
 </ol>
 <h3>2.2.2. <code>PleaseReauth</code> handling in Client code</h3>
 <ol>
-<li>Client must be immediately redirected to associated AuthService login page.</li>
-<li>Upon successful authentication and return, implementation may restore state and
-    continue execution as if no interruption occured.</li>
+<li>Client must immediately request signed redirect URL for login page.</li>
+<li>Client must follow the URL as is.</li>
+<li>Upon successful authentication and return to Service, implementation
+    may restore session state and continue execution as if no
+    interruption occured.</li>
 </ol>
 <p><em>Note: this logic does not apply to Service-to-Service calls</em></p>
-<h3>2.2.3. Login page logic</h3>
+<h3>2.2.3. User authentication in Client</h3>
 <ol>
+<li>If Client comes from Service redirect (Auth Query):<ul>
+<li>validate Service signature first</li>
+</ul>
+</li>
 <li>Client passes implementation-defined authentication procedure on AuthService page.</li>
-<li>HTTP session cookie or its equivalent is set on Client's device.</li>
+<li>HTTP session cookie or its equivalent may be set on Client in scope of AuthService.<ul>
+<li>Optional persistent cookie may be set, implementation-defined.</li>
+</ul>
+</li>
+<li>If the Service has not been Authorized to access user's resource yet then
+    user is prompted for that.</li>
+<li>If Client comes from Service redirect (Auth Query):<ul>
+<li>Client is redirected back with "session start token"</li>
+<li>Client gets back to Service</li>
+<li>Service verifies redirect signature and starts new user session with AuthService
+    using the start token</li>
+<li>AuthService returns new session token and session persistence requirements</li>
+<li>HTTP cookie or its equivalent is set on Client based on response details</li>
+</ul>
+</li>
 </ol>
-<h3>2.2.4. Multiple user accounts</h3>
-<p>It's assumed that single Client can use multiple user accounts at the same time. Therefore:</p>
+<h4>2.2.3.1. "session token" vs. "session start token"</h4>
+<ul>
+<li>Session start token:<ul>
+<li>is exposed in redirect URLs,</li>
+<li>must not be stored in cookie,</li>
+<li>must be used only for a tiny period of new session initiation,</li>
+<li>must not be re-usable - one-time policy,</li>
+<li>must be bound to specific Client fingerprints and
+    NOT allow source address roaming.</li>
+</ul>
+</li>
+<li>Session token:<ul>
+<li>must never be exposed anywhere except for HTTP headers (HTTP-only cookie policy),</li>
+<li>assumed to be stored in cookie,</li>
+<li>must be used for entire User [persistent] session,</li>
+<li>must not be re-usable once session is invalidated,</li>
+<li>must be ignored, if HTTP "Referer" header mismatches allowed URLs,</li>
+<li>must be bound to specific Client fingerprints, but
+    MAY allow source address roaming.</li>
+</ul>
+</li>
+<li>Both:<ul>
+<li>must be bound to target Service.</li>
+</ul>
+</li>
+</ul>
+<h3>2.2.4. User session persistence</h3>
+<ul>
+<li>Depends on AuthService implementation and/or configuration,</li>
+<li>Should have absolute time-to-live to require re-authentication (e.g. day, week, month, etc.),</li>
+<li>May support "remember me" logic,</li>
+<li>Should have idle timeout for automatic logout, if not "remember me",</li>
+<li>Should be stored and surive Client shutdown, if "remember me" logic is activated,</li>
+<li>May be invalidated at any time, if AuthService and/or DefenseService detect suspicious activity.</li>
+</ul>
+<h3>2.2.5. Multiple User sessions in the same Client</h3>
+<p>It's assumed that single Client can have multiple User sessions at the same time.</p>
+<p>Therefore:</p>
 <ol>
-<li>Both Service and AuthService must be aware of possible multiple account cases.</li>
-<li>Login as different user must always be available.</li>
-<li>If multiple user accounts are authenticated in session then current account selection must be available.</li>
+<li>Both Service and AuthService must be aware of possible multiple session cases.</li>
+<li>Login as different user must always be available to add additional sessions,
+    unless there are opposite business requirements - prevention of multiple accounts.</li>
+<li>If multiple user sessions are authenticated in Client then current
+    User selection must be available.</li>
 </ol>
 <h3>2.2.5. Sessions of foreign users</h3>
 <ol>
-<li>Foreign user's home service must be aware of all related session and be able to invalidate them</li>
-<li>Local AuthService must listen to foreign user updates from user's home AuthService</li>
+<li>Foreign user's home AuthService must be aware of all related sessions and be able to invalidate them.</li>
+<li>Service-local AuthService must listen to foreign user updates from user's home AuthService.</li>
 </ol>
-<h3>2.2.6. Secure redirection between Service and AuthService</h3>
+<p>More details are provided in FTN8.6 sub-spec.</p>
+<h2>2.3. Service Authorization</h2>
+<p>More details of Service authorization to access User's resources on different Services
+is described in the main FTN8 spec and FTN8.4 sub-spec.</p>
+<h3>2.2.6. Auth Queries from Client by Service through AuthService</h3>
+<p>"Auth Query" stays both for "Authentication" and for "Authorization" query. The second
+always depends on the first one, but plain authentication query without asking for any
+resource authorization can be done. In scope of the spec, User authentication can be
+seen as authorization of Service to get basic User's local and global ID.</p>
+<p>User private information available in AuthService is accessible through dedicated interface.
+So, there is no special handling compared to any other resources.</p>
+<p>To request User authorization for some resources, Service may request
+AuthService to ask User to grant access of owned and/or controlled resources
+in another location.</p>
 <p>The important aspects:</p>
 <ol>
-<li>AuthService may want to protect from potential DoS attacks caused by Service redirects</li>
-<li>AuthService may want to ask user only for action on behalf of Service only if</li>
+<li>Service must have pre-existing Master Secret exchange with AuthService</li>
+<li>Service/AuthService may want to protect from potential DoS attacks caused
+    by other peer redirects either intentional, due to software bug or due to
+    attacks from Client itself.<ul>
+<li>All redirects must be signed by derived key with "EXPOSED" purpose</li>
+<li>Do not make direct requests to another peer for obviously faked redirects.</li>
+</ul>
+</li>
+<li>AuthService must ask user for actions initiated by Service:<ul>
+<li>Only if query really comes from Service based on redirect signature.</li>
+<li>Any Auth Query must be based on a common template created in advance
+    by Service in AuthService.</li>
+<li>Each Auth Query must have unique not reusable ID (UUID is acceptable).</li>
+<li>Client redirection must only execute a known template associated with
+    requesting Service.</li>
+<li>Upon Client return to Service, Service must check result in AuthService.</li>
+<li>Service must keep track of initiated Auth Queries to avoid obviously
+    fake checks to AuthService.</li>
+<li>Service must be ready for User to only partially reject Auth Query.</li>
+</ul>
+</li>
 </ol>
 <h1>3. Interface</h1>
 <p>=END OF SPEC=</p>

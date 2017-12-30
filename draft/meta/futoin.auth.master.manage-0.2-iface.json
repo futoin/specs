@@ -7,13 +7,13 @@
     "futoin.auth.types:0.2"
   ],
   "funcs": {
-    "getNewMasterSecret": {
+    "getNewPlainSecret": {
       "params": {
         "user": "LocalUser"
       },
       "result": {
-        "new_id": "MasterKeyID",
-        "new_key": "Base64"
+        "id": "MasterSecretID",
+        "secret": "Base64"
       },
       "throws": [
         "UnknownUser",

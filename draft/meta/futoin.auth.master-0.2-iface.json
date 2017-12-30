@@ -10,7 +10,7 @@
     "MACSecField": {
       "type": "map",
       "fields": {
-        "key": "MasterKeyID",
+        "msid": "MasterSecretID",
         "algo": "MACAlgo",
         "kds": "KeyDerivationStrategy",
         "prm": {

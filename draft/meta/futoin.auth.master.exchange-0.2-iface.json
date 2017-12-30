@@ -1,5 +1,5 @@
 {
-  "iface": "futoin.auth.master.key",
+  "iface": "futoin.auth.master.exchange",
   "version": "0.2",
   "ftn3rev": "1.8",
   "imports": [
@@ -7,14 +7,14 @@
     "futoin.auth.types:0.2"
   ],
   "funcs": {
-    "getNewSecret": {
+    "getNewEncryptedSecret": {
       "params": {
         "type": "PublicKeyType",
         "pubkey": "PublicKey"
       },
       "result": {
-        "new_id": "MasterKeyID",
-        "new_ekey": "EncryptedMasterKey"
+        "id": "MasterSecretID",
+        "esecret": "EncryptedMasterSecret"
       },
       "throws": [
         "SecurityError"
