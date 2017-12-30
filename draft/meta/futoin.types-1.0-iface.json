@@ -35,6 +35,51 @@
       "type": "string",
       "regex": "^[a-zA-Z0-9._%+-]+@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}$",
       "maxlen": 254
+    },
+    "FTNRequest": {
+      "type": "map",
+      "fields": {
+        "f": "string",
+        "p": "map",
+        "rid": {
+          "type": "string",
+          "optional": true
+        },
+        "sec": {
+          "type": "any",
+          "optional": true
+        },
+        "obf": {
+          "type": "any",
+          "optional": true
+        },
+        "forcersp": {
+          "type": "boolean",
+          "optional": true
+        }
+      }
+    },
+    "FTNResponse": {
+      "type": "map",
+      "fields": {
+        "r": "any",
+        "rid": {
+          "type": "string",
+          "optional": true
+        },
+        "sec": {
+          "type": "any",
+          "optional": true
+        },
+        "e": {
+          "type": "string",
+          "optional": true
+        },
+        "edesc": {
+          "type": "string",
+          "optional": true
+        }
+      }
     }
   }
 }

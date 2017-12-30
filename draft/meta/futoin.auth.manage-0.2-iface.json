@@ -26,6 +26,16 @@
           "type": "boolean",
           "default": false
         }
+      },
+      "result": "boolean"
+    },
+    "genConfig": {
+      "result": {
+        "domain": "Domain",
+        "clear_auth": "boolean",
+        "mac_auth": "boolean",
+        "master_auth": "boolean",
+        "master_auto_reg": "boolean"
       }
     },
     "ensureUser": {

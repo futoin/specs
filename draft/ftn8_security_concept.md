@@ -519,9 +519,11 @@ to reject requests with "SecurityError" on mismatch.
     derive unique keys per purpose from shared master Secret.
     - empty salt should be OK with quality master key
     - "prm" must not be sent or be empty
-2. `HKDF` - use [HKDF][] appropriate random for "salt" and use purpose string
+    - default for MAC purpose
+2. `HKDF` - use [HKDF][] with UUID for "salt" and use purpose string
     for "info" to derive unique keys per purpose from shared master Secret.
     - "salt" must be sent in "prm" field
+    - default for encryption purpose
 
 ## 2.12. Security Levels
 
@@ -549,39 +551,6 @@ It's important to understand characteristics of performed user authentication in
             "futoin.types:1.0"
         ],
         "types" : {
-            "FTNRequest" : {
-                "type" : "map",
-                "fields" : {
-                    "f" : "string",
-                    "p" : "map",
-                    "rid" : {
-                        "type" : "string",
-                        "optional" : true
-                    },
-                    "sec" : {
-                        "type" : "any",
-                        "optional" : true
-                    },
-                    "obf" : {
-                        "type" : "any",
-                        "optional" : true
-                    }
-                }
-            },
-            "FTNResponse" : {
-                "type" : "map",
-                "fields" : {
-                    "r" : "any",
-                    "rid" : {
-                        "type" : "string",
-                        "optional" : true
-                    },
-                    "sec" : {
-                        "type" : "any",
-                        "optional" : true
-                    }
-                }
-            },
             "LocalUserID" : "UUIDB64",
             "LocalUser" : {
                 "type" : "string",
@@ -705,6 +674,16 @@ It's important to understand characteristics of performed user authentication in
                         "type" : "boolean",
                         "default" : false
                     }
+                },
+                "result" : "boolean"
+            },
+            "genConfig" : {
+                "result" : {
+                    "domain" : "Domain",
+                    "clear_auth" : "boolean",
+                    "mac_auth" : "boolean",
+                    "master_auth" : "boolean",
+                    "master_auto_reg" : "boolean"
                 }
             },
             "ensureUser" : {
