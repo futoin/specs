@@ -1,0 +1,32 @@
+{
+  "title": "FutoIn 'sec' field - Master MAC",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "key",
+    "algo",
+    "sig"
+  ],
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Unique master key ID"
+    },
+    "algo": {
+      "type": "string",
+      "description": "MAC algo name as defined in FTN8"
+    },
+    "kds": {
+      "type": "string",
+      "description": "Derived key strategy"
+    },
+    "prm": {
+      "type": "string",
+      "description": "KDS parameter, if applicable"
+    },
+    "sig": {
+      "type": "string",
+      "description": "Base64 encoded MAC"
+    }
+  }
+}

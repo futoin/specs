@@ -1,0 +1,50 @@
+{
+  "iface": "futoin.auth.manage",
+  "version": "0.2",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.auth.types:0.2"
+  ],
+  "funcs": {
+    "setup": {
+      "params": {
+        "domain": "Domain",
+        "clear_auth": {
+          "type": "boolean",
+          "default": false
+        },
+        "mac_auth": {
+          "type": "boolean",
+          "default": true
+        },
+        "master_auth": {
+          "type": "boolean",
+          "default": true
+        },
+        "master_auto_reg": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "ensureUser": {
+      "params": {
+        "user": "LocalUser",
+        "global_id": {
+          "type": "GlobalUserID",
+          "default": null,
+          "desc": "Defaults to auto-generated"
+        }
+      },
+      "result": "LocalUserID",
+      "throws": [
+        "GlobalUserIDMismatch"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel",
+    "MessageSignature"
+  ]
+}

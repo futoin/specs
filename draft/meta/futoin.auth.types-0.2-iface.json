@@ -79,6 +79,51 @@
     "MACBase": {
       "type": "string",
       "minlen": 8
+    },
+    "MasterKeyID": "UUIDB64",
+    "KeyDerivationStrategy": {
+      "type": "enum",
+      "items": [
+        "HKDF",
+        "HKDF0"
+      ]
+    },
+    "KeyPurpose": {
+      "type": "enum",
+      "items": [
+        "MAC",
+        "ENC",
+        "EXPOSED"
+      ]
+    },
+    "RequestSource": {
+      "type": "map",
+      "fields": {
+        "ip": {
+          "type": "IPAddress",
+          "optional": true
+        },
+        "x509_cn": {
+          "type": "string",
+          "optional": true
+        }
+      }
+    },
+    "PublicKeyType": {
+      "type": "enum",
+      "items": [
+        "RSA-2048",
+        "RSA-4096",
+        "ED25519"
+      ]
+    },
+    "PublicKey": {
+      "type": "Base64",
+      "minlen": 1
+    },
+    "EncryptedMasterKey": {
+      "type": "Base64",
+      "minlen": 1
     }
   }
 }

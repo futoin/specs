@@ -15,12 +15,12 @@ Authors: Andrey Galkin
 # 2. Security
 * [FTN8 Security Concept](./ftn8\_security\_concept.md)
     * [FTN8.1: Stateless Authentication](./ftn8.1\_stateless\_auth.md)
-    * [FTN8.2: Service Authentication](./ftn8.2\_service\_auth.md)
+    * [FTN8.2: Master Key Authentication](./ftn8.2\_master\_auth.md)
     * [FTN8.3: Client Authentication](./ftn8.3\_client\_auth.md)
     * [FTN8.4: Access Control](./ftn8.4\_access\_control.md)
     * [FTN8.5: Defense System](./ftn8.5\_defense.md)
-
-
+    * [FTN8.6: Foreign Users](./ftn8.6\_foreign\_users.md)
+    * [FTN8.7: End-to-End Encryption](./ftn8.7\_e2ee.md)
 
 # 3. Language and Platform specific interface concept
 * [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)

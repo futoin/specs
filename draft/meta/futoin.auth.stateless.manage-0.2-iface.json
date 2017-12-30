@@ -7,33 +7,6 @@
     "futoin.auth.types:0.2"
   ],
   "funcs": {
-    "setup": {
-      "params": {
-        "domain": "Domain",
-        "clear_auth": {
-          "type": "boolean",
-          "default": false
-        },
-        "mac_auth": {
-          "type": "boolean",
-          "default": true
-        }
-      }
-    },
-    "ensureUser": {
-      "params": {
-        "user": "LocalUser",
-        "global_id": {
-          "type": "GlobalUserID",
-          "default": null,
-          "desc": "Defaults to auto-generated"
-        }
-      },
-      "result": "LocalUserID",
-      "throws": [
-        "GlobalUserIDMismatch"
-      ]
-    },
     "setClearSecret": {
       "params": {
         "user": "LocalUser",
@@ -82,6 +55,7 @@
     }
   },
   "requires": [
-    "SecureChannel"
+    "SecureChannel",
+    "MessageSignature"
   ]
 }

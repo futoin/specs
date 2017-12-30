@@ -1,5 +1,5 @@
 {
-  "iface": "futoin.auth.stateless",
+  "iface": "futoin.auth.master",
   "version": "0.2",
   "ftn3rev": "1.8",
   "imports": [
@@ -7,18 +7,16 @@
     "futoin.auth.types:0.2"
   ],
   "types": {
-    "ClearSecField": {
-      "type": "map",
-      "fields": {
-        "user": "LocalUserID",
-        "secret": "ClearSecret"
-      }
-    },
     "MACSecField": {
       "type": "map",
       "fields": {
-        "user": "LocalUserID",
+        "key": "MasterKeyID",
         "algo": "MACAlgo",
+        "kds": "KeyDerivationStrategy",
+        "prm": {
+          "type": "Base64",
+          "optional": true
+        },
         "sig": "MACValue"
       }
     },
@@ -31,16 +29,6 @@
     }
   },
   "funcs": {
-    "checkClear": {
-      "params": {
-        "sec": "ClearSecField",
-        "source": "RequestSource"
-      },
-      "result": "MessageAuth",
-      "throws": [
-        "SecurityError"
-      ]
-    },
     "checkMAC": {
       "params": {
         "base": "MACBase",

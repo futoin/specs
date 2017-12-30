@@ -1,20 +1,24 @@
 <pre>
 FTN8.1: FutoIn Security Concept - Stateless Authentication
 Version: 0.2DV
-Date: 2017-12-27
+Date: 2017-12-29
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v0.2 - 2017-12-27 - Andrey Galkin
+* v0.2 - 2017-12-29 - Andrey Galkin
     - CHANGED: heavily revised & split into sub-specs
     - CHANGED: replaced HMAC with more generic MAC method
+    - NEW: futoin.auth.stateless & futoin.auth.stateless specs
 * v0.1 - 2014-06-03 - Andrey Galkin
     - Initial draft
 
 # 1. Intro
+
+This sub-specification of [FTN8](./ftn8_security_concept.md) covers
+the simplest Stateless Authentication for Clients and Services.
 
 The ultimate goal is to authenticate user based on local user ID
 and pre-shared secret (password) without automatic Secret renewal.
@@ -54,22 +58,22 @@ secrets to provent exposure of those.
 
 `Schema(futoin-sec-credentials){`
 
-        {
-            "title" : "FutoIn 'sec' field - Credentials",
-            "type" : "object",
-            "additionalProperties" : false,
-            "required" : [ "user" ],
-            "properties" : {
-                "user" : {
-                    "type" : "string",
-                    "description" : "Unique user identification"
-                },
-                "secret" : {
-                    "type" : "string",
-                    "description" : "Any type of secret, typically password"
-                }
+    {
+        "title" : "FutoIn 'sec' field - Credentials",
+        "type" : "object",
+        "additionalProperties" : false,
+        "required" : [ "user" ],
+        "properties" : {
+            "user" : {
+                "type" : "string",
+                "description" : "Unique user identification"
+            },
+            "secret" : {
+                "type" : "string",
+                "description" : "Any type of secret, typically password"
             }
         }
+    }
 
 `}Schema`
 
@@ -84,7 +88,7 @@ The field must not be present as there is no point for that.
 
 ### 2.1.4. Clear text security level
 
-`Info` authentication level must be assigned.
+`Info` security level must be assigned.
 
 
 ## 2.2. Simple MAC method
@@ -107,6 +111,7 @@ There are still some problems:
 * Once Secret is bruteforced, it easy to fake any messages.
 * The same message can be easily replayed, but protocols should be designed the way
     which minimizes replay issues (e.g. using transaction IDs).
+* No key updates and no derived keys used.
 
 However, it's still relatively simple to implement with meaningful advantages.
 
@@ -114,26 +119,26 @@ However, it's still relatively simple to implement with meaningful advantages.
 
 `Schema(futoin-sec-simple-mac){`
 
-        {
-            "title" : "FutoIn 'sec' field - Simple MAC",
-            "type" : "object",
-            "additionalProperties" : false,
-            "required" : [ "user", "algo", "sig" ],
-            "properties" : {
-                "user" : {
-                    "type" : "string",
-                    "description" : "Unique user identification"
-                },
-                "algo" : {
-                    "type" : "string",
-                    "description" : "MAC algo name as defined in FTN8"
-                },
-                "sig" : {
-                    "type" : "string",
-                    "description" : "Base64 encoded MAC"
-                }
+    {
+        "title" : "FutoIn 'sec' field - Simple MAC",
+        "type" : "object",
+        "additionalProperties" : false,
+        "required" : [ "user", "algo", "sig" ],
+        "properties" : {
+            "user" : {
+                "type" : "string",
+                "description" : "Unique user identification"
+            },
+            "algo" : {
+                "type" : "string",
+                "description" : "MAC algo name as defined in FTN8"
+            },
+            "sig" : {
+                "type" : "string",
+                "description" : "Base64 encoded MAC"
             }
         }
+    }
 
 `}Schema`
 
@@ -142,7 +147,7 @@ However, it's still relatively simple to implement with meaningful advantages.
 Prefered for message size reduction.
 
 ```
-    "-mac:{user}:{algo}:{sig}"
+    "-smac:{user}:{algo}:{sig}"
 ```
 
 ### 2.2.3. Simple MAC response "sec" field
@@ -152,12 +157,12 @@ as used for request signing.
 
 ### 2.2.4. Simple MAC security level
 
-`SafeOps` authentication level must be assigned.
+`SafeOps` security level must be assigned.
 
 
 # 3. Interface
 
-## 3.1. Request authentication
+## 3.1. Message authentication
 
 The interface is used only to process stateless authentication requests.
 It is designed the way when MAC secret is always kept inside AuthService to
@@ -165,168 +170,145 @@ minimize risk of exposure.
 
 `Iface{`
 
-        {
-            "iface" : "futoin.auth.stateless",
-            "version" : "{ver}",
-            "ftn3rev" : "1.8",
-            "imports" : [
-                "futoin.ping:1.0",
-                "futoin.auth.types:{ver}"
-            ],
-            "types" : {
-                "ClearSecField" : {
-                    "type" : "map",
-                    "fields" : {
-                        "user" : "LocalUserID",
-                        "secret" : "ClearSecret"
-                    }
-                },
-                "MACSecField" : {
-                    "type" : "map",
-                    "fields" : {
-                        "user" : "LocalUserID",
-                        "algo" : "MACAlgo",
-                        "sig" : "MACValue"
-                    }
-                },
-                "MessageAuth" : {
-                    "type" : "map",
-                    "fields" : {
-                        "local_id" : "LocalUserID",
-                        "global_id" : "GlobalUserID"
-                    }
+    {
+        "iface" : "futoin.auth.stateless",
+        "version" : "{ver}",
+        "ftn3rev" : "1.8",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.auth.types:{ver}"
+        ],
+        "types" : {
+            "ClearSecField" : {
+                "type" : "map",
+                "fields" : {
+                    "user" : "LocalUserID",
+                    "secret" : "ClearSecret"
                 }
             },
-            "funcs" : {
-                "clearAuth" : {
-                    "params" : {
-                        "sec" : "ClearSecField"
-                    },
-                    "result" : "MessageAuth",
-                    "throws" : [
-                        "SecurityError"
-                    ]
-                },
-                "checkMAC" : {
-                    "params" : {
-                        "base" : "MACBase",
-                        "sec" : "MACSecField"
-                    },
-                    "result" : "MessageAuth",
-                    "throws" : [
-                        "SecurityError"
-                    ]
-                },
-                "genMAC" : {
-                    "params" : {
-                        "base" : "MACBase",
-                        "user" : "LocalUserID",
-                        "algo" : "MACAlgo"
-                    },
-                    "result" : "MACSecField",
-                    "throws" : [
-                        "SecurityError"
-                    ]
+            "MACSecField" : {
+                "type" : "map",
+                "fields" : {
+                    "user" : "LocalUserID",
+                    "algo" : "MACAlgo",
+                    "sig" : "MACValue"
                 }
             },
-            "requires" : [
-                "SecureChannel"
-            ]
-        }
+            "MessageAuth" : {
+                "type" : "map",
+                "fields" : {
+                    "local_id" : "LocalUserID",
+                    "global_id" : "GlobalUserID"
+                }
+            }
+        },
+        "funcs" : {
+            "checkClear" : {
+                "params" : {
+                    "sec" : "ClearSecField",
+                    "source" : "RequestSource"
+                },
+                "result" : "MessageAuth",
+                "throws" : [
+                    "SecurityError"
+                ]
+            },
+            "checkMAC" : {
+                "params" : {
+                    "base" : "MACBase",
+                    "sec" : "MACSecField",
+                    "source" : "RequestSource"
+                },
+                "result" : "MessageAuth",
+                "throws" : [
+                    "SecurityError"
+                ]
+            },
+            "genMAC" : {
+                "params" : {
+                    "base" : "MACBase",
+                    "reqsec" : "MACSecField"
+                },
+                "result" : "MACSecField",
+                "throws" : [
+                    "SecurityError"
+                ]
+            }
+        },
+        "requires" : [
+            "SecureChannel"
+        ]
+    }
 
 `}Iface`
 
-## 3.2. User management
+## 3.2. Management
+
+This one is complementary to "futoin.auth.manage" iface.
 
 `Iface{`
 
-        {
-            "iface" : "futoin.auth.stateless.manage",
-            "version" : "{ver}",
-            "ftn3rev" : "1.8",
-            "imports" : [
-                "futoin.ping:1.0",
-                "futoin.auth.types:{ver}"
-            ],
-            "funcs" : {
-                "setup" : {
-                    "params" : {
-                        "domain" : "Domain",
-                        "clear_auth" : {
-                            "type" : "boolean",
-                            "default" : false
-                        },
-                        "mac_auth" : {
-                            "type" : "boolean",
-                            "default" : true
-                        }
+    {
+        "iface" : "futoin.auth.stateless.manage",
+        "version" : "{ver}",
+        "ftn3rev" : "1.8",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.auth.types:{ver}"
+        ],
+        "funcs" : {
+            "setClearSecret" : {
+                "params" : {
+                    "user" : "LocalUser",
+                    "secret" : {
+                        "type" : "ClearSecret",
+                        "default" : null
                     }
                 },
-                "ensureUser" : {
-                    "params" : {
-                        "user" : "LocalUser",
-                        "global_id" : {
-                            "type": "GlobalUserID",
-                            "default" : null,
-                            "desc" : "Defaults to auto-generated"
-                        }
-                    },
-                    "result" : "LocalUserID",
-                    "throws" : [
-                        "GlobalUserIDMismatch"
-                    ]
-                },
-                "setClearSecret" : {
-                    "params" : {
-                        "user" : "LocalUser",
-                        "secret" : {
-                            "type" : "ClearSecret",
-                            "default" : null
-                        }
-                    },
-                    "result" : "boolean",
-                    "throws" : [
-                        "UnknownUser"
-                    ]
-                },
-                "getClearSecret" : {
-                    "params" : {
-                        "user" : "LocalUser"
-                    },
-                    "result" : "ClearSecret",
-                    "throws" : [
-                        "UnknownUser",
-                        "NotSet"
-                    ]
-                },
-                "setMACSecret" : {
-                    "params" : {
-                        "user" : "LocalUser",
-                        "secret" : {
-                            "type" : "MACSecret",
-                            "default" : null
-                        }
-                    },
-                    "result" : "boolean",
-                    "throws" : [
-                        "UnknownUser"
-                    ]
-                },
-                "getMACSecret" : {
-                    "params" : {
-                        "user" : "LocalUser"
-                    },
-                    "result" : "MACSecret",
-                    "throws" : [
-                        "UnknownUser",
-                        "NotSet"
-                    ]
-                }
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownUser"
+                ]
             },
-            "requires" : [
-                "SecureChannel"
-            ]
-        }
+            "getClearSecret" : {
+                "params" : {
+                    "user" : "LocalUser"
+                },
+                "result" : "ClearSecret",
+                "throws" : [
+                    "UnknownUser",
+                    "NotSet"
+                ]
+            },
+            "setMACSecret" : {
+                "params" : {
+                    "user" : "LocalUser",
+                    "secret" : {
+                        "type" : "MACSecret",
+                        "default" : null
+                    }
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownUser"
+                ]
+            },
+            "getMACSecret" : {
+                "params" : {
+                    "user" : "LocalUser"
+                },
+                "result" : "MACSecret",
+                "throws" : [
+                    "UnknownUser",
+                    "NotSet"
+                ]
+            }
+        },
+        "requires" : [
+            "SecureChannel",
+            "MessageSignature"
+        ]
+    }
 
 `}Iface`
 

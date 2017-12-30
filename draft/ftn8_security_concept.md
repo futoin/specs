@@ -1,14 +1,14 @@
 <pre>
 FTN8: FutoIn Security Concept
 Version: 0.2DV
-Date: 2017-12-27
+Date: 2017-12-29
 Copyright: 2014-2017 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v0.2 - 2017-12-27 - Andrey Galkin
+* v0.2 - 2017-12-29 - Andrey Galkin
     - CHANGED: heavily revised & split into sub-specs
     - CHANGED: moved HMAC logic from FTN6 spec to MAC section here
     - NEW: added different MAC schemes support
@@ -27,11 +27,12 @@ fully distributed.
 ## 1.1. Sub-specifications
 
 * [FTN8.1: Stateless Authentication](./ftn8.1\_stateless\_auth.md)
-* [FTN8.2: Service Authentication](./ftn8.2\_service\_auth.md)
+* [FTN8.2: Master Key Authentication](./ftn8.2\_master\_auth.md)
 * [FTN8.3: Client Authentication](./ftn8.3\_client\_auth.md)
 * [FTN8.4: Access Control](./ftn8.4\_access\_control.md)
 * [FTN8.5: Defense System](./ftn8.5\_defense.md)
-* FTN8.6: Foreign Users and Services
+* [FTN8.6: Foreign Users](./ftn8.6\_foreign\_users.md)
+* [FTN8.7: End-to-End Encryption](./ftn8.7\_e2ee.md)
 
 
 # 2. Concept
@@ -68,6 +69,12 @@ fully distributed.
         - Always throw general "SecurityError" with generic error info
         - Prevent time-based attacks - make consistent delays on any SecurityError
     - Do not use descriptive identifiers in tokens
+7. Forward Secrecy
+    - use modern TLS, SSH, IPSec or other type of secure channel with
+        perfect forward secrecy characteristics
+    - use secure symmetric key exchange
+    - use derived keys for each use occurence
+    - End-to-End Encryption API
 
 ## 2.2. Security Contexts
 
@@ -131,20 +138,22 @@ Initial manual registration:
     [manually configure Service] .
         .                        .
 
-Initial automatic registration, if allowed:
+Initial automatic registration through secure channel, if allowed:
 
     Service                            AuthService
        |                                   .
     [gen temporary assymetric key]         .
        |----- request registration ------->|
+       .                [depend on transport's MitM security]
+       .                    [save request for approval]
        |<-------- get ticket ID -----------|
        .                                   .
-    [reasonable delay]               [wait confirm]
+    [reasonable delay]               [wait approval]
        .                                   .
        |-- try to complete registration -->|
        |<- "pending" or "rejected" error --|
        .                                   .
-    [reasonable delay]           [operator/auto confirm]
+    [reasonable delay]         [operator/auto approval]
        .                                   .
        |-- try to complete registration -->|
        .                         [generate new secret]
@@ -159,6 +168,7 @@ Shared secret secure exchange:
        |                                   .
     [gen temporary assymetric key]         .
        |----- request new secret --------->|
+       .             [use current secret for MitM security]
        .                         [generate new secret]
        |<-- return new encrypted secret ---|
     [decrypt secret and discard key]       .
@@ -465,6 +475,53 @@ with MAC using exactly the same secret key and MAC algorithm.
 
 Invoker must validate response "sec" field and fail on mismatch or absence of one.
 
+### 2.11.4. Key derivation strategies
+
+It is called "Strategy", but not "Function" on purpose as the same KDF may be used
+different ways.
+
+#### 2.11.4.1. General derived key ID
+
+Derived Key ID must be transmitted as Base64 encoding string without padding. Key ID or
+salt should be of recommended size, if applicable.
+
+Based on strategy, no key ID or a fixed minimal derived key ID may be used for current
+version of the specification to minimize performance impact and simplify Executor's
+derived key caching logic. Master key itself should provide enough entropy to ensure
+derived key's quality. So, key update gets bound to frequency of master key update.
+Key derivation would be used only to get different keys based on purpose.
+
+#### 2.11.4.2. Key purpose name
+
+Below is list of ASCII values to use for altering key derivation logic.
+
+* `MAC` - for message signing.
+* `ENC` - for general encryption.
+* `EXPOSED` - for signature generating which definitely goes through untrusted exposed
+    channel (e.g. user's web browser).
+
+#### 2.11.4.3. Performance tradeoff
+
+In most cases, it's not feasibile to generate a new derived key for every message,
+so Invoker should be able to reuse the key at own discretion.
+
+As a defensive measure, Executor peer is allowed to reject requests, if derived key
+either changes too often or used for too long. Executor should cache derived keys
+for reasonable time, but still prevent their leaking outside. Executor should consider
+that Invoker may be clustered with unique derived key at every node.
+
+Executor can be configured to support only certain types of strategies named below and
+to reject requests with "SecurityError" on mismatch.
+
+#### 2.11.4.4. Key derivation strategies names
+
+1. `HKDF0` - use [HKDF][] with empty "salt" and use purpose string for "info" to
+    derive unique keys per purpose from shared master Secret.
+    - empty salt should be OK with quality master key
+    - "prm" must not be sent or be empty
+2. `HKDF` - use [HKDF][] appropriate random for "salt" and use purpose string
+    for "info" to derive unique keys per purpose from shared master Secret.
+    - "salt" must be sent in "prm" field
 
 ## 2.12. Security Levels
 
@@ -484,90 +541,192 @@ It's important to understand characteristics of performed user authentication in
 
 `Iface{`
 
-        {
-            "iface" : "futoin.auth.types",
-            "version" : "{ver}",
-            "ftn3rev" : "1.8",
-            "imports" : [
-                "futoin.types:1.0"
-            ],
-            "types" : {
-                "FTNRequest" : {
-                    "type" : "map",
-                    "fields" : {
-                        "f" : "string",
-                        "p" : "map",
-                        "rid" : {
-                            "type" : "string",
-                            "optional" : true
-                        },
-                        "sec" : {
-                            "type" : "any",
-                            "optional" : true
-                        },
-                        "obf" : {
-                            "type" : "any",
-                            "optional" : true
-                        }
+    {
+        "iface" : "futoin.auth.types",
+        "version" : "{ver}",
+        "ftn3rev" : "1.8",
+        "imports" : [
+            "futoin.types:1.0"
+        ],
+        "types" : {
+            "FTNRequest" : {
+                "type" : "map",
+                "fields" : {
+                    "f" : "string",
+                    "p" : "map",
+                    "rid" : {
+                        "type" : "string",
+                        "optional" : true
+                    },
+                    "sec" : {
+                        "type" : "any",
+                        "optional" : true
+                    },
+                    "obf" : {
+                        "type" : "any",
+                        "optional" : true
                     }
-                },
-                "FTNResponse" : {
-                    "type" : "map",
-                    "fields" : {
-                        "r" : "any",
-                        "rid" : {
-                            "type" : "string",
-                            "optional" : true
-                        },
-                        "sec" : {
-                            "type" : "any",
-                            "optional" : true
-                        }
-                    }
-                },
-                "LocalUserID" : "UUIDB64",
-                "LocalUser" : {
-                    "type" : "string",
-                    "regex" : "^[a-zA-Z]([a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9])?$"
-                },
-                "GlobalUserID" : "Email",
-                "ClearSecret" : {
-                    "type" : "string",
-                    "minlen" : 8,
-                    "maxlen" : 32
-                },
-                "MACAlgo" : {
-                    "type" : "enum",
-                    "items" : [
-                        "HMAC-MD5",
-                        "HMAC-SHA-224",
-                        "HMAC-SHA-256",
-                        "HMAC-SHA-384",
-                        "HMAC-SHA-512",
-                        "HMAC-SHA3-224",
-                        "HMAC-SHA3-256",
-                        "HMAC-SHA3-384",
-                        "HMAC-SHA3-512",
-                        "KMAC128",
-                        "KMAC256"
-                    ]
-                },
-                "MACSecret" : {
-                    "type" : "Base64",
-                    "minlen" : 32,
-                    "maxlen" : 128
-                },
-                "MACValue" : {
-                    "type" : "Base64",
-                    "minlen" : 1,
-                    "maxlen" : 128
-                },
-                "MACBase" : {
-                    "type" : "string",
-                    "minlen" : 8
                 }
+            },
+            "FTNResponse" : {
+                "type" : "map",
+                "fields" : {
+                    "r" : "any",
+                    "rid" : {
+                        "type" : "string",
+                        "optional" : true
+                    },
+                    "sec" : {
+                        "type" : "any",
+                        "optional" : true
+                    }
+                }
+            },
+            "LocalUserID" : "UUIDB64",
+            "LocalUser" : {
+                "type" : "string",
+                "regex" : "^[a-zA-Z]([a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9])?$"
+            },
+            "GlobalUserID" : "Email",
+            "ClearSecret" : {
+                "type" : "string",
+                "minlen" : 8,
+                "maxlen" : 32
+            },
+            "MACAlgo" : {
+                "type" : "enum",
+                "items" : [
+                    "HMAC-MD5",
+                    "HMAC-SHA-224",
+                    "HMAC-SHA-256",
+                    "HMAC-SHA-384",
+                    "HMAC-SHA-512",
+                    "HMAC-SHA3-224",
+                    "HMAC-SHA3-256",
+                    "HMAC-SHA3-384",
+                    "HMAC-SHA3-512",
+                    "KMAC128",
+                    "KMAC256"
+                ]
+            },
+            "MACSecret" : {
+                "type" : "Base64",
+                "minlen" : 32,
+                "maxlen" : 128
+            },
+            "MACValue" : {
+                "type" : "Base64",
+                "minlen" : 1,
+                "maxlen" : 128
+            },
+            "MACBase" : {
+                "type" : "string",
+                "minlen" : 8
+            },
+            "MasterKeyID" : "UUIDB64",
+            "KeyDerivationStrategy" : {
+                "type" : "enum",
+                "items" : [
+                    "HKDF",
+                    "HKDF0"
+                ]
+            },
+            "KeyPurpose" : {
+                "type" : "enum",
+                "items" : [
+                    "MAC",
+                    "ENC",
+                    "EXPOSED"
+                ]
+            },
+            "RequestSource" : {
+                "type" : "map",
+                "fields" : {
+                    "ip" : {
+                        "type" : "IPAddress",
+                        "optional" : true
+                    },
+                    "x509_cn" : {
+                        "type" : "string",
+                        "optional" : true
+                    }
+                }
+            },
+            "PublicKeyType" : {
+                "type" : "enum",
+                "items" : [
+                    "RSA-2048",
+                    "RSA-4096",
+                    "ED25519"
+                ]
+            },
+            "PublicKey" : {
+                "type" : "Base64",
+                "minlen" : 1
+            },
+            "EncryptedMasterKey" : {
+                "type" : "Base64",
+                "minlen" : 1
             }
         }
+    }
+
+`}Iface`
+
+## 3.2. AuthService management
+
+`Iface{`
+
+    {
+        "iface" : "futoin.auth.manage",
+        "version" : "{ver}",
+        "ftn3rev" : "1.8",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.auth.types:{ver}"
+        ],
+        "funcs" : {
+            "setup" : {
+                "params" : {
+                    "domain" : "Domain",
+                    "clear_auth" : {
+                        "type" : "boolean",
+                        "default" : false
+                    },
+                    "mac_auth" : {
+                        "type" : "boolean",
+                        "default" : true
+                    },
+                    "master_auth" : {
+                        "type" : "boolean",
+                        "default" : true
+                    },
+                    "master_auto_reg" : {
+                        "type" : "boolean",
+                        "default" : false
+                    }
+                }
+            },
+            "ensureUser" : {
+                "params" : {
+                    "user" : "LocalUser",
+                    "global_id" : {
+                        "type": "GlobalUserID",
+                        "default" : null,
+                        "desc" : "Defaults to auto-generated"
+                    }
+                },
+                "result" : "LocalUserID",
+                "throws" : [
+                    "GlobalUserIDMismatch"
+                ]
+            }
+        },
+        "requires" : [
+            "SecureChannel",
+            "MessageSignature"
+        ]
+    }
 
 `}Iface`
 
