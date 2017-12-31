@@ -7,22 +7,20 @@
     "futoin.auth.types:0.2"
   ],
   "funcs": {
-    "setClearSecret": {
+    "genNewClearSecret": {
       "params": {
-        "user": "LocalUser",
-        "secret": {
-          "type": "ClearSecret",
-          "default": null
-        }
+        "user": "LocalUserID",
+        "service": "LocalUserID"
       },
-      "result": "boolean",
+      "result": "ClearSecret",
       "throws": [
         "UnknownUser"
       ]
     },
     "getClearSecret": {
       "params": {
-        "user": "LocalUser"
+        "user": "LocalUserID",
+        "service": "LocalUserID"
       },
       "result": "ClearSecret",
       "throws": [
@@ -30,22 +28,19 @@
         "NotSet"
       ]
     },
-    "setMACSecret": {
+    "genNewMACSecret": {
       "params": {
-        "user": "LocalUser",
-        "secret": {
-          "type": "MACSecret",
-          "default": null
-        }
+        "user": "LocalUserID"
       },
-      "result": "boolean",
+      "result": "MACSecret",
       "throws": [
-        "UnknownUser"
+        "UnknownUser",
+        "NotSet"
       ]
     },
     "getMACSecret": {
       "params": {
-        "user": "LocalUser"
+        "user": "LocalUserID"
       },
       "result": "MACSecret",
       "throws": [

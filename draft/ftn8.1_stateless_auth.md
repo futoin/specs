@@ -52,7 +52,8 @@ HTTP requests headers.
 not important functionality accessed through SecureChannel.**
 
 The Secret used in clear text requests must be separate from all other
-secrets to provent exposure of those.
+secrets to prevent exposure of those. It's assumed that there is a unique
+clear text secret per Service.
 
 ### 2.1.1. Clear text request "sec" field structured format
 
@@ -206,7 +207,7 @@ minimize risk of exposure.
             "checkClear" : {
                 "params" : {
                     "sec" : "ClearSecField",
-                    "source" : "RequestSource"
+                    "client" : "ClientFingerprints"
                 },
                 "result" : "MessageAuth",
                 "throws" : [
@@ -217,7 +218,7 @@ minimize risk of exposure.
                 "params" : {
                     "base" : "MACBase",
                     "sec" : "MACSecField",
-                    "source" : "RequestSource"
+                    "client" : "ClientFingerprints"
                 },
                 "result" : "MessageAuth",
                 "throws" : [
@@ -257,22 +258,20 @@ This one is complementary to "futoin.auth.manage" iface.
             "futoin.auth.types:{ver}"
         ],
         "funcs" : {
-            "setClearSecret" : {
+            "genNewClearSecret" : {
                 "params" : {
-                    "user" : "LocalUser",
-                    "secret" : {
-                        "type" : "ClearSecret",
-                        "default" : null
-                    }
+                    "user" : "LocalUserID",
+                    "service" : "LocalUserID"
                 },
-                "result" : "boolean",
+                "result" : "ClearSecret",
                 "throws" : [
                     "UnknownUser"
                 ]
             },
             "getClearSecret" : {
                 "params" : {
-                    "user" : "LocalUser"
+                    "user" : "LocalUserID",
+                    "service" : "LocalUserID"
                 },
                 "result" : "ClearSecret",
                 "throws" : [
@@ -280,22 +279,19 @@ This one is complementary to "futoin.auth.manage" iface.
                     "NotSet"
                 ]
             },
-            "setMACSecret" : {
+            "genNewMACSecret" : {
                 "params" : {
-                    "user" : "LocalUser",
-                    "secret" : {
-                        "type" : "MACSecret",
-                        "default" : null
-                    }
+                    "user" : "LocalUserID"
                 },
-                "result" : "boolean",
+                "result" : "MACSecret",
                 "throws" : [
-                    "UnknownUser"
+                    "UnknownUser",
+                    "NotSet"
                 ]
             },
             "getMACSecret" : {
                 "params" : {
-                    "user" : "LocalUser"
+                    "user" : "LocalUserID"
                 },
                 "result" : "MACSecret",
                 "throws" : [

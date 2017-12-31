@@ -166,7 +166,7 @@ minimize risk of exposure.
                 "params" : {
                     "base" : "MACBase",
                     "sec" : "MACSecField",
-                    "source" : "RequestSource"
+                    "source" : "ClientFingerprints"
                 },
                 "result" : "MessageAuth",
                 "throws" : [

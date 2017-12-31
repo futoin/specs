@@ -21,6 +21,7 @@ Authors: Andrey Galkin
     * [FTN8.5: Defense System](./ftn8.5\_defense.md)
     * [FTN8.6: Foreign Users](./ftn8.6\_foreign\_users.md)
     * [FTN8.7: End-to-End Encryption](./ftn8.7\_e2ee.md)
+    * [FTN8.8: QA Requirements](./ftn8.8\_qa\_requirements.md)
 
 # 3. Language and Platform specific interface concept
 * [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)

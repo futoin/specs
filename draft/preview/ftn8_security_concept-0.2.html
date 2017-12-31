@@ -42,6 +42,7 @@ fully distributed.</p>
 <li><a href="./ftn8.5_defense.html">FTN8.5: Defense System</a></li>
 <li><a href="./ftn8.6_foreign_users.html">FTN8.6: Foreign Users</a></li>
 <li><a href="./ftn8.7_e2ee.html">FTN8.7: End-to-End Encryption</a></li>
+<li><a href="./ftn8.8_qa_requirements.html">FTN8.8: QA Requirements</a></li>
 </ul>
 <h1>2. Concept</h1>
 <h2>2.1. General guidelines</h2>
@@ -50,7 +51,10 @@ fully distributed.</p>
     data even if it is encrypted and/or signed to prevent theoritical falsification
     attacks.<ul>
 <li>User passwords and similar secrets are not internal data - they belong to user.</li>
-<li>Session tokens must hold only session ID with session-related secrets - no other info.</li>
+<li>Session tokens must hold only session ID with session-related secrets - no other info.<ul>
+<li>two parts are required to detect bruteforcing</li>
+</ul>
+</li>
 <li>Even only informational purpose user IDs, secrets, access levels, etc.
     must never be stored in untrusted party as it may eventually be used as trusted
     data source and be subject for attack.</li>
@@ -84,7 +88,7 @@ fully distributed.</p>
 <li>both usage time and number of secret applications must be taken into account</li>
 </ul>
 </li>
-<li>Avoid information leak<ul>
+<li>Avoid information leaks<ul>
 <li>Do not use sequential IDs</li>
 <li>Do not expose object existence on error<ul>
 <li>Always throw general "SecurityError" with generic error info</li>
@@ -92,13 +96,18 @@ fully distributed.</p>
 </ul>
 </li>
 <li>Do not use descriptive identifiers in tokens</li>
+<li>Prevent attacks which expose ID existence on authentication</li>
 </ul>
 </li>
 <li>Forward Secrecy<ul>
 <li>use modern TLS, SSH, IPSec or other type of secure channel with
     perfect forward secrecy characteristics</li>
 <li>use secure symmetric key exchange</li>
-<li>use derived keys for each use occurence</li>
+<li>use derived keys for each use occurence<ul>
+<li>use derivation with extra parameter when extra safety is required
+    (e.g. key serial number for dervied encryption keys)</li>
+</ul>
+</li>
 <li>End-to-End Encryption API</li>
 </ul>
 </li>
@@ -107,14 +116,21 @@ fully distributed.</p>
 <p>There are three major security contexts:</p>
 <ul>
 <li>Service - Both execution environment and executable code is 
-    under full control of the owner. This security context exists on
-    servers.</li>
+    under full control of the owner.<ul>
+<li>This security context exists on servers.</li>
+<li>Service is a logic unit represented by a union of related
+    FutoIn specs provided by one or many related end-points.</li>
+</ul>
+</li>
 <li>Client - Execution environment is under control of owner, but
     executable code is loaded from Service.</li>
 <li>Authentication Service (AuthService) - A special authentication &amp;
     authorization service trusted by Service and/or by Client.</li>
 </ul>
 <p>Each Service and each Client must trust only one AuthService.</p>
+<p>The standard auth mechanism does not allow Client code to access
+protected resources in another Service directly. Such feature may be
+implemented as sub-spec.</p>
 <p>In addition, the following optional services exist:</p>
 <ul>
 <li>Defense System (DefenseService) - A special service which helps to detect
@@ -518,6 +534,92 @@ to reject requests with "SecurityError" on mismatch.</p>
 </li>
 <li><code>System</code> - internal calls inside the same Service (can be cross-process)</li>
 </ul>
+<h2>2.13. Client fingerprints</h2>
+<p>The following fingerpints are essential to enforce extra level of protection.</p>
+<ul>
+<li><code>user_agent</code> - refers to HTTP 'User-Agent' or similar</li>
+<li><code>source_ip</code> - refers ot IPv4/IPv6 source address of Client</li>
+<li><code>x509</code> - X.509 certificate, if provided by client</li>
+<li><code>ssh_pubkey</code> - SSH public key, if provided by client</li>
+<li><code>misc</code> - implementation-defined map<ul>
+<li><code>flavour</code> - implementation type</li>
+<li>any - any arbitrary field like, used ciphers or other details</li>
+</ul>
+</li>
+</ul>
+<h2>2.14. Authentication rejection limits and blocking</h2>
+<p>The specification suggests the following limits to be enforced. Hit of the limits must
+block any processing. The blocking must be done for entire period of enforcement.</p>
+<ul>
+<li>Subject of blocking:<ul>
+<li>IPv4/32 or IPv6/64 addresses of Client calls<ul>
+<li>10 failed auth attempts in 24 hours</li>
+<li>30 failed auth attempts in 7 days</li>
+<li>100 failed auth attempts in 30 days</li>
+</ul>
+</li>
+<li>IPv4/24 or IPv6/48 addresses of Client calls<ul>
+<li>100 failed auth attempts in 24 hours</li>
+<li>300 failed auth attempts in 7 days</li>
+<li>1000 failed auth attempts in 30 days</li>
+</ul>
+</li>
+<li>Untrusted User (Service) which may fake Client fingeprints for bruteforcing:<ul>
+<li>100 failed auth attempts in 24 hours</li>
+<li>300 failed auth attempts in 7 days</li>
+<li>1000 failed auth attempts in 30 days</li>
+</ul>
+</li>
+<li>Verified User (Service) which may fake Client fingeprints for bruteforcing:<ul>
+<li>10000 failed auth attempts in 24 hours</li>
+<li>30000 failed auth attempts in 7 hours</li>
+<li>100000 failed auth attempts in 30 hours</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Objects and actions:<ul>
+<li>User clear text authentication to be automatically regenerated per Service<ul>
+<li>100 failed attempts in 24 hours</li>
+<li>300 failed attempts in 7 days</li>
+<li>1000 failed attempts in 30 days</li>
+<li>User should be notified to retrieve and setup a new clear text secret</li>
+</ul>
+</li>
+<li>User stateless MAC authentication to be automatically regenerated<ul>
+<li>1000 failed attempts in 24 hours</li>
+<li>3000 failed attempts in 7 days</li>
+<li>10000 failed attempts in 30 days</li>
+<li>User should be notified to retrieve and setup a new MAC Secret</li>
+</ul>
+</li>
+<li>Master Secret to be disabled<ul>
+<li>10 failed attempts in 24 hours</li>
+<li>30 failed attempts in 7 days</li>
+<li>100 failed attempts in 30 days</li>
+<li>Master Secret ID should be difficult to guess UUID</li>
+<li>Fallback to previous still active Master Secret can be done for
+    automatic recovery</li>
+<li>Otherwise, manual re-initialization is required</li>
+</ul>
+</li>
+<li>Client authentication using session token<ul>
+<li>Immediate session invalidation on session secret mismatch</li>
+<li>Immediate session invalidation on non-IP Client fingerprints change</li>
+<li>Immediate session invalidation on suspicious Client IP changes</li>
+<li>Session token has to contain two parts: session ID and session secret</li>
+<li>Session ID should not be easily guessable - any mismatch is a sign of attack</li>
+</ul>
+</li>
+<li>User login at AuthService<ul>
+<li>1000 failed attempts in 24 hours</li>
+<li>3000 failed attempts in 7 days</li>
+<li>10000 failed attempts in 30 days</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <h1>3. Interface</h1>
 <h2>3.1. Common types</h2>
 <pre><code>{
@@ -585,19 +687,6 @@ to reject requests with "SecurityError" on mismatch.</p>
                 "EXPOSED"
             ]
         },
-        "RequestSource" : {
-            "type" : "map",
-            "fields" : {
-                "ip" : {
-                    "type" : "IPAddress",
-                    "optional" : true
-                },
-                "x509_cn" : {
-                    "type" : "string",
-                    "optional" : true
-                }
-            }
-        },
         "PublicKeyType" : {
             "type" : "enum",
             "items" : [
@@ -613,6 +702,31 @@ to reject requests with "SecurityError" on mismatch.</p>
         "EncryptedMasterSecret" : {
             "type" : "Base64",
             "minlen" : 1
+        },
+        "ClientFingerprints" : {
+            "type" : "map",
+            "fields" : {
+                "user_agent" : {
+                    "type" : "string",
+                    "optional" : true
+                },
+                "source_ip" : {
+                    "type" : "IPAddress",
+                    "optional" : true
+                },
+                "x509" : {
+                    "type" : "Base64",
+                    "optional" : true
+                },
+                "ssh_pubkey" : {
+                    "type" : "string",
+                    "optional" : true
+                },
+                "misc" : {
+                    "type" : "map",
+                    "optional" : true
+                }
+            }
         }
     }
 }

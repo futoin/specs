@@ -63,19 +63,6 @@
         "EXPOSED"
       ]
     },
-    "RequestSource": {
-      "type": "map",
-      "fields": {
-        "ip": {
-          "type": "IPAddress",
-          "optional": true
-        },
-        "x509_cn": {
-          "type": "string",
-          "optional": true
-        }
-      }
-    },
     "PublicKeyType": {
       "type": "enum",
       "items": [
@@ -91,6 +78,31 @@
     "EncryptedMasterSecret": {
       "type": "Base64",
       "minlen": 1
+    },
+    "ClientFingerprints": {
+      "type": "map",
+      "fields": {
+        "user_agent": {
+          "type": "string",
+          "optional": true
+        },
+        "source_ip": {
+          "type": "IPAddress",
+          "optional": true
+        },
+        "x509": {
+          "type": "Base64",
+          "optional": true
+        },
+        "ssh_pubkey": {
+          "type": "string",
+          "optional": true
+        },
+        "misc": {
+          "type": "map",
+          "optional": true
+        }
+      }
     }
   }
 }

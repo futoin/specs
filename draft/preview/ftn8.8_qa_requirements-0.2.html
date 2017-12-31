@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn8.8_qa_requirements.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN8.8: FutoIn Security Concept - QA requirements
+Version: 0.2DV
+Date: 2017-12-31
+Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v0.2 - 2017-12-31 - Andrey Galkin<ul>
+<li>CHANGED: heavily revised &amp; split into sub-specs</li>
+<li>NEW: QA requirements</li>
+</ul>
+</li>
+<li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This sub-specification of <a href="./ftn8_security_concept.html">FTN8</a> covers
+Quality Assurance requirements/test cases in scope of FTN8.</p>
+<p>As authentication &amp; authorization is one of fundamental aspects of
+whole FutoIn project, it is very important to explicitely list all
+essential test cases.</p>
+<h1>2. Concept</h1>
+<p>QA requirements are split into test suites under "Requirements" section.
+Each section is organized in paragraph - test case written in style of
+User or Job Story and starting from associative identifier.</p>
+<p>Format:
+<code>{SCOPE}-{ID} - {story}</code></p>
+<p>Example:</p>
+<p><strong>REQ-1</strong> - The requirement must be short and simple, so it can be easily covered
+in single test case.</p>
+<h1>3. Requirements</h1>
+<h2>3.1. Stateless clear text authentication</h2>
+<p><em>Note: "STLCT" stays for STateLess Clear Text.</em></p>
+<p>AuthService-related:</p>
+<p><strong>STLCT-1</strong> - STLCT authentication must be rejected, if it is not enabled in AuthService.</p>
+<p><strong>STLCT-2</strong> - STLCT authentication must be rejected, if User has no inidividual secret
+configured for specific Service.</p>
+<p><strong>STLCT-3</strong> - STLCT authentication must be rejected, if User is not found.</p>
+<p><strong>STLCT-4</strong> - STLCT authentication must be rejected, if User secret for
+specific Service mismatches.</p>
+<p><strong>STLCT-5</strong> - all STLCT rejections must have artificial delay to prevent time-based
+User existence exposure.</p>
+<p>Executor-related:</p>
+<p><strong>STLCT-6</strong> - Service must send all available Client fingerprints to AuthService, so
+it can enforce additional constraint checks.</p>
+<p><strong>STLCT-7</strong> - local and global user ID must be set in RequestInfo on accepted
+authentication.</p>
+<p><strong>STLCT-8</strong> - "Info" security level must be set in RequestInfo on accepted
+authentication.</p>
+<h2>3.2. Stateless MAC authentication</h2>
+<p><em>Note: "STLMC" stays for Stateless Message athentication Code.</em></p>
+<p>AuthService-related:</p>
+<p><strong>STLMC-1</strong> - STLMC authentication must be rejected, if it is not enabled in AuthService.</p>
+<p><strong>STLMC-2</strong> - STLMC authentication must be rejected, if MAC of request message mismatches.</p>
+<p><strong>STLMC-3</strong> - STLMC authentication must be rejected, if User is not found.</p>
+<p><strong>STLMC-4</strong> - all STLMC rejections must have artificial delay to prevent time-based
+User existence exposure.</p>
+<p>Executor-related:</p>
+<p><strong>STLMC-5</strong> - Service must send all available Client fingerprints to AuthService, so
+it can enforce additional constraint checks.</p>
+<p><strong>STLMC-6</strong> - local and global user ID must be set in RequestInfo on accepted
+authetnication.</p>
+<p><strong>STLMC-7</strong> - "SafeOps" security level must be set in RequestInfo on accepted
+authentication.</p>
+<h2>3.3. Master Secret authentication</h2>
+<h2>3.4. Access Control</h2>
+<h2>3.5. Authentication rejection limits</h2>
+<p>=END OF SPEC=</p>
+</body></html>
