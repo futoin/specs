@@ -80,6 +80,21 @@
           "optional": true
         }
       }
+    },
+    "IPAddress4": {
+      "type": "string",
+      "regex": "^[0-9]{1,3}(\\.[0-9]{1,3}){3}$",
+      "desc": "Just basic check to look like IPv4 address"
+    },
+    "IPAddress6": {
+      "type": "string",
+      "regex": "^[0-9a-fA-F:]*:[0-9a-fA-F]*:[0-9a-fA-F:.]*$",
+      "desc": "Just basic check to look like IPv6 address (including IPv4 coded in IPv6)"
+    },
+    "IPAddress": {
+      "type": "string",
+      "regex": "^([0-9]{1,3}(\\.[0-9]{1,3}){3}|[0-9a-fA-F]*:[0-9a-fA-F]*:[0-9a-fA-F.]*)$",
+      "desc": "Just basic check to look like IPv4 or IPv6 address"
     }
   }
 }
