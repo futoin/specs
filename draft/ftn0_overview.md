@@ -12,7 +12,18 @@ Authors: Andrey Galkin
 * [FTN3 Interface Definition](./ftn3\_iface\_definition.md)
 * [FTN16 Continuous Integration & Delivery Tool](./ftn16\_cid\_tool.md)
 
-# 2. Security
+# 2. Language and Platform specific interface concept
+* [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)
+* [FTN7 Interface Invoker Concept](./ftn7\_iface\_invoker\_concept.md)
+* [FTN10 Burst Calls](./ftn10\_burst\_calls.md)
+* [FTN12 Async API](./ftn12\_async\_api.md)
+* [FTN11 Implementation Feature Requirements ](./ftn11\_implementation\_feature\_requirements.md)
+* [FTN15 Native Event API](./ftn15\_native\_event.md)
+
+# 3. Technology-specific integration
+* [FTN5 HTTP integration](./ftn5\_iface\_http\_integration.md)
+
+# 4. Security concept
 * [FTN8 Security Concept](./ftn8\_security\_concept.md)
     * [FTN8.1: Stateless Authentication](./ftn8.1\_stateless\_auth.md)
     * [FTN8.2: Master Secret Authentication](./ftn8.2\_master\_auth.md)
@@ -22,17 +33,6 @@ Authors: Andrey Galkin
     * [FTN8.6: Foreign Users](./ftn8.6\_foreign\_users.md)
     * [FTN8.7: End-to-End Encryption](./ftn8.7\_e2ee.md)
     * [FTN8.8: QA Requirements](./ftn8.8\_qa\_requirements.md)
-
-# 3. Language and Platform specific interface concept
-* [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)
-* [FTN7 Interface Invoker Concept](./ftn7\_iface\_invoker\_concept.md)
-* [FTN10 Burst Calls](./ftn10\_burst\_calls.md)
-* [FTN12 Async API](./ftn12\_async\_api.md)
-* [FTN11 Implementation Feature Requirements ](./ftn11\_implementation\_feature\_requirements.md)
-* [FTN15 Native Event API](./ftn15\_native\_event.md)
-
-# 4. Technology-specific integration
-* [FTN5 HTTP integration](./ftn5\_iface\_http\_integration.md)
 
 # 5. Interfaces
 ## 5.1. Core
