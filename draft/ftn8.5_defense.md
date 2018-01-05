@@ -13,12 +13,6 @@ Authors: Andrey Galkin
 * v0.1 - 2014-06-03 - Andrey Galkin
     - Initial draft
 
-# WARNING
-
-**INCOMPLETE: just peaces from old FTN8 v0.1**
-
-To be revised
-
 # 1. Intro
 
 This sub-specification of [FTN8](./ftn8_security_concept.md) covers
@@ -26,41 +20,7 @@ Defense System specification.
 
 # 2. Concept
 
-To be revised.
-
-
-
-
-# 3. Defense system integration
-
-Security is common responsibility. Every node of the system must be a defense barrier for
-both attacks and simple misconfiguration.
-
-Typically, more farther node from actual attacker should have a dynamic failure rate
-limit to avoid a closer node being banned, leading to Denial of Service of specific 
-functionality.
-
-Each service must detect attacking Clients/Services and deny access before security limit
-is triggered on another host.
-
-*Note: all hit or approaching limits must be reported to administration for actions to be 
-taken*
-
-**Any error, which never happens by race condition, mistake, etc. must immediately trigger
-defense system action** Example: session token validation by other Service.
-
-## 3.1. Possible limit types
-
-* Limit per period from the same client and/or host and/or network
-    * Request count
-    * Security failures
-* Dynamic limits
-    * Limit can be risen and lowered dynamically (e.g. AuthService rices limits per Services
-    based on number of active users)
-
-
-    
-# 6. Defense Systems
+## 2.1. Defense Systems
 
 Any open system requires effective reaction to errors generated
 by misconfiguration and intentional attacks. It is also required
@@ -74,7 +34,7 @@ of thing.
 However, this specification defines a universal interface for
 system audit and reaction.
 
-## 6.1. Example
+## 2.2. Holistic pictures of defense integration
 
 * Successful call (common):
 
@@ -157,84 +117,55 @@ system audit and reaction.
 
 # 3. Interface
 
-To be revised.
-
 `Iface{`
 
-        {
-            "iface" : "futoin.defense.provider",
-            "version" : "{ver}",
-            "ftn3rev" : "1.4",
-            "funcs" : {
-                "onCall" : {
-                    "params" : {
-                        "client_id" : {
-                            "type" : "string",
-                            "desc" : "Unique Client ID"
-                        },
-                        "client_addr" : {
-                            "type" : "string",
-                            "desc" : "IPv4:addr, IPv6:addr or other-type:addr, optionally followed by :port or :path"
-                        },
-                        "request" : {
-                            "type" : "map",
-                            "desc" : "Original request data"
-                        }
-                    },
-                    "result" : {
-                        "act" : {
-                            "type" : "string",
-                            "desc" : "one of: pass, drop, reject, reauth, delay"
-                        },
-                        "delay" : {
-                            "type" : "number",
-                            "desc" : "delay response (processing for 'delay') for specific absolute time in microseconds since request was made for _any_ action"
-                        },
-                        "refid" : {
-                            "type" : "string",
-                            "desc" : "Reference ID for onResult()"
-                        }
-                    },
-                    "desc" : "Call before processing each client's call"
+    {
+        "iface" : "futoin.defense",
+        "version" : "{ver}",
+        "ftn3rev" : "1.8",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.auth.types:{ver}"
+        ],
+        "funcs" : {
+            "onCall" : {
+                "params" : {
+                    "user" : "AuthInfo",
+                    "client" : "ClientFingerprints",
+                    "request" : "FTNRequest"
                 },
-                "onResult" : {
-                    "params" : {
-                        "refid" : {
-                            "type" : "string",
-                            "desc" : "Reference ID for onCall()"
-                        },
-                        "response" : {
-                            "type" : "map",
-                            "desc" : "Original response data"
-                        }
-                    },
-                    "desc" : "Call after processing each client's call"
+                "result" : {
+                    "refid" : "UUIDB64"
                 },
-                "onFail" : {
-                    "params" : {
-                        "refid" : {
-                            "type" : "string",
-                            "desc" : "Reference ID for onCall()"
-                        },
-                        "error" : {
-                            "type" : "string",
-                            "desc" : "Generated error"
-                        }
-                    },
-                    "result" : {
-                        "delay" : {
-                            "type" : "number",
-                            "desc" : "delay response for specific absolute time in microseconds since request was made"
-                        }
-                    },
-                    "desc" : "Call before processing each client's call"
-                }
+                "desc" : "Call before processing each client's call"
             },
-            "requires" : [
-                "SecureChannel"
-            ],
-            "desc" : "AuthService Backend Provider interface"
-        }
+            "onResult" : {
+                "params" : {
+                    "refid" : "UUIDB64",
+                    "response" : "FTNResponse"
+                },
+                "desc" : "Call after processing each client's call"
+            },
+            "onFail" : {
+                "params" : {
+                    "refid" : "UUIDB64",
+                    "error" : {
+                        "type" : "string",
+                        "desc" : "Generated error"
+                    },
+                    "error_info" : {
+                        "type" : "string",
+                        "desc" : "Generated error info"
+                    }
+                },
+                "desc" : "Call before processing each client's call"
+            }
+        },
+        "requires" : [
+            "SecureChannel"
+        ],
+        "desc" : "AuthService Backend Provider interface"
+    }
 
 `}Iface`
 
