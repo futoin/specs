@@ -125,6 +125,18 @@ unattended requests.</p>
 as used for request signing.</p>
 <h2>2.6. Master MAC security level</h2>
 <p><code>PrivilegedOps</code> security level must be assigned.</p>
+<h2>2.7. Optional Master Secret Scope</h2>
+<p>User/Service is in control of its own privacy vs. simplicity. There is an optional,
+<code>scope</code> parameter for new Master Secret generation.</p>
+<p>Peer Service must not be able to get derived key for particular Master Secret directly.
+It must be possible only if invoking Service signs any message with particular derived key -
+implicit approval to provide Derived Key to particular Service.</p>
+<p>There are various options:</p>
+<ol>
+<li>Use one global Master Secret with high risk of its recovery through derived key.</li>
+<li>Use several Master Secrets per peer service vendor.</li>
+<li>Use a separate Master Secret per each peer.</li>
+</ol>
 <h1>3. Interface</h1>
 <h2>3.1. Message authentication</h2>
 <p>Provide Master Secret based authentication to Executor.</p>
@@ -151,13 +163,6 @@ minimize risk of exposure.</p>
                 },
                 "sig" : "MACValue"
             }
-        },
-        "MessageAuth" : {
-            "type" : "map",
-            "fields" : {
-                "local_id" : "LocalUserID",
-                "global_id" : "GlobalUserID"
-            }
         }
     },
     "funcs" : {
@@ -167,7 +172,7 @@ minimize risk of exposure.</p>
                 "sec" : "MACSecField",
                 "source" : "ClientFingerprints"
             },
-            "result" : "MessageAuth",
+            "result" : "AuthInfo",
             "throws" : [
                 "SecurityError"
             ]
@@ -181,6 +186,21 @@ minimize risk of exposure.</p>
             "throws" : [
                 "SecurityError"
             ]
+        },
+        "exposeDerivedKey" : {
+            "params" : {
+                "base" : "MACBase",
+                "sec" : "MACSecField",
+                "source" : "ClientFingerprints"
+            },
+            "result" : {
+                "info" : "AuthInfo",
+                "ekey" : "EncryptedKey"
+            },
+            "throws" : [
+                "SecurityError"
+            ],
+            "desc" : "Feature to support local key cache"
         }
     },
     "requires" : [
@@ -202,7 +222,11 @@ minimize risk of exposure.</p>
         "getNewEncryptedSecret" : {
             "params" : {
                 "type" : "PublicKeyType",
-                "pubkey" : "PublicKey"
+                "pubkey" : "PublicKey",
+                "scope" : {
+                    "type" : "MasterScope",
+                    "default" : null
+                }
             },
             "result" : {
                 "id" : "MasterSecretID",

@@ -10,7 +10,11 @@
     "getNewEncryptedSecret": {
       "params": {
         "type": "PublicKeyType",
-        "pubkey": "PublicKey"
+        "pubkey": "PublicKey",
+        "scope": {
+          "type": "MasterScope",
+          "default": null
+        }
       },
       "result": {
         "id": "MasterSecretID",

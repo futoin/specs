@@ -21,13 +21,6 @@
         "algo": "MACAlgo",
         "sig": "MACValue"
       }
-    },
-    "MessageAuth": {
-      "type": "map",
-      "fields": {
-        "local_id": "LocalUserID",
-        "global_id": "GlobalUserID"
-      }
     }
   },
   "funcs": {
@@ -36,7 +29,7 @@
         "sec": "ClearSecField",
         "client": "ClientFingerprints"
       },
-      "result": "MessageAuth",
+      "result": "AuthInfo",
       "throws": [
         "SecurityError"
       ]
@@ -47,7 +40,7 @@
         "sec": "MACSecField",
         "client": "ClientFingerprints"
       },
-      "result": "MessageAuth",
+      "result": "AuthInfo",
       "throws": [
         "SecurityError"
       ]

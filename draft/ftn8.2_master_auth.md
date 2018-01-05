@@ -119,6 +119,21 @@ as used for request signing.
 
 `PrivilegedOps` security level must be assigned.
 
+## 2.7. Optional Master Secret Scope
+
+User/Service is in control of its own privacy vs. simplicity. There is an optional,
+`scope` parameter for new Master Secret generation.
+
+Peer Service must not be able to get derived key for particular Master Secret directly.
+It must be possible only if invoking Service signs any message with particular derived key -
+implicit approval to provide Derived Key to particular Service.
+
+There are various options:
+
+1. Use one global Master Secret with high risk of its recovery through derived key.
+2. Use several Master Secrets per peer service vendor.
+3. Use a separate Master Secret per each peer.
+
 
 # 3. Interface
 
@@ -152,13 +167,6 @@ minimize risk of exposure.
                     },
                     "sig" : "MACValue"
                 }
-            },
-            "MessageAuth" : {
-                "type" : "map",
-                "fields" : {
-                    "local_id" : "LocalUserID",
-                    "global_id" : "GlobalUserID"
-                }
             }
         },
         "funcs" : {
@@ -168,7 +176,7 @@ minimize risk of exposure.
                     "sec" : "MACSecField",
                     "source" : "ClientFingerprints"
                 },
-                "result" : "MessageAuth",
+                "result" : "AuthInfo",
                 "throws" : [
                     "SecurityError"
                 ]
@@ -182,6 +190,21 @@ minimize risk of exposure.
                 "throws" : [
                     "SecurityError"
                 ]
+            },
+            "exposeDerivedKey" : {
+                "params" : {
+                    "base" : "MACBase",
+                    "sec" : "MACSecField",
+                    "source" : "ClientFingerprints"
+                },
+                "result" : {
+                    "info" : "AuthInfo",
+                    "ekey" : "EncryptedKey"
+                },
+                "throws" : [
+                    "SecurityError"
+                ],
+                "desc" : "Feature to support local key cache"
             }
         },
         "requires" : [
@@ -209,7 +232,11 @@ Perform periodic secure symmetric Master Secret exchange initiated by Service.
             "getNewEncryptedSecret" : {
                 "params" : {
                     "type" : "PublicKeyType",
-                    "pubkey" : "PublicKey"
+                    "pubkey" : "PublicKey",
+                    "scope" : {
+                        "type" : "MasterScope",
+                        "default" : null
+                    }
                 },
                 "result" : {
                     "id" : "MasterSecretID",

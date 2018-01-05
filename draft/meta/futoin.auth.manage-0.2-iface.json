@@ -25,6 +25,10 @@
         "master_auto_reg": {
           "type": "boolean",
           "default": false
+        },
+        "auth_service": {
+          "type": "boolean",
+          "default": false
         }
       },
       "result": "boolean"
@@ -45,12 +49,27 @@
           "type": "GlobalUserID",
           "default": null,
           "desc": "Defaults to auto-generated"
+        },
+        "hostname": {
+          "type": "Domain",
+          "default": null,
+          "desc": "Required for Service users"
         }
       },
       "result": "LocalUserID",
       "throws": [
         "GlobalUserIDMismatch"
       ]
+    },
+    "ensureService": {
+      "params": {
+        "hostname": {
+          "type": "GlobalService",
+          "default": null,
+          "desc": "Act as both local and global user name"
+        }
+      },
+      "result": "LocalUserID"
     }
   },
   "requires": [

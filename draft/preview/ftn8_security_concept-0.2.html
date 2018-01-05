@@ -179,7 +179,16 @@ of that.</p>
    |----- request registration -------&gt;|
    .                [depend on transport's MitM security]
    .                    [save request for approval]
-   |&lt;-------- get ticket ID -----------|
+   |&lt;----- provide ticket ID ----------|
+   .                                   .
+[put ticket ID in .well-known]         |
+   .                                   .
+   |-- try to complete registration --&gt;|
+   .                            [ticket is not validated]
+   |&lt;-- HTTPS GET .well-known ticket --|
+   |------- return ticket ID ---------&gt;|
+   .                            [ticket is validated]
+   |&lt;- "pending" or "rejected" error --|
    .                                   .
 [reasonable delay]               [wait approval]
    .                                   .
@@ -507,9 +516,9 @@ that Invoker may be clustered with unique derived key at every node.</p>
 to reject requests with "SecurityError" on mismatch.</p>
 <h4>2.11.4.4. Key derivation strategies names</h4>
 <ol>
-<li><code>HKDF0</code> - use [HKDF][] with empty "salt" and purpose name for "info" to
-    derive unique keys per purpose from shared Master Secret.<ul>
-<li>empty salt should be OK with quality Master Secret</li>
+<li><code>HKDF0</code> - use [HKDF][] with per GlobalServiceID as "salt" and
+    purpose name for "info" to derive unique keys per purpose from shared Master Secret.<ul>
+<li>empty or persistent salt should be OK with quality Master Secret</li>
 <li>"prm" must not be sent or be empty</li>
 <li>default for <code>MAC</code> and <code>EXPOSED</code> purpose</li>
 </ul>
@@ -541,6 +550,11 @@ to reject requests with "SecurityError" on mismatch.</p>
 <li><code>source_ip</code> - refers ot IPv4/IPv6 source address of Client</li>
 <li><code>x509</code> - X.509 certificate, if provided by client</li>
 <li><code>ssh_pubkey</code> - SSH public key, if provided by client</li>
+<li><code>client_token</code> - Service-specific identification of the Client device<ul>
+<li>the one should not be stored in clear on the device, but encrypted by
+    a separate secret known only to the Service itself</li>
+</ul>
+</li>
 <li><code>misc</code> - implementation-defined map<ul>
 <li><code>flavour</code> - implementation type</li>
 <li>any - any arbitrary field like, used ciphers or other details</li>
@@ -617,6 +631,10 @@ block any processing. The blocking must be done for entire period of enforcement
 <li>10000 failed attempts in 30 days</li>
 </ul>
 </li>
+<li>Second-level domain for service auto-registrations:<ul>
+<li>10 service auto-registrations in 30 days</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -635,7 +653,8 @@ block any processing. The blocking must be done for entire period of enforcement
             "type" : "string",
             "regex" : "^[a-zA-Z]([a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9])?$"
         },
-        "GlobalUserID" : "Email",
+        "GlobalService" : "Domain",            
+        "GlobalUserID" : [ "Email", "GlobalService" ],
         "ClearSecret" : {
             "type" : "string",
             "minlen" : 8,
@@ -672,6 +691,7 @@ block any processing. The blocking must be done for entire period of enforcement
             "minlen" : 8
         },
         "MasterSecretID" : "UUIDB64",
+        "MasterScope" : "Domain",
         "KeyDerivationStrategy" : {
             "type" : "enum",
             "items" : [
@@ -699,15 +719,34 @@ block any processing. The blocking must be done for entire period of enforcement
             "type" : "Base64",
             "minlen" : 1
         },
-        "EncryptedMasterSecret" : {
+        "EncryptedKey" : {
             "type" : "Base64",
-            "minlen" : 1
+            "minlen" : 1,
+            "maxlen" : 683
+        },
+        "EncryptedMasterSecret" : "EncryptedKey",
+        "UserAgent" : {
+            "type" : "string",
+            "maxlen" : 256
+        },
+        "X509Cert" : {
+            "type" : "Base64",
+            "maxlen" : 16384
+        },
+        "SSHPubKey" : {
+            "type" : "string",
+            "maxlen" : 8192
+        },
+        "ClientToken" : {
+            "type" : "Base64",
+            "maxlen" : 342,
+            "desc" : "Unique per Service per Client device persistent token"
         },
         "ClientFingerprints" : {
             "type" : "map",
             "fields" : {
                 "user_agent" : {
-                    "type" : "string",
+                    "type" : "UserAgent",
                     "optional" : true
                 },
                 "source_ip" : {
@@ -715,11 +754,15 @@ block any processing. The blocking must be done for entire period of enforcement
                     "optional" : true
                 },
                 "x509" : {
-                    "type" : "Base64",
+                    "type" : "X509Cert",
                     "optional" : true
                 },
                 "ssh_pubkey" : {
-                    "type" : "string",
+                    "type" : "SSHPubKey",
+                    "optional" : true
+                },
+                "client_token" : {
+                    "type" : "ClientToken",
                     "optional" : true
                 },
                 "misc" : {
@@ -727,6 +770,84 @@ block any processing. The blocking must be done for entire period of enforcement
                     "optional" : true
                 }
             }
+        },
+        "AuthInfo" : {
+            "type" : "map",
+            "fields" : {
+                "local_id" : "LocalUserID",
+                "global_id" : "GlobalUserID"
+            }
+        },
+        "RedirectURL" : {
+            "type" : "string",
+            "regex" : "^https?://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}/[a-Z0-9_/-]*(\\?[a-Z][a-Z0-9]*=)?$",
+            "maxlen" : 128
+        },
+        "ResourceURL" : {
+            "type" : "string",
+            "regex" : "^https?://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}/[a-Z0-9_/?=%&amp;;.-]*$",
+            "maxlen" : 128
+        },
+        "AccessControlDescriptor" : {
+            "type" : "map",
+            "fields" : {
+                "iface" : {
+                    "type" : "FTNFace",
+                    "optional" : true
+                },
+                "ver" : {
+                    "type" : "FTNVersion",
+                    "optional" : true
+                },
+                "func" : {
+                    "type" : "FTNFunction",
+                    "optional" : true
+                },
+                "params" : {
+                    "type" : "map",
+                    "optional" : true
+                }
+            },
+            "desc" : "Granted API access constraints in scope of arbitrary Service"
+        },
+        "AccessControlDescriptorList" : {
+            "type" : "array",
+            "elemtype" : "AccessControlDescriptor",
+            "desc" : "List of granted API access in scope of arbitrary Service"
+        },
+        "AccessGroupName" : {
+            "type" : "GenericIdentifier",
+            "maxlen" : 32,
+            "desc" : "Service-specific arbitrary ACD grouping identifier"
+        },
+        "AccessGroup" : {
+            "type" : "map",
+            "fields" : {
+                "id" : "AccessGroupName",
+                "name" : "ItemTranslations",
+                "desc" : "ItemTranslations",
+                "acds" : "AccessControlDescriptorList",
+                "icon" : "ResourceURL"
+            },
+            "desc" : "Services-specific arbitrary ACD grouping definition"
+        },
+        "AccessGroupList" : {
+            "type" : "array",
+            "elemtype" : "ServiceAccessGroup",
+            "desc" : "List of Service-specific ACD groupings"
+        },
+        "ServiceAccessGroup" : {
+            "type" : "map",
+            "fields" : {
+                "service" : "GlobalService",
+                "access_group" : "AccessGroupName"
+            },
+            "desc" : "Global pointer to ACD group of specific Service"
+        },
+        "ServiceAccessGroupList" : {
+            "type" : "array",
+            "elemtype" : "ServiceAccessGroup",
+            "desc" : "List of global pointers to Service-specific ACD groups"
         }
     }
 }
@@ -759,6 +880,10 @@ block any processing. The blocking must be done for entire period of enforcement
                 "master_auto_reg" : {
                     "type" : "boolean",
                     "default" : false
+                },
+                "auth_service" : {
+                    "type" : "boolean",
+                    "default" : false
                 }
             },
             "result" : "boolean"
@@ -779,12 +904,27 @@ block any processing. The blocking must be done for entire period of enforcement
                     "type": "GlobalUserID",
                     "default" : null,
                     "desc" : "Defaults to auto-generated"
+                },
+                "hostname" : {
+                    "type" : "Domain",
+                    "default" : null,
+                    "desc" : "Required for Service users"
                 }
             },
             "result" : "LocalUserID",
             "throws" : [
                 "GlobalUserIDMismatch"
             ]
+        },
+        "ensureService" : {
+            "params" : {
+                "hostname" : {
+                    "type" : "GlobalService",
+                    "default" : null,
+                    "desc" : "Act as both local and global user name"
+                }
+            },
+            "result" : "LocalUserID"
         }
     },
     "requires" : [

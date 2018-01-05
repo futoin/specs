@@ -41,6 +41,7 @@ User or Job Story and starting from associative identifier.</p>
 in single test case.</p>
 <h1>3. Requirements</h1>
 <h2>3.1. Stateless clear text authentication</h2>
+<p>See <a href="./ftn8.1_stateless_auth.html">FTN8.1</a>.</p>
 <p><em>Note: "STLCT" stays for STateLess Clear Text.</em></p>
 <p>AuthService-related:</p>
 <p><strong>STLCT-1</strong> - STLCT authentication must be rejected, if it is not enabled in AuthService.</p>
@@ -59,6 +60,7 @@ authentication.</p>
 <p><strong>STLCT-8</strong> - "Info" security level must be set in RequestInfo on accepted
 authentication.</p>
 <h2>3.2. Stateless MAC authentication</h2>
+<p>See <a href="./ftn8.1_stateless_auth.html">FTN8.1</a>.</p>
 <p><em>Note: "STLMC" stays for Stateless Message athentication Code.</em></p>
 <p>AuthService-related:</p>
 <p><strong>STLMC-1</strong> - STLMC authentication must be rejected, if it is not enabled in AuthService.</p>
@@ -74,7 +76,39 @@ authetnication.</p>
 <p><strong>STLMC-7</strong> - "SafeOps" security level must be set in RequestInfo on accepted
 authentication.</p>
 <h2>3.3. Master Secret authentication</h2>
-<h2>3.4. Access Control</h2>
-<h2>3.5. Authentication rejection limits</h2>
+<p>See <a href="./ftn8.2_master_auth.html">FTN8.2</a>.</p>
+<p><em>Note: MSMAC states for Master Secret Message Authentication Code.</em></p>
+<p>Service-related:</p>
+<p><strong>MSMAC-1</strong> - a new secure public/private key pair must get generated before every
+new Secret exchange.</p>
+<p><strong>MSMAC-2</strong> - Service must always use peer GlobalServiceID as HKDF0 salt parameter.</p>
+<p><strong>MSMAC-3</strong> - Service must always use HKDF0-MAC strategy for message signing.</p>
+<p><strong>MSMAC-4</strong> - Service must always use HKDF0-EXPOSED strategy for payload signing
+in untrusted delivery channel.</p>
+<p><strong>MSMAC-5</strong> - Service must always use a new HKDF-ENC strategy salt parameter for
+encryption of any data.</p>
+<p><strong>MSMAC-6</strong> - Service must use the same derived key for signing of response as used
+for signing of the related request.</p>
+<p>AuthService-related:</p>
+<p><strong>MSMAC-7</strong> - AuthService must ensure that HKDF0 salt parameter matches GlobalServiceID
+of validating Service to protect from easy key leaks.</p>
+<p><strong>MSMAC-8</strong> - AuthService may cache derived keys only after successfull authentication
+of message to protect from DoS using wrong salt cache.</p>
+<p><strong>MSMAC-9</strong> - shared Secret must use random source of acceptable
+quality for cryptographic purposes.</p>
+<p><strong>MSMAC-10</strong> - AuthService must allow up to two active Secrets per Service per Scope
+to allow smooth new Secret rollout without interruptions.</p>
+<p><strong>MSMAC-11</strong> - AuthService must leave exactly the Secret used for signing the
+exchange message as the old active key even when a newer one exists to
+protected for errors during response of the exchange processing.</p>
+<p><strong>MSMAC-12</strong> - "PrivilegedOps" security level must be set in RequestInfo on accepted
+authentication.</p>
+<p><strong>MSMAC-13</strong> - AuthService must expose derived key to Service only after related
+authentication of data using the derived key to prevent easy key leaks.</p>
+<h2>3.4. Client authentication</h2>
+<p>See <a href="./ftn8.3_client_auth.html">FTN8.3</a>.</p>
+<h2>3.5. Access Control</h2>
+<p>See <a href="./ftn8.4_access_control.html">FTN8.4</a>.</p>
+<h2>3.6. Authentication rejection limits</h2>
 <p>=END OF SPEC=</p>
 </body></html>

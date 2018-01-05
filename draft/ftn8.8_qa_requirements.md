@@ -43,6 +43,8 @@ in single test case.
 
 ## 3.1. Stateless clear text authentication
 
+See [FTN8.1](./ftn8.1\_stateless\_auth.md).
+
 *Note: "STLCT" stays for STateLess Clear Text.*
 
 AuthService-related:
@@ -73,6 +75,8 @@ authentication.
 
 ## 3.2. Stateless MAC authentication
 
+See [FTN8.1](./ftn8.1\_stateless\_auth.md).
+
 *Note: "STLMC" stays for Stateless Message athentication Code.*
 
 AuthService-related:
@@ -97,11 +101,63 @@ authetnication.
 **STLMC-7** - "SafeOps" security level must be set in RequestInfo on accepted
 authentication.
 
-
 ## 3.3. Master Secret authentication
 
-## 3.4. Access Control
+See [FTN8.2](./ftn8.2\_master\_auth.md).
 
-## 3.5. Authentication rejection limits
+*Note: MSMAC states for Master Secret Message Authentication Code.*
+
+Service-related:
+
+**MSMAC-1** - a new secure public/private key pair must get generated before every
+new Secret exchange.
+
+**MSMAC-2** - Service must always use peer GlobalServiceID as HKDF0 salt parameter.
+
+**MSMAC-3** - Service must always use HKDF0-MAC strategy for message signing.
+
+**MSMAC-4** - Service must always use HKDF0-EXPOSED strategy for payload signing
+in untrusted delivery channel.
+
+**MSMAC-5** - Service must always use a new HKDF-ENC strategy salt parameter for
+encryption of any data.
+
+**MSMAC-6** - Service must use the same derived key for signing of response as used
+for signing of the related request.
+
+AuthService-related:
+
+**MSMAC-7** - AuthService must ensure that HKDF0 salt parameter matches GlobalServiceID
+of validating Service to protect from easy key leaks.
+
+**MSMAC-8** - AuthService may cache derived keys only after successfull authentication
+of message to protect from DoS using wrong salt cache.
+
+**MSMAC-9** - shared Secret must use random source of acceptable
+quality for cryptographic purposes.
+
+**MSMAC-10** - AuthService must allow up to two active Secrets per Service per Scope
+to allow smooth new Secret rollout without interruptions.
+
+**MSMAC-11** - AuthService must leave exactly the Secret used for signing the
+exchange message as the old active key even when a newer one exists to
+protected for errors during response of the exchange processing.
+
+**MSMAC-12** - "PrivilegedOps" security level must be set in RequestInfo on accepted
+authentication.
+
+**MSMAC-13** - AuthService must expose derived key to Service only after related
+authentication of data using the derived key to prevent easy key leaks.
+
+
+## 3.4. Client authentication
+
+See [FTN8.3](./ftn8.3\_client\_auth.md).
+
+## 3.5. Access Control
+
+See [FTN8.4](./ftn8.4\_access\_control.md).
+
+## 3.6. Authentication rejection limits
 
 =END OF SPEC=

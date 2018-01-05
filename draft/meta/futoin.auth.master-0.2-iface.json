@@ -19,13 +19,6 @@
         },
         "sig": "MACValue"
       }
-    },
-    "MessageAuth": {
-      "type": "map",
-      "fields": {
-        "local_id": "LocalUserID",
-        "global_id": "GlobalUserID"
-      }
     }
   },
   "funcs": {
@@ -35,7 +28,7 @@
         "sec": "MACSecField",
         "source": "ClientFingerprints"
       },
-      "result": "MessageAuth",
+      "result": "AuthInfo",
       "throws": [
         "SecurityError"
       ]
@@ -49,6 +42,21 @@
       "throws": [
         "SecurityError"
       ]
+    },
+    "exposeDerivedKey": {
+      "params": {
+        "base": "MACBase",
+        "sec": "MACSecField",
+        "source": "ClientFingerprints"
+      },
+      "result": {
+        "info": "AuthInfo",
+        "ekey": "EncryptedKey"
+      },
+      "throws": [
+        "SecurityError"
+      ],
+      "desc": "Feature to support local key cache"
     }
   },
   "requires": [

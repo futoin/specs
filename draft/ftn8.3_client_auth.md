@@ -147,7 +147,7 @@ More details are provided in FTN8.6 sub-spec.
 More details of Service authorization to access User's resources on different Services
 is described in the main FTN8 spec and FTN8.4 sub-spec.
 
-### 2.2.6. Auth Queries from Client by Service through AuthService
+### 2.3.1. Auth Queries from Client by Service through AuthService
 
 "Auth Query" stays both for "Authentication" and for "Authorization" query. The second
 always depends on the first one, but plain authentication query without asking for any
@@ -165,13 +165,13 @@ The important aspects:
 
 1. Service must have pre-existing Master Secret exchange with AuthService
 2. Service/AuthService may want to protect from potential DoS attacks caused
-    by other peer redirects either intentional, due to software bug or due to
+    by other peer redirects either intentional or due to software bug or due to
     attacks from Client itself.
     - All redirects must be signed by derived key with "EXPOSED" purpose
     - Do not make direct requests to another peer for obviously faked redirects.
 3. AuthService must ask user for actions initiated by Service:
     - Only if query really comes from Service based on redirect signature.
-    - Any Auth Query must be based on a common template created in advance
+    - Any Auth Query must be based on a persistent template created in advance
         by Service in AuthService.
     - Each Auth Query must have unique not reusable ID (UUID is acceptable).
     - Client redirection must only execute a known template associated with
@@ -181,7 +181,214 @@ The important aspects:
         fake checks to AuthService.
     - Service must be ready for User to only partially reject Auth Query.
 
+### 2.3.2. Auth Query signing details
+
+1. It's assumed ServiceA and ServiceB are paired to AuthService based on Master Secret auth.
+2. It's assumed `declareAccessControl()` is called by Services once per new software version.
+3. It's assumed Services and AuthService are in time sync.
+4. ServiceA generates a random nonce (e.g. UUID).
+5. ServiceA creates `AuthQueryRequest` payload with access control descriptors of ServiceB.
+6. ServiceA derives `EXPOSED` signing key from Master Secret and signed the payload with the key.
+7. ServiceA uses `auth_url` concatenated with the payload encoded in Base64.
+8. ServiceA redirects Clients based on result URL.
+8. AuthService decodes the request payload and verifies its content:
+    - DoS protection:
+        - timestamp must not be older than 600 seconds.
+        - pair of nonce value and template ID must not be seen in the expected age period.
+    - signature must belong to the owner of AuthQuery request template.
+    - AuthQuery template must be valid.
+9. AuthService authenticates User, if needed.
+10. AuthService asks User to approve ServiceA access, if needed.
+    - The prompting can be skipped for trusted service (e.g. same company).
+    - User selected language translations are used for prompting.
+    - Requesting service must be shown.
+    - The list of requested access groups with icons and descriptions must be shown.
+    - User is asked to confirm.
+11. AuthService creates `AuthQueryResponse` using new timestamp, but the same nonce and signing key.
+12. AuthService redirects user to `result_url` concatenated with Base64 encoded payload.
+13. ServiceA decodes the result payload and varifies its content:
+    - DoS protection:
+        - timestamp must not be older than 600 seconds.
+        - pair of nonce value and template ID must not be seen in the expected age period.
+    - signature must belong to the owner of AuthQuery request template.
+    - AuthQuery template must be valid.
+14. ServiceA start User session:
+    - request is sent to AuthService.
+    - response session token is saved in Client.
+15. Optional, ServiceA can make requests to ServiceB on behalf of the user.
+
+### 2.3.3. User session handling
+
+1. After successful Auth Query, Service must call `startSession()`.
+2. Service should call `resumeSession()` once in 10 minutes, if session is used.
+3. If User is logged out from the Service then `closeSession()` must be called.
+4. Service must call `resumeSession() on every client fingerprints change and/or
+    service may force logout.
+
 # 3. Interface
+
+## 3.1. Service interface
+
+`Iface{`
+
+    {
+        "iface" : "futoin.auth.service",
+        "version" : "{ver}",
+        "ftn3rev" : "1.8",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.auth.types:{ver}"
+        ],
+        "types" : {
+            "TemplateName" : {
+                "type" : "GenericIdentifier",
+                "maxlen" : 32
+            },
+            "SessionStartToken" : {
+                "type" : "Base64",
+                "minlen" : 22,
+                "maxlen" : 171
+            },
+            "SessionToken" : {
+                "type" : "Base64",
+                "minlen" : 22,
+                "maxlen" : 171
+            },
+            "AuthQueryID" : "UUIDB64",
+            "AuthQueryNonce" : {
+                "type" : "Base64",
+                "maxlen" : 22
+            },
+            "AuthQueryRequest" : {
+                "type" : "map",
+                "fields" : {
+                    "id" : "AuthQueryID",
+                    "ts" : "Timestamp",
+                    "nonce" : "AuthQueryNonce",
+                    "msid" : "MasterSecretID"
+                }
+            },
+            "AuthQueryResponse" : {
+                "type" : "map",
+                "fields" : {
+                    "token" : "SessionStartToken",
+                    "ts" : "Timestamp",
+                    "nonce" : "AuthQueryNonce",
+                    "msid" : "MasterSecretID"
+                }
+            }
+        },
+        "funcs" : {
+            "declareAccessControl" : {
+                "params" : {
+                    "access_groups" : "AccessGroupList"
+                },
+                "result" : "boolean"
+            },
+            "authQueryTemplate" : {
+                "params" : {
+                    "name" : "TemplateName",
+                    "acds" : "ServiceAccessGroupList",
+                    "result_url" : "RedirectURL"
+                },
+                "result" : {
+                    "id" : "AuthQueryID",
+                    "auth_url" : "RedirectURL"
+                },
+                "throws" : [
+                    "SecurityError"
+                ]
+            },
+            "startSession" : {
+                "params" : {
+                    "start_token" : "SessionStartToken",
+                    "client" : "ClientFingerprints"
+                },
+                "result" : {
+                    "token" : "SessionToken",
+                    "info" : "AuthInfo"
+                },
+                "throws" : [
+                    "InvalidStartToken",
+                    "PleaseReauth"
+                ]
+            },
+            "resumeSession" : {
+                "params" : {
+                    "start_token" : "SessionToken",
+                    "client" : "ClientFingerprints"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownSession",
+                    "PleaseReauth"
+                ]
+            },
+            "closeSession" : {
+                "params" : {
+                    "start_token" : "SessionToken"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownSession"
+                ]
+            }
+        },
+        "requires" : [
+            "SecureChannel",
+            "MessageSignature"
+        ]
+    }
+
+`}Iface`
+
+## 3.2. User interface for access grants
+
+`Iface{`
+
+    {
+        "iface" : "futoin.info.me",
+        "version" : "{ver}",
+        "ftn3rev" : "1.8",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.auth.types:{ver}"
+        ],
+        "funcs" : {
+            "getEmail" : {
+                "result" : "Email",
+                "throws" : [
+                    "NoValidatedEmail"
+                ]
+            },
+            "getPhone" : {
+                "result" : "Phone",
+                "throws" : [
+                    "NoValidatedPhone"
+                ]
+            },
+            "getNames" : {
+                "result" : {
+                    "first" : "LatinName",
+                    "middle" : "LatinFullName",
+                    "last" : "LatinName",
+                    "full" : "LatinFullName",
+                    "n_first" : "NativeName",
+                    "n_middle" : "NativeFullName",
+                    "n_last" : "NativeName",
+                    "n_full" : "NativeFullName"
+                },
+                "throws" : [
+                    "NoValidatedNames"
+                ]
+            }
+        },
+        "requires" : [
+            "SecureChannel"
+        ]
+    }
+
+`}Iface`
 
 
 =END OF SPEC=

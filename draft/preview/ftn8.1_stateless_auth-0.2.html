@@ -161,13 +161,6 @@ minimize risk of exposure.</p>
                 "algo" : "MACAlgo",
                 "sig" : "MACValue"
             }
-        },
-        "MessageAuth" : {
-            "type" : "map",
-            "fields" : {
-                "local_id" : "LocalUserID",
-                "global_id" : "GlobalUserID"
-            }
         }
     },
     "funcs" : {
@@ -176,7 +169,7 @@ minimize risk of exposure.</p>
                 "sec" : "ClearSecField",
                 "client" : "ClientFingerprints"
             },
-            "result" : "MessageAuth",
+            "result" : "AuthInfo",
             "throws" : [
                 "SecurityError"
             ]
@@ -187,7 +180,7 @@ minimize risk of exposure.</p>
                 "sec" : "MACSecField",
                 "client" : "ClientFingerprints"
             },
-            "result" : "MessageAuth",
+            "result" : "AuthInfo",
             "throws" : [
                 "SecurityError"
             ]
