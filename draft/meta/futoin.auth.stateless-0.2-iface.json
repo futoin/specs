@@ -54,6 +54,17 @@
       "throws": [
         "SecurityError"
       ]
+    },
+    "getMACSecret": {
+      "params": {
+        "user": "LocalUserID"
+      },
+      "result": "StatelessSecret",
+      "throws": [
+        "UnknownUser",
+        "NotSet"
+      ],
+      "desc": "For internal caching purposes"
     }
   },
   "requires": [

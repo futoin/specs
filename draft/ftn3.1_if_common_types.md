@@ -1,7 +1,7 @@
 <pre>
 FTN3.1: FutoIn Interface - Common Types
 Version: 1.0DV
-Date: 2017-12-29
+Date: 2018-01-02
 Copyright: 2017-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>

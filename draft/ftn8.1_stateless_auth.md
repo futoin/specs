@@ -2,7 +2,7 @@
 FTN8.1: FutoIn Security Concept - Stateless Authentication
 Version: 0.2DV
 Date: 2017-12-29
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
@@ -35,6 +35,11 @@ This scheme does no support foreign users.
 The following "sec" field definition refer to [FTN3][] request
 message "Security-defined extension" element.
 
+The Secret used in requests must be separate from all other secrets to
+prevent exposure of those. It's assumed that there is a unique User
+Secret per Service as Service should be able to retrieve the Secret
+from AuthService for caching purposes.
+
 
 ## 2.1. Clear text method
 
@@ -50,10 +55,6 @@ HTTP requests headers.
 
 **Use of this method is discouraged and should be limited to
 not important functionality accessed through SecureChannel.**
-
-The Secret used in clear text requests must be separate from all other
-secrets to prevent exposure of those. It's assumed that there is a unique
-clear text secret per Service.
 
 ### 2.1.1. Clear text request "sec" field structured format
 
@@ -109,6 +110,7 @@ The method has serious advantages over clear text method:
 
 There are still some problems:
 
+* Insecure manual key exchange
 * Once Secret is bruteforced, it easy to fake any messages.
 * The same message can be easily replayed, but protocols should be designed the way
     which minimizes replay issues (e.g. using transaction IDs).
@@ -159,6 +161,15 @@ as used for request signing.
 ### 2.2.4. Simple MAC security level
 
 `SafeOps` security level must be assigned.
+
+## 2.3. Events
+
+### 2.3.1. New secret set events
+
+* `STSCRT_NEW` - new stateless secret
+    * `local_id` - local user ID
+* `STSCRT_DEL` - stateless secret is removed
+    * `local_id` - local user ID
 
 
 # 3. Interface
@@ -227,6 +238,17 @@ minimize risk of exposure.
                 "throws" : [
                     "SecurityError"
                 ]
+            },
+            "getMACSecret" : {
+                "params" : {
+                    "user" : "LocalUserID"
+                },
+                "result" : "StatelessSecret",
+                "throws" : [
+                    "UnknownUser",
+                    "NotSet"
+                ],
+                "desc" : "For internal caching purposes"
             }
         },
         "requires" : [
@@ -251,45 +273,36 @@ This one is complementary to "futoin.auth.manage" iface.
             "futoin.auth.types:{ver}"
         ],
         "funcs" : {
-            "genNewClearSecret" : {
+            "genNewSecret" : {
                 "params" : {
                     "user" : "LocalUserID",
                     "service" : "LocalUserID"
                 },
-                "result" : "ClearSecret",
+                "result" : "StatelessSecret",
+                "throws" : [
+                    "UnknownUser",
+                    "NotSet"
+                ]
+            },
+            "getSecret" : {
+                "params" : {
+                    "user" : "LocalUserID",
+                    "service" : "LocalUserID"
+                },
+                "result" : "StatelessSecret",
+                "throws" : [
+                    "UnknownUser",
+                    "NotSet"
+                ]
+            },
+            "removeSecret" : {
+                "params" : {
+                    "user" : "LocalUserID",
+                    "service" : "LocalUserID"
+                },
+                "result" : "boolean",
                 "throws" : [
                     "UnknownUser"
-                ]
-            },
-            "getClearSecret" : {
-                "params" : {
-                    "user" : "LocalUserID",
-                    "service" : "LocalUserID"
-                },
-                "result" : "ClearSecret",
-                "throws" : [
-                    "UnknownUser",
-                    "NotSet"
-                ]
-            },
-            "genNewMACSecret" : {
-                "params" : {
-                    "user" : "LocalUserID"
-                },
-                "result" : "MACSecret",
-                "throws" : [
-                    "UnknownUser",
-                    "NotSet"
-                ]
-            },
-            "getMACSecret" : {
-                "params" : {
-                    "user" : "LocalUserID"
-                },
-                "result" : "MACSecret",
-                "throws" : [
-                    "UnknownUser",
-                    "NotSet"
                 ]
             }
         },
@@ -300,7 +313,6 @@ This one is complementary to "futoin.auth.manage" iface.
     }
 
 `}Iface`
-
 
 
 [http-basic-auth]: https://tools.ietf.org/html/rfc1945#section-11

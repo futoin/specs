@@ -8,7 +8,7 @@
 FTN8.1: FutoIn Security Concept - Stateless Authentication
 Version: 0.2DV
 Date: 2017-12-29
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
@@ -39,6 +39,10 @@ and pre-shared secret (password) without automatic Secret renewal.</p>
 <p>This scheme does no support foreign users. </p>
 <p>The following "sec" field definition refer to <a href="./ftn3_iface_definition.html">FTN3</a> request
 message "Security-defined extension" element.</p>
+<p>The Secret used in requests must be separate from all other secrets to
+prevent exposure of those. It's assumed that there is a unique User
+Secret per Service as Service should be able to retrieve the Secret
+from AuthService for caching purposes.</p>
 <h2>2.1. Clear text method</h2>
 <p>Clear text directly corresponds to <a href="https://tools.ietf.org/html/rfc1945#section-11">HTTP Basic Authentication</a>.</p>
 <p>Main parameters are:</p>
@@ -50,9 +54,6 @@ message "Security-defined extension" element.</p>
 HTTP requests headers.</p>
 <p><strong>Use of this method is discouraged and should be limited to
 not important functionality accessed through SecureChannel.</strong></p>
-<p>The Secret used in clear text requests must be separate from all other
-secrets to prevent exposure of those. It's assumed that there is a unique
-clear text secret per Service.</p>
 <h3>2.1.1. Clear text request "sec" field structured format</h3>
 <p class="futoin-schema">Schema: futoin-sec-credentials</p>
 
@@ -95,6 +96,7 @@ format is size efficient for transmission.</p>
 </ul>
 <p>There are still some problems:</p>
 <ul>
+<li>Insecure manual key exchange</li>
 <li>Once Secret is bruteforced, it easy to fake any messages.</li>
 <li>The same message can be easily replayed, but protocols should be designed the way
     which minimizes replay issues (e.g. using transaction IDs).</li>
@@ -133,6 +135,18 @@ format is size efficient for transmission.</p>
 as used for request signing.</p>
 <h3>2.2.4. Simple MAC security level</h3>
 <p><code>SafeOps</code> security level must be assigned.</p>
+<h2>2.3. Events</h2>
+<h3>2.3.1. New secret set events</h3>
+<ul>
+<li><code>STSCRT_NEW</code> - new stateless secret<ul>
+<li><code>local_id</code> - local user ID</li>
+</ul>
+</li>
+<li><code>STSCRT_DEL</code> - stateless secret is removed<ul>
+<li><code>local_id</code> - local user ID</li>
+</ul>
+</li>
+</ul>
 <h1>3. Interface</h1>
 <h2>3.1. Message authentication</h2>
 <p>The interface is used only to process stateless authentication requests.
@@ -194,6 +208,17 @@ minimize risk of exposure.</p>
             "throws" : [
                 "SecurityError"
             ]
+        },
+        "getMACSecret" : {
+            "params" : {
+                "user" : "LocalUserID"
+            },
+            "result" : "StatelessSecret",
+            "throws" : [
+                "UnknownUser",
+                "NotSet"
+            ],
+            "desc" : "For internal caching purposes"
         }
     },
     "requires" : [
@@ -212,45 +237,36 @@ minimize risk of exposure.</p>
         "futoin.auth.types:{ver}"
     ],
     "funcs" : {
-        "genNewClearSecret" : {
+        "genNewSecret" : {
             "params" : {
                 "user" : "LocalUserID",
                 "service" : "LocalUserID"
             },
-            "result" : "ClearSecret",
+            "result" : "StatelessSecret",
+            "throws" : [
+                "UnknownUser",
+                "NotSet"
+            ]
+        },
+        "getSecret" : {
+            "params" : {
+                "user" : "LocalUserID",
+                "service" : "LocalUserID"
+            },
+            "result" : "StatelessSecret",
+            "throws" : [
+                "UnknownUser",
+                "NotSet"
+            ]
+        },
+        "removeSecret" : {
+            "params" : {
+                "user" : "LocalUserID",
+                "service" : "LocalUserID"
+            },
+            "result" : "boolean",
             "throws" : [
                 "UnknownUser"
-            ]
-        },
-        "getClearSecret" : {
-            "params" : {
-                "user" : "LocalUserID",
-                "service" : "LocalUserID"
-            },
-            "result" : "ClearSecret",
-            "throws" : [
-                "UnknownUser",
-                "NotSet"
-            ]
-        },
-        "genNewMACSecret" : {
-            "params" : {
-                "user" : "LocalUserID"
-            },
-            "result" : "MACSecret",
-            "throws" : [
-                "UnknownUser",
-                "NotSet"
-            ]
-        },
-        "getMACSecret" : {
-            "params" : {
-                "user" : "LocalUserID"
-            },
-            "result" : "MACSecret",
-            "throws" : [
-                "UnknownUser",
-                "NotSet"
             ]
         }
     },

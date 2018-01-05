@@ -2,7 +2,7 @@
 FTN8: FutoIn Security Concept
 Version: 0.2DV
 Date: 2017-12-29
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
@@ -649,11 +649,6 @@ block any processing. The blocking must be done for entire period of enforcement
             },
             "GlobalService" : "Domain",            
             "GlobalUserID" : [ "Email", "GlobalService" ],
-            "ClearSecret" : {
-                "type" : "string",
-                "minlen" : 8,
-                "maxlen" : 32
-            },
             "MACAlgo" : {
                 "type" : "enum",
                 "items" : [
@@ -670,10 +665,10 @@ block any processing. The blocking must be done for entire period of enforcement
                     "KMAC256"
                 ]
             },
-            "MACSecret" : {
-                "type" : "Base64",
-                "minlen" : 32,
-                "maxlen" : 128
+            "StatelessSecret" : {
+                "type" : "string",
+                "minlen" : 8,
+                "maxlen" : 32
             },
             "MACValue" : {
                 "type" : "Base64",
@@ -782,6 +777,10 @@ block any processing. The blocking must be done for entire period of enforcement
                 "regex" : "^https?://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}/[a-Z0-9_/?=%&;.-]*$",
                 "maxlen" : 128
             },
+            "ParamConstraint" : {
+                "type" : "map",
+                "elemtype" : "array"
+            },
             "AccessControlDescriptor" : {
                 "type" : "map",
                 "fields" : {
@@ -798,8 +797,9 @@ block any processing. The blocking must be done for entire period of enforcement
                         "optional" : true
                     },
                     "params" : {
-                        "type" : "map",
-                        "optional" : true
+                        "type" : "ParamConstraint",
+                        "optional" : true,
+                        "desc": "Named paramater must match one of the values"
                     }
                 },
                 "desc" : "Granted API access constraints in scope of arbitrary Service"

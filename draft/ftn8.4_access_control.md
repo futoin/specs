@@ -1,99 +1,160 @@
 <pre>
 FTN8.4: FutoIn Security Concept - Access Control
 Version: 0.2DV
-Date: 2017-12-27
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Date: 2018-01-05
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v0.2 - 2017-12-27 - Andrey Galkin
+* v0.2 - 2018-01-05 - Andrey Galkin
     - CHANGED: heavily revised & split into sub-specs
 * v0.1 - 2014-06-03 - Andrey Galkin
     - Initial draft
-
-# WARNING
-
-**INCOMPLETE: just peaces from old FTN8 v0.1**
-
-To be revised
 
 # 1. Intro
 
 This sub-specification of [FTN8](./ftn8_security_concept.md) covers
 Access Control specification.
 
+Introduction is done in the main spec.
 
+# 2. Concept
 
-# 5. Access Control Service
+There are two goals:
 
-In many cases, there is a fixed number of object types, like users, posts, files, etc.
-And there is a variable size of objects per type, many users, posts and files. Every
-object can have Create/Read/Update/Delete action.
+1. Check if particular User is allowed to access API with particular parameters.
+2. Allow one Service(A) to access API of another Service(B) on behalf of
+User who grants such access through AuthService based on Auth Query of the first Service(A).
 
-We can see a hierarchy here: Service -> Object Types -> Individual Objects -> Individual Object Action.
+Details of Auth Query are defined in [FTN8.3](./ftn8.3\_client\_auth.md) sub-spec.
 
-Another type of hierarchy can be: Service -> Interface -> Function.
+## 2.1. Access Control Descriptor (ACD)
 
-In all cases it is possible to unify access control system to operate on neutral
-tree-like structure of identifiers. On low level, Client access is controlled on specific
-end-object+action. The details of how access is granted (e.g. roles, individual permissions, ownership, etc.)
-are AccessControlService implementation details. However, access can be granted by parent node and/or
-access control tree mask, where some of parent nodes can be "any".
+This is low level concept which is used to grant and check dynamic access in runtime.
+
+Access hierarchy: Service -> Interface -> Version -> Function -> Parameters.
+Such combination is called "Access Control Descriptor" in this spec.
+
+ACD can be partially defined to act like a "mask". In most cases, parameters and functions are omitted.
+
+Service builds a full ACD based on actual request to be checked using related AuthService.
 
 Doing an API call for every action may produce a significant overhead. It is important to design
 effective caching mechanism with stable invalidation for security reasons.
 
-## 5.1. Access Control descriptor
+## 2.2. Access Groups
 
-There must be a common notation to identify object of checked control. In API, the access notation is
-an ordered array, where the first item is the top most in scope.
+It's not user-friendly to ask for particular API details. Instead, providing Service
+registers named groups of ACDs with detailed description in multiple languages.
 
-Descriptor scope is specific to context. In Service context, scope is the Service. In Access Control Service,
-the scope is a common set of all Services registered to the system (meaning the first element is Service identifier).
+User grants access based on such named Access Groups. Associated ACDs may get updated,
+but user should not be asked re-confirm access unless Access Group identifier changes.
 
-*Example: ["root_node", "object_type", "action"]*
+## 2.3. Access Control check procedure
 
-In some cases, wildcard is desired for some items. Example: grant update access to all users.
-Wildcard is marked as null value in place of item in the descriptor array.
+* ServiceA performs request to ServiceB on behalf of User
+* ServiceB authenticates requests through AuthService
+* Of on-behalf-of request field is present
+    - ServiceB checks against AuthService if ServiceA is allowed to access
+        ServiceB on behalf of particular User
+    - AuthService performs necessary checks and returns optional constraints
+    - ServiceB validated the constraints
+    - ServiceB caches ACD, if it is able to invalidate it properly
+    - ServiceB continues processing the request like is done by User
+* Request is processed as normal
 
-*Example: ["root_node", null, "action"]*
+## 2.4. Access control of resources
 
-For human readable purpose, the same descriptor can be written in string form, each item being separated by
-dot "." and wildcard null being replaced by star "*".
+In many cases, there is a fixed number of object types, like users, posts, files, etc.
+And there is a variable size of objects per type, many users, posts and files. Every
+object can have actions like Create/Read/Update/Delete.
 
-*Example: "root.object_type.action", "root.*.action"*
+A hierarchy is seen: Service -> Object Types -> Individual Objects -> Individual Object Action.
 
-## 5.2. Access Control check
+However, as all FutoIn operations are done through interfaces, it's possible to map
+those to ACDs described above. This specification does not limit such flexibility and
+the way such access get granted internally, but it's assumed that access is checked
+through `checkAccess()` call.
 
-* Client performs a request to Service
-* Service calls AccessControlService providing client ID and access descriptor
-* AccessControlService checks access implementation-dependent way
-* If access is not granted, AccessControlService returns "Forbidden" exception
-* AccessControlService returns
-    * matched access control descriptor (access can be granted by parent item)
-    * cache Time-to-Live
-    * required auth security level
-* Service caches response by descriptor to optimize checks next time
-* Service checks if current auth security level satisfy requirements
-* Service continues request processing
+## 2.5. Events
 
-## 5.3. Example
+* `ACD_UPD` - update of ACDs per user
+    - `local_id` - local user ID
 
-        Client                     Service                      AccessControlService
-           |                          |                              |
-           |-------- request -------> |                              |
-           |                          |--------- checkAccess ------> |
-           |                          | <-- validation constraints --|
-           | <------ response --------|                              |
-           |                          |                              |           
+## 2.6. Example
+
+### 2.6.1. Regular call
+
+       User/ServiceA              ServiceB                      AuthService
+           |                          .                              .
+           |-------- request -------> |                              .
+           .                          |-------- checkAccess() -----> |
+           .                          | <-- validation constraints --|
+           | <------ response --------|                              .
+           |                          .                              .           
+
+### 2.6.2. On-Behalf-oF calls
+
+        ServiceA                  ServiceB                      AuthService
+           |                          .                              .
+           |-------- request -------> |                              .
+           .                          |-------- checkOBF() --------> |
+           .                          | <-- validation constraints --|
+           .                          |-------- checkAccess() -----> |
+           .                          | <-- validation constraints --|
+           | <------ response --------|                              .
+           |                          .                              .           
 
 
 
 # 3. Interface.
 
-To be revised.
+## 3.1. Access check interface
+
+`Iface{`
+
+    {
+        "iface" : "futoin.auth.access",
+        "version" : "{ver}",
+        "ftn3rev" : "1.8",
+        "imports" : [
+            "futoin.ping:1.0",
+            "futoin.auth.types:{ver}"
+        ],
+        "funcs" : {
+            "checkOBF" : {
+                "params" : {
+                    "obf" : "AuthInfo",
+                    "iface" : "FTNFace",
+                    "ver" : "FTNVersion",
+                    "func" : "FTNFunction"
+                },
+                "result" : {
+                    "params" : "ParamConstraint"
+                }
+            },
+            "checkAccess" : {
+                "params" : {
+                    "user" : "AuthInfo",
+                    "iface" : "FTNFace",
+                    "ver" : "FTNVersion",
+                    "func" : "FTNFunction"
+                },
+                "result" : {
+                    "params" : "ParamConstraint"
+                }
+            }
+        },
+        "requires" : [
+            "SecureChannel",
+            "MessageSignature"
+        ]
+    }
+
+`}Iface`
+
 
 =END OF SPEC=
 

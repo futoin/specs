@@ -2,7 +2,7 @@
 FTN8.3: FutoIn Security Concept - Master Secret Authentication
 Version: 0.2DV
 Date: 2017-12-30
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
@@ -138,6 +138,10 @@ There are various options:
 2. Use several Master Secrets per peer service vendor.
 3. Use a separate Master Secret per each peer.
 
+## 2.8. Events
+
+* `MS_DEL` - new master secret
+    * `id` - MasterSecretID
 
 # 3. Interface
 

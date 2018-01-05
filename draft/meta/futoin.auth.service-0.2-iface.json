@@ -95,10 +95,7 @@
       "params": {
         "start_token": "SessionToken"
       },
-      "result": "boolean",
-      "throws": [
-        "UnknownSession"
-      ]
+      "result": "boolean"
     }
   },
   "requires": [

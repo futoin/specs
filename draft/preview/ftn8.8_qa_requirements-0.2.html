@@ -7,14 +7,14 @@
 <pre>
 FTN8.8: FutoIn Security Concept - QA requirements
 Version: 0.2DV
-Date: 2017-12-31
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Date: 2018-01-05
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v0.2 - 2017-12-31 - Andrey Galkin<ul>
+<li>v0.2 - 2018-01-05 - Andrey Galkin<ul>
 <li>CHANGED: heavily revised &amp; split into sub-specs</li>
 <li>NEW: QA requirements</li>
 </ul>
@@ -64,9 +64,11 @@ authentication.</p>
 <p><em>Note: "STLMC" stays for Stateless Message athentication Code.</em></p>
 <p>AuthService-related:</p>
 <p><strong>STLMC-A1</strong> - STLMC authentication must be rejected, if it is not enabled in AuthService.</p>
-<p><strong>STLMC-A2</strong> - STLMC authentication must be rejected, if MAC of request message mismatches.</p>
+<p><strong>STLMC-A2</strong> - STLMC authentication must be rejected, if User has no inidividual secret
+configured for specific Service.</p>
 <p><strong>STLMC-A3</strong> - STLMC authentication must be rejected, if User is not found.</p>
-<p><strong>STLMC-A4</strong> - all STLMC rejections must have artificial delay to prevent time-based
+<p><strong>STLMC-A4</strong> - STLMC authentication must be rejected, if MAC of request message mismatches.</p>
+<p><strong>STLMC-A5</strong> - all STLMC rejections must have artificial delay to prevent time-based
 User existence exposure.</p>
 <p>Executor-related:</p>
 <p><strong>STLMC-E1</strong> - Executor must send all available Client fingerprints to AuthService, so
@@ -140,7 +142,7 @@ Client fingerprints change.</p>
 <p>AuthService-related:</p>
 <p><strong>CLCSA-A1</strong> - AuthService must check signature of all incoming redirects.</p>
 <p><strong>CLCSA-A2</strong> - AuthService must create "EXPOSED" signature of all outcoming redirects.</p>
-<p><strong>CLCSA-A3</strong> - AuthService must support multi-factor authentication for Users.</p>
+<p><strong>CLCSA-A3</strong> - AuthService should support multi-factor authentication for Users.</p>
 <p><strong>CLCSA-A4</strong> - AuthService must ensure that Auth Query belongs to requesting Service.</p>
 <p><strong>CLCSA-A5</strong> - AuthService must ensure that session-related tokens are associated
 to requesting Service.</p>
@@ -150,6 +152,17 @@ has not been granted before.</p>
 requested access has been granted before.</p>
 <h2>3.5. Access Control</h2>
 <p>See <a href="./ftn8.4_access_control.html">FTN8.4</a>.</p>
+<p>Service-related:</p>
+<p><strong>AC-S1</strong> - Service must check if User granted on-behalf-of call access to other User(Service).</p>
+<p><strong>AC-S2</strong> - Service must processed on-behalf-of calls as if called by target User.</p>
+<p><strong>AC-S3</strong> - Service must check if User is allowed to make particular request.</p>
+<p><strong>AC-S4</strong> - Service must properly invalidate local cache.</p>
+<p>AuthService-related:</p>
+<p><strong>AC-A1</strong> - AuthService should merge multiple ACDs so wider access eliminates more specialized.</p>
+<p><strong>AC-A2</strong> - AuthService should merge multiple ACDs so different parameter whitelist get properly
+merged into a single whitelist of unique values.</p>
+<p><strong>AC-A3</strong> - AuthService must properly emit events on access changes, so listening Services could
+invalidate own caches.</p>
 <h2>3.6. Authentication rejection limits</h2>
 <p>=END OF SPEC=</p>
 </body></html>

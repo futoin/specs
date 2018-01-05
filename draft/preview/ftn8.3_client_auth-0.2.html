@@ -8,7 +8,7 @@
 FTN8.3: FutoIn Security Concept - Client Authentication
 Version: 0.2DV
 Date: 2017-12-27
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
@@ -255,6 +255,17 @@ in another location.</p>
 <li>Service must call `resumeSession() on every client fingerprints change and/or
     service may force logout.</li>
 </ol>
+<h3>2.3.4. Session invalidation</h3>
+<p>Service should listen to AuthService events through <a href="./ftn18_if_eventstream.html">FTN18 Event Stream</a>
+interface.</p>
+<ul>
+<li><code>SESS_END</code> - event type:<ul>
+<li><code>local_id</code></li>
+<li><code>global_id</code></li>
+<li><code>session_token</code></li>
+</ul>
+</li>
+</ul>
 <h1>3. Interface</h1>
 <h2>3.1. Service interface</h2>
 <pre><code>{
@@ -354,10 +365,7 @@ in another location.</p>
             "params" : {
                 "start_token" : "SessionToken"
             },
-            "result" : "boolean",
-            "throws" : [
-                "UnknownSession"
-            ]
+            "result" : "boolean"
         }
     },
     "requires" : [

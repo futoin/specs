@@ -16,11 +16,6 @@
       "Email",
       "GlobalService"
     ],
-    "ClearSecret": {
-      "type": "string",
-      "minlen": 8,
-      "maxlen": 32
-    },
     "MACAlgo": {
       "type": "enum",
       "items": [
@@ -37,10 +32,10 @@
         "KMAC256"
       ]
     },
-    "MACSecret": {
-      "type": "Base64",
-      "minlen": 32,
-      "maxlen": 128
+    "StatelessSecret": {
+      "type": "string",
+      "minlen": 8,
+      "maxlen": 32
     },
     "MACValue": {
       "type": "Base64",
@@ -149,6 +144,10 @@
       "regex": "^https?://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}/[a-Z0-9_/?=%&;.-]*$",
       "maxlen": 128
     },
+    "ParamConstraint": {
+      "type": "map",
+      "elemtype": "array"
+    },
     "AccessControlDescriptor": {
       "type": "map",
       "fields": {
@@ -165,8 +164,9 @@
           "optional": true
         },
         "params": {
-          "type": "map",
-          "optional": true
+          "type": "ParamConstraint",
+          "optional": true,
+          "desc": "Named paramater must match one of the values"
         }
       },
       "desc": "Granted API access constraints in scope of arbitrary Service"

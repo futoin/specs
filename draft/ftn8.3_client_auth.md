@@ -2,7 +2,7 @@
 FTN8.3: FutoIn Security Concept - Client Authentication
 Version: 0.2DV
 Date: 2017-12-27
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
@@ -225,6 +225,16 @@ The important aspects:
 4. Service must call `resumeSession() on every client fingerprints change and/or
     service may force logout.
 
+### 2.3.4. Session invalidation
+
+Service should listen to AuthService events through [FTN18 Event Stream](./ftn18\_if\_eventstream.md)
+interface.
+
+* `SESS_END` - event type:
+    - `local_id`
+    - `global_id`
+    - `session_token`
+
 # 3. Interface
 
 ## 3.1. Service interface
@@ -328,10 +338,7 @@ The important aspects:
                 "params" : {
                     "start_token" : "SessionToken"
                 },
-                "result" : "boolean",
-                "throws" : [
-                    "UnknownSession"
-                ]
+                "result" : "boolean"
             }
         },
         "requires" : [

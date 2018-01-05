@@ -1,14 +1,14 @@
 <pre>
 FTN8.8: FutoIn Security Concept - QA requirements
 Version: 0.2DV
-Date: 2017-12-31
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Date: 2018-01-05
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v0.2 - 2017-12-31 - Andrey Galkin
+* v0.2 - 2018-01-05 - Andrey Galkin
     - CHANGED: heavily revised & split into sub-specs
     - NEW: QA requirements
 * v0.1 - 2014-06-03 - Andrey Galkin
@@ -83,11 +83,14 @@ AuthService-related:
 
 **STLMC-A1** - STLMC authentication must be rejected, if it is not enabled in AuthService.
 
-**STLMC-A2** - STLMC authentication must be rejected, if MAC of request message mismatches.
+**STLMC-A2** - STLMC authentication must be rejected, if User has no inidividual secret
+configured for specific Service.
 
 **STLMC-A3** - STLMC authentication must be rejected, if User is not found.
 
-**STLMC-A4** - all STLMC rejections must have artificial delay to prevent time-based
+**STLMC-A4** - STLMC authentication must be rejected, if MAC of request message mismatches.
+
+**STLMC-A5** - all STLMC rejections must have artificial delay to prevent time-based
 User existence exposure.
 
 Executor-related:
@@ -229,6 +232,26 @@ requested access has been granted before.
 ## 3.5. Access Control
 
 See [FTN8.4](./ftn8.4\_access\_control.md).
+
+Service-related:
+
+**AC-S1** - Service must check if User granted on-behalf-of call access to other User(Service).
+
+**AC-S2** - Service must processed on-behalf-of calls as if called by target User.
+
+**AC-S3** - Service must check if User is allowed to make particular request.
+
+**AC-S4** - Service must properly invalidate local cache.
+
+AuthService-related:
+
+**AC-A1** - AuthService should merge multiple ACDs so wider access eliminates more specialized.
+
+**AC-A2** - AuthService should merge multiple ACDs so different parameter whitelist get properly
+merged into a single whitelist of unique values.
+
+**AC-A3** - AuthService must properly emit events on access changes, so listening Services could
+invalidate own caches.
 
 ## 3.6. Authentication rejection limits
 
