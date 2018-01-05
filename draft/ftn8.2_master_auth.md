@@ -128,6 +128,10 @@ Peer Service must not be able to get derived key for particular Master Secret di
 It must be possible only if invoking Service signs any message with particular derived key -
 implicit approval to provide Derived Key to particular Service.
 
+Only Master Secret with empty or matching `scope` must be accepted for new Secret
+exchange to mitigate unauthorized access with Master Secret recovered from scoped
+derived key. So, Master Secret with empty `scope` is seen as "main".
+
 There are various options:
 
 1. Use one global Master Secret with high risk of its recovery through derived key.

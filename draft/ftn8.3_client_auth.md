@@ -119,7 +119,7 @@ other Service.
 * Should have absolute time-to-live to require re-authentication (e.g. day, week, month, etc.),
 * May support "remember me" logic,
 * Should have idle timeout for automatic logout, if not "remember me",
-* Should be stored and surive Client shutdown, if "remember me" logic is activated,
+* Should be stored and survive Client shutdown, if "remember me" logic is activated,
 * May be invalidated at any time, if AuthService and/or DefenseService detect suspicious activity.
 
 ### 2.2.5. Multiple User sessions in the same Client
@@ -381,6 +381,25 @@ The important aspects:
                 "throws" : [
                     "NoValidatedNames"
                 ]
+            },
+            "getAvatar" : {
+                "rawresult" : true
+            },
+            "getDateOfBirth" : {
+                "result" : "Datestamp"
+            },
+            "getPlaceOfBirth" : {
+                "result" : {
+                    "place" : "LatinLocation",
+                    "n_place" : "NativeLocation"
+                }
+            },
+            "getHomeAddress" : {
+                "result" : {
+                    "country" : "ISO3166A3",
+                    "address" : "LatinLocation",
+                    "n_address" : "NativeLocation"
+                }
             }
         },
         "requires" : [

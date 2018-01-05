@@ -131,6 +131,9 @@ as used for request signing.</p>
 <p>Peer Service must not be able to get derived key for particular Master Secret directly.
 It must be possible only if invoking Service signs any message with particular derived key -
 implicit approval to provide Derived Key to particular Service.</p>
+<p>Only Master Secret with empty or matching <code>scope</code> must be accepted for new Secret
+exchange to mitigate unauthorized access with Master Secret recovered from scoped
+derived key. So, Master Secret with empty <code>scope</code> is seen as "main".</p>
 <p>There are various options:</p>
 <ol>
 <li>Use one global Master Secret with high risk of its recovery through derived key.</li>

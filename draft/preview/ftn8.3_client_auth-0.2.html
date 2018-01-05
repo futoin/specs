@@ -143,7 +143,7 @@ other Service.</p>
 <li>Should have absolute time-to-live to require re-authentication (e.g. day, week, month, etc.),</li>
 <li>May support "remember me" logic,</li>
 <li>Should have idle timeout for automatic logout, if not "remember me",</li>
-<li>Should be stored and surive Client shutdown, if "remember me" logic is activated,</li>
+<li>Should be stored and survive Client shutdown, if "remember me" logic is activated,</li>
 <li>May be invalidated at any time, if AuthService and/or DefenseService detect suspicious activity.</li>
 </ul>
 <h3>2.2.5. Multiple User sessions in the same Client</h3>
@@ -402,6 +402,25 @@ in another location.</p>
             "throws" : [
                 "NoValidatedNames"
             ]
+        },
+        "getAvatar" : {
+            "rawresult" : true
+        },
+        "getDateOfBirth" : {
+            "result" : "Datestamp"
+        },
+        "getPlaceOfBirth" : {
+            "result" : {
+                "place" : "LatinLocation",
+                "n_place" : "NativeLocation"
+            }
+        },
+        "getHomeAddress" : {
+            "result" : {
+                "country" : "ISO3166A3",
+                "address" : "LatinLocation",
+                "n_address" : "NativeLocation"
+            }
         }
     },
     "requires" : [

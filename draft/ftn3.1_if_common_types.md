@@ -83,6 +83,10 @@ bound to specific parameters like "name" or "description".
                 "type" : "integer",
                 "min" : 1
             },
+            "Datestamp" : {
+                "type" : "string",
+                "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+            },
             "Timestamp" : {
                 "type" : "string",
                 "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
@@ -111,7 +115,8 @@ bound to specific parameters like "name" or "description".
             },
             "NativeName" : {
                 "type" : "string",
-                "regex" : "^\\w{1,50}$"
+                "minlen" : 1,
+                "maxlen" : 50
             },
             "FullLatinName" : {
                 "type" : "string",
@@ -119,7 +124,17 @@ bound to specific parameters like "name" or "description".
             },
             "FullNativeName" : {
                 "type" : "string",
-                "regex" : "^\\w{1,100}$"
+                "minlen" : 1,
+                "maxlen" : 100
+            },
+            "LatinLocation" : {
+                "type" : "string",
+                "regex" : "^[a-zA-Z0-9., -]{1,200}$"
+            },
+            "NativeLocation" : {
+                "type" : "string",
+                "minlen" : 1,
+                "maxlen" : 200
             },
             "FTNFace" : {
                 "type" : "string",
@@ -207,6 +222,11 @@ bound to specific parameters like "name" or "description".
                 "type" : "string",
                 "regex" : "^[a-z]{3}$",
                 "desc" : "Language: ISO 639 Alpha 3 Code T(erminology)"
+            },
+            "ISO3166A3" : {
+                "type" : "string",
+                "regex" : "^[A-Z]{3}$",
+                "desc" : "Country: ISO 3166 Alpha 3 Code"
             },
             "FTNLocale" : {
                 "type" : "string",

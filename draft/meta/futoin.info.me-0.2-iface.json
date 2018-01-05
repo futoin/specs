@@ -33,6 +33,25 @@
       "throws": [
         "NoValidatedNames"
       ]
+    },
+    "getAvatar": {
+      "rawresult": true
+    },
+    "getDateOfBirth": {
+      "result": "Datestamp"
+    },
+    "getPlaceOfBirth": {
+      "result": {
+        "place": "LatinLocation",
+        "n_place": "NativeLocation"
+      }
+    },
+    "getHomeAddress": {
+      "result": {
+        "country": "ISO3166A3",
+        "address": "LatinLocation",
+        "n_address": "NativeLocation"
+      }
     }
   },
   "requires": [
