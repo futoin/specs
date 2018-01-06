@@ -15,10 +15,11 @@ Authors: Andrey Galkin
 # 2. Language and Platform specific interface concept
 * [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)
 * [FTN7 Interface Invoker Concept](./ftn7\_iface\_invoker\_concept.md)
-* [FTN10 Burst Calls](./ftn10\_burst\_calls.md)
 * [FTN12 Async API](./ftn12\_async\_api.md)
-* [FTN11 Implementation Feature Requirements ](./ftn11\_implementation\_feature\_requirements.md)
 * [FTN15 Native Event API](./ftn15\_native\_event.md)
+* To be revised:
+    * [FTN10 Burst Calls](./ftn10\_burst\_calls.md)
+    * [FTN11 Implementation Feature Requirements ](./ftn11\_implementation\_feature\_requirements.md)
 
 # 3. Technology-specific integration
 * [FTN5 HTTP integration](./ftn5\_iface\_http\_integration.md)
