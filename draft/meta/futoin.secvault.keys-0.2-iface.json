@@ -1,0 +1,125 @@
+{
+  "iface": "futoin.secvault.keys",
+  "version": "0.2",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.secvault.types:0.2"
+  ],
+  "funcs": {
+    "generateKey": {
+      "params": {
+        "ext_id": "ExtID",
+        "usage": "KeyUsage",
+        "key_type": "KeyType",
+        "gen_params": "GenParams"
+      },
+      "result": "KeyID",
+      "throws": [
+        "UnsupportedType",
+        "OrigMismatch"
+      ]
+    },
+    "injectKey": {
+      "params": {
+        "ext_id": "ExtID",
+        "usage": "KeyUsage",
+        "key_type": "KeyType",
+        "gen_params": "GenParams",
+        "format": "ContainerFormat",
+        "data": "string"
+      },
+      "result": "KeyID",
+      "throws": [
+        "UnsupportedType",
+        "OrigMismatch"
+      ]
+    },
+    "injectEncryptedKey": {
+      "params": {
+        "ext_id": "ExtID",
+        "usage": "KeyUsage",
+        "key_type": "KeyType",
+        "gen_params": "GenParams",
+        "format": "ContainerFormat",
+        "data": "string",
+        "enc_key": "KeyID"
+      },
+      "result": "KeyID",
+      "throws": [
+        "UnsupportedType",
+        "OrigMismatch"
+      ]
+    },
+    "wipeKey": {
+      "params": {
+        "id": "KeyID"
+      },
+      "result": "boolean"
+    },
+    "exposeKey": {
+      "params": {
+        "id": "KeyID",
+        "format": "ContainerFormat"
+      },
+      "result": "string",
+      "throws": [
+        "UnknownKeyID",
+        "UnsupportedFormat",
+        "NotApplicable"
+      ]
+    },
+    "encryptedKey": {
+      "params": {
+        "id": "KeyID",
+        "format": "ContainerFormat",
+        "enc_key": "KeyID"
+      },
+      "result": "string",
+      "throws": [
+        "UnknownKeyID",
+        "UnsupportedFormat",
+        "NotApplicable"
+      ]
+    },
+    "pubEncryptedKey": {
+      "params": {
+        "id": "KeyID",
+        "format": "ContainerFormat",
+        "pubkey": "PublicKey"
+      },
+      "result": "string",
+      "throws": [
+        "UnknownKeyID",
+        "UnsupportedFormat",
+        "NotApplicable"
+      ]
+    },
+    "publicKey": {
+      "params": {
+        "id": "KeyID",
+        "format": "ContainerFormat"
+      },
+      "result": "string",
+      "throws": [
+        "UnknownKeyID",
+        "UnsupportedFormat",
+        "NotApplicable"
+      ]
+    },
+    "keyInfo": {
+      "params": {
+        "id": "KeyID"
+      },
+      "result": "KeyInfo",
+      "throws": [
+        "UnknownKeyID"
+      ]
+    },
+    "listKeys": {
+      "result": "KeyInfoList"
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "iface": "futoin.secvault.types",
+  "version": "0.2",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.types:1.0"
+  ],
+  "types": {
+    "KeyID": "UUIDB64",
+    "ExtID": "UUIDB64",
+    "KeyType": {
+      "type": "enum",
+      "items": [
+        "RSA",
+        "EdDSA",
+        "GOST3410",
+        "Random",
+        "Custom"
+      ]
+    },
+    "KeyUsage": {
+      "type": "set",
+      "items": [
+        "encrypt",
+        "sign",
+        "derive",
+        "shared"
+      ]
+    },
+    "ContainerFormat": {
+      "type": "enum",
+      "items": [
+        "Auto",
+        "RAW",
+        "Base64",
+        "PEM",
+        "PKCS11",
+        "PKCS11B64",
+        "DER",
+        "DERB64"
+      ]
+    },
+    "GenParams": [
+      "RSABits",
+      "EdDSACurve",
+      "RawBits",
+      "map"
+    ],
+    "RSABits": {
+      "type": "enum",
+      "items": [
+        2048,
+        4096,
+        8192
+      ]
+    },
+    "EdDSACurve": {
+      "type": "enum",
+      "items": [
+        "Ed25519",
+        "Ed448"
+      ]
+    },
+    "RandomBits": {
+      "type": "enum",
+      "items": [
+        128,
+        192,
+        256,
+        384,
+        512,
+        768,
+        1024
+      ]
+    },
+    "GOST3410Version": {
+      "type": "enum",
+      "items": [
+        "2012-256",
+        "2012-512"
+      ]
+    },
+    "GOST3410ParamSet": {
+      "type": "set",
+      "items": [
+        "A",
+        "B",
+        "C",
+        "XA",
+        "XB"
+      ]
+    },
+    "GOST3410Params": {
+      "type": "map",
+      "fields": {
+        "version": "GOST3410Version",
+        "paramset": "GOST3410ParamSet"
+      }
+    },
+    "KeyInfo": {
+      "type": "map",
+      "fields": {
+        "id": "KeyID",
+        "usage": "KeyUsage",
+        "type": "KeyType",
+        "params": "GenParams",
+        "created": "Timestamp",
+        "used_times": "NotNegativeInteger",
+        "used_bytes": "NotNegativeInteger",
+        "sig_failures": "NotNegativeInteger"
+      }
+    },
+    "KeyInfoList": {
+      "type": "array",
+      "elemtype": "KeyInfo"
+    },
+    "PublicKey": {
+      "type": "map",
+      "fields": {
+        "key_type": "KeyType",
+        "format": "ContainerFormat",
+        "data": "string"
+      }
+    },
+    "CipherType": {
+      "type": "string",
+      "regex": "^[a-Z0-9][a-Z0-9-]*[a-Z0-9]$",
+      "maxlen": 64
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

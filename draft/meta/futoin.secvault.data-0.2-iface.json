@@ -1,0 +1,70 @@
+{
+  "iface": "futoin.secvault.data",
+  "version": "0.2",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.secvault.types:0.2"
+  ],
+  "funcs": {
+    "encrypt": {
+      "params": {
+        "id": "KeyID",
+        "data": "string",
+        "cipher": "CipherType"
+      },
+      "result": "string",
+      "throws": [
+        "UnsupportedType",
+        "UnsupportedCipher",
+        "NotApplicable"
+      ]
+    },
+    "decrypt": {
+      "params": {
+        "id": "KeyID",
+        "data": "string",
+        "cipher": "CipherType"
+      },
+      "result": "string",
+      "throws": [
+        "UnsupportedType",
+        "UnsupportedCipher",
+        "InvalidData",
+        "NotApplicable"
+      ]
+    },
+    "sign": {
+      "params": {
+        "id": "KeyID",
+        "data": "string",
+        "cipher": "CipherType"
+      },
+      "result": "string",
+      "throws": [
+        "UnsupportedType",
+        "UnsupportedCipher",
+        "InvalidData",
+        "NotApplicable"
+      ]
+    },
+    "verify": {
+      "params": {
+        "id": "KeyID",
+        "data": "string",
+        "sig": "string",
+        "cipher": "CipherType"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnsupportedType",
+        "UnsupportedCipher",
+        "InvalidData",
+        "InvalidSignature",
+        "NotApplicable"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}
