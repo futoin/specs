@@ -30,7 +30,7 @@ software/hardware effectively limiting scope of source code, hardware design and
 infrastructure required to be audited for security issues in first place. Most flaws in
 other software parts of larger project should have less impact on sensitive data
 disclosure.</p>
-<p>Critical sensitive data: private or shared cryptography secrets, keys for tokinization
+<p>Critical sensitive data: private or shared cryptography secrets, keys for tokenization
 of data, etc.</p>
 <h1>2. Concept</h1>
 <p>Secure Vault (SV) is assumed to be a FutoIn service with the following characteristics:</p>
@@ -40,7 +40,7 @@ of data, etc.</p>
     the SV itself.</li>
 <li>There must be a small enough secret to unlock the rest of data. Management of such
     secret is out of scope and should be a secret by nature.</li>
-<li>Two different SV instances may share one or more common secrets using for authentication
+<li>Two different SV instances may share one or more common secrets used for authentication
     and encryption.</li>
 <li>Security and durability of SV is out of scope. SV can be implemented both as regular
     application vulnerable to many types of local system attacks or as a firmware for
@@ -66,6 +66,7 @@ of data, etc.</p>
 <li>Encryption of any arbitrary data with any of stored keys.</li>
 <li>Decryption of previously encrypted data.</li>
 <li>Data signing.</li>
+<li>Signature verification.</li>
 </ol>
 <h2>2.3. Supported keys &amp; ciphers</h2>
 <p>Each implementation may choose to support any subset of all availables types.</p>
@@ -73,19 +74,21 @@ of data, etc.</p>
 <p>The specifications tries to cover only commonly used algorithms, but actual implementation
 may add custom constants. Suggested list, self-explanatory:</p>
 <ul>
-<li>
-<p>Symmetric encryption/decryption</p>
-<ul>
+<li>Symmetric encryption/decryption:<ul>
 <li><code>AES-CBC</code></li>
 <li><code>AES-CTR</code></li>
 <li><code>AES-GCM</code></li>
 <li><code>GOST3412-CBC</code></li>
 <li><code>GOST3412-CTR</code></li>
 <li><code>GOST3412-CFB</code></li>
-<li>Asymmetric encryption/decryption</li>
+</ul>
+</li>
+<li>Asymmetric encryption/decryption:<ul>
 <li><code>GOST3410</code></li>
 <li><code>RSA</code></li>
-<li>MAC</li>
+</ul>
+</li>
+<li>Message Authentication:<ul>
 <li>HMAC:<ul>
 <li>"HMAC-MD5"</li>
 <li>GOST3411 family:<ul>
@@ -116,6 +119,19 @@ may add custom constants. Suggested list, self-explanatory:</p>
 </li>
 </ul>
 </li>
+<li>Key Derivation:<ul>
+<li><code>HKDF</code></li>
+<li><code>PBKDF2</code></li>
+</ul>
+</li>
+</ul>
+<h2>2.5. Key usage constraints</h2>
+<p>SV must obey key constraints:</p>
+<ul>
+<li><code>encrypt</code> - allow encryption and decryption</li>
+<li><code>sign</code> - allow signing and verification</li>
+<li><code>derive</code> - allow key deriving</li>
+<li><code>shared</code> - allow key to be exposed externally</li>
 </ul>
 <h1>3. Interface</h1>
 <h2>3.1. Common types</h2>
@@ -247,7 +263,8 @@ may add custom constants. Suggested list, self-explanatory:</p>
             "type" : "string",
             "regex" : "^[a-Z0-9][a-Z0-9-]*[a-Z0-9]$",
             "maxlen" : 64
-        }
+        },
+        "KeyDerivationFunction" : "CipherType"
     },
     "requires" : [ "SecureChannel" ]
 }
@@ -261,6 +278,18 @@ may add custom constants. Suggested list, self-explanatory:</p>
         "futoin.secvault.types:{ver}"
     ],
     "funcs" : {
+        "unlock" : {
+            "params" : {
+                "secret" : "string"
+            },
+            "result" : "boolean",
+            "throws" : [
+                "InvalidSecret"
+            ]
+        },
+        "lock" : {
+            "result" : "boolean"
+        },
         "generateKey" : {
             "params" : {
                 "ext_id" : "ExtID",
@@ -303,6 +332,23 @@ may add custom constants. Suggested list, self-explanatory:</p>
             "throws" : [
                 "UnsupportedType",
                 "OrigMismatch"
+            ]
+        },
+        "deriveKey" : {
+            "params" : {
+                "ext_id" : "ExtID",
+                "base_key" : "KeyID",
+                "kdf" : "KeyDerivationFunction",
+                "key_len" : "RandomBits",
+                "salt" : "string",
+                "other" : "map"
+            },
+            "result" : "string",
+            "throws" : [
+                "UnknownKeyID",
+                "UnsupportedDerivation",
+                "InvalidParams",
+                "NotApplicable"
             ]
         },
         "wipeKey" : {

@@ -6,6 +6,18 @@
     "futoin.secvault.types:0.2"
   ],
   "funcs": {
+    "unlock": {
+      "params": {
+        "secret": "string"
+      },
+      "result": "boolean",
+      "throws": [
+        "InvalidSecret"
+      ]
+    },
+    "lock": {
+      "result": "boolean"
+    },
     "generateKey": {
       "params": {
         "ext_id": "ExtID",
@@ -48,6 +60,23 @@
       "throws": [
         "UnsupportedType",
         "OrigMismatch"
+      ]
+    },
+    "deriveKey": {
+      "params": {
+        "ext_id": "ExtID",
+        "base_key": "KeyID",
+        "kdf": "KeyDerivationFunction",
+        "key_len": "RandomBits",
+        "salt": "string",
+        "other": "map"
+      },
+      "result": "string",
+      "throws": [
+        "UnknownKeyID",
+        "UnsupportedDerivation",
+        "InvalidParams",
+        "NotApplicable"
       ]
     },
     "wipeKey": {

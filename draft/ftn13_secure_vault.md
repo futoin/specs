@@ -22,7 +22,7 @@ infrastructure required to be audited for security issues in first place. Most f
 other software parts of larger project should have less impact on sensitive data
 disclosure.
 
-Critical sensitive data: private or shared cryptography secrets, keys for tokinization
+Critical sensitive data: private or shared cryptography secrets, keys for tokenization
 of data, etc.
 
 # 2. Concept
@@ -34,7 +34,7 @@ Secure Vault (SV) is assumed to be a FutoIn service with the following character
     the SV itself.
 3. There must be a small enough secret to unlock the rest of data. Management of such
     secret is out of scope and should be a secret by nature.
-4. Two different SV instances may share one or more common secrets using for authentication
+4. Two different SV instances may share one or more common secrets used for authentication
     and encryption.
 5. Security and durability of SV is out of scope. SV can be implemented both as regular
     application vulnerable to many types of local system attacks or as a firmware for
@@ -58,7 +58,8 @@ The following features are required:
 
 1. Encryption of any arbitrary data with any of stored keys.
 2. Decryption of previously encrypted data.
-4. Data signing.
+3. Data signing.
+4. Signature verification.
 
 ## 2.3. Supported keys & ciphers
 
@@ -69,18 +70,17 @@ Each implementation may choose to support any subset of all availables types.
 The specifications tries to cover only commonly used algorithms, but actual implementation
 may add custom constants. Suggested list, self-explanatory:
 
-* Symmetric encryption/decryption
-
+* Symmetric encryption/decryption:
     * `AES-CBC`
     * `AES-CTR`
     * `AES-GCM`
     * `GOST3412-CBC`
     * `GOST3412-CTR`
     * `GOST3412-CFB`
-* Asymmetric encryption/decryption
+* Asymmetric encryption/decryption:
     * `GOST3410`
     * `RSA`
-* MAC
+* Message Authentication:
     * HMAC:
         * "HMAC-MD5"
         * GOST3411 family:
@@ -99,7 +99,18 @@ may add custom constants. Suggested list, self-explanatory:
     * KMAC:
         * "KMAC128" - Keccak MAC 128-bit
         * "KMAC256" - Keccak MAC 256-bit
+* Key Derivation:
+    * `HKDF`
+    * `PBKDF2`
 
+## 2.5. Key usage constraints
+
+SV must obey key constraints:
+
+* `encrypt` - allow encryption and decryption
+* `sign` - allow signing and verification
+* `derive` - allow key deriving
+* `shared` - allow key to be exposed externally
 
 # 3. Interface
 
@@ -236,7 +247,8 @@ may add custom constants. Suggested list, self-explanatory:
                 "type" : "string",
                 "regex" : "^[a-Z0-9][a-Z0-9-]*[a-Z0-9]$",
                 "maxlen" : 64
-            }
+            },
+            "KeyDerivationFunction" : "CipherType"
         },
         "requires" : [ "SecureChannel" ]
     }
@@ -255,6 +267,18 @@ may add custom constants. Suggested list, self-explanatory:
             "futoin.secvault.types:{ver}"
         ],
         "funcs" : {
+            "unlock" : {
+                "params" : {
+                    "secret" : "string"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "InvalidSecret"
+                ]
+            },
+            "lock" : {
+                "result" : "boolean"
+            },
             "generateKey" : {
                 "params" : {
                     "ext_id" : "ExtID",
@@ -297,6 +321,23 @@ may add custom constants. Suggested list, self-explanatory:
                 "throws" : [
                     "UnsupportedType",
                     "OrigMismatch"
+                ]
+            },
+            "deriveKey" : {
+                "params" : {
+                    "ext_id" : "ExtID",
+                    "base_key" : "KeyID",
+                    "kdf" : "KeyDerivationFunction",
+                    "key_len" : "RandomBits",
+                    "salt" : "string",
+                    "other" : "map"
+                },
+                "result" : "string",
+                "throws" : [
+                    "UnknownKeyID",
+                    "UnsupportedDerivation",
+                    "InvalidParams",
+                    "NotApplicable"
                 ]
             },
             "wipeKey" : {
