@@ -68,8 +68,32 @@ Each implementation may choose to support any subset of all availables types.
 ## 2.4. Naming
 
 The specifications tries to cover only commonly used algorithms, but actual implementation
-may add custom constants. Suggested list, self-explanatory:
+may add custom constants.
 
+Specification intentionally does not list specific types to be as generic as possible.
+
+Suggested list, self-explanatory:
+
+* Key types & params:
+    * Symmetric like AES, GOST 34.12, RAW
+        * integer bits as parameter
+    * `RSA`
+        * integer bits as parameter
+    * `EdDSA`
+        * string curve name as parameter
+    * `GOST3410` - GOST 34.10 PKI
+        * map as parameter:
+            * `version` - string:
+                - '2012-256'
+                - '2012-512'
+            * 'paramset' - set:
+                - A, B, C, XA, XB - string items
+* Container Formats:
+    * `DER` - ASN.1
+    * `DERB64` - ASN.1 encoded in Base64
+    * `PEM`
+    * `PKCS11` - PKCS#11
+    * `PKCS11B64` - PKCS#11 encoded in Base64
 * Symmetric encryption/decryption:
     * `AES-CBC`
     * `AES-CTR`
@@ -111,6 +135,18 @@ SV must obey key constraints:
 * `sign` - allow signing and verification
 * `derive` - allow key deriving
 * `shared` - allow key to be exposed externally
+* `temp` - allow auto-purge after common configured time-to-live
+
+## 2.6. Statistics collection
+
+SV must collect key usage statistics as a hint to regenerate keys
+and/or block possible attacks.
+
+## 2.7. External key ID
+
+Any key is created for some purpose. So, external ID is mandatory and can be
+used implementation-defined way to recover from errors like timeouts without
+unused key artifacts hanging in SV.
 
 # 3. Interface
 
@@ -128,16 +164,15 @@ SV must obey key constraints:
         ],
         "types" : {
             "KeyID" : "UUIDB64",
-            "ExtID" : "UUIDB64",
+            "ExtID" : {
+                "type" : "string",
+                "minlen" : 1,
+                "maxlen" : 128
+            },
             "KeyType" : {
-                "type" : "enum",
-                "items" : [
-                    "RSA",
-                    "EdDSA",
-                    "GOST3410",
-                    "Random",
-                    "Custom"
-                ]
+                "type" : "GenericIdentifier",
+                "minlen" : 1,
+                "maxlen" : 32
             },
             "KeyUsage" : {
                 "type" : "set",
@@ -145,79 +180,20 @@ SV must obey key constraints:
                     "encrypt",
                     "sign",
                     "derive",
-                    "shared"
+                    "shared",
+                    "temp"
                 ]
             },
             "ContainerFormat" : {
-                "type" : "enum",
-                "items" : [
-                    "Auto",
-                    "RAW",
-                    "Base64",
-                    "PEM",
-                    "PKCS11",
-                    "PKCS11B64",
-                    "DER",
-                    "DERB64"
-                ]
+                "type" : "GenericIdentifier",
+                "minlen" : 1,
+                "maxlen" : 32
             },
             "GenParams" : [
-                "RSABits",
-                "EdDSACurve",
-                "RawBits",
+                "string",
+                "integer",
                 "map"
             ],
-            "RSABits" : {
-                "type" : "enum",
-                "items" : [
-                    2048,
-                    4096,
-                    8192
-                ]
-            },
-            "EdDSACurve" : {
-                "type" : "enum",
-                "items" : [
-                    "Ed25519",
-                    "Ed448"
-                ]
-            },
-            "RandomBits" : {
-                "type" : "enum",
-                "items" : [
-                    128,
-                    192,
-                    256,
-                    384,
-                    512,
-                    768,
-                    1024
-                ]
-            },
-            "GOST3410Version" : {
-                "type" : "enum",
-                "items" : [
-                    "2012-256",
-                    "2012-512"
-                ]
-            },
-            "GOST3410ParamSet" : {
-                "type" : "set",
-                "items" : [
-                    "A",
-                    "B",
-                    "C",
-                    "XA",
-                    "XB"
-                ]
-            },
-            "GOST3410Params" : {
-                "type" : "map",
-                "fields" : {
-                    "version" : "GOST3410Version",
-                    "paramset" : "GOST3410ParamSet"
-                }
-            },
             "KeyInfo" : {
                 "type" : "map",
                 "fields" : {

@@ -7,16 +7,15 @@
   ],
   "types": {
     "KeyID": "UUIDB64",
-    "ExtID": "UUIDB64",
+    "ExtID": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 128
+    },
     "KeyType": {
-      "type": "enum",
-      "items": [
-        "RSA",
-        "EdDSA",
-        "GOST3410",
-        "Random",
-        "Custom"
-      ]
+      "type": "GenericIdentifier",
+      "minlen": 1,
+      "maxlen": 32
     },
     "KeyUsage": {
       "type": "set",
@@ -24,79 +23,20 @@
         "encrypt",
         "sign",
         "derive",
-        "shared"
+        "shared",
+        "temp"
       ]
     },
     "ContainerFormat": {
-      "type": "enum",
-      "items": [
-        "Auto",
-        "RAW",
-        "Base64",
-        "PEM",
-        "PKCS11",
-        "PKCS11B64",
-        "DER",
-        "DERB64"
-      ]
+      "type": "GenericIdentifier",
+      "minlen": 1,
+      "maxlen": 32
     },
     "GenParams": [
-      "RSABits",
-      "EdDSACurve",
-      "RawBits",
+      "string",
+      "integer",
       "map"
     ],
-    "RSABits": {
-      "type": "enum",
-      "items": [
-        2048,
-        4096,
-        8192
-      ]
-    },
-    "EdDSACurve": {
-      "type": "enum",
-      "items": [
-        "Ed25519",
-        "Ed448"
-      ]
-    },
-    "RandomBits": {
-      "type": "enum",
-      "items": [
-        128,
-        192,
-        256,
-        384,
-        512,
-        768,
-        1024
-      ]
-    },
-    "GOST3410Version": {
-      "type": "enum",
-      "items": [
-        "2012-256",
-        "2012-512"
-      ]
-    },
-    "GOST3410ParamSet": {
-      "type": "set",
-      "items": [
-        "A",
-        "B",
-        "C",
-        "XA",
-        "XB"
-      ]
-    },
-    "GOST3410Params": {
-      "type": "map",
-      "fields": {
-        "version": "GOST3410Version",
-        "paramset": "GOST3410ParamSet"
-      }
-    },
     "KeyInfo": {
       "type": "map",
       "fields": {

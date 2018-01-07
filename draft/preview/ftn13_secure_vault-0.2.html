@@ -72,8 +72,48 @@ of data, etc.</p>
 <p>Each implementation may choose to support any subset of all availables types.</p>
 <h2>2.4. Naming</h2>
 <p>The specifications tries to cover only commonly used algorithms, but actual implementation
-may add custom constants. Suggested list, self-explanatory:</p>
+may add custom constants.</p>
+<p>Specification intentionally does not list specific types to be as generic as possible.</p>
+<p>Suggested list, self-explanatory:</p>
 <ul>
+<li>Key types &amp; params:<ul>
+<li>Symmetric like AES, GOST 34.12, RAW<ul>
+<li>integer bits as parameter</li>
+</ul>
+</li>
+<li><code>RSA</code><ul>
+<li>integer bits as parameter</li>
+</ul>
+</li>
+<li><code>EdDSA</code><ul>
+<li>string curve name as parameter</li>
+</ul>
+</li>
+<li><code>GOST3410</code> - GOST 34.10 PKI<ul>
+<li>map as parameter:<ul>
+<li><code>version</code> - string:<ul>
+<li>'2012-256'</li>
+<li>'2012-512'</li>
+</ul>
+</li>
+<li>'paramset' - set:<ul>
+<li>A, B, C, XA, XB - string items</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Container Formats:<ul>
+<li><code>DER</code> - ASN.1</li>
+<li><code>DERB64</code> - ASN.1 encoded in Base64</li>
+<li><code>PEM</code></li>
+<li><code>PKCS11</code> - PKCS#11</li>
+<li><code>PKCS11B64</code> - PKCS#11 encoded in Base64</li>
+</ul>
+</li>
 <li>Symmetric encryption/decryption:<ul>
 <li><code>AES-CBC</code></li>
 <li><code>AES-CTR</code></li>
@@ -132,7 +172,15 @@ may add custom constants. Suggested list, self-explanatory:</p>
 <li><code>sign</code> - allow signing and verification</li>
 <li><code>derive</code> - allow key deriving</li>
 <li><code>shared</code> - allow key to be exposed externally</li>
+<li><code>temp</code> - allow auto-purge after common configured time-to-live</li>
 </ul>
+<h2>2.6. Statistics collection</h2>
+<p>SV must collect key usage statistics as a hint to regenerate keys
+and/or block possible attacks.</p>
+<h2>2.7. External key ID</h2>
+<p>Any key is created for some purpose. So, external ID is mandatory and can be
+used implementation-defined way to recover from errors like timeouts without
+unused key artifacts hanging in SV.</p>
 <h1>3. Interface</h1>
 <h2>3.1. Common types</h2>
 <pre><code>{
@@ -144,16 +192,15 @@ may add custom constants. Suggested list, self-explanatory:</p>
     ],
     "types" : {
         "KeyID" : "UUIDB64",
-        "ExtID" : "UUIDB64",
+        "ExtID" : {
+            "type" : "string",
+            "minlen" : 1,
+            "maxlen" : 128
+        },
         "KeyType" : {
-            "type" : "enum",
-            "items" : [
-                "RSA",
-                "EdDSA",
-                "GOST3410",
-                "Random",
-                "Custom"
-            ]
+            "type" : "GenericIdentifier",
+            "minlen" : 1,
+            "maxlen" : 32
         },
         "KeyUsage" : {
             "type" : "set",
@@ -161,79 +208,20 @@ may add custom constants. Suggested list, self-explanatory:</p>
                 "encrypt",
                 "sign",
                 "derive",
-                "shared"
+                "shared",
+                "temp"
             ]
         },
         "ContainerFormat" : {
-            "type" : "enum",
-            "items" : [
-                "Auto",
-                "RAW",
-                "Base64",
-                "PEM",
-                "PKCS11",
-                "PKCS11B64",
-                "DER",
-                "DERB64"
-            ]
+            "type" : "GenericIdentifier",
+            "minlen" : 1,
+            "maxlen" : 32
         },
         "GenParams" : [
-            "RSABits",
-            "EdDSACurve",
-            "RawBits",
+            "string",
+            "integer",
             "map"
         ],
-        "RSABits" : {
-            "type" : "enum",
-            "items" : [
-                2048,
-                4096,
-                8192
-            ]
-        },
-        "EdDSACurve" : {
-            "type" : "enum",
-            "items" : [
-                "Ed25519",
-                "Ed448"
-            ]
-        },
-        "RandomBits" : {
-            "type" : "enum",
-            "items" : [
-                128,
-                192,
-                256,
-                384,
-                512,
-                768,
-                1024
-            ]
-        },
-        "GOST3410Version" : {
-            "type" : "enum",
-            "items" : [
-                "2012-256",
-                "2012-512"
-            ]
-        },
-        "GOST3410ParamSet" : {
-            "type" : "set",
-            "items" : [
-                "A",
-                "B",
-                "C",
-                "XA",
-                "XB"
-            ]
-        },
-        "GOST3410Params" : {
-            "type" : "map",
-            "fields" : {
-                "version" : "GOST3410Version",
-                "paramset" : "GOST3410ParamSet"
-            }
-        },
         "KeyInfo" : {
             "type" : "map",
             "fields" : {
