@@ -1,7 +1,7 @@
 <pre>
 FTN0: FutoIn Overview
 Version: 0.1
-Copyright: 2014 FutoIn Project (http://futoin.org)
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
@@ -12,23 +12,21 @@ Authors: Andrey Galkin
 * [FTN3 Interface Definition](./ftn3\_iface\_definition.md)
 * [FTN16 Continuous Integration & Delivery Tool](./ftn16\_cid\_tool.md)
 
-# 2. Security
-* NOT YET FINAL: FTN8 Security Concept
-
-
-# 3. Language and Platform specific interface concept
+# 2. Language and Platform specific interface concept
 * [FTN6 Interface Executor Concept](./ftn6\_iface\_executor\_concept.md)
 * [FTN7 Interface Invoker Concept](./ftn7\_iface\_invoker\_concept.md)
-* NOT YET FINAL: FTN10 Burst Calls
 * [FTN12 Async API](./ftn12\_async\_api.md)
-* NOT YET FINAL: FTN11 Implementation Feature Requirements
 * [FTN15 Native Event API](./ftn15\_native\_event.md)
 
-# 4. Technology-specific integration
+# 3. Technology-specific integration
 * [FTN5 HTTP integration](./ftn5\_iface\_http\_integration.md)
+
+# 4. Security concept
+* NOT YET FINAL: FTN8 Security Concept
 
 # 5. Interfaces
 ## 5.1. Core
+* [FTN3.1 Common Types](./ftn3.1\_if\_common\_types.md)
 * [FTN4 Ping](./ftn4\_if\_ping.md)
 * [FTN9 Audit Log](./ftn9\_if\_auditlog.md)
 * [FTN17 Database](./ftn17\_if\_database.md)
