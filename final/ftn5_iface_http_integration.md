@@ -1,13 +1,15 @@
 <pre>
 FTN5: FutoIn HTTP integration
-Version: 1.2
-Date: 2015-02-22
-Copyright: 2014 FutoIn Project (http://futoin.org)
+Version: 1.3
+Date: 2018-12-14
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.3 - 2018-12-14 - Andrey Galkin
+    * NEW: MIME-types for CBOR & MessagePack
 * v1.2 - 2015-02-22
     * Clarified query string parameter coding
 * v1.1 - 2014-12-21
@@ -82,14 +84,21 @@ with no multiplexing on communication channel level.
 
 # 2.2. MIME-type
 
-FutoIn request and response messages must have *application/futoin+json* MIME-type. This type must be used
-ONLY for actual messages in Invoker-Executor dialog. In any other case, *application/json* should be used
-for messages.
+The following MIME-types are assumed under "FutoinMIME":
 
-Implementation must refuse to parse JSON as request or response message, if corresponding HTTP
+* `application/futoin+json` for JSON coding
+* `application/futoin+cbor` for CBOR coding
+* `application/futoin+msgpack` for MessagePack coding
+* `application/futoin+` as prefix for other formats not defined here
+
+FutoIn request and response messages must have *FutoinMIME* MIME-type. This type must be used
+ONLY for actual messages in Invoker-Executor dialog. In any other case, standard MIME-type
+should be used for messages depending on coding format.
+
+Implementation must refuse parsing request or response message, if corresponding HTTP
 headers do not have correct MIME-type.
 
-Invoker should assume *Use Case #4*, if response MIME-Type is not *application/futoin+json*.
+Invoker should assume *Use Case #4*, if response MIME-Type is not *FutoinMIME*.
 
 
 # 3. Misc. technical details
