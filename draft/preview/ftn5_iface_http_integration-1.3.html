@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn5_iface_http_integration.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN5: FutoIn HTTP integration
+Version: 1.DV3
+Date: 2018-12-14
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.3 - 2018-12-14 - Andrey Galkin<ul>
+<li>NEW: MIME-types for CBOR &amp; MessagePack</li>
+</ul>
+</li>
+<li>v1.2 - 2015-02-22<ul>
+<li>Clarified query string parameter coding</li>
+</ul>
+</li>
+<li>v1.1 - 2014-12-21<ul>
+<li>Simplified error response when raw result is expected</li>
+</ul>
+</li>
+<li>v1.0 - 2014-10-11</li>
+</ul>
+<h1>1. Intro</h1>
+<p>Well, as mentioned in other specs, FutoIn project was born by influence
+of Web technologies in scope of Enterprise solutions. So, HTTP is fundamental
+communication channel (besides WebSockets).</p>
+<p>Use cases:</p>
+<ol>
+<li>The default integration is based on single end-point URI, which
+    accepts HTTP POST requests in plain JSON format and responses in plain
+    JSON format.</li>
+<li>Another integration type is when FutoIn interface, its version and
+    function name are placed into URI's path and all parameters are placed
+    in HTTP GET query</li>
+<li>A special case of large [binary/text] object upload is combination of
+    #2 made with HTTP POST. Call information is coded in URI, but large
+    data is passed through POST as is.</li>
+<li>A special case of large [binary/text] object download is when there
+    are no result parameters. Instead, large object is sent as body
+    of HTTP response. Can be combined with any other use case.</li>
+</ol>
+<p>Note: By definition of HTTP, only uni-directional message exchange is supported
+with no multiplexing on communication channel level.</p>
+<h1>2. Use case auto-detection</h1>
+<ul>
+<li>If request URI exactly matches Executor's end-point URI:rawresult<ul>
+<li>case if POST<ul>
+<li><em>Use Case #1</em></li>
+<li>read request body as JSON FutoIn request</li>
+<li>process (see below)</li>
+</ul>
+</li>
+<li>else fail</li>
+</ul>
+</li>
+<li>else if sub-path after Executor's end-point URI, matches "interfaces/version/function[/sec]" format:<ul>
+<li>deduce interface, its version and function name from sub-path</li>
+<li>if exists, extract 'sec' as fourth component of the sub-path</li>
+<li>if provided, extract 'sec' from HTTP 'Basic Auth'</li>
+<li>if query string is present<ul>
+<li>read parameters from query string</li>
+<li>case if GET<ul>
+<li><em>Use Case #2</em></li>
+<li>process (see below)</li>
+</ul>
+</li>
+<li>case if POST<ul>
+<li><em>Use Case #3</em></li>
+<li>process (see below)</li>
+<li>allow rawInput()<ul>
+<li>Note: multi-part must not be parsed by Executor implementation</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>else fail</li>
+</ul>
+</li>
+<li>else fail</li>
+</ul>
+</li>
+<li>else fail</li>
+</ul>
+<p><em>Note: Executor must accept URI with or without trailing slash in path</em></p>
+<h1>2.1. Request processing steps</h1>
+<ul>
+<li>process request in Executor</li>
+<li>on success, write response body as (one of):<ul>
+<li>if raw data response expected (by spec)<ul>
+<li>arbitrary large object (<em>Use Case #4</em>)</li>
+<li>Note: there is no point in re-defining HTTP conditional requests (If-*/Etag/etc).
+    in scope of this spec.</li>
+</ul>
+</li>
+<li>else<ul>
+<li>JSON FutoIn response (even with empty result variables)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>on error,<ul>
+<li>JSON FutoIn response (even with raw result is expected)</li>
+</ul>
+</li>
+</ul>
+<h1>2.2. MIME-type</h1>
+<p>The following MIME-types are assumed under "FutoinMIME":</p>
+<ul>
+<li><code>application/futoin+json</code> for JSON coding</li>
+<li><code>application/futoin+cbor</code> for CBOR coding</li>
+<li><code>application/futoin+msgpack</code> for MessagePack coding</li>
+<li><code>application/futoin+</code> as prefix for other formats not defined here</li>
+</ul>
+<p>FutoIn request and response messages must have <em>FutoinMIME</em> MIME-type. This type must be used
+ONLY for actual messages in Invoker-Executor dialog. In any other case, standard MIME-type
+should be used for messages depending on coding format.</p>
+<p>Implementation must refuse parsing request or response message, if corresponding HTTP
+headers do not have correct MIME-type.</p>
+<p>Invoker should assume <em>Use Case #4</em>, if response MIME-Type is not <em>FutoinMIME</em>.</p>
+<h1>3. Misc. technical details</h1>
+<p>URI is assumed as defined in its <a href="http://www.ietf.org/rfc/rfc3986.txt" title="Uniform Resource Identifier (URI): Generic Syntax">RFC3986</a> or any later version.</p>
+<p><em>Note: Executor must behave equally with or without trailing slash in URI path part.</em></p>
+<h2>3.1. Executor's end-point sub-path format</h2>
+<p>Generic format: "{end-point-URI}/{interface}/{version}/{function_name}[/sec_field]"</p>
+<p><em>Example:</em>
+    "https://api.example.com/futoin/<strong>some.interface.name/1.0/someFunc</strong>"
+    "https://api.example.com/futoin/<strong>some.interface.name/1.0/someFunc/sec_field</strong>"</p>
+<h2>3.2. URI Query string format</h2>
+<p>Query string starts with question mark "?". Parameters are separated with ampersand sign "&amp;".</p>
+<p><em>Example: "https://api.example.com/futoin/some.interface.name/1.0/someFunc?<strong>param1=val1&amp;param2=val2</strong>"</em></p>
+<h2>3.3. Objects and arrays in query string and multi-part form data</h2>
+<p>There are the following rules for query string coding:</p>
+<ol>
+<li>String values are added as is</li>
+<li>All others value types are respresented as raw JSON</li>
+</ol>
+<h2>3.4. {empty}</h2>
+<p>Reserved.</p>
+<h2>3.5. File upload</h2>
+<p>By fundamental principles of FutoIn, there should be a special File Upload service
+implemented once (for both long storage and temporary files). In general, no 
+other service should accept file uploads. Instead, special file operation API
+should exist. </p>
+<p>File uploads have a serious risk of security exploits and denial of service. It
+should not be implemented in any arbitrary service.</p>
+<p>Client code should first request file upload token and only then start upload
+identifying each related request with this token, besides general security framework.</p>
+<h3>3.5.1 Raw HTML form file upload</h3>
+<p>HTTP multipart/form-data upload must not be handled by Executor. Instead, FileUpload
+service should handle one.
+Still, it is not recommended to upload more than one file at a time to save bandwidth
+or error situations.</p>
+<h3>3.5.2. Advanced file upload</h3>
+<p>To minimize effect of temporary upload errors, FileUpload service should support
+incremental file upload using combination of Use Case #2 and #3.</p>
+<ul>
+<li>Maximal chunk size should not be limited by Service side</li>
+<li>Chunk size must be dynamically adjusted by client to be uploaded within 3 seconds
+    based on results of previously uploaded chunk(s).</li>
+</ul>
+<p>Modern web browser JavaScript should support file reading API. Client side should
+limit buffer size to a reasonable size until direct streaming from file is not supported
+by XHR.</p>
+<h2>3.6. INFO_CHANNEL_CONTEXT field of Executor.RequestInfo.info()</h2>
+<p>It should be an object for on-demand access of HTTP request/response details.</p>
+<p>HTTPChannelContext inherits from ChannelContext</p>
+<ul>
+<li>map getRequestHeaders()</li>
+<li>void setResponseHeader( name, value, override=true )</li>
+<li>void setStatusCode( http_code )</li>
+<li>string getCookie( name )</li>
+<li>void setCookie( name, value, options )<ul>
+<li>options.http_only = true </li>
+<li>options.secure = INFO_SECURE_CHANNEL</li>
+<li>options.domain = null</li>
+<li>options.path = null</li>
+<li>options.expires = null (date object or string)</li>
+<li>options.max_age = null (interval object or string)</li>
+</ul>
+</li>
+</ul>
+<p>=END OF SPEC=</p>
+</body></html>
