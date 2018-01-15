@@ -1,13 +1,17 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.8
-Date: 2017-12-05
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Version: 1.DV9
+Date: 2018-01-14
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.9 - 2018-01-14 - Andrey Galkin
+    * NEW: fundamental "data" type
+    * NEW: multiple transport format support
+    * NEW: "BinaryData" interface constraint
 * v1.8 - 2017-12-05 - Andrey Galkin
     * NEW: "maxreqsize" & "maxrspsize" function definition attribute
 * v1.7 - 2017-08-11 - Andrey Galkin
@@ -287,6 +291,8 @@ The standard FutoIn interface types:
     * value - integer or string
 * set - list of unique values
     * value - integer or string
+* data - binary data
+    * value - sequence of bytes
 * any - field type is not checked
 * *CustomType* - any pre-defined custom type defined, inherited or imported
     in the same iface
@@ -323,6 +329,9 @@ various *optional* constraints:
     * items - list of allowed integer or string values
 * set:
     * items - complete set of allowed integer or string values
+* data:
+    * minlen - minimal data array byte length (inclusive).
+    * maxlen - maximal data array byte length (inclusive).
 
 *NOTE: omitted optional field of custom map type must be set to null on incoming message (request
 for Executor and response for Invoker case). Optional fields should be allowed to be sent as null.*
@@ -371,6 +380,16 @@ to define result as string refering to standard or custom type.
 Type variations are not allowed in result.
 
 *Since: v1.7*
+
+### 1.8.6. Binary "data" type
+
+Even though original intention was not to include raw binary data. Instead, any
+sort of encoding was assumed. However, to allow moving "microservice as library"
+concept further, FutoIn needs to support raw binary data for efficient in-process
+calls and binary-friendly codecs.
+
+If interface uses binary data then it should use "BinaryData" constraint.
+An alternative interface or function can be defined to support text-only protocols.
 
 ## 1.9. Errors and exceptions
 
@@ -456,6 +475,41 @@ in description containing required security level.
 
 All unknown security levels are to be treated as maximum level of security.
 
+## 1.13. Message coding formats:
+
+Both Invoker and Executor may support different sets of message coding formats. Whenever
+there is a mismatch, Executor must response with JSON coded error. Then Invoker must
+automatically fallback to JSON coding for all further requests.
+
+The following rules must apply to auto-detection of message coding format. If starts from ASCII:
+
+1. `{` - use JSON
+2. `CBOR` - use CBOR
+3. `MPCK` - use MessagePack
+4. Otherwise, fallback and try JSON
+
+### 1.13.1. JSON
+
+JSON is defined in [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+
+JSON encoding must always be supported by both Invoker and Executor. However, some
+implementations may omit it with justification of size reduction - software for
+embedded devices.
+
+As FutoIn message is always an object - it must start with `{` ASCII character, but
+leading spaces are not allowed.
+
+### 1.13.2. CBOR
+
+CBOR is defined in [RFC 7049](https://tools.ietf.org/html/rfc7049)
+
+All messages must be prefixes with `CBOR` ASCII 4 byte string.
+
+### 1.13.3. MessagePack
+
+MessagePack is defined in [GitHub spec](https://github.com/msgpack/msgpack/blob/master/spec.md).
+
+All messages must be prefixes with `MPCK` ASCII 4 byte string.
 
 # 2. Interface concept
 
@@ -515,7 +569,7 @@ Using [JSON-SCHEMA][]:
                             "properties" : {
                                 "type" :  {
                                     "type" : "string",
-                                    "pattern" : "^any|boolean|integer|number|string|map|array|enum|set|[A-Z][a-zA-Z0-9]+$"
+                                    "pattern" : "^any|boolean|integer|number|string|map|array|enum|set|data|[A-Z][a-zA-Z0-9]+$"
                                 },
                                 "min" : {
                                     "type": "number"
@@ -693,7 +747,7 @@ Using [JSON-SCHEMA][]:
                     "description" : "List of conditions for interface operation",
                     "items" : {
                         "type" : "string",
-                        "pattern" : "^AllowAnonymous|SecureChannel|BiDirectChannel|MessageSignature|[a-zA-Z0-9]+$"
+                        "pattern" : "^AllowAnonymous|SecureChannel|BiDirectChannel|MessageSignature|BinaryData|[a-zA-Z0-9]+$"
                     },
                     "uniqueItems": true,
                     "additionalItems": false
@@ -814,13 +868,14 @@ through "requires" attribute.
 
 Standard requirement type:
 
-* AllowAnonymous - interface can be called without Client Authentication information
-* SecureChannel - message exchange must be done through secure channel as it contains
+* `AllowAnonymous` - interface can be called without Client Authentication information
+* `SecureChannel` - message exchange must be done through secure channel as it contains
     not encrypted sensitive information. Channel security control is both Client and Service
     implementation responsibility
-* BiDirectChannel - communication channel must allow bi-directional message exchange (both
+* `BiDirectChannel` - communication channel must allow bi-directional message exchange (both
     peers should be able to act as invoker and executor)
-* MessageSignature - requires full message signing (e.g. HMAC)
+* `MessageSignature` - requires full message signing (e.g. HMAC)
+* `BinaryData` - requires binary friendly message codec (e.g. CBOR instead of JSON)
 
 
 For safety reasons, inheriting interface must re-define all "requires" items from
