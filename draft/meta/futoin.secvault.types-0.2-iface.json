@@ -1,7 +1,7 @@
 {
   "iface": "futoin.secvault.types",
   "version": "0.2",
-  "ftn3rev": "1.8",
+  "ftn3rev": "1.9",
   "imports": [
     "futoin.types:1.0"
   ],
@@ -54,12 +54,24 @@
       "type": "array",
       "elemtype": "KeyInfo"
     },
+    "RawData": {
+      "type": "data",
+      "maxlen": 1048576
+    },
+    "KeyData": {
+      "type": "data",
+      "maxlen": 16384
+    },
+    "PublicKeyData": {
+      "type": "data",
+      "maxlen": 16384
+    },
     "PublicKey": {
       "type": "map",
       "fields": {
         "key_type": "KeyType",
         "format": "ContainerFormat",
-        "data": "string"
+        "data": "PublicKeyData"
       }
     },
     "CipherType": {
@@ -67,9 +79,15 @@
       "regex": "^[a-Z0-9][a-Z0-9-]*[a-Z0-9]$",
       "maxlen": 64
     },
-    "KeyDerivationFunction": "CipherType"
+    "KeyDerivationFunction": "CipherType",
+    "InitializationVector": {
+      "type": "data",
+      "maxlen": 128,
+      "desc": "Most ciphers accept only block size, e.g. 16 bytes"
+    }
   },
   "requires": [
-    "SecureChannel"
+    "SecureChannel",
+    "BinaryData"
   ]
 }

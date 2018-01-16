@@ -7,13 +7,13 @@
 <pre>
 FTN13: FutoIn Secure Vault
 Version: 0.DV2
-Date: 2018-01-06
+Date: 2018-01-15
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <ul>
-<li>v0.2 - 2018-01-06 - Andrey Galkin<ul>
+<li>v0.2 - 2018-01-15 - Andrey Galkin<ul>
 <li>NEW: interface definitions &amp; extended concept</li>
 </ul>
 </li>
@@ -35,7 +35,11 @@ of data, etc.</p>
 <h1>2. Concept</h1>
 <p>Secure Vault (SV) is assumed to be a FutoIn service with the following characteristics:</p>
 <ol>
-<li>Sensitive data must never get exposed outside of service in unencrypted form.</li>
+<li>Sensitive data must never get exposed outside of service in unencrypted form.<ul>
+<li>However, it may be allowed to expose it for performance reasons, if it does not
+    jeopardize not related security scopes.</li>
+</ul>
+</li>
 <li>All sensitive data stored externally must be encrypted and decrypted inside
     the SV itself.</li>
 <li>There must be a small enough secret to unlock the rest of data. Management of such
@@ -49,7 +53,7 @@ of data, etc.</p>
 <h2>2.1. Secret key management</h2>
 <p>The following features are required:</p>
 <ol>
-<li>Generation &amp; storage of any support key type internally.</li>
+<li>Generation &amp; storage of any supported key type internally.</li>
 <li>Clear separation of private and shared keys purpose (not depending on type).</li>
 <li>Exposure of shared keys as:<ul>
 <li>encrypted data with provided public key.</li>
@@ -76,7 +80,7 @@ may add custom constants.</p>
 <p>Specification intentionally does not list specific types to be as generic as possible.</p>
 <p>Suggested list, self-explanatory:</p>
 <ul>
-<li>Key types &amp; params:<ul>
+<li>Key types &amp; parameters:<ul>
 <li>Symmetric like AES, GOST 34.12, RAW<ul>
 <li>integer bits as parameter</li>
 </ul>
@@ -96,7 +100,7 @@ may add custom constants.</p>
 <li>'2012-512'</li>
 </ul>
 </li>
-<li>'paramset' - set:<ul>
+<li><code>paramset</code> - set:<ul>
 <li>A, B, C, XA, XB - string items</li>
 </ul>
 </li>
@@ -108,10 +112,8 @@ may add custom constants.</p>
 </li>
 <li>Container Formats:<ul>
 <li><code>DER</code> - ASN.1</li>
-<li><code>DERB64</code> - ASN.1 encoded in Base64</li>
 <li><code>PEM</code></li>
 <li><code>PKCS11</code> - PKCS#11</li>
-<li><code>PKCS11B64</code> - PKCS#11 encoded in Base64</li>
 </ul>
 </li>
 <li>Symmetric encryption/decryption:<ul>
@@ -181,12 +183,61 @@ and/or block possible attacks.</p>
 <p>Any key is created for some purpose. So, external ID is mandatory and can be
 used implementation-defined way to recover from errors like timeouts without
 unused key artifacts hanging in SV.</p>
+<h2>2.8. Additional encryption &amp; decryption parameters</h2>
+<p>Initialization Vector (IV) is required for most cases of data encryption. There is
+known flexibility with padding strategy. Authentication tag passing is required for
+authenticated data decryption.</p>
+<p>As it's very easy to mess up and this spec also definitely has some flaws,
+the spec tries to minimize user's decision making on encryption.</p>
+<p>General strategy:</p>
+<ol>
+<li>Control generation of IV in cluster environment - random data.<ul>
+<li>If needed, IV may be HKDF-derived from public parameter in cipher mode variations.</li>
+<li>It should be possible to pass custom IV though.</li>
+</ul>
+</li>
+<li>Control re-use of IV based on:<ul>
+<li>dummy probability - limit times the same key is used and total bytes encrypted.</li>
+<li>save the last used IV per key in single process:<ul>
+<li>fail on duplicate in CTR-like</li>
+<li>fail on minor difference in CBC-like</li>
+</ul>
+</li>
+<li>CTR, CCM, GCM and EAX should be avoided due to drawbacks on IV collision unless
+    properly unique IV are ensured.</li>
+</ul>
+</li>
+<li>Pack all parts in predefined format.<ul>
+<li>Choose to append non-data values as they should be shorter in most cases.
+    So, inefficient buffer operations in some implementations would need to
+    move less data.</li>
+<li>Append IV and then AuthTag<ul>
+<li>both assumed to be fixed length even for GCM/EAX</li>
+</ul>
+</li>
+<li>Notes:<ul>
+<li>AES must use fixed 128-bit IV for all modes, except:<ul>
+<li>96-bit for GCM</li>
+</ul>
+</li>
+<li>GCM/CCM must use full 128-bit AuthTag</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Use common PKCS#5/PKCS#7 padding unless fundamental issues are found.</li>
+<li>In general, authentication is achieved through overall FutoIn message MAC.<ul>
+<li>Authenticating encryption should be used for non-message cases and/or
+    interfaces without <code>MessageSignature</code> constraint.</li>
+</ul>
+</li>
+</ol>
 <h1>3. Interface</h1>
 <h2>3.1. Common types</h2>
 <pre><code>{
     "iface" : "futoin.secvault.types",
     "version" : "{ver}",
-    "ftn3rev" : "1.8",
+    "ftn3rev" : "1.9",
     "imports" : [
         "futoin.types:1.0"
     ],
@@ -239,12 +290,24 @@ unused key artifacts hanging in SV.</p>
             "type" : "array",
             "elemtype" : "KeyInfo"
         },
+        "RawData" : {
+            "type" : "data",
+            "maxlen" : 1048576
+        },
+        "KeyData" : {
+            "type" : "data",
+            "maxlen" : 16384
+        },
+        "PublicKeyData" : {
+            "type" : "data",
+            "maxlen" : 16384
+        },
         "PublicKey" : {
             "type" : "map",
             "fields": {
                 "key_type" : "KeyType",
                 "format" : "ContainerFormat",
-                "data" : "string"
+                "data" : "PublicKeyData"
             }
         },
         "CipherType" : {
@@ -252,23 +315,31 @@ unused key artifacts hanging in SV.</p>
             "regex" : "^[a-Z0-9][a-Z0-9-]*[a-Z0-9]$",
             "maxlen" : 64
         },
-        "KeyDerivationFunction" : "CipherType"
+        "KeyDerivationFunction" : "CipherType",
+        "InitializationVector" : {
+            "type" : "data",
+            "maxlen" : 128,
+            "desc" : "Most ciphers accept only block size, e.g. 16 bytes"
+        }
     },
-    "requires" : [ "SecureChannel" ]
+    "requires" : [
+        "SecureChannel",
+        "BinaryData"
+    ]
 }
 </code></pre>
 <h2>3.2. Key management</h2>
 <pre><code>{
     "iface" : "futoin.secvault.keys",
     "version" : "{ver}",
-    "ftn3rev" : "1.8",
+    "ftn3rev" : "1.9",
     "imports" : [
         "futoin.secvault.types:{ver}"
     ],
     "funcs" : {
         "unlock" : {
             "params" : {
-                "secret" : "string"
+                "secret" : "KeyData"
             },
             "result" : "boolean",
             "throws" : [
@@ -298,7 +369,7 @@ unused key artifacts hanging in SV.</p>
                 "key_type" : "KeyType",
                 "gen_params" : "GenParams",
                 "format" : "ContainerFormat",
-                "data" : "string"
+                "data" : "KeyData"
             },
             "result" : "KeyID",
             "throws" : [
@@ -313,7 +384,7 @@ unused key artifacts hanging in SV.</p>
                 "key_type" : "KeyType",
                 "gen_params" : "GenParams",
                 "format" : "ContainerFormat",
-                "data" : "string",
+                "data" : "KeyData",
                 "enc_key" : "KeyID"
             },
             "result" : "KeyID",
@@ -328,10 +399,10 @@ unused key artifacts hanging in SV.</p>
                 "base_key" : "KeyID",
                 "kdf" : "KeyDerivationFunction",
                 "key_len" : "RandomBits",
-                "salt" : "string",
+                "salt" : "KeyData",
                 "other" : "map"
             },
-            "result" : "string",
+            "result" : "KeyData",
             "throws" : [
                 "UnknownKeyID",
                 "UnsupportedDerivation",
@@ -350,7 +421,7 @@ unused key artifacts hanging in SV.</p>
                 "id" : "KeyID",
                 "format" : "ContainerFormat"
             },
-            "result" : "string",
+            "result" : "KeyData",
             "throws" : [
                 "UnknownKeyID",
                 "UnsupportedFormat",
@@ -361,9 +432,10 @@ unused key artifacts hanging in SV.</p>
             "params" : {
                 "id" : "KeyID",
                 "format" : "ContainerFormat",
-                "enc_key" : "KeyID"
+                "enc_key" : "KeyID",
+                "cipher" : "CipherType"
             },
-            "result" : "string",
+            "result" : "KeyData",
             "throws" : [
                 "UnknownKeyID",
                 "UnsupportedFormat",
@@ -376,7 +448,7 @@ unused key artifacts hanging in SV.</p>
                 "format" : "ContainerFormat",
                 "pubkey" : "PublicKey"
             },
-            "result" : "string",
+            "result" : "KeyData",
             "throws" : [
                 "UnknownKeyID",
                 "UnsupportedFormat",
@@ -388,7 +460,7 @@ unused key artifacts hanging in SV.</p>
                 "id" : "KeyID",
                 "format" : "ContainerFormat"
             },
-            "result" : "string",
+            "result" : "KeyData",
             "throws" : [
                 "UnknownKeyID",
                 "UnsupportedFormat",
@@ -408,14 +480,17 @@ unused key artifacts hanging in SV.</p>
             "result" : "KeyInfoList"
         }
     },
-    "requires" : [ "SecureChannel" ]
+    "requires" : [
+        "SecureChannel",
+        "BinaryData"
+    ]
 }
 </code></pre>
 <h2>3.3. Data operations</h2>
 <pre><code>{
     "iface" : "futoin.secvault.data",
     "version" : "{ver}",
-    "ftn3rev" : "1.8",
+    "ftn3rev" : "1.9",
     "imports" : [
         "futoin.secvault.types:{ver}"
     ],
@@ -423,49 +498,66 @@ unused key artifacts hanging in SV.</p>
         "encrypt" : {
             "params" : {
                 "id" : "KeyID",
-                "data" : "string",
-                "cipher" : "CipherType"
+                "data" : "RawData",
+                "cipher" : "CipherType",
+                "iv" : {
+                    "type" : "InitializationVector",
+                    "default" : null
+                },
+                "aad" : {
+                    "type" : "RawData",
+                    "default" : null
+                }
             },
-            "result" : "string",
+            "result" : "RawData",
             "throws" : [
                 "UnsupportedType",
                 "UnsupportedCipher",
                 "NotApplicable"
-            ]
+            ],
+            "maxreqsize" : "1100K",
+            "maxrspsize" : "1100K"
         },
         "decrypt" : {
             "params" : {
                 "id" : "KeyID",
-                "data" : "string",
-                "cipher" : "CipherType"
+                "data" : "RawData",
+                "cipher" : "CipherType",
+                "aad" : {
+                    "type" : "RawData",
+                    "default" : null
+                }
             },
-            "result" : "string",
+            "result" : "RawData",
             "throws" : [
                 "UnsupportedType",
                 "UnsupportedCipher",
                 "InvalidData",
                 "NotApplicable"
-            ]
+            ],
+            "maxreqsize" : "1100K",
+            "maxrspsize" : "1100K"
         },
         "sign" : {
             "params" : {
                 "id" : "KeyID",
-                "data" : "string",
+                "data" : "RawData",
                 "cipher" : "CipherType"
             },
-            "result" : "string",
+            "result" : "RawData",
             "throws" : [
                 "UnsupportedType",
                 "UnsupportedCipher",
                 "InvalidData",
                 "NotApplicable"
-            ]
+            ],
+            "maxreqsize" : "1100K"
         },
         "verify" : {
             "params" : {
                 "id" : "KeyID",
-                "data" : "string",
-                "sig" : "string",
+                "data" : "RawData",
+                "sig" : "RawData",
                 "cipher" : "CipherType"
             },
             "result" : "boolean",
@@ -475,10 +567,14 @@ unused key artifacts hanging in SV.</p>
                 "InvalidData",
                 "InvalidSignature",
                 "NotApplicable"
-            ]
+            ],
+            "maxreqsize" : "1100K"
         }
     },
-    "requires" : [ "SecureChannel" ]
+    "requires" : [
+        "SecureChannel",
+        "BinaryData"
+    ]
 }
 </code></pre>
 <p>=END OF SPEC=</p>

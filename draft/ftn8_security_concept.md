@@ -477,18 +477,18 @@ message coding methods.*
 Executor may refuse to support any MAC algo and throw SecurityError.
 
 * HMAC series are based on [HMAC][] method
-    * "HMAC-MD5" - HMAC MD5 128-bit (acceptably secure, even though MD5 itself is weak)
-    * "HMAC-SHA-224" - SHA v2 224-bit (acceptably secure)
-    * "HMAC-SHA-256" - SHA v2 256-bit (acceptably secure)
-    * "HMAC-SHA-384" - SHA v2 384-bit (acceptably secure)
-    * "HMAC-SHA-512" - SHA v2 512-bit (acceptably secure)
-    * "HMAC-SHA3-224" - SHA v3 224-bit (high secure at the moment)
-    * "HMAC-SHA3-256" - SHA v3 256-bit (high secure at the moment)
-    * "HMAC-SHA3-384" - SHA v3 384-bit (high secure at the moment)
-    * "HMAC-SHA3-512" - SHA v3 512-bit (high secure at the moment)
+    * `HMAC-MD5` - HMAC MD5 128-bit (acceptably secure, even though MD5 itself is weak)
+    * `HMAC-SHA-256` - SHA v2 256-bit (acceptably secure)
+    * `HMAC-SHA-512` - SHA v2 512-bit (acceptably secure)
+    * `HMAC-SHA-512-256` - SHA v2 512-bit truncated to 256-bit (acceptably secure)
+    * `HMAC-SHA3-256` - SHA v3 256-bit (high secure at the moment)
+    * `HMAC-SHA3-512` - SHA v3 512-bit (high secure at the moment)
+    * `HMAC-SHA3-512-256` - SHA v3 512-bit truncated to 256-bit (acceptably secure)
 * KMAC series for SHA v3 - more efficient than HMAC
-    * "KMAC128" - Keccak MAC 128-bit (high secure at the moment)
-    * "KMAC256" - Keccak MAC 256-bit (high secure at the moment)
+    * `KMAC128` - Keccak MAC 128-bit (high secure at the moment)
+    * `KMAC256` - Keccak MAC 256-bit (high secure at the moment)
+    
+*Note: current suggested default is either `HMAC-SHA-256` or `HMAC-SHA-512-256`*
 
 ### 2.11.3. Response "sec" field with MAC
 
@@ -696,22 +696,24 @@ block any processing. The blocking must be done for entire period of enforcement
                     "EXPOSED"
                 ]
             },
-            "PublicKeyType" : {
+            "ExchangeKeyType" : {
                 "type" : "enum",
                 "items" : [
-                    "RSA-2048",
-                    "RSA-4096",
-                    "ED25519"
+                    "RSAE-2048",
+                    "RSAE-4096",
+                    "ECDHE-Curve25519",
+                    "ECDHE-Curve448"
                 ]
             },
-            "PublicKey" : {
+            "ExchangeKey" : {
                 "type" : "Base64",
-                "minlen" : 1
+                "minlen" : 1,
+                "maxlen" : 20000
             },
             "EncryptedKey" : {
                 "type" : "Base64",
                 "minlen" : 1,
-                "maxlen" : 683
+                "maxlen" : 1000
             },
             "EncryptedMasterSecret" : "EncryptedKey",
             "UserAgent" : {
@@ -720,11 +722,11 @@ block any processing. The blocking must be done for entire period of enforcement
             },
             "X509Cert" : {
                 "type" : "Base64",
-                "maxlen" : 16384
+                "maxlen" : 20000
             },
             "SSHPubKey" : {
                 "type" : "string",
-                "maxlen" : 8192
+                "maxlen" : 1000
             },
             "ClientToken" : {
                 "type" : "Base64",

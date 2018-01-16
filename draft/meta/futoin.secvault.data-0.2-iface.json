@@ -1,7 +1,7 @@
 {
   "iface": "futoin.secvault.data",
   "version": "0.2",
-  "ftn3rev": "1.8",
+  "ftn3rev": "1.9",
   "imports": [
     "futoin.secvault.types:0.2"
   ],
@@ -9,49 +9,66 @@
     "encrypt": {
       "params": {
         "id": "KeyID",
-        "data": "string",
-        "cipher": "CipherType"
+        "data": "RawData",
+        "cipher": "CipherType",
+        "iv": {
+          "type": "InitializationVector",
+          "default": null
+        },
+        "aad": {
+          "type": "RawData",
+          "default": null
+        }
       },
-      "result": "string",
+      "result": "RawData",
       "throws": [
         "UnsupportedType",
         "UnsupportedCipher",
         "NotApplicable"
-      ]
+      ],
+      "maxreqsize": "1100K",
+      "maxrspsize": "1100K"
     },
     "decrypt": {
       "params": {
         "id": "KeyID",
-        "data": "string",
-        "cipher": "CipherType"
+        "data": "RawData",
+        "cipher": "CipherType",
+        "aad": {
+          "type": "RawData",
+          "default": null
+        }
       },
-      "result": "string",
+      "result": "RawData",
       "throws": [
         "UnsupportedType",
         "UnsupportedCipher",
         "InvalidData",
         "NotApplicable"
-      ]
+      ],
+      "maxreqsize": "1100K",
+      "maxrspsize": "1100K"
     },
     "sign": {
       "params": {
         "id": "KeyID",
-        "data": "string",
+        "data": "RawData",
         "cipher": "CipherType"
       },
-      "result": "string",
+      "result": "RawData",
       "throws": [
         "UnsupportedType",
         "UnsupportedCipher",
         "InvalidData",
         "NotApplicable"
-      ]
+      ],
+      "maxreqsize": "1100K"
     },
     "verify": {
       "params": {
         "id": "KeyID",
-        "data": "string",
-        "sig": "string",
+        "data": "RawData",
+        "sig": "RawData",
         "cipher": "CipherType"
       },
       "result": "boolean",
@@ -61,10 +78,12 @@
         "InvalidData",
         "InvalidSignature",
         "NotApplicable"
-      ]
+      ],
+      "maxreqsize": "1100K"
     }
   },
   "requires": [
-    "SecureChannel"
+    "SecureChannel",
+    "BinaryData"
   ]
 }

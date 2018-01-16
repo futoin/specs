@@ -63,22 +63,24 @@
         "EXPOSED"
       ]
     },
-    "PublicKeyType": {
+    "ExchangeKeyType": {
       "type": "enum",
       "items": [
-        "RSA-2048",
-        "RSA-4096",
-        "ED25519"
+        "RSAE-2048",
+        "RSAE-4096",
+        "ECDHE-Curve25519",
+        "ECDHE-Curve448"
       ]
     },
-    "PublicKey": {
+    "ExchangeKey": {
       "type": "Base64",
-      "minlen": 1
+      "minlen": 1,
+      "maxlen": 20000
     },
     "EncryptedKey": {
       "type": "Base64",
       "minlen": 1,
-      "maxlen": 683
+      "maxlen": 1000
     },
     "EncryptedMasterSecret": "EncryptedKey",
     "UserAgent": {
@@ -87,11 +89,11 @@
     },
     "X509Cert": {
       "type": "Base64",
-      "maxlen": 16384
+      "maxlen": 20000
     },
     "SSHPubKey": {
       "type": "string",
-      "maxlen": 8192
+      "maxlen": 1000
     },
     "ClientToken": {
       "type": "Base64",

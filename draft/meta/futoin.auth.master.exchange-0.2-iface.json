@@ -9,8 +9,8 @@
   "funcs": {
     "getNewEncryptedSecret": {
       "params": {
-        "type": "PublicKeyType",
-        "pubkey": "PublicKey",
+        "type": "ExchangeKeyType",
+        "pubkey": "ExchangeKey",
         "scope": {
           "type": "MasterScope",
           "default": null
@@ -21,7 +21,8 @@
         "esecret": "EncryptedMasterSecret"
       },
       "throws": [
-        "SecurityError"
+        "SecurityError",
+        "NotSupportedKeyType"
       ]
     }
   },

@@ -1,14 +1,14 @@
 {
   "iface": "futoin.secvault.keys",
   "version": "0.2",
-  "ftn3rev": "1.8",
+  "ftn3rev": "1.9",
   "imports": [
     "futoin.secvault.types:0.2"
   ],
   "funcs": {
     "unlock": {
       "params": {
-        "secret": "string"
+        "secret": "KeyData"
       },
       "result": "boolean",
       "throws": [
@@ -38,7 +38,7 @@
         "key_type": "KeyType",
         "gen_params": "GenParams",
         "format": "ContainerFormat",
-        "data": "string"
+        "data": "KeyData"
       },
       "result": "KeyID",
       "throws": [
@@ -53,7 +53,7 @@
         "key_type": "KeyType",
         "gen_params": "GenParams",
         "format": "ContainerFormat",
-        "data": "string",
+        "data": "KeyData",
         "enc_key": "KeyID"
       },
       "result": "KeyID",
@@ -68,10 +68,10 @@
         "base_key": "KeyID",
         "kdf": "KeyDerivationFunction",
         "key_len": "RandomBits",
-        "salt": "string",
+        "salt": "KeyData",
         "other": "map"
       },
-      "result": "string",
+      "result": "KeyData",
       "throws": [
         "UnknownKeyID",
         "UnsupportedDerivation",
@@ -90,7 +90,7 @@
         "id": "KeyID",
         "format": "ContainerFormat"
       },
-      "result": "string",
+      "result": "KeyData",
       "throws": [
         "UnknownKeyID",
         "UnsupportedFormat",
@@ -101,9 +101,10 @@
       "params": {
         "id": "KeyID",
         "format": "ContainerFormat",
-        "enc_key": "KeyID"
+        "enc_key": "KeyID",
+        "cipher": "CipherType"
       },
-      "result": "string",
+      "result": "KeyData",
       "throws": [
         "UnknownKeyID",
         "UnsupportedFormat",
@@ -116,7 +117,7 @@
         "format": "ContainerFormat",
         "pubkey": "PublicKey"
       },
-      "result": "string",
+      "result": "KeyData",
       "throws": [
         "UnknownKeyID",
         "UnsupportedFormat",
@@ -128,7 +129,7 @@
         "id": "KeyID",
         "format": "ContainerFormat"
       },
-      "result": "string",
+      "result": "KeyData",
       "throws": [
         "UnknownKeyID",
         "UnsupportedFormat",
@@ -149,6 +150,7 @@
     }
   },
   "requires": [
-    "SecureChannel"
+    "SecureChannel",
+    "BinaryData"
   ]
 }
