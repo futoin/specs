@@ -90,10 +90,6 @@ Suggested list, self-explanatory:
                 - '2012-512'
             * `paramset` - set:
                 - A, B, C, XA, XB - string items
-* Container Formats:
-    * `DER` - ASN.1
-    * `PEM`
-    * `PKCS11` - PKCS#11
 * Symmetric encryption/decryption:
     * `AES-CBC`
     * `AES-CTR`
@@ -121,8 +117,8 @@ Suggested list, self-explanatory:
             * "HMAC-SHA3-384"
             * "HMAC-SHA3-512"
     * KMAC:
-        * "KMAC128" - Keccak MAC 128-bit
-        * "KMAC256" - Keccak MAC 256-bit
+        * "KMAC-128" - Keccak MAC 128-bit
+        * "KMAC-256" - Keccak MAC 256-bit
 * Key Derivation:
     * `HKDF`
     * `PBKDF2`
@@ -184,6 +180,13 @@ General strategy:
     - Authenticating encryption should be used for non-message cases and/or
         interfaces without `MessageSignature` constraint.
 
+## 2.9. Key data formats
+
+Implementation should use the following defaults for key transport representation.
+
+* Asymmetric (RSA, DH, EC, etc.) - ASN.1 DER in byte buffer
+* Symmetric - Raw byte buffer
+
 # 3. Interface
 
 ## 3.1. Common types
@@ -220,11 +223,6 @@ General strategy:
                     "temp"
                 ]
             },
-            "ContainerFormat" : {
-                "type" : "GenericIdentifier",
-                "minlen" : 1,
-                "maxlen" : 32
-            },
             "GenParams" : [
                 "string",
                 "integer",
@@ -243,9 +241,9 @@ General strategy:
                     "sig_failures" : "NotNegativeInteger"
                 }
             },
-            "KeyInfoList" : {
+            "KeyIDList" : {
                 "type" : "array",
-                "elemtype" : "KeyInfo"
+                "elemtype" : "KeyID"
             },
             "RawData" : {
                 "type" : "data",
@@ -263,16 +261,24 @@ General strategy:
                 "type" : "map",
                 "fields": {
                     "key_type" : "KeyType",
-                    "format" : "ContainerFormat",
                     "data" : "PublicKeyData"
                 }
             },
-            "CipherType" : {
+            "HashType" : {
                 "type" : "string",
                 "regex" : "^[a-Z0-9][a-Z0-9-]*[a-Z0-9]$",
-                "maxlen" : 64
+                "maxlen" : 16
             },
-            "KeyDerivationFunction" : "CipherType",
+            "CipherMode" : {
+                "type" : "enum",
+                "items" : [
+                    "CBC",
+                    "CTR",
+                    "GCM",
+                    "CFB"
+                ]
+            },
+            "KeyDerivationFunction" : "KeyType",
             "InitializationVector" : {
                 "type" : "data",
                 "maxlen" : 128,
@@ -330,13 +336,13 @@ General strategy:
                     "usage" : "KeyUsage",
                     "key_type" : "KeyType",
                     "gen_params" : "GenParams",
-                    "format" : "ContainerFormat",
                     "data" : "KeyData"
                 },
                 "result" : "KeyID",
                 "throws" : [
                     "UnsupportedType",
-                    "OrigMismatch"
+                    "OrigMismatch",
+                    "InvalidKey"
                 ]
             },
             "injectEncryptedKey" : {
@@ -345,28 +351,35 @@ General strategy:
                     "usage" : "KeyUsage",
                     "key_type" : "KeyType",
                     "gen_params" : "GenParams",
-                    "format" : "ContainerFormat",
                     "data" : "KeyData",
-                    "enc_key" : "KeyID"
+                    "enc_key" : "KeyID",
+                    "mode" : "CipherMode"
                 },
                 "result" : "KeyID",
                 "throws" : [
                     "UnsupportedType",
-                    "OrigMismatch"
+                    "OrigMismatch",
+                    "UnknownKeyID",
+                    "NotApplicable",
+                    "InvalidKey"
                 ]
             },
             "deriveKey" : {
                 "params" : {
                     "ext_id" : "ExtID",
+                    "usage" : "KeyUsage",
+                    "key_type" : "KeyType",
+                    "gen_params" : "GenParams",
                     "base_key" : "KeyID",
                     "kdf" : "KeyDerivationFunction",
-                    "key_len" : "RandomBits",
+                    "hash" : "HashType",
                     "salt" : "KeyData",
                     "other" : "map"
                 },
                 "result" : "KeyData",
                 "throws" : [
                     "UnknownKeyID",
+                    "UnsupportedKey",
                     "UnsupportedDerivation",
                     "InvalidParams",
                     "NotApplicable"
@@ -380,52 +393,45 @@ General strategy:
             },
             "exposeKey" : {
                 "params" : {
-                    "id" : "KeyID",
-                    "format" : "ContainerFormat"
+                    "id" : "KeyID"
                 },
                 "result" : "KeyData",
                 "throws" : [
                     "UnknownKeyID",
-                    "UnsupportedFormat",
                     "NotApplicable"
                 ]
             },
             "encryptedKey" : {
                 "params" : {
                     "id" : "KeyID",
-                    "format" : "ContainerFormat",
                     "enc_key" : "KeyID",
-                    "cipher" : "CipherType"
+                    "mode" : "CipherMode"
                 },
                 "result" : "KeyData",
                 "throws" : [
                     "UnknownKeyID",
-                    "UnsupportedFormat",
                     "NotApplicable"
                 ]
             },
             "pubEncryptedKey" : {
                 "params" : {
                     "id" : "KeyID",
-                    "format" : "ContainerFormat",
-                    "pubkey" : "PublicKey"
+                    "pubkey" : "PublicKey",
+                    "key_type" : "KeyType"
                 },
                 "result" : "KeyData",
                 "throws" : [
                     "UnknownKeyID",
-                    "UnsupportedFormat",
                     "NotApplicable"
                 ]
             },
             "publicKey" : {
                 "params" : {
-                    "id" : "KeyID",
-                    "format" : "ContainerFormat"
+                    "id" : "KeyID"
                 },
                 "result" : "KeyData",
                 "throws" : [
                     "UnknownKeyID",
-                    "UnsupportedFormat",
                     "NotApplicable"
                 ]
             },
@@ -439,7 +445,7 @@ General strategy:
                 ]
             },
             "listKeys" : {
-                "result" : "KeyInfoList"
+                "result" : "KeyIDList"
             }
         },
         "requires" : [
@@ -466,7 +472,7 @@ General strategy:
                 "params" : {
                     "id" : "KeyID",
                     "data" : "RawData",
-                    "cipher" : "CipherType",
+                    "mode" : "CipherMode",
                     "iv" : {
                         "type" : "InitializationVector",
                         "default" : null
@@ -489,7 +495,7 @@ General strategy:
                 "params" : {
                     "id" : "KeyID",
                     "data" : "RawData",
-                    "cipher" : "CipherType",
+                    "mode" : "CipherMode",
                     "aad" : {
                         "type" : "RawData",
                         "default" : null
@@ -509,12 +515,12 @@ General strategy:
                 "params" : {
                     "id" : "KeyID",
                     "data" : "RawData",
-                    "cipher" : "CipherType"
+                    "hash" : "HashType"
                 },
                 "result" : "RawData",
                 "throws" : [
                     "UnsupportedType",
-                    "UnsupportedCipher",
+                    "UnsupportedHash",
                     "InvalidData",
                     "NotApplicable"
                 ],
@@ -525,12 +531,12 @@ General strategy:
                     "id" : "KeyID",
                     "data" : "RawData",
                     "sig" : "RawData",
-                    "cipher" : "CipherType"
+                    "hash" : "HashType"
                 },
                 "result" : "boolean",
                 "throws" : [
                     "UnsupportedType",
-                    "UnsupportedCipher",
+                    "UnsupportedHash",
                     "InvalidData",
                     "InvalidSignature",
                     "NotApplicable"

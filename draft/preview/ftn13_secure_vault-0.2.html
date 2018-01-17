@@ -110,12 +110,6 @@ may add custom constants.</p>
 </li>
 </ul>
 </li>
-<li>Container Formats:<ul>
-<li><code>DER</code> - ASN.1</li>
-<li><code>PEM</code></li>
-<li><code>PKCS11</code> - PKCS#11</li>
-</ul>
-</li>
 <li>Symmetric encryption/decryption:<ul>
 <li><code>AES-CBC</code></li>
 <li><code>AES-CTR</code></li>
@@ -155,8 +149,8 @@ may add custom constants.</p>
 </ul>
 </li>
 <li>KMAC:<ul>
-<li>"KMAC128" - Keccak MAC 128-bit</li>
-<li>"KMAC256" - Keccak MAC 256-bit</li>
+<li>"KMAC-128" - Keccak MAC 128-bit</li>
+<li>"KMAC-256" - Keccak MAC 256-bit</li>
 </ul>
 </li>
 </ul>
@@ -232,6 +226,12 @@ the spec tries to minimize user's decision making on encryption.</p>
 </ul>
 </li>
 </ol>
+<h2>2.9. Key data formats</h2>
+<p>Implementation should use the following defaults for key transport representation.</p>
+<ul>
+<li>Asymmetric (RSA, DH, EC, etc.) - ASN.1 DER in byte buffer</li>
+<li>Symmetric - Raw byte buffer</li>
+</ul>
 <h1>3. Interface</h1>
 <h2>3.1. Common types</h2>
 <pre><code>{
@@ -263,11 +263,6 @@ the spec tries to minimize user's decision making on encryption.</p>
                 "temp"
             ]
         },
-        "ContainerFormat" : {
-            "type" : "GenericIdentifier",
-            "minlen" : 1,
-            "maxlen" : 32
-        },
         "GenParams" : [
             "string",
             "integer",
@@ -286,9 +281,9 @@ the spec tries to minimize user's decision making on encryption.</p>
                 "sig_failures" : "NotNegativeInteger"
             }
         },
-        "KeyInfoList" : {
+        "KeyIDList" : {
             "type" : "array",
-            "elemtype" : "KeyInfo"
+            "elemtype" : "KeyID"
         },
         "RawData" : {
             "type" : "data",
@@ -306,16 +301,24 @@ the spec tries to minimize user's decision making on encryption.</p>
             "type" : "map",
             "fields": {
                 "key_type" : "KeyType",
-                "format" : "ContainerFormat",
                 "data" : "PublicKeyData"
             }
         },
-        "CipherType" : {
+        "HashType" : {
             "type" : "string",
             "regex" : "^[a-Z0-9][a-Z0-9-]*[a-Z0-9]$",
-            "maxlen" : 64
+            "maxlen" : 16
         },
-        "KeyDerivationFunction" : "CipherType",
+        "CipherMode" : {
+            "type" : "enum",
+            "items" : [
+                "CBC",
+                "CTR",
+                "GCM",
+                "CFB"
+            ]
+        },
+        "KeyDerivationFunction" : "KeyType",
         "InitializationVector" : {
             "type" : "data",
             "maxlen" : 128,
@@ -368,13 +371,13 @@ the spec tries to minimize user's decision making on encryption.</p>
                 "usage" : "KeyUsage",
                 "key_type" : "KeyType",
                 "gen_params" : "GenParams",
-                "format" : "ContainerFormat",
                 "data" : "KeyData"
             },
             "result" : "KeyID",
             "throws" : [
                 "UnsupportedType",
-                "OrigMismatch"
+                "OrigMismatch",
+                "InvalidKey"
             ]
         },
         "injectEncryptedKey" : {
@@ -383,28 +386,35 @@ the spec tries to minimize user's decision making on encryption.</p>
                 "usage" : "KeyUsage",
                 "key_type" : "KeyType",
                 "gen_params" : "GenParams",
-                "format" : "ContainerFormat",
                 "data" : "KeyData",
-                "enc_key" : "KeyID"
+                "enc_key" : "KeyID",
+                "mode" : "CipherMode"
             },
             "result" : "KeyID",
             "throws" : [
                 "UnsupportedType",
-                "OrigMismatch"
+                "OrigMismatch",
+                "UnknownKeyID",
+                "NotApplicable",
+                "InvalidKey"
             ]
         },
         "deriveKey" : {
             "params" : {
                 "ext_id" : "ExtID",
+                "usage" : "KeyUsage",
+                "key_type" : "KeyType",
+                "gen_params" : "GenParams",
                 "base_key" : "KeyID",
                 "kdf" : "KeyDerivationFunction",
-                "key_len" : "RandomBits",
+                "hash" : "HashType",
                 "salt" : "KeyData",
                 "other" : "map"
             },
             "result" : "KeyData",
             "throws" : [
                 "UnknownKeyID",
+                "UnsupportedKey",
                 "UnsupportedDerivation",
                 "InvalidParams",
                 "NotApplicable"
@@ -418,52 +428,45 @@ the spec tries to minimize user's decision making on encryption.</p>
         },
         "exposeKey" : {
             "params" : {
-                "id" : "KeyID",
-                "format" : "ContainerFormat"
+                "id" : "KeyID"
             },
             "result" : "KeyData",
             "throws" : [
                 "UnknownKeyID",
-                "UnsupportedFormat",
                 "NotApplicable"
             ]
         },
         "encryptedKey" : {
             "params" : {
                 "id" : "KeyID",
-                "format" : "ContainerFormat",
                 "enc_key" : "KeyID",
-                "cipher" : "CipherType"
+                "mode" : "CipherMode"
             },
             "result" : "KeyData",
             "throws" : [
                 "UnknownKeyID",
-                "UnsupportedFormat",
                 "NotApplicable"
             ]
         },
         "pubEncryptedKey" : {
             "params" : {
                 "id" : "KeyID",
-                "format" : "ContainerFormat",
-                "pubkey" : "PublicKey"
+                "pubkey" : "PublicKey",
+                "key_type" : "KeyType"
             },
             "result" : "KeyData",
             "throws" : [
                 "UnknownKeyID",
-                "UnsupportedFormat",
                 "NotApplicable"
             ]
         },
         "publicKey" : {
             "params" : {
-                "id" : "KeyID",
-                "format" : "ContainerFormat"
+                "id" : "KeyID"
             },
             "result" : "KeyData",
             "throws" : [
                 "UnknownKeyID",
-                "UnsupportedFormat",
                 "NotApplicable"
             ]
         },
@@ -477,7 +480,7 @@ the spec tries to minimize user's decision making on encryption.</p>
             ]
         },
         "listKeys" : {
-            "result" : "KeyInfoList"
+            "result" : "KeyIDList"
         }
     },
     "requires" : [
@@ -499,7 +502,7 @@ the spec tries to minimize user's decision making on encryption.</p>
             "params" : {
                 "id" : "KeyID",
                 "data" : "RawData",
-                "cipher" : "CipherType",
+                "mode" : "CipherMode",
                 "iv" : {
                     "type" : "InitializationVector",
                     "default" : null
@@ -522,7 +525,7 @@ the spec tries to minimize user's decision making on encryption.</p>
             "params" : {
                 "id" : "KeyID",
                 "data" : "RawData",
-                "cipher" : "CipherType",
+                "mode" : "CipherMode",
                 "aad" : {
                     "type" : "RawData",
                     "default" : null
@@ -542,12 +545,12 @@ the spec tries to minimize user's decision making on encryption.</p>
             "params" : {
                 "id" : "KeyID",
                 "data" : "RawData",
-                "cipher" : "CipherType"
+                "hash" : "HashType"
             },
             "result" : "RawData",
             "throws" : [
                 "UnsupportedType",
-                "UnsupportedCipher",
+                "UnsupportedHash",
                 "InvalidData",
                 "NotApplicable"
             ],
@@ -558,12 +561,12 @@ the spec tries to minimize user's decision making on encryption.</p>
                 "id" : "KeyID",
                 "data" : "RawData",
                 "sig" : "RawData",
-                "cipher" : "CipherType"
+                "hash" : "HashType"
             },
             "result" : "boolean",
             "throws" : [
                 "UnsupportedType",
-                "UnsupportedCipher",
+                "UnsupportedHash",
                 "InvalidData",
                 "InvalidSignature",
                 "NotApplicable"

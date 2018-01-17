@@ -10,7 +10,7 @@
       "params": {
         "id": "KeyID",
         "data": "RawData",
-        "cipher": "CipherType",
+        "mode": "CipherMode",
         "iv": {
           "type": "InitializationVector",
           "default": null
@@ -33,7 +33,7 @@
       "params": {
         "id": "KeyID",
         "data": "RawData",
-        "cipher": "CipherType",
+        "mode": "CipherMode",
         "aad": {
           "type": "RawData",
           "default": null
@@ -53,12 +53,12 @@
       "params": {
         "id": "KeyID",
         "data": "RawData",
-        "cipher": "CipherType"
+        "hash": "HashType"
       },
       "result": "RawData",
       "throws": [
         "UnsupportedType",
-        "UnsupportedCipher",
+        "UnsupportedHash",
         "InvalidData",
         "NotApplicable"
       ],
@@ -69,12 +69,12 @@
         "id": "KeyID",
         "data": "RawData",
         "sig": "RawData",
-        "cipher": "CipherType"
+        "hash": "HashType"
       },
       "result": "boolean",
       "throws": [
         "UnsupportedType",
-        "UnsupportedCipher",
+        "UnsupportedHash",
         "InvalidData",
         "InvalidSignature",
         "NotApplicable"

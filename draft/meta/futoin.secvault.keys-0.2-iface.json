@@ -37,13 +37,13 @@
         "usage": "KeyUsage",
         "key_type": "KeyType",
         "gen_params": "GenParams",
-        "format": "ContainerFormat",
         "data": "KeyData"
       },
       "result": "KeyID",
       "throws": [
         "UnsupportedType",
-        "OrigMismatch"
+        "OrigMismatch",
+        "InvalidKey"
       ]
     },
     "injectEncryptedKey": {
@@ -52,28 +52,35 @@
         "usage": "KeyUsage",
         "key_type": "KeyType",
         "gen_params": "GenParams",
-        "format": "ContainerFormat",
         "data": "KeyData",
-        "enc_key": "KeyID"
+        "enc_key": "KeyID",
+        "mode": "CipherMode"
       },
       "result": "KeyID",
       "throws": [
         "UnsupportedType",
-        "OrigMismatch"
+        "OrigMismatch",
+        "UnknownKeyID",
+        "NotApplicable",
+        "InvalidKey"
       ]
     },
     "deriveKey": {
       "params": {
         "ext_id": "ExtID",
+        "usage": "KeyUsage",
+        "key_type": "KeyType",
+        "gen_params": "GenParams",
         "base_key": "KeyID",
         "kdf": "KeyDerivationFunction",
-        "key_len": "RandomBits",
+        "hash": "HashType",
         "salt": "KeyData",
         "other": "map"
       },
       "result": "KeyData",
       "throws": [
         "UnknownKeyID",
+        "UnsupportedKey",
         "UnsupportedDerivation",
         "InvalidParams",
         "NotApplicable"
@@ -87,52 +94,45 @@
     },
     "exposeKey": {
       "params": {
-        "id": "KeyID",
-        "format": "ContainerFormat"
+        "id": "KeyID"
       },
       "result": "KeyData",
       "throws": [
         "UnknownKeyID",
-        "UnsupportedFormat",
         "NotApplicable"
       ]
     },
     "encryptedKey": {
       "params": {
         "id": "KeyID",
-        "format": "ContainerFormat",
         "enc_key": "KeyID",
-        "cipher": "CipherType"
+        "mode": "CipherMode"
       },
       "result": "KeyData",
       "throws": [
         "UnknownKeyID",
-        "UnsupportedFormat",
         "NotApplicable"
       ]
     },
     "pubEncryptedKey": {
       "params": {
         "id": "KeyID",
-        "format": "ContainerFormat",
-        "pubkey": "PublicKey"
+        "pubkey": "PublicKey",
+        "key_type": "KeyType"
       },
       "result": "KeyData",
       "throws": [
         "UnknownKeyID",
-        "UnsupportedFormat",
         "NotApplicable"
       ]
     },
     "publicKey": {
       "params": {
-        "id": "KeyID",
-        "format": "ContainerFormat"
+        "id": "KeyID"
       },
       "result": "KeyData",
       "throws": [
         "UnknownKeyID",
-        "UnsupportedFormat",
         "NotApplicable"
       ]
     },
@@ -146,7 +146,7 @@
       ]
     },
     "listKeys": {
-      "result": "KeyInfoList"
+      "result": "KeyIDList"
     }
   },
   "requires": [

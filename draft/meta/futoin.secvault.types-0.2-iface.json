@@ -27,11 +27,6 @@
         "temp"
       ]
     },
-    "ContainerFormat": {
-      "type": "GenericIdentifier",
-      "minlen": 1,
-      "maxlen": 32
-    },
     "GenParams": [
       "string",
       "integer",
@@ -50,9 +45,9 @@
         "sig_failures": "NotNegativeInteger"
       }
     },
-    "KeyInfoList": {
+    "KeyIDList": {
       "type": "array",
-      "elemtype": "KeyInfo"
+      "elemtype": "KeyID"
     },
     "RawData": {
       "type": "data",
@@ -70,16 +65,24 @@
       "type": "map",
       "fields": {
         "key_type": "KeyType",
-        "format": "ContainerFormat",
         "data": "PublicKeyData"
       }
     },
-    "CipherType": {
+    "HashType": {
       "type": "string",
       "regex": "^[a-Z0-9][a-Z0-9-]*[a-Z0-9]$",
-      "maxlen": 64
+      "maxlen": 16
     },
-    "KeyDerivationFunction": "CipherType",
+    "CipherMode": {
+      "type": "enum",
+      "items": [
+        "CBC",
+        "CTR",
+        "GCM",
+        "CFB"
+      ]
+    },
+    "KeyDerivationFunction": "KeyType",
     "InitializationVector": {
       "type": "data",
       "maxlen": 128,
