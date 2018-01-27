@@ -5,9 +5,35 @@
     "python" : "3",
     "pip" : "*",
     "node" : "*",
-    "yarn" : "*"
+    "yarn" : "*",
+    "gzip" : "*"
   },
-  "actions" : {
-    "upgrade-deps" : "@cid tool exec yarn -- upgrade --latest"
+  "entryPoints": {
+    "frontend": {
+      "tool": "nginx",
+      "path": ""
+    }
+  },
+  "webcfg": {
+    "root": "",
+    "mounts": {
+      "/": {
+        "tune": {
+          "autoindex" : true,
+          "pattern": true,
+          "staticGzip": true
+        }
+      }
+    }
+  },
+  "actions": {
+    "build": [
+        "./compile.sh",
+        "@cid tool build gzip"
+    ],
+    "upgrade-deps": [
+      "@cid tool update",
+      "@cid tool exec yarn -- upgrade --latest"
+    ]
   }
 }
