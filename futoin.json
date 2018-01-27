@@ -15,13 +15,32 @@
     }
   },
   "webcfg": {
-    "root": "",
     "mounts": {
       "/": {
+        "static" : true,
         "tune": {
           "autoindex" : true,
-          "pattern": true,
-          "staticGzip": true
+          "staticGzip": false,
+          "etag" : true,
+          "expires" : "off"
+        }
+      },
+      "/draft/": {
+        "static" : true,
+        "tune": {
+          "autoindex" : true,
+          "staticGzip": true,
+          "etag" : true,
+          "expires" : "off"
+        }
+      },
+      "/final/": {
+        "static" : true,
+        "tune": {
+          "autoindex" : true,
+          "staticGzip": true,
+          "etag" : true,
+          "expires" : "off"
         }
       }
     }
