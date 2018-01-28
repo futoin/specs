@@ -11,10 +11,11 @@
   "entryPoints": {
     "frontend": {
       "tool": "nginx",
-      "path": ""
+      "path": "/"
     }
   },
   "webcfg": {
+    "root" : "/",
     "mounts": {
       "/": {
         "static" : true,
