@@ -3,3 +3,12 @@
     background-color: inherit;
     font-size: inherit;
 }
+
+
+html {
+    margin: 20px;
+}
+
+p {
+    max-width: 50em;
+}
