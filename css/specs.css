@@ -9,6 +9,6 @@ html {
     margin: 20px;
 }
 
-p {
+p, ul, ol {
     max-width: 50em;
 }
