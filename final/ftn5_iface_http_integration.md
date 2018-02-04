@@ -1,14 +1,14 @@
 <pre>
 FTN5: FutoIn HTTP integration
 Version: 1.3
-Date: 2018-12-14
+Date: 2018-02-14
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.3 - 2018-12-14 - Andrey Galkin
+* v1.3 - 2018-02-14 - Andrey Galkin
     * NEW: MIME-types for CBOR & MessagePack
 * v1.2 - 2015-02-22
     * Clarified query string parameter coding
