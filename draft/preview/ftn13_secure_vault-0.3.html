@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn13_secure_vault.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN13: FutoIn Secure Vault
+Version: 0.DV3
+Date: 2018-01-15
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<ul>
+<li>v0.3 - 2018-02-12 - Andrey Galkin<ul>
+<li>CHANGED: revised futoin.secvault.keys iface</li>
+</ul>
+</li>
+<li>v0.2 - 2018-01-15 - Andrey Galkin<ul>
+<li>NEW: interface definitions &amp; extended concept</li>
+</ul>
+</li>
+<li>v0.1 - 2014-09-26 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>It is not a new concept, but standardization of higher level interface for
+Host Security Modules and similar pure software or hardware components.</p>
+<p>The main idea is that critical sensitive data is accessible only to a small peace of
+software/hardware effectively limiting scope of source code, hardware design and/or
+infrastructure required to be audited for security issues in first place. Most flaws in
+other software parts of larger project should have less impact on sensitive data
+disclosure.</p>
+<p>Critical sensitive data: private or shared cryptography secrets, keys for tokenization
+of data, etc.</p>
+<h1>2. Concept</h1>
+<p>Secure Vault (SV) is assumed to be a FutoIn service with the following characteristics:</p>
+<ol>
+<li>Sensitive data must never get exposed outside of service in unencrypted form.<ul>
+<li>However, it may be allowed to expose it for performance reasons, if it does not
+    jeopardize not related security scopes.</li>
+</ul>
+</li>
+<li>All sensitive data stored externally must be encrypted and decrypted inside
+    the SV itself.</li>
+<li>There must be a small enough secret to unlock the rest of data. Management of such
+    secret is out of scope and should be a secret by nature.</li>
+<li>Two different SV instances may share one or more common secrets used for authentication
+    and encryption.</li>
+<li>Security and durability of SV is out of scope. SV can be implemented both as regular
+    application vulnerable to many types of local system attacks or as a firmware for
+    hardware security module.</li>
+</ol>
+<h2>2.1. Secret key management</h2>
+<p>The following features are required:</p>
+<ol>
+<li>Generation &amp; storage of any supported key type internally.</li>
+<li>Clear separation of private and shared keys purpose (not depending on type).</li>
+<li>Exposure of shared keys as:<ul>
+<li>encrypted data with provided public key.</li>
+<li>encrypted data with provided symmetric key.</li>
+<li>encrypted data with key already stored in SV.</li>
+<li>unencrypted as is.</li>
+</ul>
+</li>
+<li>Injection of keys using the same format as for exposure.</li>
+<li>Persistent and temporary derived key operations.</li>
+</ol>
+<h2>2.2. Data operations</h2>
+<ol>
+<li>Encryption of any arbitrary data with any of stored keys.</li>
+<li>Decryption of previously encrypted data.</li>
+<li>Data signing.</li>
+<li>Signature verification.</li>
+</ol>
+<h2>2.3. Supported keys &amp; ciphers</h2>
+<p>Each implementation may choose to support any subset of all availables types.</p>
+<h2>2.4. Naming</h2>
+<p>The specifications tries to cover only commonly used algorithms, but actual implementation
+may add custom constants.</p>
+<p>Specification intentionally does not list specific types to be as generic as possible.</p>
+<p>Suggested list, self-explanatory:</p>
+<ul>
+<li>Key types &amp; parameters:<ul>
+<li>Symmetric like AES, GOST 34.12, RAW<ul>
+<li>integer bits as parameter</li>
+</ul>
+</li>
+<li><code>RSA</code><ul>
+<li>integer bits as parameter</li>
+</ul>
+</li>
+<li><code>EdDSA</code><ul>
+<li>string curve name as parameter</li>
+</ul>
+</li>
+<li><code>GOST3410</code> - GOST 34.10 PKI<ul>
+<li>map as parameter:<ul>
+<li><code>version</code> - string:<ul>
+<li>'2012-256'</li>
+<li>'2012-512'</li>
+</ul>
+</li>
+<li><code>paramset</code> - set:<ul>
+<li>A, B, C, XA, XB - string items</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Symmetric encryption/decryption:<ul>
+<li><code>AES-CBC</code></li>
+<li><code>AES-CTR</code></li>
+<li><code>AES-GCM</code></li>
+<li><code>GOST3412-CBC</code></li>
+<li><code>GOST3412-CTR</code></li>
+<li><code>GOST3412-CFB</code></li>
+</ul>
+</li>
+<li>Asymmetric encryption/decryption:<ul>
+<li><code>GOST3410</code></li>
+<li><code>RSA</code></li>
+</ul>
+</li>
+<li>Message Authentication:<ul>
+<li>HMAC:<ul>
+<li>"HMAC-MD5"</li>
+<li>GOST3411 family:<ul>
+<li>"HMAC-GOST3411-256"</li>
+<li>"HMAC-GOST3411-512"</li>
+</ul>
+</li>
+<li>SHA v2 family:<ul>
+<li>"HMAC-SHA-224"</li>
+<li>"HMAC-SHA-256"</li>
+<li>"HMAC-SHA-384"</li>
+<li>"HMAC-SHA-512"</li>
+</ul>
+</li>
+<li>SHA v3 family:<ul>
+<li>"HMAC-SHA3-224"</li>
+<li>"HMAC-SHA3-256"</li>
+<li>"HMAC-SHA3-384"</li>
+<li>"HMAC-SHA3-512"</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>KMAC:<ul>
+<li>"KMAC-128" - Keccak MAC 128-bit</li>
+<li>"KMAC-256" - Keccak MAC 256-bit</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Key Derivation:<ul>
+<li><code>HKDF</code></li>
+<li><code>PBKDF2</code></li>
+</ul>
+</li>
+</ul>
+<h2>2.5. Key usage constraints</h2>
+<p>SV must obey key constraints:</p>
+<ul>
+<li><code>encrypt</code> - allow encryption and decryption</li>
+<li><code>sign</code> - allow signing and verification</li>
+<li><code>derive</code> - allow key deriving</li>
+<li><code>shared</code> - allow key to be exposed externally</li>
+<li><code>temp</code> - allow auto-purge after common configured time-to-live</li>
+</ul>
+<h2>2.6. Statistics collection</h2>
+<p>SV must collect key usage statistics as a hint to regenerate keys
+and/or block possible attacks.</p>
+<h2>2.7. External key ID</h2>
+<p>Any key is created for some purpose. So, external ID is mandatory and can be
+used implementation-defined way to recover from errors like timeouts without
+unused key artifacts hanging in SV.</p>
+<h2>2.8. Additional encryption &amp; decryption parameters</h2>
+<p>Initialization Vector (IV) is required for most cases of data encryption. There is
+known flexibility with padding strategy. Authentication tag passing is required for
+authenticated data decryption.</p>
+<p>As it's very easy to mess up and this spec also definitely has some flaws,
+the spec tries to minimize user's decision making on encryption.</p>
+<p>General strategy:</p>
+<ol>
+<li>Control generation of IV in cluster environment - random data.<ul>
+<li>If needed, IV may be HKDF-derived from public parameter in cipher mode variations.</li>
+<li>It should be possible to pass custom IV though.</li>
+</ul>
+</li>
+<li>Control re-use of IV based on:<ul>
+<li>dummy probability - limit times the same key is used and total bytes encrypted.</li>
+<li>save the last used IV per key in single process:<ul>
+<li>fail on duplicate in CTR-like</li>
+<li>fail on minor difference in CBC-like</li>
+</ul>
+</li>
+<li>CTR, CCM, GCM and EAX should be avoided due to drawbacks on IV collision unless
+    properly unique IV are ensured.</li>
+</ul>
+</li>
+<li>Pack all parts in predefined format.<ul>
+<li>Choose to append non-data values as they should be shorter in most cases.
+    So, inefficient buffer operations in some implementations would need to
+    move less data.</li>
+<li>Append IV and then AuthTag<ul>
+<li>both assumed to be fixed length even for GCM/EAX</li>
+</ul>
+</li>
+<li>Notes:<ul>
+<li>AES must use fixed 128-bit IV for all modes, except:<ul>
+<li>96-bit for GCM</li>
+</ul>
+</li>
+<li>GCM/CCM must use full 128-bit AuthTag</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Use common PKCS#5/PKCS#7 padding unless fundamental issues are found.</li>
+<li>In general, authentication is achieved through overall FutoIn message MAC.<ul>
+<li>Authenticating encryption should be used for non-message cases and/or
+    interfaces without <code>MessageSignature</code> constraint.</li>
+</ul>
+</li>
+</ol>
+<h2>2.9. Key data formats</h2>
+<p>Implementation should use the following defaults for key transport representation.</p>
+<ul>
+<li>Asymmetric (RSA, DH, EC, etc.) - ASN.1 DER in byte buffer</li>
+<li>Symmetric - Raw byte buffer</li>
+</ul>
+<h2>2.10. Internal UUID vs. External ID</h2>
+<p>From pure SV point of view, use of two identification approaches may look like overkill, but
+it has important meaning out of scope:</p>
+<ol>
+<li>External ID assumed to be descriptive - it exposes information.</li>
+<li>Internal UUID is assumed to be transfered over network - shorter in size and
+    obscured.</li>
+</ol>
+<p>So, "External ID" is really a string internal to SV which creates internal references to
+external entities. Meanwhile, Internal UUID is unique per SV, but is exposed. So, other
+entities can refence Internal UUID of particular SV instance.</p>
+<h1>3. Interface</h1>
+<h2>3.1. Common types</h2>
+<pre><code>{
+    "iface" : "futoin.secvault.types",
+    "version" : "{ver}",
+    "ftn3rev" : "1.9",
+    "imports" : [
+        "futoin.types:1.0"
+    ],
+    "types" : {
+        "KeyID" : "UUIDB64",
+        "ExtID" : {
+            "type" : "string",
+            "minlen" : 1,
+            "maxlen" : 128
+        },
+        "KeyType" : {
+            "type" : "GenericIdentifier",
+            "minlen" : 1,
+            "maxlen" : 32
+        },
+        "KeyUsage" : {
+            "type" : "set",
+            "items" : [
+                "encrypt",
+                "sign",
+                "derive",
+                "shared",
+                "temp"
+            ]
+        },
+        "GenParams" : [
+            "string",
+            "integer",
+            "map"
+        ],
+        "KeyInfo" : {
+            "type" : "map",
+            "fields" : {
+                "id" : "KeyID",
+                "ext_id" : "ExtID",
+                "usage" : "KeyUsage",
+                "type" : "KeyType",
+                "params" : "GenParams",
+                "created" : "Timestamp",
+                "used_times" : "NotNegativeInteger",
+                "used_bytes" : "NotNegativeInteger",
+                "sig_failures" : "NotNegativeInteger"
+            }
+        },
+        "KeyIDList" : {
+            "type" : "array",
+            "elemtype" : "KeyID"
+        },
+        "RawData" : {
+            "type" : "data",
+            "maxlen" : 1048576
+        },
+        "KeyData" : {
+            "type" : "data",
+            "maxlen" : 16384
+        },
+        "PublicKeyData" : {
+            "type" : "data",
+            "maxlen" : 16384
+        },
+        "PublicKey" : {
+            "type" : "map",
+            "fields": {
+                "type" : "KeyType",
+                "data" : "PublicKeyData"
+            }
+        },
+        "HashType" : {
+            "type" : "string",
+            "regex" : "^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$",
+            "maxlen" : 16
+        },
+        "CipherMode" : {
+            "type" : "enum",
+            "items" : [
+                "CBC",
+                "CTR",
+                "GCM",
+                "CFB"
+            ]
+        },
+        "KeyDerivationFunction" : "KeyType",
+        "InitializationVector" : {
+            "type" : "data",
+            "maxlen" : 128,
+            "desc" : "Most ciphers accept only block size, e.g. 16 bytes"
+        }
+    },
+    "requires" : [
+        "SecureChannel",
+        "BinaryData"
+    ]
+}
+</code></pre>
+<h2>3.2. Key management</h2>
+<pre><code>{
+    "iface" : "futoin.secvault.keys",
+    "version" : "{ver}",
+    "ftn3rev" : "1.9",
+    "imports" : [
+        "futoin.secvault.types:{ver}"
+    ],
+    "funcs" : {
+        "unlock" : {
+            "params" : {
+                "secret" : "KeyData"
+            },
+            "result" : "boolean",
+            "throws" : [
+                "InvalidSecret"
+            ]
+        },
+        "lock" : {
+            "result" : "boolean"
+        },
+        "generateKey" : {
+            "params" : {
+                "ext_id" : "ExtID",
+                "usage" : "KeyUsage",
+                "key_type" : "KeyType",
+                "gen_params" : "GenParams"
+            },
+            "result" : "KeyID",
+            "throws" : [
+                "UnsupportedType",
+                "OrigMismatch"
+            ]
+        },
+        "injectKey" : {
+            "params" : {
+                "ext_id" : "ExtID",
+                "usage" : "KeyUsage",
+                "key_type" : "KeyType",
+                "gen_params" : "GenParams",
+                "data" : "KeyData"
+            },
+            "result" : "KeyID",
+            "throws" : [
+                "UnsupportedType",
+                "OrigMismatch",
+                "InvalidKey"
+            ]
+        },
+        "injectEncryptedKey" : {
+            "params" : {
+                "ext_id" : "ExtID",
+                "usage" : "KeyUsage",
+                "key_type" : "KeyType",
+                "gen_params" : "GenParams",
+                "data" : "KeyData",
+                "enc_key" : "KeyID",
+                "mode" : "CipherMode"
+            },
+            "result" : "KeyID",
+            "throws" : [
+                "UnsupportedType",
+                "OrigMismatch",
+                "UnknownKeyID",
+                "NotApplicable",
+                "InvalidKey"
+            ]
+        },
+        "deriveKey" : {
+            "params" : {
+                "ext_id" : "ExtID",
+                "usage" : "KeyUsage",
+                "key_type" : "KeyType",
+                "gen_params" : "GenParams",
+                "base_key" : "KeyID",
+                "kdf" : "KeyDerivationFunction",
+                "hash" : "HashType",
+                "salt" : "KeyData",
+                "other" : "map"
+            },
+            "result" : "KeyID",
+            "throws" : [
+                "UnknownKeyID",
+                "UnsupportedKey",
+                "UnsupportedDerivation",
+                "InvalidParams",
+                "NotApplicable",
+                "OrigMismatch"
+            ]
+        },
+        "wipeKey" : {
+            "params" : {
+                "id" : "KeyID"
+            },
+            "result" : "boolean"
+        },
+        "exposeKey" : {
+            "params" : {
+                "id" : "KeyID"
+            },
+            "result" : "KeyData",
+            "throws" : [
+                "UnknownKeyID",
+                "NotApplicable"
+            ]
+        },
+        "encryptedKey" : {
+            "params" : {
+                "id" : "KeyID",
+                "enc_key" : "KeyID",
+                "mode" : "CipherMode"
+            },
+            "result" : "KeyData",
+            "throws" : [
+                "UnknownKeyID",
+                "NotApplicable"
+            ]
+        },
+        "pubEncryptedKey" : {
+            "params" : {
+                "id" : "KeyID",
+                "pubkey" : "PublicKey"
+            },
+            "result" : "KeyData",
+            "throws" : [
+                "UnknownKeyID",
+                "NotApplicable"
+            ]
+        },
+        "publicKey" : {
+            "params" : {
+                "id" : "KeyID"
+            },
+            "result" : "PublicKey",
+            "throws" : [
+                "UnknownKeyID",
+                "NotApplicable"
+            ]
+        },
+        "keyInfo" : {
+            "params" : {
+                "id" : "KeyID"
+            },
+            "result" : "KeyInfo",
+            "throws" : [
+                "UnknownKeyID"
+            ]
+        },
+        "extKeyInfo" : {
+            "params" : {
+                "ext_id" : "ExtID"
+            },
+            "result" : "KeyInfo",
+            "throws" : [
+                "UnknownKeyID"
+            ]
+        },
+        "listKeys" : {
+            "result" : "KeyIDList"
+        }
+    },
+    "requires" : [
+        "SecureChannel",
+        "BinaryData"
+    ]
+}
+</code></pre>
+<h2>3.3. Data operations</h2>
+<pre><code>{
+    "iface" : "futoin.secvault.data",
+    "version" : "{ver}",
+    "ftn3rev" : "1.9",
+    "imports" : [
+        "futoin.secvault.types:{ver}"
+    ],
+    "funcs" : {
+        "encrypt" : {
+            "params" : {
+                "id" : "KeyID",
+                "data" : "RawData",
+                "mode" : "CipherMode",
+                "iv" : {
+                    "type" : "InitializationVector",
+                    "default" : null
+                },
+                "aad" : {
+                    "type" : "RawData",
+                    "default" : null
+                }
+            },
+            "result" : "RawData",
+            "throws" : [
+                "UnsupportedType",
+                "UnsupportedCipher",
+                "NotApplicable"
+            ],
+            "maxreqsize" : "1100K",
+            "maxrspsize" : "1100K"
+        },
+        "decrypt" : {
+            "params" : {
+                "id" : "KeyID",
+                "data" : "RawData",
+                "mode" : "CipherMode",
+                "aad" : {
+                    "type" : "RawData",
+                    "default" : null
+                }
+            },
+            "result" : "RawData",
+            "throws" : [
+                "UnsupportedType",
+                "UnsupportedCipher",
+                "InvalidData",
+                "NotApplicable"
+            ],
+            "maxreqsize" : "1100K",
+            "maxrspsize" : "1100K"
+        },
+        "sign" : {
+            "params" : {
+                "id" : "KeyID",
+                "data" : "RawData",
+                "hash" : "HashType"
+            },
+            "result" : "RawData",
+            "throws" : [
+                "UnsupportedType",
+                "UnsupportedHash",
+                "InvalidData",
+                "NotApplicable"
+            ],
+            "maxreqsize" : "1100K"
+        },
+        "verify" : {
+            "params" : {
+                "id" : "KeyID",
+                "data" : "RawData",
+                "sig" : "RawData",
+                "hash" : "HashType"
+            },
+            "result" : "boolean",
+            "throws" : [
+                "UnsupportedType",
+                "UnsupportedHash",
+                "InvalidData",
+                "InvalidSignature",
+                "NotApplicable"
+            ],
+            "maxreqsize" : "1100K"
+        }
+    },
+    "requires" : [
+        "SecureChannel",
+        "BinaryData"
+    ]
+}
+</code></pre>
+<p>=END OF SPEC=</p>
+</body></html>

@@ -1,11 +1,13 @@
 <pre>
 FTN13: FutoIn Secure Vault
-Version: 0.DV2
+Version: 0.DV3
 Date: 2018-01-15
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
+* v0.3 - 2018-02-12 - Andrey Galkin
+    - CHANGED: revised futoin.secvault.keys iface
 * v0.2 - 2018-01-15 - Andrey Galkin
     - NEW: interface definitions & extended concept
 * v0.1 - 2014-09-26 - Andrey Galkin
@@ -187,6 +189,19 @@ Implementation should use the following defaults for key transport representatio
 * Asymmetric (RSA, DH, EC, etc.) - ASN.1 DER in byte buffer
 * Symmetric - Raw byte buffer
 
+## 2.10. Internal UUID vs. External ID
+
+From pure SV point of view, use of two identification approaches may look like overkill, but
+it has important meaning out of scope:
+
+1. External ID assumed to be descriptive - it exposes information.
+2. Internal UUID is assumed to be transfered over network - shorter in size and
+    obscured.
+
+So, "External ID" is really a string internal to SV which creates internal references to
+external entities. Meanwhile, Internal UUID is unique per SV, but is exposed. So, other
+entities can refence Internal UUID of particular SV instance.
+
 # 3. Interface
 
 ## 3.1. Common types
@@ -261,13 +276,13 @@ Implementation should use the following defaults for key transport representatio
             "PublicKey" : {
                 "type" : "map",
                 "fields": {
-                    "key_type" : "KeyType",
+                    "type" : "KeyType",
                     "data" : "PublicKeyData"
                 }
             },
             "HashType" : {
                 "type" : "string",
-                "regex" : "^[a-Z0-9][a-Z0-9-]*[a-Z0-9]$",
+                "regex" : "^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$",
                 "maxlen" : 16
             },
             "CipherMode" : {
@@ -377,13 +392,14 @@ Implementation should use the following defaults for key transport representatio
                     "salt" : "KeyData",
                     "other" : "map"
                 },
-                "result" : "KeyData",
+                "result" : "KeyID",
                 "throws" : [
                     "UnknownKeyID",
                     "UnsupportedKey",
                     "UnsupportedDerivation",
                     "InvalidParams",
-                    "NotApplicable"
+                    "NotApplicable",
+                    "OrigMismatch"
                 ]
             },
             "wipeKey" : {
@@ -417,8 +433,7 @@ Implementation should use the following defaults for key transport representatio
             "pubEncryptedKey" : {
                 "params" : {
                     "id" : "KeyID",
-                    "pubkey" : "PublicKey",
-                    "key_type" : "KeyType"
+                    "pubkey" : "PublicKey"
                 },
                 "result" : "KeyData",
                 "throws" : [
@@ -430,7 +445,7 @@ Implementation should use the following defaults for key transport representatio
                 "params" : {
                     "id" : "KeyID"
                 },
-                "result" : "KeyData",
+                "result" : "PublicKey",
                 "throws" : [
                     "UnknownKeyID",
                     "NotApplicable"
@@ -439,6 +454,15 @@ Implementation should use the following defaults for key transport representatio
             "keyInfo" : {
                 "params" : {
                     "id" : "KeyID"
+                },
+                "result" : "KeyInfo",
+                "throws" : [
+                    "UnknownKeyID"
+                ]
+            },
+            "extKeyInfo" : {
+                "params" : {
+                    "ext_id" : "ExtID"
                 },
                 "result" : "KeyInfo",
                 "throws" : [
