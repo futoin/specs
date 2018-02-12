@@ -286,13 +286,9 @@ entities can refence Internal UUID of particular SV instance.
                 "maxlen" : 16
             },
             "CipherMode" : {
-                "type" : "enum",
-                "items" : [
-                    "CBC",
-                    "CTR",
-                    "GCM",
-                    "CFB"
-                ]
+                "type" : "string",
+                "regex" : "^[A-Z0-9][A-Z0-9_]{1,14}[A-Z0-9]$",
+                "desc" : "CBC, CTR, GCM, CFB and others"
             },
             "KeyDerivationFunction" : "KeyType",
             "InitializationVector" : {
@@ -497,7 +493,10 @@ entities can refence Internal UUID of particular SV instance.
                 "params" : {
                     "id" : "KeyID",
                     "data" : "RawData",
-                    "mode" : "CipherMode",
+                    "mode" : {
+                        "type" : "CipherMode",
+                        "default" : null
+                    },
                     "iv" : {
                         "type" : "InitializationVector",
                         "default" : null
@@ -520,7 +519,10 @@ entities can refence Internal UUID of particular SV instance.
                 "params" : {
                     "id" : "KeyID",
                     "data" : "RawData",
-                    "mode" : "CipherMode",
+                    "mode" : {
+                        "type" : "CipherMode",
+                        "default" : null
+                    },
                     "aad" : {
                         "type" : "RawData",
                         "default" : null

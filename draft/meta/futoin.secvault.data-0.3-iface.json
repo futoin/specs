@@ -10,7 +10,10 @@
       "params": {
         "id": "KeyID",
         "data": "RawData",
-        "mode": "CipherMode",
+        "mode": {
+          "type": "CipherMode",
+          "default": null
+        },
         "iv": {
           "type": "InitializationVector",
           "default": null
@@ -33,7 +36,10 @@
       "params": {
         "id": "KeyID",
         "data": "RawData",
-        "mode": "CipherMode",
+        "mode": {
+          "type": "CipherMode",
+          "default": null
+        },
         "aad": {
           "type": "RawData",
           "default": null
