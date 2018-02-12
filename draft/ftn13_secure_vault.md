@@ -232,6 +232,7 @@ Implementation should use the following defaults for key transport representatio
                 "type" : "map",
                 "fields" : {
                     "id" : "KeyID",
+                    "ext_id" : "ExtID",
                     "usage" : "KeyUsage",
                     "type" : "KeyType",
                     "params" : "GenParams",

@@ -36,6 +36,7 @@
       "type": "map",
       "fields": {
         "id": "KeyID",
+        "ext_id": "ExtID",
         "usage": "KeyUsage",
         "type": "KeyType",
         "params": "GenParams",
