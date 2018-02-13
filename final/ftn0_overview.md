@@ -23,6 +23,7 @@ Authors: Andrey Galkin
 
 # 4. Security concept
 * NOT YET FINAL: FTN8 Security Concept
+* [FTN13: Secure Vault](./ftn13\_secure\_vault.md)
 
 # 5. Interfaces
 ## 5.1. Core
