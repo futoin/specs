@@ -1,6 +1,6 @@
 <pre>
 FTN8.3: FutoIn Security Concept - Master Secret Authentication
-Version: 0.2DV
+Version: 0.3DV
 Date: 2017-12-30
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin

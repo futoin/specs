@@ -1,6 +1,6 @@
 <pre>
 FTN8.8: FutoIn Security Concept - QA requirements
-Version: 0.2DV
+Version: 0.3DV
 Date: 2018-01-05
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -237,7 +237,7 @@ Service-related:
 
 **AC-S1** - Service must check if User granted on-behalf-of call access to other User(Service).
 
-**AC-S2** - Service must processed on-behalf-of calls as if called by target User.
+**AC-S2** - Service must process on-behalf-of calls as if called by target User.
 
 **AC-S3** - Service must check if User is allowed to make particular request.
 

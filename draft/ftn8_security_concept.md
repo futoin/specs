@@ -1,6 +1,6 @@
 <pre>
 FTN8: FutoIn Security Concept
-Version: 0.2DV
+Version: 0.3DV
 Date: 2017-12-29
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -477,18 +477,18 @@ message coding methods.*
 Executor may refuse to support any MAC algo and throw SecurityError.
 
 * HMAC series are based on [HMAC][] method
-    * `HMAC-MD5` - HMAC MD5 128-bit (acceptably secure, even though MD5 itself is weak)
-    * `HMAC-SHA-256` - SHA v2 256-bit (acceptably secure)
-    * `HMAC-SHA-512` - SHA v2 512-bit (acceptably secure)
-    * `HMAC-SHA-512-256` - SHA v2 512-bit truncated to 256-bit (acceptably secure)
-    * `HMAC-SHA3-256` - SHA v3 256-bit (high secure at the moment)
-    * `HMAC-SHA3-512` - SHA v3 512-bit (high secure at the moment)
-    * `HMAC-SHA3-512-256` - SHA v3 512-bit truncated to 256-bit (acceptably secure)
+    * `HMD5` - HMAC MD5 128-bit (acceptably secure, even though MD5 itself is weak)
+    * `HS256` - SHA v2 256-bit (acceptably secure)
+    * `HS512` - SHA v2 512-bit (acceptably secure)
+    * `HS512-256` - SHA v2 512-bit truncated to 256-bit (acceptably secure)
+    * `HS3-256` - SHA v3 256-bit (high secure at the moment)
+    * `HS3-512` - SHA v3 512-bit (high secure at the moment)
+    * `HS3-512-256` - SHA v3 512-bit truncated to 256-bit (acceptably secure)
 * KMAC series for SHA v3 - more efficient than HMAC
     * `KMAC128` - Keccak MAC 128-bit (high secure at the moment)
     * `KMAC256` - Keccak MAC 256-bit (high secure at the moment)
     
-*Note: current suggested default is either `HMAC-SHA-256` or `HMAC-SHA-512-256`*
+*Note: current suggested default is either `HS256` or `HS512-256`*
 
 ### 2.11.3. Response "sec" field with MAC
 

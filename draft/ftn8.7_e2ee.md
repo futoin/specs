@@ -1,6 +1,6 @@
 <pre>
 FTN8.7: FutoIn Security Concept - End-to-End Encryption
-Version: 0.2DV
+Version: 0.3DV
 Date: 2017-12-27
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin

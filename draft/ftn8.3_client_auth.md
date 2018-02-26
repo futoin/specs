@@ -1,13 +1,15 @@
 <pre>
 FTN8.3: FutoIn Security Concept - Client Authentication
-Version: 0.2DV
-Date: 2017-12-27
+Version: 0.3DV
+Date: 2018-02-27
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v0.3 - 2018-02-27 - Andrey Galkin
+    - NEW: local session ID suggestion
 * v0.2 - 2017-12-30 - Andrey Galkin
     - CHANGED: heavily revised & split into sub-specs
     - NEW: Client Single Sign-On
@@ -234,6 +236,27 @@ interface.
     - `local_id`
     - `global_id`
     - `session_token`
+
+### 2.3.5. Local Session ID suggestion
+
+Session ID must meet the following criteria:
+
+1. Must be difficult to bruteforce/
+2. Must be invalidated on detected bruteforce.
+3. Invalidation on bruteforce detection must not lead to Denial of Service.
+4. Must be as short as possible.
+
+Therefore, default implementation should:
+
+1. Use 128-bit UUID v4 as primary identifier.
+2. Use 64-bit random secret for bruteforce detection.
+3. Encode in Base64 for total of 32 bytes.
+4. Use short session cookie identifier, like "FSI".
+5. Reset cookie on invalid session to avoid its reuse.
+5. Ban bruteforce attacker detected based on random secret.
+6. Ban bruteforce attacker detected based on 10 session ID misses per day.
+7. Progressively increase ban period based on attack recurrence: 24 hours, 7 days, 30 days.
+
 
 # 3. Interface
 
