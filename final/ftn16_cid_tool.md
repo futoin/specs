@@ -8,7 +8,7 @@ Authors: Andrey Galkin
 
 # CHANGES
 
-* v1.1 - 2017-10-09 - Andrey Galin
+* v1.1 - 2017-10-09 - Andrey Galkin
     * clarified external setup
 * v1.0 - 2017-07-13 - Andrey Galkin
 * Initial draft - 2015-09-14 - Andrey Galkin
