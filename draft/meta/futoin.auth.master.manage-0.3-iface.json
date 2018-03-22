@@ -1,0 +1,28 @@
+{
+  "iface": "futoin.auth.master.manage",
+  "version": "0.3",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.auth.types:0.3"
+  ],
+  "funcs": {
+    "getNewPlainSecret": {
+      "params": {
+        "user": "LocalUser"
+      },
+      "result": {
+        "id": "MasterSecretID",
+        "secret": "Base64"
+      },
+      "throws": [
+        "UnknownUser",
+        "NotSet"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel",
+    "MessageSignature"
+  ]
+}

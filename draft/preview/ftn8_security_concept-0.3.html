@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn8_security_concept.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN8: FutoIn Security Concept
+Version: 0.3DV
+Date: 2017-12-29
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v0.2 - 2017-12-29 - Andrey Galkin<ul>
+<li>CHANGED: heavily revised &amp; split into sub-specs</li>
+<li>CHANGED: moved HMAC logic from FTN6 spec to MAC section here</li>
+<li>NEW: added different MAC schemes support</li>
+<li>NEW: completed of local authentication &amp; authorization spec</li>
+<li>NEW: completed Client Single Sign-On</li>
+</ul>
+</li>
+<li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>Security concept is required to build a unified authentication and
+authorization model across security domains and use cases with separate control
+in open environment like internet.</p>
+<p>There is no global trusted party is allowed. Chain of trust must be
+fully distributed.</p>
+<h2>1.1. Sub-specifications</h2>
+<ul>
+<li><a href="./ftn8.1_stateless_auth.html">FTN8.1: Stateless Authentication</a></li>
+<li><a href="./ftn8.2_master_auth.html">FTN8.2: Master Secret Authentication</a></li>
+<li><a href="./ftn8.3_client_auth.html">FTN8.3: Client Authentication</a></li>
+<li><a href="./ftn8.4_access_control.html">FTN8.4: Access Control</a></li>
+<li><a href="./ftn8.5_defense.html">FTN8.5: Defense System</a></li>
+<li><a href="./ftn8.6_foreign_users.html">FTN8.6: Foreign Users</a></li>
+<li><a href="./ftn8.7_e2ee.html">FTN8.7: End-to-End Encryption</a></li>
+<li><a href="./ftn8.8_qa_requirements.html">FTN8.8: QA Requirements</a></li>
+</ul>
+<h1>2. Concept</h1>
+<h2>2.1. General guidelines</h2>
+<ol>
+<li>External parties to particular system must never hold internal security-related
+    data even if it is encrypted and/or signed to prevent theoritical falsification
+    attacks.<ul>
+<li>User passwords and similar secrets are not internal data - they belong to user.</li>
+<li>Session tokens must hold only session ID with session-related secrets - no other info.<ul>
+<li>two parts are required to detect bruteforcing</li>
+</ul>
+</li>
+<li>Even only informational purpose user IDs, secrets, access levels, etc.
+    must never be stored in untrusted party as it may eventually be used as trusted
+    data source and be subject for attack.</li>
+<li>Use tokens only to reference actual access grants - do not use them as passphrases</li>
+</ul>
+</li>
+<li>There must be limit for failed attempts of bruteforcing any secret<ul>
+<li>authenticated attackers must be blocked by user ID - reject all requests</li>
+<li>attackers must be blocked by source IP first of all</li>
+<li>then object under attack has to be disabled (higher limit)<ul>
+<li>users and resources to be temporary locked</li>
+<li>sessions, keys, temporaries to be destroyed</li>
+</ul>
+</li>
+<li>to prevent DoS of particular user/resource:<ul>
+<li>minimize use of easily guessable IDs</li>
+<li>require authorization for most cases of guessing</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Check authentication and authorization in online mode<ul>
+<li>allow caching only if proper real-time invalidation event handling is active</li>
+</ul>
+</li>
+<li>Centralize authentication and authorization<ul>
+<li>user must be able to overview everything from single dashboard</li>
+</ul>
+</li>
+<li>Often used secrets must be updated in reasonable period<ul>
+<li>both usage time and number of secret applications must be taken into account</li>
+</ul>
+</li>
+<li>Avoid information leaks<ul>
+<li>Do not use sequential IDs</li>
+<li>Do not expose object existence on error<ul>
+<li>Always throw general "SecurityError" with generic error info</li>
+<li>Prevent time-based attacks - make consistent delays on any SecurityError</li>
+</ul>
+</li>
+<li>Do not use descriptive identifiers in tokens</li>
+<li>Prevent attacks which expose ID existence on authentication</li>
+</ul>
+</li>
+<li>Forward Secrecy<ul>
+<li>use modern TLS, SSH, IPSec or other type of secure channel with
+    perfect forward secrecy characteristics</li>
+<li>use secure symmetric key exchange</li>
+<li>use derived keys for each use occurence<ul>
+<li>use derivation with extra parameter when extra safety is required
+    (e.g. key serial number for dervied encryption keys)</li>
+</ul>
+</li>
+<li>End-to-End Encryption API</li>
+</ul>
+</li>
+</ol>
+<h2>2.2. Security Contexts</h2>
+<p>There are three major security contexts:</p>
+<ul>
+<li>Service - Both execution environment and executable code is 
+    under full control of the owner.<ul>
+<li>This security context exists on servers.</li>
+<li>Service is a logic unit represented by a union of related
+    FutoIn specs provided by one or many related end-points.</li>
+</ul>
+</li>
+<li>Client - Execution environment is under control of owner, but
+    executable code is loaded from Service.</li>
+<li>Authentication Service (AuthService) - A special authentication &amp;
+    authorization service trusted by Service and/or by Client.</li>
+</ul>
+<p>Each Service and each Client must trust only one AuthService.</p>
+<p>The standard auth mechanism does not allow Client code to access
+protected resources in another Service directly. Such feature may be
+implemented as sub-spec.</p>
+<p>In addition, the following optional services exist:</p>
+<ul>
+<li>Defense System (DefenseService) - A special service which helps to detect
+    and fight attacks. Its context is implementation-defined.</li>
+</ul>
+<h2>2.3. Holistic pictures</h2>
+<h3>2.3.1. Request Processing</h3>
+<p>It may look as too much overhead for a single request processing, but
+any decent system does exactly the same in fact. However, instead of
+modules are used instead of separate microservices. FutoIn converts
+modules to services by fundamental design. There should be efficient
+in-process calling mechanism to minimize penalties.</p>
+<pre><code>Client         Service        AuthService   DefenseService
+    |             .                  .            .
+    |-- request -&gt;|                  .            .
+    .             |----------- onCall() ---------&gt;|
+    .             .                  .     [may fail early]
+    .             |&lt;------ defense action --------|
+    .             |-- checkAuth() --&gt;|            .
+    .             |&lt;-- auth rsp -----|            .
+    .             |- checkAccess() -&gt;|            .
+    .             .           [fail on error]     .
+    .       [defense action]         .            .
+    .         [process]              .            .
+    .             |----------- onResult() -------&gt;|
+    |&lt;- response -|                  .            .
+    |             .                  .            .
+</code></pre>
+<h3>2.3.2. Service to AuthService registration</h3>
+<p>It's assumed that one of Message Authentication Code approaches
+are used which require a preshared secret and secure updates
+of that.</p>
+<p>Initial manual registration:</p>
+<pre><code>Operator                AuthService
+    |                        .
+    |--- register Service --&gt;|
+    .                 [gen initial secret]
+    |&lt;-- clear text secret --|
+[manually configure Service] .
+    .                        .
+</code></pre>
+<p>Initial automatic registration through secure channel, if allowed:</p>
+<pre><code>Service                            AuthService
+   |                                   .
+[gen temporary assymetric key]         .
+   |----- request registration -------&gt;|
+   .                [depend on transport's MitM security]
+   .                    [save request for approval]
+   |&lt;----- provide ticket ID ----------|
+   .                                   .
+[put ticket ID in .well-known]         |
+   .                                   .
+   |-- try to complete registration --&gt;|
+   .                            [ticket is not validated]
+   |&lt;-- HTTPS GET .well-known ticket --|
+   |------- return ticket ID ---------&gt;|
+   .                            [ticket is validated]
+   |&lt;- "pending" or "rejected" error --|
+   .                                   .
+[reasonable delay]               [wait approval]
+   .                                   .
+   |-- try to complete registration --&gt;|
+   |&lt;- "pending" or "rejected" error --|
+   .                                   .
+[reasonable delay]         [operator/auto approval]
+   .                                   .
+   |-- try to complete registration --&gt;|
+   .                         [generate new secret]
+   |&lt;-- return new encrypted secret ---|
+[decrypt secret and discard key]       .
+[use new secret]                       .
+   |                                   .
+</code></pre>
+<p>Shared secret secure exchange:</p>
+<pre><code>Service                            AuthService
+   |                                   .
+[gen temporary assymetric key]         .
+   |----- request new secret ---------&gt;|
+   .             [use current secret for MitM security]
+   .                         [generate new secret]
+   |&lt;-- return new encrypted secret ---|
+[decrypt secret and discard key]       .
+[use new secret]                       .
+   |                                   .
+</code></pre>
+<h3>2.3.3. Single Sign-On (SSO)</h3>
+<p>General goal is to concentrate user authentication and access grants
+in single place - AuthService. See below for description of Access
+Request Templates.</p>
+<p>Register authorization access request templates:</p>
+<pre><code>Service                           AuthService
+   |                                   .
+   |-------- create template ---------&gt;|
+   .                 [register template of required access requests]
+   |&lt;----- return redirect details ----|
+[use secret to sign &amp; check redirects on both peers]
+   |                                   .
+</code></pre>
+<p>First visit of Service ever:</p>
+<pre><code>Client                Service                AuthService
+    |                    .                        .
+    |------ visit ------&gt;|                        .
+    .      [create signed redirect from template]
+    |&lt;---- redirect -----|                        .
+    |----- provide signed payload ---------------&gt;|
+    .                    .                     [verify sig]
+    .                    .     [drive user registration/login process]
+    .                    .       [ask user for access]
+    |&lt;---- redirect user back --------------------|
+    |-- signed result --&gt;|                        .
+    .              [verify sig]                   .
+    .                    |-- register session ---&gt;|
+    .                    |&lt;-------- OK -----------|
+    |&lt;--- logged in -----|                        .
+[use of Service]         .                        .
+    .               [periodic renew]              .
+    .                    |--- renew session -----&gt;|
+    .                    |&lt;-------- OK -----------|
+[use of Service]         .                        .    
+    |---- logout -------&gt;|                        .
+    .                    |----- end session -----&gt;|
+    .                    |&lt;-------- OK -----------|
+    |&lt;--- logged out ----|                        .
+    |                    .                        .
+</code></pre>
+<p>Second visit of Service from known device:</p>
+<pre><code>Client          Service                 AuthService
+    |               .                        .
+    |---- visit ---&gt;|                        .
+    .        [check known user]              .
+    .               |--- renew session -----&gt;|
+    .               |&lt;-------- OK -----------|
+    |&lt;- logged in --|                        .
+[use of Service]    .                        .
+    |               .                        .
+</code></pre>
+<p>Immediate logout:</p>
+<pre><code>Service                 AuthService
+   |                          .
+   |---- listen for events --&gt;|
+   .                          .
+   .                          .
+   |&lt;--- invalidate session --|
+[invalidate local session]    .
+   .                          .
+</code></pre>
+<p>Foreign users (local AuthService acts as proxy):</p>
+<pre><code>Client          Service                 AuthService         ForeignAuthService
+    .               .                        .                      .
+    .               .                        |---- register self --&gt;|
+    .               .                        .                      .
+    .               |-- listen for events --&gt;|                      .
+    .               .                        |- listen for events -&gt;|
+    |---- visit ---&gt;|                        .                      .
+    .           [unknown user]               .                      .
+    |&lt;-- redirect --|                        .                      .
+    |--- provide signed payload ------------&gt;|                      .
+    .               .                     [verify sig]              .
+    .               .                [user chooses extral auth]     .
+    |&lt;----- redirect to foreign -------------|                      .
+    |-------------------------- provide signed payload ------------&gt;|
+    .               .                        .                [verify sig]
+    .               .                        .              [process user auth]
+    |&lt;--------- return back local AuthService ----------------------|
+    |--- provide signed return -------------&gt;|                      .
+    .               .                   [verify sig]                .
+    .               .                        |-- register session -&gt;|
+    .               .                        |&lt;------ OK -----------|
+    |&lt;-- return back Service ----------------|                      .
+    |-- get back --&gt;|                        .                      .
+    .          [verify sig]                  .                      .
+    .               |-- register session ---&gt;|                      .
+    .               |&lt;-------- OK -----------|                      .
+    |&lt;- logged in --|                        .                      .
+[use of Service]    .                        .                      .
+    |               .                        .                      .
+</code></pre>
+<h3>2.3.4. Access on behalf of user</h3>
+<p>On-behalf-of calls is standard feature of <a href="./ftn3_iface_definition.html">FTN3</a>.</p>
+<p>Each Service registers a list of generic access descriptors it provides
+which can be granted by user to another user(service).</p>
+<p>Another Service creates Access Request Templates as a list of generic
+access descriptors it wants to ask from User. When user grants the 
+required access, Service can call another Service on behalf of user.</p>
+<p>It's assumed that user has full access to own resources
+protected only by required security levels. User can grant resource access
+to another user or Service based on Access Control descriptors.</p>
+<p>Local user:</p>
+<pre><code>Client         Service1     Service2                 AuthService
+    .             .             .                         .
+    .             .             |- register descriptors -&gt;|
+    .             .             .                         .
+    .             |-- create template -------------------&gt;|
+    .             .             .                         .
+    |-- visit ---&gt;|             .                         .
+    |&lt;- redirect -|             .                         .
+    |----- provide signed payload -----------------------&gt;|
+    .             .             .                   [verify sig]
+    .             .             .                    [ask user]
+    .             .             .                  [grant access]
+    |&lt;----- signed redirect back -------------------------|
+    |- return ---&gt;|             .                         .
+    .        [verify sig]       .                         .
+    .             |- API call -&gt;|                         .
+    .             .     [request checking]                .
+    .             .             |---- checkAuth() -------&gt;|
+    .             .             |--- checkAccess() ------&gt;|
+    .             .     [request processing]              .
+    .             |&lt;-- result --|                         .
+    .             .             .                         .
+</code></pre>
+<p>Foreign user access just adds extra complexity:</p>
+<ol>
+<li>Both user authentication and other user/service authorization is done
+    in foreign AuthService</li>
+<li>User can review &amp; control all grants in home services</li>
+<li>Local to Service AccessControl has to consult with foreign AccessControl
+    for access, cache it and revoke events similar to user sessions.</li>
+<li>AuthService acts as proxy:<ul>
+<li>authoritative to local Service</li>
+<li>represents Service for foreign AuthService</li>
+<li>consults and keep in sync with foreign</li>
+</ul>
+</li>
+</ol>
+<h3>2.3.5. Exceptional operation confirmation</h3>
+<p>In many cases Service needs to securely confirm some action like bank transfer
+approval. For that reason, Service creates special confirmation request
+in AuthService and redirects the user there.</p>
+<pre><code>Client               Service                 AuthService
+    |                   .                         .
+    |- request action -&gt;|                         .
+    .                   |- prepare confirmation -&gt;|
+    .                   .               [store with timeout]
+    .                   |&lt;-- provide URL ---------|
+    |&lt;---- redirect ----|                         .
+    |------ use the AuthService URL -------------&gt;|
+    .                   .            [ask user confirmation]
+    .                   .                  [store result]
+    |&lt;---- signed redirect back ------------------|
+    |-- return --------&gt;|                         .
+    .               [verify sig]                  .
+    .                   |-- verify confirmation -&gt;|
+    .                   |&lt;----- OK ---------------|
+    .            [complete action]                .
+    .                   .                         .
+</code></pre>
+<h2>2.4. AuthService and scope of identification</h2>
+<p>The scope of AuthService is arbitrary - it is formed by AuthService itself.
+However, AuthService should have a single domain name which is used as
+global scope identifier.</p>
+<h2>2.5. User identification</h2>
+<p>Each user has a unique local ID and global ID.</p>
+<p>Local ID is arbitrary and assigned by AuthService.</p>
+<p>Global ID based on local ID and scope name of home AuthService.
+Typically, email address is the global identifier.</p>
+<h2>2.6. Foreign users</h2>
+<p>If the Service or Client trust different AuthServices then it is responsibility
+of AuthService to establish communication to another AuthService. In such case,
+Client is called <em>foreign AuthService user</em> or simply <em>foreign user</em>.</p>
+<p>Foreign users are detected based on mismatch of associated global ID scope name and
+current AuthService scope name.</p>
+<p>Theoretically, AuthService can auto-discover and establish registration to any other
+foreign AuthService. However, it may be undesired from security point of view.
+So, only whitelisted foreign AuthServices should be allowed. Whitelist can be either
+local or global in form of association of AuthService providers.</p>
+<h2>2.7. Service to Service interaction (and Service to AuthService in particular)</h2>
+<p>Each Service as logical entity assumes to have own user ID in scope of related AuthService.
+Therefore, communication authentication follows the same pattern as Client-to-Service pattern.</p>
+<h2>2.8. Authentication assumptions</h2>
+<p>Client-to-Service and Service-to-Service communication has different natural aspects:</p>
+<ul>
+<li>Service-to-Service:<ul>
+<li>assumes much larger number of calls</li>
+<li>requires throughput &amp; latency efficient secure message authentication</li>
+<li>should be able to update secrets periodically unattended way</li>
+<li>should seamlessly transition to new secrets without service interruption</li>
+</ul>
+</li>
+<li>Client-to-Services:<ul>
+<li>assumes roaming</li>
+<li>requires multi-factor authentication per session and/or important action</li>
+<li>should support authentication secret recovery self-service</li>
+<li>should utilize HTTP cookie, if applicable</li>
+<li>should immediately break sessions on authentication secret change or logout</li>
+</ul>
+</li>
+<li>Common:<ul>
+<li>should avoid authentication secrets exposure in messages</li>
+<li>should avoid message authentication re-use and replay attacks</li>
+<li>should have separate secrets for each pair of peers in communication</li>
+<li>should support additional constraints:<ul>
+<li>source IP address</li>
+<li>x509 client certificates</li>
+<li>SSH public keys</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Therefore, specification is separated for Client(human) and Service(software) cases.</p>
+<h2>2.9. Interoperation with non-compliant AuthService scopes</h2>
+<p>There are many OpenID, OAuth, SAML and other single sign-on alternatives. Particular
+AuthService may easily integrate with those.</p>
+<h2>2.10. Service &amp; AuthService in single instance</h2>
+<p>It's assumed that each Service is accompanied by unified AuthService logic to
+efficiently process requests on scale. Such AuthService can be either full-featured
+or limited to support of only foreign users.</p>
+<h2>2.11. General MAC generation requirements</h2>
+<p>MAC stays for Message Authentication Code which prevents decryptable transmission of
+authentication secrets and helps to ensure message integrity.</p>
+<h3>2.11.1 Rules of MAC payload generation</h3>
+<p><em>Note 1: MAC logic must be abstract of JSON as far as possible to be efficiently used in other
+message coding methods.</em></p>
+<p><em>Note 2: research to be done to support TupleHash and non-JSON representation of fields as an option.</em></p>
+<ul>
+<li>Payload has a tree structure and coded in JSON or any alternative format</li>
+<li>All keys and fields are feed to MAC generator in text representation</li>
+<li>Top level "sec" field is skipped</li>
+<li>For each nested level, starting from the very root of tree-like payload structure:<ul>
+<li>Key-value pairs are processed in ascending order based on Unicode comparison rules</li>
+<li>Key is feed into MAC generator</li>
+<li>':' separator is feed into MAC generator</li>
+<li>If value is subtree then recurse this algorithm</li>
+<li>else if value is string then feed into MAC generator</li>
+<li>Otherwise, feed textual JSON representation to MAC generator</li>
+<li>';' separator is feed into MAC generator</li>
+</ul>
+</li>
+</ul>
+<h3>2.11.2. Predefined MAC algorithms</h3>
+<p>Executor may refuse to support any MAC algo and throw SecurityError.</p>
+<ul>
+<li>HMAC series are based on <a href="http://www.ietf.org/rfc/rfc2104.txt" title="RFC2104 HMAC">HMAC</a> method<ul>
+<li><code>HMD5</code> - HMAC MD5 128-bit (acceptably secure, even though MD5 itself is weak)</li>
+<li><code>HS256</code> - SHA v2 256-bit (acceptably secure)</li>
+<li><code>HS512</code> - SHA v2 512-bit (acceptably secure)</li>
+<li><code>HS512-256</code> - SHA v2 512-bit truncated to 256-bit (acceptably secure)</li>
+<li><code>HS3-256</code> - SHA v3 256-bit (high secure at the moment)</li>
+<li><code>HS3-512</code> - SHA v3 512-bit (high secure at the moment)</li>
+<li><code>HS3-512-256</code> - SHA v3 512-bit truncated to 256-bit (acceptably secure)</li>
+</ul>
+</li>
+<li>KMAC series for SHA v3 - more efficient than HMAC<ul>
+<li><code>KMAC128</code> - Keccak MAC 128-bit (high secure at the moment)</li>
+<li><code>KMAC256</code> - Keccak MAC 256-bit (high secure at the moment)</li>
+</ul>
+</li>
+</ul>
+<p><em>Note: current suggested default is either <code>HS256</code> or <code>HS512-256</code></em></p>
+<h3>2.11.3. Response "sec" field with MAC</h3>
+<p>If request comes signed with any MAC then response must also be signed
+with MAC using exactly the same secret key and MAC algorithm.</p>
+<p>Invoker must validate response "sec" field and fail on mismatch or absence of one.</p>
+<h3>2.11.4. Key derivation strategies</h3>
+<p>It is called "Strategy", but not "Function" on purpose as the same KDF may be used
+different ways.</p>
+<h4>2.11.4.1. General derived key ID</h4>
+<p>Derived Key ID must be transmitted as Base64 encoding string without padding. Key ID or
+salt should be of recommended size, if applicable.</p>
+<p>Based on strategy, no key ID or a fixed minimal derived key ID may be used for current
+version of the specification to minimize performance impact and simplify Executor's
+derived key caching logic. Master Secret itself should provide enough entropy to ensure
+derived key's quality. So, key update gets bound to frequency of Master Secret update.
+Key derivation would be used only to get different keys based on purpose.</p>
+<h4>2.11.4.2. Key purpose name</h4>
+<p>Below is list of ASCII values to use for altering key derivation logic.</p>
+<ul>
+<li><code>MAC</code> - for message signing.</li>
+<li><code>ENC</code> - for general encryption.</li>
+<li><code>EXPOSED</code> - for signature generating which definitely goes through untrusted exposed
+    channel (e.g. user's web browser).</li>
+</ul>
+<h4>2.11.4.3. Performance tradeoff</h4>
+<p>In most cases, it's not feasibile to generate a new derived key for every message,
+so Invoker should be able to reuse the key at own discretion.</p>
+<p>As a defensive measure, Executor peer is allowed to reject requests, if derived key
+either changes too often or used for too long. Executor should cache derived keys
+for reasonable time, but still prevent their leaking outside. Executor should consider
+that Invoker may be clustered with unique derived key at every node.</p>
+<p>Executor can be configured to support only certain types of strategies named below and
+to reject requests with "SecurityError" on mismatch.</p>
+<h4>2.11.4.4. Key derivation strategies names</h4>
+<ol>
+<li><code>HKDF0</code> - use [HKDF][] with per GlobalServiceID as "salt" and
+    purpose name for "info" to derive unique keys per purpose from shared Master Secret.<ul>
+<li>empty or persistent salt should be OK with quality Master Secret</li>
+<li>"prm" must not be sent or be empty</li>
+<li>default for <code>MAC</code> and <code>EXPOSED</code> purpose</li>
+</ul>
+</li>
+<li><code>HKDF</code> - use [HKDF][] with UUID for "salt" and purpose name for "info" to
+    derive unique keys per purpose from shared Master Secret.<ul>
+<li>"salt" must be sent in "prm" field</li>
+<li>default for <code>ENC</code> purpose</li>
+</ul>
+</li>
+</ol>
+<h2>2.12. Security Levels</h2>
+<p>It's important to understand characteristics of performed user authentication in many cases.</p>
+<ul>
+<li><code>Anonymous</code> - placeholder for not authenticated user</li>
+<li><code>Info</code> - read-only access to private information</li>
+<li><code>SafeOps</code> - Info + access to operation, which should not seriously compromise the system</li>
+<li><code>PrivilegedOps</code> - SafeOps + access to operations, which may compromise the system. Requires SecureChannel</li>
+<li><code>ExceptionalOps</code> - PrivilegedOps + access to very sensitive operations, like password change<ul>
+<li>At Service discretion, should be one-time access with immediate downgrade to PrivilegedOps level</li>
+</ul>
+</li>
+<li><code>System</code> - internal calls inside the same Service (can be cross-process)</li>
+</ul>
+<h2>2.13. Client fingerprints</h2>
+<p>The following fingerpints are essential to enforce extra level of protection.</p>
+<ul>
+<li><code>user_agent</code> - refers to HTTP 'User-Agent' or similar</li>
+<li><code>source_ip</code> - refers ot IPv4/IPv6 source address of Client</li>
+<li><code>x509</code> - X.509 certificate, if provided by client</li>
+<li><code>ssh_pubkey</code> - SSH public key, if provided by client</li>
+<li><code>client_token</code> - Service-specific identification of the Client device<ul>
+<li>the one should not be stored in clear on the device, but encrypted by
+    a separate secret known only to the Service itself</li>
+</ul>
+</li>
+<li><code>misc</code> - implementation-defined map<ul>
+<li><code>flavour</code> - implementation type</li>
+<li>any - any arbitrary field like, used ciphers or other details</li>
+</ul>
+</li>
+</ul>
+<h2>2.14. Authentication rejection limits and blocking</h2>
+<p>The specification suggests the following limits to be enforced. Hit of the limits must
+block any processing. The blocking must be done for entire period of enforcement.</p>
+<ul>
+<li>Subject of blocking:<ul>
+<li>IPv4/32 or IPv6/64 addresses of Client calls<ul>
+<li>10 failed auth attempts in 24 hours</li>
+<li>30 failed auth attempts in 7 days</li>
+<li>100 failed auth attempts in 30 days</li>
+</ul>
+</li>
+<li>IPv4/24 or IPv6/48 addresses of Client calls<ul>
+<li>100 failed auth attempts in 24 hours</li>
+<li>300 failed auth attempts in 7 days</li>
+<li>1000 failed auth attempts in 30 days</li>
+</ul>
+</li>
+<li>Untrusted User (Service) which may fake Client fingeprints for bruteforcing:<ul>
+<li>100 failed auth attempts in 24 hours</li>
+<li>300 failed auth attempts in 7 days</li>
+<li>1000 failed auth attempts in 30 days</li>
+</ul>
+</li>
+<li>Verified User (Service) which may fake Client fingeprints for bruteforcing:<ul>
+<li>10000 failed auth attempts in 24 hours</li>
+<li>30000 failed auth attempts in 7 hours</li>
+<li>100000 failed auth attempts in 30 hours</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Objects and actions:<ul>
+<li>User clear text authentication to be automatically regenerated per Service<ul>
+<li>100 failed attempts in 24 hours</li>
+<li>300 failed attempts in 7 days</li>
+<li>1000 failed attempts in 30 days</li>
+<li>User should be notified to retrieve and setup a new clear text secret</li>
+</ul>
+</li>
+<li>User stateless MAC authentication to be automatically regenerated<ul>
+<li>1000 failed attempts in 24 hours</li>
+<li>3000 failed attempts in 7 days</li>
+<li>10000 failed attempts in 30 days</li>
+<li>User should be notified to retrieve and setup a new MAC Secret</li>
+</ul>
+</li>
+<li>Master Secret to be disabled<ul>
+<li>10 failed attempts in 24 hours</li>
+<li>30 failed attempts in 7 days</li>
+<li>100 failed attempts in 30 days</li>
+<li>Master Secret ID should be difficult to guess UUID</li>
+<li>Fallback to previous still active Master Secret can be done for
+    automatic recovery</li>
+<li>Otherwise, manual re-initialization is required</li>
+</ul>
+</li>
+<li>Client authentication using session token<ul>
+<li>Immediate session invalidation on session secret mismatch</li>
+<li>Immediate session invalidation on non-IP Client fingerprints change</li>
+<li>Immediate session invalidation on suspicious Client IP changes</li>
+<li>Session token has to contain two parts: session ID and session secret</li>
+<li>Session ID should not be easily guessable - any mismatch is a sign of attack</li>
+</ul>
+</li>
+<li>User login at AuthService<ul>
+<li>1000 failed attempts in 24 hours</li>
+<li>3000 failed attempts in 7 days</li>
+<li>10000 failed attempts in 30 days</li>
+</ul>
+</li>
+<li>Second-level domain for service auto-registrations:<ul>
+<li>10 service auto-registrations in 30 days</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1>3. Interface</h1>
+<h2>3.1. Common types</h2>
+<pre><code>{
+    "iface" : "futoin.auth.types",
+    "version" : "{ver}",
+    "ftn3rev" : "1.8",
+    "imports" : [
+        "futoin.types:1.0"
+    ],
+    "types" : {
+        "LocalUserID" : "UUIDB64",
+        "LocalUser" : {
+            "type" : "string",
+            "regex" : "^[a-zA-Z]([a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9])?$"
+        },
+        "GlobalService" : "Domain",            
+        "GlobalUserID" : [ "Email", "GlobalService" ],
+        "MACAlgo" : {
+            "type" : "enum",
+            "items" : [
+                "HMAC-MD5",
+                "HMAC-SHA-224",
+                "HMAC-SHA-256",
+                "HMAC-SHA-384",
+                "HMAC-SHA-512",
+                "HMAC-SHA3-224",
+                "HMAC-SHA3-256",
+                "HMAC-SHA3-384",
+                "HMAC-SHA3-512",
+                "KMAC128",
+                "KMAC256"
+            ]
+        },
+        "StatelessSecret" : {
+            "type" : "string",
+            "minlen" : 8,
+            "maxlen" : 32
+        },
+        "MACValue" : {
+            "type" : "Base64",
+            "minlen" : 1,
+            "maxlen" : 128
+        },
+        "MACBase" : {
+            "type" : "string",
+            "minlen" : 8
+        },
+        "MasterSecretID" : "UUIDB64",
+        "MasterScope" : "Domain",
+        "KeyDerivationStrategy" : {
+            "type" : "enum",
+            "items" : [
+                "HKDF",
+                "HKDF0"
+            ]
+        },
+        "KeyPurpose" : {
+            "type" : "enum",
+            "items" : [
+                "MAC",
+                "ENC",
+                "EXPOSED"
+            ]
+        },
+        "ExchangeKeyType" : {
+            "type" : "enum",
+            "items" : [
+                "RSAE-2048",
+                "RSAE-4096",
+                "ECDHE-Curve25519",
+                "ECDHE-Curve448"
+            ]
+        },
+        "ExchangeKey" : {
+            "type" : "Base64",
+            "minlen" : 1,
+            "maxlen" : 20000
+        },
+        "EncryptedKey" : {
+            "type" : "Base64",
+            "minlen" : 1,
+            "maxlen" : 1000
+        },
+        "EncryptedMasterSecret" : "EncryptedKey",
+        "UserAgent" : {
+            "type" : "string",
+            "maxlen" : 256
+        },
+        "X509Cert" : {
+            "type" : "Base64",
+            "maxlen" : 20000
+        },
+        "SSHPubKey" : {
+            "type" : "string",
+            "maxlen" : 1000
+        },
+        "ClientToken" : {
+            "type" : "Base64",
+            "maxlen" : 342,
+            "desc" : "Unique per Service per Client device persistent token"
+        },
+        "ClientFingerprints" : {
+            "type" : "map",
+            "fields" : {
+                "user_agent" : {
+                    "type" : "UserAgent",
+                    "optional" : true
+                },
+                "source_ip" : {
+                    "type" : "IPAddress",
+                    "optional" : true
+                },
+                "x509" : {
+                    "type" : "X509Cert",
+                    "optional" : true
+                },
+                "ssh_pubkey" : {
+                    "type" : "SSHPubKey",
+                    "optional" : true
+                },
+                "client_token" : {
+                    "type" : "ClientToken",
+                    "optional" : true
+                },
+                "misc" : {
+                    "type" : "map",
+                    "optional" : true
+                }
+            }
+        },
+        "AuthInfo" : {
+            "type" : "map",
+            "fields" : {
+                "local_id" : "LocalUserID",
+                "global_id" : "GlobalUserID"
+            }
+        },
+        "RedirectURL" : {
+            "type" : "string",
+            "regex" : "^https?://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}/[a-Z0-9_/-]*(\\?[a-Z][a-Z0-9]*=)?$",
+            "maxlen" : 128
+        },
+        "ResourceURL" : {
+            "type" : "string",
+            "regex" : "^https?://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}/[a-Z0-9_/?=%&amp;;.-]*$",
+            "maxlen" : 128
+        },
+        "ParamConstraint" : {
+            "type" : "map",
+            "elemtype" : "array"
+        },
+        "AccessControlDescriptor" : {
+            "type" : "map",
+            "fields" : {
+                "iface" : {
+                    "type" : "FTNFace",
+                    "optional" : true
+                },
+                "ver" : {
+                    "type" : "FTNVersion",
+                    "optional" : true
+                },
+                "func" : {
+                    "type" : "FTNFunction",
+                    "optional" : true
+                },
+                "params" : {
+                    "type" : "ParamConstraint",
+                    "optional" : true,
+                    "desc": "Named paramater must match one of the values"
+                }
+            },
+            "desc" : "Granted API access constraints in scope of arbitrary Service"
+        },
+        "AccessControlDescriptorList" : {
+            "type" : "array",
+            "elemtype" : "AccessControlDescriptor",
+            "desc" : "List of granted API access in scope of arbitrary Service"
+        },
+        "AccessGroupName" : {
+            "type" : "GenericIdentifier",
+            "maxlen" : 32,
+            "desc" : "Service-specific arbitrary ACD grouping identifier"
+        },
+        "AccessGroup" : {
+            "type" : "map",
+            "fields" : {
+                "id" : "AccessGroupName",
+                "name" : "ItemTranslations",
+                "desc" : "ItemTranslations",
+                "acds" : "AccessControlDescriptorList",
+                "icon" : "ResourceURL"
+            },
+            "desc" : "Services-specific arbitrary ACD grouping definition"
+        },
+        "AccessGroupList" : {
+            "type" : "array",
+            "elemtype" : "ServiceAccessGroup",
+            "desc" : "List of Service-specific ACD groupings"
+        },
+        "ServiceAccessGroup" : {
+            "type" : "map",
+            "fields" : {
+                "service" : "GlobalService",
+                "access_group" : "AccessGroupName"
+            },
+            "desc" : "Global pointer to ACD group of specific Service"
+        },
+        "ServiceAccessGroupList" : {
+            "type" : "array",
+            "elemtype" : "ServiceAccessGroup",
+            "desc" : "List of global pointers to Service-specific ACD groups"
+        }
+    }
+}
+</code></pre>
+<h2>3.2. AuthService management</h2>
+<pre><code>{
+    "iface" : "futoin.auth.manage",
+    "version" : "{ver}",
+    "ftn3rev" : "1.8",
+    "imports" : [
+        "futoin.ping:1.0",
+        "futoin.auth.types:{ver}"
+    ],
+    "funcs" : {
+        "setup" : {
+            "params" : {
+                "domain" : "Domain",
+                "clear_auth" : {
+                    "type" : "boolean",
+                    "default" : false
+                },
+                "mac_auth" : {
+                    "type" : "boolean",
+                    "default" : true
+                },
+                "master_auth" : {
+                    "type" : "boolean",
+                    "default" : true
+                },
+                "master_auto_reg" : {
+                    "type" : "boolean",
+                    "default" : false
+                },
+                "auth_service" : {
+                    "type" : "boolean",
+                    "default" : false
+                }
+            },
+            "result" : "boolean"
+        },
+        "genConfig" : {
+            "result" : {
+                "domain" : "Domain",
+                "clear_auth" : "boolean",
+                "mac_auth" : "boolean",
+                "master_auth" : "boolean",
+                "master_auto_reg" : "boolean"
+            }
+        },
+        "ensureUser" : {
+            "params" : {
+                "user" : "LocalUser",
+                "global_id" : {
+                    "type": "GlobalUserID",
+                    "default" : null,
+                    "desc" : "Defaults to auto-generated"
+                },
+                "hostname" : {
+                    "type" : "Domain",
+                    "default" : null,
+                    "desc" : "Required for Service users"
+                }
+            },
+            "result" : "LocalUserID",
+            "throws" : [
+                "GlobalUserIDMismatch"
+            ]
+        },
+        "ensureService" : {
+            "params" : {
+                "hostname" : {
+                    "type" : "GlobalService",
+                    "default" : null,
+                    "desc" : "Act as both local and global user name"
+                }
+            },
+            "result" : "LocalUserID"
+        }
+    },
+    "requires" : [
+        "SecureChannel",
+        "MessageSignature"
+    ]
+}
+</code></pre>
+<p>=END OF SPEC=</p>
+</body></html>

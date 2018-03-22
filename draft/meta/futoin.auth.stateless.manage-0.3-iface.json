@@ -1,0 +1,47 @@
+{
+  "iface": "futoin.auth.stateless.manage",
+  "version": "0.3",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.auth.types:0.3"
+  ],
+  "funcs": {
+    "genNewSecret": {
+      "params": {
+        "user": "LocalUserID",
+        "service": "LocalUserID"
+      },
+      "result": "StatelessSecret",
+      "throws": [
+        "UnknownUser",
+        "NotSet"
+      ]
+    },
+    "getSecret": {
+      "params": {
+        "user": "LocalUserID",
+        "service": "LocalUserID"
+      },
+      "result": "StatelessSecret",
+      "throws": [
+        "UnknownUser",
+        "NotSet"
+      ]
+    },
+    "removeSecret": {
+      "params": {
+        "user": "LocalUserID",
+        "service": "LocalUserID"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownUser"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel",
+    "MessageSignature"
+  ]
+}

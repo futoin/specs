@@ -1,0 +1,14 @@
+{
+  "iface": "futoin.auth.master.register",
+  "version": "0.3",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.auth.types:0.3"
+  ],
+  "funcs": {},
+  "requires": [
+    "SecureChannel",
+    "MessageSignature"
+  ]
+}

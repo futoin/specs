@@ -1,0 +1,65 @@
+{
+  "iface": "futoin.auth.master",
+  "version": "0.3",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.auth.types:0.3"
+  ],
+  "types": {
+    "MACSecField": {
+      "type": "map",
+      "fields": {
+        "msid": "MasterSecretID",
+        "algo": "MACAlgo",
+        "kds": "KeyDerivationStrategy",
+        "prm": {
+          "type": "Base64",
+          "optional": true
+        },
+        "sig": "MACValue"
+      }
+    }
+  },
+  "funcs": {
+    "checkMAC": {
+      "params": {
+        "base": "MACBase",
+        "sec": "MACSecField",
+        "source": "ClientFingerprints"
+      },
+      "result": "AuthInfo",
+      "throws": [
+        "SecurityError"
+      ]
+    },
+    "genMAC": {
+      "params": {
+        "base": "MACBase",
+        "reqsec": "MACSecField"
+      },
+      "result": "MACSecField",
+      "throws": [
+        "SecurityError"
+      ]
+    },
+    "exposeDerivedKey": {
+      "params": {
+        "base": "MACBase",
+        "sec": "MACSecField",
+        "source": "ClientFingerprints"
+      },
+      "result": {
+        "info": "AuthInfo",
+        "ekey": "EncryptedKey"
+      },
+      "throws": [
+        "SecurityError"
+      ],
+      "desc": "Feature to support local key cache"
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}
