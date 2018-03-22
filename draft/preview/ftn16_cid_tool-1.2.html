@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn16_cid_tool.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN16: FutoIn - Continuous Integration & Delivery Tool
+Version: 1.2DV
+Date: 2018-03-22
+Copyright: 2015-2018 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.2 - 2018-03-22 - Andrey Galkin<ul>
+<li>FIXED: clarified .peristent data copying</li>
+<li>NEW: .writable config support</li>
+</ul>
+</li>
+<li>v1.1 - 2017-10-09 - Andrey Galkin<ul>
+<li>clarified external setup</li>
+</ul>
+</li>
+<li>v1.0 - 2017-07-13 - Andrey Galkin</li>
+<li>Initial draft - 2015-09-14 - Andrey Galkin</li>
+</ul>
+<h1>1. Intro</h1>
+<p>There are many continuous integration &amp; delivery tools, but they are primarily targeted at own
+infrastructure. The demand for a new meta-tool is to merge many operations of different
+technologies like npm, composer, bundle, nvm, rvm, php-build and others under a single tool for
+runtime setup, project development, build, deployment and running.</p>
+<p><em>NOTE: current primary focus is on web projects, but other cases like Puppet modules are supported.</em></p>
+<h1>2. Concept</h1>
+<p>A command line tool must be available through shell search path or called via absolute path.
+The command name is "cid" - Continuous Integration &amp; Delivery Tool.</p>
+<p>"cid" must work on existing projects with no modifications, but with extra parameters required.
+If special "futoin.json" configuration file is present in project root then extra parameters'
+default values should be taken from the configuration file.</p>
+<p>It should be possible to specify any of the actions manually through configuration file. Otherwise,
+the tool should auto-detect action implementation.</p>
+<p>The tool should support the following actions:</p>
+<ul>
+<li>tag</li>
+<li>prepare</li>
+<li>build</li>
+<li>package</li>
+<li>check</li>
+<li>promote</li>
+<li>deploy</li>
+<li>run</li>
+<li>ci_build</li>
+<li>tool</li>
+<li>init</li>
+<li>migrate</li>
+<li>vcs</li>
+<li>rms</li>
+<li>service</li>
+</ul>
+<h2>2.1. Tag</h2>
+<p>A standard procedure for updating for release and tagging source code.</p>
+<h2>2.2. Preparation</h2>
+<p>A standard procedure for project development or release is source checkout, dependency checkout
+and workspace configuration.</p>
+<p>For build tools, working copy clean up is expected.</p>
+<h2>2.3. Building</h2>
+<p>A standard procedure for detecting available build systems and executing them in predefined order.
+Binary artifact may be a product of such action.</p>
+<h2>2.4. Checking</h2>
+<p>A standard procedure for detecting available test systems and executing them in predefined order.</p>
+<h2>2.5. Packaging</h2>
+<p>A standard procedure for detecting packaging method to create a single
+binary artifact for deployment.</p>
+<h2>2.6. Promotion</h2>
+<p>A standard procedure for promoting a binary package into predefined release
+management systems (RMS).</p>
+<p>Suggested name conventions:
+<em> Build -&gt; CIBuilds
+</em> Build -&gt; ReleaseBuilds -&gt; ProductionBuilds
+<em> Build -&gt; </em>{Arbitrary}<em>
+</em> <em>{Arbitrary}</em> -&gt; <em>{Arbitrary}</em> [-&gt; <em>{Arbitrary}</em>]+</p>
+<p>Where:</p>
+<ul>
+<li>Build - binary artifact, product of clean build process</li>
+<li>CIBuilds - RMS pool with development builds without source tagging</li>
+<li>ReleaseBuilds - RMS pool with builds from source tags</li>
+<li>ProductionBuilds - QA validated and Management approved Release Builds</li>
+<li><em>{Arbitrary}</em> - any custom binary artifact pool</li>
+</ul>
+<p><em>Note: promotion from pool to pool must not modify binary artifacts. Otherwise,
+a separate project must exist, which uses original project binary artifact as
+dependency for input and own binary artifact promotion chains</em></p>
+<h2>2.7. Deployment</h2>
+<p>The primary focus of the action is for setup of web projects. The process should
+properly check requirements, setup file permissions, manage persistent data,
+manage configuration and support rolling deployment with no service interruption.</p>
+<h2>2.8. Running</h2>
+<p>This action should focused on execution in development and testing process and
+may not be implemented at all, if not applicable.</p>
+<h2>2.9. Integration into provisioning systems</h2>
+<p>In multi-tenant environments, it may not be desired to give application user
+full control over system. However, some tools may require privileged administrator
+access for installation and update. Also, it's not desired to have multiple copies
+of same tool, but secure sharing is required.</p>
+<p>For such cases, an external to CID provisioning system may set external setup
+callback command to be used instead of CID itself for tool setup. The external command
+is responsible for proper filtering.</p>
+<p>For purpose own easy integration, target deploy dir must have auto-generated
+".futoin.merged.json" which should include all data from project, deployment, user,
+global and runtime. The file must not be manually editable and should be overwitten
+on each deployment. CID itself must never consult to it.</p>
+<p>As some tools and services may be configured by provisioning system, there are
+<code>.env.externalSetup</code> and <code>.env.externalServices</code> configuration options available.</p>
+<h1>3. Detailed business logic definition</h1>
+<h2>3.1. Configuration file</h2>
+<ul>
+<li>Name: futoin.json</li>
+<li>Format: strict JSON</li>
+<li>Location (project): project root folder (without .env part)</li>
+<li>Process environment: (only whitelisted variables for .env part)</li>
+<li>Location (deployment): ${DEPLOY_ROOT} (both config options and .env part)</li>
+<li>Location (user): ${HOME}/.futoin.json (only .env part)</li>
+<li>Location (global): /etc/futoin.json (only .env part)</li>
+</ul>
+<h3>3.1.1. JSON tree definition in dot notation.</h3>
+<p>The same identifiers should be used in command line options. All configuration nodes are optional
+and auto-detectable in most cases.</p>
+<p><em>Note: this tree represents actual state CID works with. All internal API either work with full
+configuration root or only with its .env part. There should be no other configuration data.</em></p>
+<h4>3.1.1.1. Project configuration</h4>
+<ul>
+<li>.name - project's full unique name</li>
+<li>.version - project's version</li>
+<li>.vcsRepo - source repository</li>
+<li>.vcs - version control system type:<ul>
+<li>"svn"</li>
+<li>"git"</li>
+<li>"hg"</li>
+</ul>
+</li>
+<li>.deployBuild - force build on deploy, if true</li>
+<li>.permissiveChecks - allows check failure, if true</li>
+<li>.rmsRepo - binary artifact Release Management System location</li>
+<li>.rmsPool - sub-path/pool in .rmsRepo</li>
+<li>.rms - release management system type:<ul>
+<li>"svn" - use Subversion as binary artifact repository</li>
+<li>"scp" - use SSHv2 FTP</li>
+<li>"archiva" - use Apache Archiva</li>
+<li>"artifactory" - use JFrog Artifactory</li>
+<li>"nexus" - use Sonatype Nexus</li>
+</ul>
+</li>
+<li>.tools - {}, map of required tool=&gt;version pairs.
+    Default version is marked as <code>true</code> or <code>'*'</code>.
+    Tool name is all lower case letters with optional digits (except the first position).</li>
+<li>.toolTune - {}, map of maps tool=&gt;settings=&gt;value for fine tuning of tool behavior.<ul>
+<li><em>Note: it should be used for build-time tools, but it can also be used for global .entryPoints tuning</em> by tool.</li>
+</ul>
+</li>
+<li>.package - [], content of package relative to project root. Default: [ "." ]</li>
+<li>.packageGzipStatic = True, creates <em>.gz files for found </em>.js, <em>.json, </em>.css, <em>.svg and </em>.txt files</li>
+<li>.packageChecksums = True, creates .package.checksums of files</li>
+<li>.persistent - [], list of persistent read-write directory paths.<ul>
+<li>Content of related deployment package paths is copied to persistent location.</li>
+</ul>
+</li>
+<li>.writable - [], list of non-peristent read-write directory paths.<ul>
+<li>Can be used for version-specific caches.</li>
+</ul>
+</li>
+<li>.entryPoints - {], list of named entry points {}<ul>
+<li>.tool - name of the tool</li>
+<li>.path - file</li>
+<li>.tune - {}, type-specific configuration options (extandable)<ul>
+<li>.minMemory - minimal memory per instance without connections</li>
+<li>.connMemory - extra memory per one connection</li>
+<li>.connFD = 16 - file descriptors per connection</li>
+<li>.internal = false - if true, then resource is not exposed</li>
+<li>.scalable = true - if false then it's not allowed to start more than one instance globally</li>
+<li>.reloadable = false - if true then reload WITHOUT INTERRUPTION is supported</li>
+<li>.multiCore = true - if true then single instance can span multiple CPU cores</li>
+<li>.exitTimeoutMS = 5000 - how many milliseconds to wait after SIGTERM before sending SIGKILL</li>
+<li>.cpuWeight = 100 - arbitrary positive integer</li>
+<li>.memWeight = 100 - arbitrary positive integer</li>
+<li>.maxMemory - maximal memory per instance (for very specific cases)</li>
+<li>.maxTotalMemory - maximal memory for all instances (for very specific cases)</li>
+<li>.maxInstances - limit number of instances per deployment</li>
+<li>.socketTypes = ['unix', 'tcp', 'tcp6'] - supported listen socket types</li>
+<li>.socketProtocol = one of ['http', 'fcgi', 'wsgi', 'rack', 'jsgi', 'psgi']</li>
+<li>.debugOverhead - extra memory per instance in "dev" deployment</li>
+<li>.debugConnOverhead - extra memory per connection in "dev" deployment</li>
+<li>.socketType - generally, for setup in deployment config</li>
+<li>.socketPort - default/base port to assign to service</li>
+<li>.maxRequestSize - maximal size of single request</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>.configenv - {} - list of environment variables to be set in deployment<ul>
+<li>type - FutoIn variable type</li>
+<li>desc - variable description</li>
+</ul>
+</li>
+<li>.webcfg - additional web server configuration (to be used by web server)<ul>
+<li>.root - web root folder relative to project root</li>
+<li>.main - default index handler from .entryPoints (auto-select, if single one)</li>
+<li>.mounts - {} - path prefix to details in form of:<ul>
+<li>string - name of related entry point</li>
+<li>map - advanced config<ul>
+<li>.app - name of related entry point</li>
+<li>.static = false - try to serve static files, if true</li>
+<li>.tune = {} - fine options<ul>
+<li>.pattern = true - enable other options based on pattern match</li>
+<li>.staticGzip = true - try to use pre-compressed "*.gz" files</li>
+<li>.gzip = false - compress in transmission</li>
+<li>.expires = 'max' - add expires header</li>
+<li>.autoindex = false - enable auto-indexing</li>
+<li>.index = 'index.html' - default index file</li>
+<li>.etag = false - enable ETag</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>.actions - {}, optional override of auto-detect commands.
+    Each either a string or list of strings.
+    Use '@default' in [] to run the default auto-detected tasks too.
+    Use of '@default' in deploy config means actions defined/detected in project config.
+    Start command with '@cid' to invoke FutoIn CID itself.<ul>
+<li>.tag - custom shell command for tagging</li>
+<li>.prepare - custom shell command for source preparation</li>
+<li>.build - custom shell command for building from source</li>
+<li>.package - custom shell command for binary artifact creation</li>
+<li>.promote - custom shell command for binary artifact promotion</li>
+<li>.migrate - custom shell command in deployment procedure</li>
+<li>.deploy - custom shell command for deployment from binary artifact</li>
+<li>.{custom} - any arbitrary user-defined extension to use with "cid run"</li>
+</ul>
+</li>
+<li>.plugins = {} - optional custom plugins, see .env counterpart</li>
+<li>.pluginPacks = [] - optional custom plugin packs, see .env counterpart</li>
+</ul>
+<h4>3.1.1.2. Environment configuration</h4>
+<ul>
+<li>.env - {}, the only part allowed to be defined in user or system configs<ul>
+<li>.type - "prod", "test" and "dev" (default - "prod")</li>
+<li>.persistentDir = {.deployDir}/persistent - root for persistent data</li>
+<li>.vars - arbitrary environment variables to set on execution</li>
+<li>.plugins = {} - custom plugins, implementation defined<ul>
+<li>$tool =&gt; $module_name pair - individual tool</li>
+</ul>
+</li>
+<li>.pluginPacks = [] - custom plugin packs, implementation defined<ul>
+<li>$module_name - define module providing list of plugins</li>
+</ul>
+</li>
+<li>.binDir = ${HOME}/bin - user bin folder</li>
+<li>.externalSetup = false<ul>
+<li>a shell command to call instead of CID with the same parameters, if set to string</li>
+<li>disable tool setup, if true</li>
+</ul>
+</li>
+<li>.externalServices = []<ul>
+<li>list of tools which should not be accounted in resource distribution</li>
+<li>it's expected the tools are externally configured by provisioning system</li>
+</ul>
+</li>
+<li>.timeouts - timeout configuration for various operations (may not be always supported)<ul>
+<li>.connect = 10 - initial connection timeout </li>
+<li>.read = 60 - network timeout for individual read calls</li>
+<li>.total = .read * 60 - network timeout for single request</li>
+</ul>
+</li>
+<li>.{tool}Bin - path to "$tool" command line binary</li>
+<li>.{tool}Dir - path root "$tool", if applicable</li>
+<li>.{tool}Ver - required version of "$tool", if applicable</li>
+<li>.{tool}{misc} - any tool-specific misc. configuration</li>
+</ul>
+</li>
+</ul>
+<h4>3.1.1.3. Deployment configuration</h4>
+<ul>
+<li>.deploy<ul>
+<li>.maxTotalMemory - memory limit for deployment</li>
+<li>.maxCpuCount - CPU count the deployment expected to utilize</li>
+<li>.listenAddress - address to bind services by default</li>
+<li>.user - user for service execution</li>
+<li>.group - group for service execution</li>
+<li>.runtimeDir = {.deployDir}/.runtime - location for temporary files required for runtime:<ul>
+<li>UNIX socket files</li>
+<li>UNIX pipes</li>
+<li>Process ID files</li>
+<li>On-the-fly configuration files</li>
+</ul>
+</li>
+<li>.tmpDir = {.deployDir}/.tmp - location for other temporary files</li>
+<li>.autoServices - map of lists, to be auto-generated in deployment process<ul>
+<li>.maxMemory - maximal memory per instance (for deployment config)</li>
+<li>.maxCpuCount - maximal CPU count an instance can use (for multiCore)</li>
+<li>.maxConnections - expected number of clients the instance can handle</li>
+<li>.maxFD - maximal file descriptors</li>
+<li>.socketType - one of .entryPoints[.entryPoint].socketTypes</li>
+<li>.socketAddress - assigned socket address, if applicable</li>
+<li>.socketPort - assigned socket port, if applicable</li>
+<li>.socketPath - assigned socket path, if applicable</li>
+<li>tool-specific - any tool-specific value like "nginxConf"</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4>3.1.1.4. Runtime configuration (available to plugins)</h4>
+<ul>
+<li>.target - (dynamic variable) current build target</li>
+<li>.vcsRef - (dynamic variable) current branch name</li>
+<li>.wcDir - (dynamic variable) working directory name for fresh clone/checkout</li>
+<li>.deployDir - (dynamic variable) root for current package deployment</li>
+<li>.reDeploy - (dynamic variable) force deploy, if true</li>
+<li>.debugBuild - (dynamic variable) build in debug mode</li>
+<li>.tool - (dynamic variable) current tool to be used</li>
+<li>.toolVer - (dynamic variable) required version for current tool</li>
+<li>.toolOrder - (dynamic variable) full ordered by dependency list of active tools</li>
+<li>.packageFiles - (dynamic variable), list of packages created by tools</li>
+</ul>
+<h4>3.1.1.5. Python-based CID implementation notes</h4>
+<ol>
+<li><code>.plugins</code> expects to fully qualified module named with <code>{tool}Tool</code> class.</li>
+<li><code>.pluginPacks</code> expect fully qualified module name with submodules
+    in <code>{tool}tool.py</code> format having <code>{tool}Tool</code> class</li>
+</ol>
+<h3>3.1.2. Process environment</h3>
+<p>Each tool may have a whitelist of related environment variables for .env sections.
+This variables may be passed through process environment as well. Example:</p>
+<p><code>bash
+    rubyVer=2.3 cid tool install ruby
+    rubyVer=2.3 cid tool exec ruby -- ruby-specific-args</code></p>
+<h3>3.1.3. Working Directory notes</h3>
+<p>By default working directory (--wcDir) is absolute path of current working directory, except:</p>
+<ol>
+<li>If ci_build command is used with --vcsRepo then absolute path of "./ci_build_{vcs_ref}" is used</li>
+<li>If ci_build command is used without --wcsRepo then:<ul>
+<li>project name is taken as basename of current working directory</li>
+<li>working directory is set to absolute path of "../ci_builds/{project_name}_{vcs_ref}"</li>
+</ul>
+</li>
+</ol>
+<p>In all cases working directory must be either empty or contain project without conflicts 
+with --vcsRepo parameter, if supplied.</p>
+<p>In case of ci_build, it is required to make a clean checkout. Therefore, existing wcDir
+must be removed (renamed for safety).</p>
+<h4>3.1.4. Resource distribution requirements</h4>
+<p>The complexity comes from these facts:</p>
+<ul>
+<li>Some runtimes are single-threaded with async IO.<ul>
+<li>does not scale beyond one CPU - requires multiple instances</li>
+<li>multiple instances - lead to multiple sockets</li>
+</ul>
+</li>
+<li>Some apps are not scalable to multiple instances and lack High-Availability.</li>
+<li>Some runtimes have thread/process per client with single control socket.</li>
+<li>Some runtimes support seamless reload.</li>
+<li>Actual use cases, may require different strategy. Therefore, the specification 
+    does not define a strict algorithm, but adds requirements for it.</li>
+</ul>
+<p>Requirements:</p>
+<ol>
+<li>Minimal and maximal memory requirements per service instance must be obeyed.</li>
+<li>Deployment must fail, if minimal memory requirements are not satisfied.</li>
+<li>All available for deployment memory must be allocated to instances based
+    their weights.</li>
+<li>If one instance is unable to utilize multiple CPU cores then additional
+    instances must be added until it's feasible to distribute available memory.</li>
+<li>If one instance is unable to seamlessly reload then at least one more
+    instance must be added for rolling updates.</li>
+<li>If app is marked as not scalable then no more than one instance is allowed.</li>
+</ol>
+<h2>3.2. Commands</h2>
+<p>Prior to each command run:</p>
+<ul>
+<li>Read user and system locations for .env configuration</li>
+<li>Setup .env.vars</li>
+<li>Read project's futoin.json, if present</li>
+<li>If .tools is not set yet, configure based on file presence in project root</li>
+<li>For each detected tool, read its configuration:<ul>
+<li>set .name, if not set yet</li>
+<li>set .version, if not set yet</li>
+<li>set .vcs and .vcsRepo, if not set yet</li>
+<li>set .rms and .rmsRepo, if not set yet</li>
+</ul>
+</li>
+</ul>
+<p>Standard parameter processing:</p>
+<ul>
+<li>if --vcsRepo is provided<ul>
+<li>set .vcs and .vcsRepo</li>
+<li>verify we are in the correct working copy</li>
+</ul>
+</li>
+<li>else auto-detect based on VCS working copy or use .vcsRepo</li>
+<li>if --rmsRepo is provided<ul>
+<li>set .rms and .rmsRepo</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.1. cid tag &lt;branch&gt; [&lt;next_version&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>Set .vcsRef={branch}</li>
+<li>standard checkout process</li>
+<li>if &lt;next_version&gt; is set then<ul>
+<li>if equal to 'major', 'minor' or 'patch' then use special logic<ul>
+<li>patch: x.y.z -&gt; x.y.(z+1)</li>
+<li>minor: x.y.z -&gt; x.(y+1).0</li>
+<li>major: x.y.z -&gt; (x+1).0.0</li>
+</ul>
+</li>
+<li>otherwise check valid version &amp; set .version</li>
+</ul>
+</li>
+<li>otherwise, increment the very last part of .version</li>
+<li>Update (or create) futoin.json with release version</li>
+<li>Update tool configuration files with release version</li>
+<li>Commit updated files with "Updated for release {.name} {.version}" comment</li>
+<li>Create [annotated] tag "v{.version} with "Release {.name} {.version}" comment</li>
+<li>Push changes and tags, if applicable based on .vcs</li>
+</ul>
+<h4>Versioning notes</h4>
+<p>It is required that version consists of three components: major, minor and patch.
+Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
+<h3>3.2.2. cid prepare [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--wcDir wc_dir]</h3>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>if vcs_ref is supplied then set .vcsRef and make standard checkout process</li>
+<li>depending on .vcs and .tools:<ul>
+<li>svn -&gt; {.env.svnBin} update</li>
+<li>git -&gt; {.env.gitBin} pull --rebase [&amp;&amp; {.env.gitBin} submodule update]</li>
+<li>hg -&gt; {.env.hgBin} pull --update</li>
+<li>composer -&gt; {.env.composerBin} install</li>
+<li>npm -&gt; {.env.npmBin} install</li>
+<li>bower -&gt; {.env.bowerBin} install</li>
+<li>etc.</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.3. cid build [--debug]</h3>
+<p>Default:</p>
+<ul>
+<li>depending on .tools:<ul>
+<li>grunt -&gt; {.env.gruntBin}</li>
+<li>gulp -&gt; {.env.gulpBin}</li>
+<li>puppet -&gt; {.env.puppetBin} module build</li>
+<li>etc.</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.4. cid package</h3>
+<p>Default:</p>
+<ul>
+<li>if package is product of the build process then exit</li>
+<li>for each .tools<ul>
+<li>remove related external dependencies for development</li>
+</ul>
+</li>
+<li>if .webcfg.root<ul>
+<li>create nginx optimized *.gz files for static content (.js, .json, .css, .svg)</li>
+</ul>
+</li>
+<li>create sorted sha256 checksums file based on .package list</li>
+<li>create .tar.xz package based on .package list and include the checksums file</li>
+</ul>
+<h4>3.2.3.1. Package name convention:</h4>
+<ul>
+<li>Release build: {.name}-{.version}-{YYYYMMDD_hhmmss}[-{target}].ext</li>
+<li>CI build: {.name}-CI-{.version}-{YYYYMMDD_hhmmss}-{.ref}[-{target}].ext</li>
+<li>where:<ul>
+<li>.name &amp; .version - from configuration</li>
+<li>.ref - revision from VCS</li>
+<li>target, if no neutral to Arch/OS execution environment</li>
+<li>all forbidden symbols must get replaced with underscore</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.5. cid check [--permissive]</h3>
+<ul>
+<li>depending on .tools:<ul>
+<li>run code checks, unit tests, static analysis &amp; misc.</li>
+</ul>
+</li>
+<li>allow failures, if --permissive</li>
+</ul>
+<h3>3.2.6. cid promote &lt;rms_pool&gt; &lt;packages&gt; [--rmsRepo=&lt;rms:url&gt;]</h3>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>if <code>rms_pool</code> has colon (':')<ul>
+<li>act as promotion between pools</li>
+<li>split <code>rms_pool</code> into <code>src_pool</code> and <code>dst_pool</code></li>
+<li>for each <code>package</code> in <code>packages</code>:<ul>
+<li>format: "base_name[@hash_type:hash]"</li>
+<li>if <code>package</code> contains "@"<ul>
+<li>verify the hash in <code>src_pool</code></li>
+</ul>
+</li>
+<li>copy package from <code>src_pool</code> to <code>dst_pool</code> the most efficient way</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>else:<ul>
+<li>act as file upload</li>
+<li>for each <code>package</code> in <code>packages</code>:<ul>
+<li>upload local <code>package</code> into <code>rms_pool</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.7 cid deploy &lt;deploy_type&gt; ...</h3>
+<p>Generic options:</p>
+<ul>
+<li>[--deployDir=&lt;deploy_dir&gt;] - target deployment folder</li>
+<li>[--runtimeDir=&lt;run_dir&gt;|auto] - override default runtime dir location (e.g. /run/service)<ul>
+<li><em>NOTE: working dir is always "&lt;deploy_dir&gt;/current"</em></li>
+</ul>
+</li>
+<li>[--tmpDir=&lt;tmp_dir&gt;|auto] - override default temporary dir location</li>
+<li>[--limit-memory=&lt;mem_limit&gt;|auto] - limit memory</li>
+<li>[--limit-cpus=&lt;cpu_count&gt;|auto] - limit CPU count</li>
+<li>[--listen-addr=&lt;address&gt;|auto] - listen address for started services</li>
+<li>[--user=&amp;ltuser&gt;|auto] - user for service execution</li>
+<li>[--group=&amp;ltuser&gt;|auto] - group for service execution</li>
+</ul>
+<h3>3.2.7.1 cid deploy rms &lt;rms_pool&gt; [&lt;package&gt;] [--rmsRepo=&lt;rms:url&gt;] [--build] [--redeploy]</h3>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>find out the latest package:<ul>
+<li>get list of packages from RMS pool, use package as glob hint</li>
+<li>filter package list using "package" as glob filter</li>
+<li>naturally sort package list</li>
+<li>select the latest</li>
+</ul>
+</li>
+<li>find out currently deployed package</li>
+<li>if current matches target package and --redeploy is not set then exit</li>
+<li>if {package} file exists then use it</li>
+<li>otherwise, download one from .rmsRepo</li>
+<li>unpack package to {.deployDir}/{package_no_ext}.tmp</li>
+<li>if --build then prepare &amp; build</li>
+<li>common deploy procedure, package_dir = {package_no_ext}</li>
+</ul>
+<h4>3.2.7.2. cid deploy vcstag [&lt;vcs_ref&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--redeploy]</h4>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>find out the latest tag:<ul>
+<li>get list of packages from RMS pool, use vcs_ref as glob hint</li>
+<li>filter tags list using vcs_ref as glob filter</li>
+<li>naturally sort tag list</li>
+<li>select the latest</li>
+</ul>
+</li>
+<li>if {.deployDir}/vcs exists:<ul>
+<li>reset all change</li>
+<li>fetch/update to vcs_ref</li>
+</ul>
+</li>
+<li>otherwise:<ul>
+<li>fresh clone/checkout vcs_ref</li>
+</ul>
+</li>
+<li>find out currently deployed tag</li>
+<li>if current matches target tag and --redeploy is not set then exit</li>
+<li>export vcs_ref to {.deployDir}/{vcs_ref}.tmp</li>
+<li>prepare &amp; build</li>
+<li>common deploy procedure, package_dir = {vcs_ref}</li>
+</ul>
+<h4>3.2.7.3. cid deploy vcsref &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--redeploy]</h4>
+<p>Default:</p>
+<ul>
+<li>process standard parameters</li>
+<li>if {.deployDir}/vcs exists:<ul>
+<li>reset all change</li>
+<li>fetch/update to vcs_ref</li>
+</ul>
+</li>
+<li>otherwise:<ul>
+<li>fresh clone/checkout vcs_ref</li>
+</ul>
+</li>
+<li>find out the latest revision of vcs_ref as vcs_rev</li>
+<li>find out currently deployed vcs_ref and vcs_rev</li>
+<li>if current matches target and --redeploy is not set then exit</li>
+<li>export vcs_ref to {.deployDir}/{vcs_ref}_{vcs_rev}.tmp</li>
+<li>prepare &amp; build</li>
+<li>common deploy procedure, package_dir = {vcs_ref}_{vcs_rev}</li>
+</ul>
+<h4>3.2.7.4. cid deploy setup</h4>
+<p>Setup deploy directory to allow futoin.json modifications without deployment being is done.</p>
+<h4>3.2.7.4.1. cid deploy set action &lt;name&gt; &lt;action&gt;...</h4>
+<p>Override .action in deployment config. '@default' can be used to call project-defined handlers.</p>
+<h4>3.2.7.4.2. cid deploy set persistent &lt;path&gt;...</h4>
+<p>Add .persistent paths in deployment config. Duplicate entries are automatically merged.</p>
+<h4>3.2.7.4.2. cid deploy set writable &lt;path&gt;...</h4>
+<p>Add .writable paths in deployment config. Duplicate entries are automatically merged.</p>
+<h4>3.2.7.5. common deploy procedure</h4>
+<ul>
+<li>{package_dir} - depend on deployment method</li>
+<li>according to .persistent:<ul>
+<li>create symlinks {.deployDir}/{package_dir}.tmp/{subpath} -&gt; {.env.persistentDir}/{subpath}</li>
+</ul>
+</li>
+<li>setup read-only permissions</li>
+<li>run .action.migrate</li>
+<li>create/update deployment futoin.json</li>
+<li>atomic move {.deployDir}/{package_dir}.tmp {.deployDir}/{package_dir}</li>
+<li>create/change symlink {.deployDir}/current -&gt; {.deployDir}/{package_dir}</li>
+<li>trigger external service reload</li>
+<li>remove all not managed or obsolete files in {.deployDir}</li>
+</ul>
+<h4>3.2.7.6. deployment assumptions</h4>
+<ol>
+<li>Each web application must have own deployment root folder</li>
+<li>Each web application should have own user</li>
+<li>Each web application should get proper ownership and read-only permissions</li>
+<li>Application package must not have modifiable content</li>
+<li>Each read-write path should get symlink to {.env.persistentDir}/{path} and survive across deployments</li>
+<li>.action.migrate must run and successfully complete</li>
+<li>${.deployDir}/current must always point to fully configured deployment</li>
+<li>For security reasons it is not possible to include project-specific config
+    for web server running as root user. Also, sensitive data like TLS private
+    keys must not be available to application user. Therefore a performance
+    penalty of reverse proxy may apply, but large high available deployments should
+    have load balancer/reverse proxy any way.</li>
+<li>Lock file must be acquired during deployment procedure.</li>
+<li>Not empty {.deploDir} must contain deploy lock file for safety reasons.</li>
+</ol>
+<h3>3.2.8. cid run [&lt;command&gt; [-- &lt;command_args..&gt;]]</h3>
+<p>Primary case is execution in development and testing environment.</p>
+<ul>
+<li>If command is missing then execute all .entryPoints in parallel<ul>
+<li>Use single instance per entry point</li>
+<li>Use default memory limits</li>
+</ul>
+</li>
+<li>Else if command is present in .entryPoints then execute as related tool</li>
+<li>Else if command is present in .actions then execute that in shell</li>
+</ul>
+<h3>3.2.9. cid ci_build &lt;vcs_ref&gt; [&lt;rms_pool&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;]  [--permissive] [--debug] [--wcDir wc_dir]</h3>
+<p>Default:</p>
+<ul>
+<li>cid prepare</li>
+<li>cid build</li>
+<li>cid package</li>
+<li>if &lt;rms_pool&gt; is set<ul>
+<li>cid promote {package(s)} &lt;rms_pool&gt;</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.10. cid tool &lt;action&gt; [&lt;tool_name&gt; [&lt;version&gt;] -- optional args]</h3>
+<p>Tools actions:</p>
+<ul>
+<li><em>exec</em> -  execute specified tool with arbitrary arguments passed.</li>
+<li><em>envexec</em> - execute arbitrary shell command in environment of the tool.</li>
+<li><em>install</em> - make sure project tools are installed.</li>
+<li><em>install</em> with tool_name - make sure specified tool is installed even if not used by current project.</li>
+<li><em>uninstall</em> - make sure project tools are uninstalled.</li>
+<li><em>uninstall</em> with tool_name - make sure specified tool is uninstalled</li>
+<li><em>update</em> - make sure the latest versions of tools are used for current project.</li>
+<li><em>update</em> with tool_name - make sure specified tool is installed of the latest version.</li>
+<li><em>test</em> - test if required by current project tools are installed</li>
+<li><em>test</em> with tool_name - check if tool is installed</li>
+<li><em>env</em> - get environment variables after processing of current project tools</li>
+<li><em>env</em> with tool name - get environment variables for specified tool</li>
+<li><em>prepare</em> with tool name - run tool prepare procedure</li>
+<li><em>build</em> with tool name - run tool's build procedure</li>
+<li><em>check</em> with tool name - run tool's check procedure</li>
+<li><em>package</em> with tool name - run tool's package procedure</li>
+<li><em>migrate</em> with tool name - run tool's migrate procedure</li>
+<li><em>describe</em> with tool name - show tool's description</li>
+<li><em>list</em> - list supported tools</li>
+<li><em>detect</em> - list tools detected for current project (with optional "=version")</li>
+</ul>
+<h3>3.2.11. cid init [&lt;project_name&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--rmsRepo=&lt;rms:url&gt;] [--permissive]</h3>
+<p>Initialize futoin.json. Automatically add already known information to it.</p>
+<p>If project name is not provided and not auto-detected then use working copy folder basename.</p>
+<h3>3.2.12. cid migrate</h3>
+<p>Runs data migration tasks.</p>
+<p>Provided for overriding default procedures in scope of deployment procedure.</p>
+<h3>3.2.13. cid vcs &lt;action&gt; [optional args]</h3>
+<p>These are helpers for CI environment and should not be used by developer in regular activities.</p>
+<ul>
+<li><em>cid vcs checkout &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--wcDir=<wc_dir>]</em> - checkout specific VCS reference</li>
+<li><em>cid vcs commit &lt;commit_msg&gt; [&lt;%lt;files&gt;] [--wcDir=<wc_dir>]</em> - commit &amp; push all changes [or specific files]</li>
+<li><em>cid vcs merge &lt;vcs_ref&gt; [--no-cleanup] [--wcDir=<wc_dir>]</em> - merge another VCS ref. Abort on conflicts.</li>
+<li><em>cid vcs branch &lt;vcs_ref&gt; [--wcDir=<wc_dir>]</em>  - create new branch from current checkout</li>
+<li><em>cid vcs delete &lt;vcs_ref&gt; [--vcsRepo=&lt;vcs:url&gt;] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]</em> - delete branch</li>
+<li><em>cid vcs export &lt;vcs_ref&gt; &lt;dst&gt; [--vcsRepo=&lt;vcs:url&gt;] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]</em> - export tag or branch</li>
+<li><em>cid vcs tags [&lt;tag_pattern&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]</em> - list tags</li>
+<li><em>cid vcs branches [&lt;branch_pattern&gt;] [--vcsRepo=&lt;vcs:url&gt;] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]</em> - list branches</li>
+<li><em>cid vcs reset [--wcDir=<wc_dir>]</em> - revert all local changes, including merge conflicts</li>
+<li><em>cid vcs ismerged [--wcDir=<wc_dir>]</em> - check if branch is merged</li>
+<li><em>cid vcs clean [--wcDir=<wc_dir>]</em> - clean any unversioned items</li>
+</ul>
+<h3>3.2.14. cid rms &lt;action&gt; [optional args]</h3>
+<p>This helpers help automate RMS operation neutral way.</p>
+<ul>
+<li><em>cid rms list &lt;rms_pool&gt; [<package_pattern>] [--rmsRepo=<rms_repo>]</em> - list available packages</li>
+<li><em>cid rms retrieve &lt;rms_pool&gt; <package>... [--rmsRepo=<rms_repo>]</em> - retrieve-only specified packages</li>
+<li><em>cid rms pool create <rms_pool> [--rmsRepo=<rms_repo>]</em> - ensure pool exists (may require admin privileges)</li>
+<li><em>cid rms pool list [--rmsRepo=<rms_repo>]</em> - list available pools</li>
+</ul>
+<h3>3.2.15. cid service ...</h3>
+<p>Interface for Continuous Deployment execution control. It is expected to call this commands
+from systemd, sysv-init or other system daemon control functionality.</p>
+<ul>
+<li><em>cid service exec &lt;entry_point&gt; &lt;&lt;instance&gt; [--deployDir=deploy_dir]</em> -
+    replace CID with foreground execution of pre-configured instance.</li>
+<li><em>cid service stop &lt;entry_point&gt; &lt;&lt;instance&gt; &lt;&lt;pid&gt; [--deployDir=deploy_dir]</em> -
+    stop previously started instance.</li>
+<li><em>cid service reload &lt;entry_point&gt; &lt;&lt;instance&gt; &lt;&lt;pid&gt; [--deployDir=deploy_dir]</em> -
+    reload previously started instance.</li>
+<li><em>cid service list [args...]</em> - list services and instance count deployed (to be executed)<ul>
+<li>[--adapt] - adapt to newly set limits before execution of services</li>
+<li>support generic deploy options</li>
+</ul>
+</li>
+</ul>
+<p>In case containers like Docker is used then there is a separate helper command to be used
+as entry point:</p>
+<ul>
+<li><em>cid service master [args..]</em> - run deployment-related services as children and restart on failure.<ul>
+<li>[--adapt] - adapt to newly set limits before execution of services</li>
+<li>support generic deploy options</li>
+</ul>
+</li>
+</ul>
+<p>In case there is no deployment, but service run is desired in development process:</p>
+<ul>
+<li><em>cid devserve [args..]</em> - run services as children and restart on failure.<ul>
+<li>support generic deploy options</li>
+<li>Each run creates a new temporary folder</li>
+</ul>
+</li>
+</ul>
+<h3>3.2.16. cid build-dep &lt;name&gt;...</h3>
+<p>Install development files for specific build dependency.
+The list of dependencies is implementation-defined.</p>
+<p>If build dependency matches supported tool then full initialization of
+.config.env is performed.</p>
+<p>=END OF SPEC=</p>
+</body></html>

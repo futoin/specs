@@ -1,14 +1,17 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
-Version: 1.1
-Date: 2017-11-07
-Copyright: 2015-2017 FutoIn Project (http://futoin.org)
+Version: 1.2DV
+Date: 2018-03-22
+Copyright: 2015-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.1 - 2017-10-09 - Andrey Galin
+* v1.2 - 2018-03-22 - Andrey Galkin
+    - FIXED: clarified .peristent data copying
+    - NEW: .writable config support
+* v1.1 - 2017-10-09 - Andrey Galkin
     * clarified external setup
 * v1.0 - 2017-07-13 - Andrey Galkin
 * Initial draft - 2015-09-14 - Andrey Galkin
@@ -179,7 +182,9 @@ configuration root or only with its .env part. There should be no other configur
 * .packageGzipStatic = True, creates *.gz files for found *.js, *.json, *.css, *.svg and *.txt files
 * .packageChecksums = True, creates .package.checksums of files
 * .persistent - [], list of persistent read-write directory paths.
-    The paths must be empty/missing in deployment package.
+    - Content of related deployment package paths is copied to persistent location.
+* .writable - [], list of non-peristent read-write directory paths.
+    - Can be used for version-specific caches.
 * .entryPoints - {], list of named entry points {}
     * .tool - name of the tool
     * .path - file
@@ -555,13 +560,17 @@ Default:
 
 Setup deploy directory to allow futoin.json modifications without deployment being is done.
 
-#### 3.2.7.4.1. cid deploy set-action &lt;name> &lt;action>...
+#### 3.2.7.4.1. cid deploy set action &lt;name> &lt;action>...
 
 Override .action in deployment config. '@default' can be used to call project-defined handlers.
 
-#### 3.2.7.4.2. cid deploy set-persistent &lt;path>...
+#### 3.2.7.4.2. cid deploy set persistent &lt;path>...
 
 Add .persistent paths in deployment config. Duplicate entries are automatically merged.
+
+#### 3.2.7.4.2. cid deploy set writable &lt;path>...
+
+Add .writable paths in deployment config. Duplicate entries are automatically merged.
 
 
 #### 3.2.7.5. common deploy procedure
