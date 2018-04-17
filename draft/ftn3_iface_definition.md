@@ -1,13 +1,16 @@
 <pre>
 FTN3: FutoIn Interface Definition
 Version: 1.9
-Date: 2018-01-14
+Date: 2018-04-17
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.9.1 - 2018-04-17 - Andrey Galkin
+    * FIXED: minor typo/spelling fixes
+    * NEW: cosmetic improvements
 * v1.9 - 2018-01-14 - Andrey Galkin
     * NEW: fundamental "data" type
     * NEW: multiple transport format support
@@ -278,22 +281,22 @@ Using [JSON-SCHEMA][]:
 
 The standard FutoIn interface types:
 
-* boolean - true or false
-* integer - signed integer with 32-bit precision
-* number - float value with 32-bit precision
-* string - string of unlimited length
-* map - key-value pairs (JSON object by fact). No ordering is guaranteed.
-    * key - string
-    * value - any type defined in this section
-* array - ordered list of values
-    * value - any type defined in this section
-* enum - value from predefined set
-    * value - integer or string
-* set - list of unique values
-    * value - integer or string
-* data - binary data
-    * value - sequence of bytes
-* any - field type is not checked
+* `boolean` - true or false
+* `integer` - signed integer with 32-bit precision
+* `number` - float value with 32-bit precision
+* `string` - string of unlimited length
+* `map` - key-value pairs (JSON object by fact). No ordering is guaranteed.
+    * `key` - string
+    * `value` - any type defined in this section
+* `array` - ordered list of values
+    * `value` - any type defined in this section
+* `enum` - value from predefined set
+    * `value` - integer or string
+* `set` - list of unique values
+    * `value` - integer or string
+* `data` - binary data
+    * `value` - sequence of bytes
+* `any` - field type is not checked
 * *CustomType* - any pre-defined custom type defined, inherited or imported
     in the same iface
 
@@ -308,30 +311,30 @@ The types are inherited and imported. It is an error to redefine type in such ca
 Each custom type must be based on one of the standard types, but can define
 various *optional* constraints:
 
-* integer and number:
-    * min - minimal allowed value (inclusive).
-    * max - maximal allowed value (inclusive).
-* string:
-    * regex - ECMAScript regular expression.
-    * minlen - minimal string length (inclusive).
-    * maxlen - maximal string length (inclusive).
-* array:
-    * minlen - minimal array length (inclusive).
-    * maxlen - maximal array length (inclusive).
-    * elemtype - required element type.
-* map:
-    * fields - a map of field_name to:
-        * type - required field type
-        * optional - optional. boolean. True, if the field can be omitted.
-        * desc - optional. string, Description of the field.
-    * elemtype - required element type, if no "fields" are provided.
-* enum:
-    * items - list of allowed integer or string values
-* set:
-    * items - complete set of allowed integer or string values
-* data:
-    * minlen - minimal data array byte length (inclusive).
-    * maxlen - maximal data array byte length (inclusive).
+* `integer` and `number`:
+    * `min` - minimal allowed value (inclusive).
+    * `max` - maximal allowed value (inclusive).
+* `string`:
+    * `regex` - ECMAScript regular expression.
+    * `minlen` - minimal string length (inclusive).
+    * `maxlen` - maximal string length (inclusive).
+* `array`:
+    * `minlen` - minimal array length (inclusive).
+    * `maxlen` - maximal array length (inclusive).
+    * `elemtype` - required element type.
+* `map`:
+    * `fields` - a map of field_name to:
+        * `type` - required field type
+        * `optional` - optional. boolean. True, if the field can be omitted.
+        * `desc` - optional. string, Description of the field.
+    * `elemtype` - required element type, if no "fields" are provided.
+* `enum`:
+    * `items` - list of allowed integer or string values
+* `set`:
+    * `items` - complete set of allowed integer or string values
+* `data`:
+    * `minlen` - minimal data array byte length (inclusive).
+    * `maxlen` - maximal data array byte length (inclusive).
 
 *NOTE: omitted optional field of custom map type must be set to null on incoming message (request
 for Executor and response for Invoker case). Optional fields should be allowed to be sent as null.*
@@ -373,9 +376,9 @@ approach is supported only in shortcut type definition form, e.g.:
 
 ### 1.8.5. Result type
 
-Very often function calls return only single value. It not efficient and
-not clean write something `result.result`. Therefore, it's allowed
-to define result as string refering to standard or custom type.
+Very often function calls return only single value. It is not efficient and
+is redundant to access a single value result like `result.result`. Therefore, it's allowed
+to define result as string referring to standard or custom type.
 
 Type variations are not allowed in result.
 
@@ -391,13 +394,15 @@ calls and binary-friendly codecs.
 If interface uses binary data then it should use "BinaryData" constraint.
 An alternative interface or function can be defined to support text-only protocols.
 
+*Since: v1.9*
+
 ## 1.9. Errors and exceptions
 
 Any functional call can result in expected or unexpected errors. This concept
 is similar to checked/unchecked exceptions in Java language.
 
 All expected exceptions/errors, which appear in standard flow must be enumerated
-in "throws" clause of function declaration in interface definitions (see below).
+in `throws` clause of function declaration in interface definitions (see below).
 
 Unexpected exceptions/errors are generated by execution environment/condition as
 reaction to error condition not related to logic implemented in given function. 
@@ -448,7 +453,7 @@ from peer to peer (e.g. shared memory).
 ## 1.10.1. Max message size adjustment per function definition
 
 For some cases it may still be desired to transfer larger data in single call using main message
-exchange transport protocol. It can be set per-function with "maxsize" attribute.
+exchange transport protocol. It can be set per-function with `maxreqsize` and `maxrspsize` attributes.
 
 However, it is discouraged as it may jeopardize service stability.
 
@@ -456,6 +461,8 @@ Units assumed:
 * 'B' - bytes
 * 'K' - Kilobytes - 1024 bytes
 * 'M' - Megabytes - 1024 kilobytes
+
+*Since: v1.8*
 
 ## 1.11. On Behalf Of calls
 
@@ -481,7 +488,7 @@ Both Invoker and Executor may support different sets of message coding formats. 
 there is a mismatch, Executor must response with JSON coded error. Then Invoker must
 automatically fallback to JSON coding for all further requests.
 
-The following rules must apply to auto-detection of message coding format. If starts from ASCII:
+The following rules must apply to auto-detection of message coding format. If message starts from ASCII:
 
 1. `{` - use JSON
 2. `CBOR` - use CBOR

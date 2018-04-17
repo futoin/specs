@@ -7,13 +7,18 @@
 <pre>
 FTN3: FutoIn Interface Definition
 Version: 1.9
-Date: 2018-01-14
+Date: 2018-04-17
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v1.9.1 - 2018-04-17 - Andrey Galkin<ul>
+<li>FIXED: minor typo/spelling fixes</li>
+<li>NEW: cosmetic improvements</li>
+</ul>
+</li>
 <li>v1.9 - 2018-01-14 - Andrey Galkin<ul>
 <li>NEW: fundamental "data" type</li>
 <li>NEW: multiple transport format support</li>
@@ -259,32 +264,32 @@ in message multiplexing mode.</p>
 <h2>1.8. Parameter and result types</h2>
 <p>The standard FutoIn interface types:</p>
 <ul>
-<li>boolean - true or false</li>
-<li>integer - signed integer with 32-bit precision</li>
-<li>number - float value with 32-bit precision</li>
-<li>string - string of unlimited length</li>
-<li>map - key-value pairs (JSON object by fact). No ordering is guaranteed.<ul>
-<li>key - string</li>
-<li>value - any type defined in this section</li>
+<li><code>boolean</code> - true or false</li>
+<li><code>integer</code> - signed integer with 32-bit precision</li>
+<li><code>number</code> - float value with 32-bit precision</li>
+<li><code>string</code> - string of unlimited length</li>
+<li><code>map</code> - key-value pairs (JSON object by fact). No ordering is guaranteed.<ul>
+<li><code>key</code> - string</li>
+<li><code>value</code> - any type defined in this section</li>
 </ul>
 </li>
-<li>array - ordered list of values<ul>
-<li>value - any type defined in this section</li>
+<li><code>array</code> - ordered list of values<ul>
+<li><code>value</code> - any type defined in this section</li>
 </ul>
 </li>
-<li>enum - value from predefined set<ul>
-<li>value - integer or string</li>
+<li><code>enum</code> - value from predefined set<ul>
+<li><code>value</code> - integer or string</li>
 </ul>
 </li>
-<li>set - list of unique values<ul>
-<li>value - integer or string</li>
+<li><code>set</code> - list of unique values<ul>
+<li><code>value</code> - integer or string</li>
 </ul>
 </li>
-<li>data - binary data<ul>
-<li>value - sequence of bytes</li>
+<li><code>data</code> - binary data<ul>
+<li><code>value</code> - sequence of bytes</li>
 </ul>
 </li>
-<li>any - field type is not checked</li>
+<li><code>any</code> - field type is not checked</li>
 <li><em>CustomType</em> - any pre-defined custom type defined, inherited or imported
     in the same iface</li>
 </ul>
@@ -295,44 +300,44 @@ in message multiplexing mode.</p>
 <p>Each custom type must be based on one of the standard types, but can define
 various <em>optional</em> constraints:</p>
 <ul>
-<li>integer and number:<ul>
-<li>min - minimal allowed value (inclusive).</li>
-<li>max - maximal allowed value (inclusive).</li>
+<li><code>integer</code> and <code>number</code>:<ul>
+<li><code>min</code> - minimal allowed value (inclusive).</li>
+<li><code>max</code> - maximal allowed value (inclusive).</li>
 </ul>
 </li>
-<li>string:<ul>
-<li>regex - ECMAScript regular expression.</li>
-<li>minlen - minimal string length (inclusive).</li>
-<li>maxlen - maximal string length (inclusive).</li>
+<li><code>string</code>:<ul>
+<li><code>regex</code> - ECMAScript regular expression.</li>
+<li><code>minlen</code> - minimal string length (inclusive).</li>
+<li><code>maxlen</code> - maximal string length (inclusive).</li>
 </ul>
 </li>
-<li>array:<ul>
-<li>minlen - minimal array length (inclusive).</li>
-<li>maxlen - maximal array length (inclusive).</li>
-<li>elemtype - required element type.</li>
+<li><code>array</code>:<ul>
+<li><code>minlen</code> - minimal array length (inclusive).</li>
+<li><code>maxlen</code> - maximal array length (inclusive).</li>
+<li><code>elemtype</code> - required element type.</li>
 </ul>
 </li>
-<li>map:<ul>
-<li>fields - a map of field_name to:<ul>
-<li>type - required field type</li>
-<li>optional - optional. boolean. True, if the field can be omitted.</li>
-<li>desc - optional. string, Description of the field.</li>
+<li><code>map</code>:<ul>
+<li><code>fields</code> - a map of field_name to:<ul>
+<li><code>type</code> - required field type</li>
+<li><code>optional</code> - optional. boolean. True, if the field can be omitted.</li>
+<li><code>desc</code> - optional. string, Description of the field.</li>
 </ul>
 </li>
-<li>elemtype - required element type, if no "fields" are provided.</li>
+<li><code>elemtype</code> - required element type, if no "fields" are provided.</li>
 </ul>
 </li>
-<li>enum:<ul>
-<li>items - list of allowed integer or string values</li>
+<li><code>enum</code>:<ul>
+<li><code>items</code> - list of allowed integer or string values</li>
 </ul>
 </li>
-<li>set:<ul>
-<li>items - complete set of allowed integer or string values</li>
+<li><code>set</code>:<ul>
+<li><code>items</code> - complete set of allowed integer or string values</li>
 </ul>
 </li>
-<li>data:<ul>
-<li>minlen - minimal data array byte length (inclusive).</li>
-<li>maxlen - maximal data array byte length (inclusive).</li>
+<li><code>data</code>:<ul>
+<li><code>minlen</code> - minimal data array byte length (inclusive).</li>
+<li><code>maxlen</code> - maximal data array byte length (inclusive).</li>
 </ul>
 </li>
 </ul>
@@ -359,9 +364,9 @@ approach is supported only in shortcut type definition form, e.g.:
 <code>"param" : ["integer", "string"]</code></p>
 <p><em>Since: v1.6</em></p>
 <h3>1.8.5. Result type</h3>
-<p>Very often function calls return only single value. It not efficient and
-not clean write something <code>result.result</code>. Therefore, it's allowed
-to define result as string refering to standard or custom type.</p>
+<p>Very often function calls return only single value. It is not efficient and
+is redundant to access a single value result like <code>result.result</code>. Therefore, it's allowed
+to define result as string referring to standard or custom type.</p>
 <p>Type variations are not allowed in result.</p>
 <p><em>Since: v1.7</em></p>
 <h3>1.8.6. Binary "data" type</h3>
@@ -371,11 +376,12 @@ concept further, FutoIn needs to support raw binary data for efficient in-proces
 calls and binary-friendly codecs.</p>
 <p>If interface uses binary data then it should use "BinaryData" constraint.
 An alternative interface or function can be defined to support text-only protocols.</p>
+<p><em>Since: v1.9</em></p>
 <h2>1.9. Errors and exceptions</h2>
 <p>Any functional call can result in expected or unexpected errors. This concept
 is similar to checked/unchecked exceptions in Java language.</p>
 <p>All expected exceptions/errors, which appear in standard flow must be enumerated
-in "throws" clause of function declaration in interface definitions (see below).</p>
+in <code>throws</code> clause of function declaration in interface definitions (see below).</p>
 <p>Unexpected exceptions/errors are generated by execution environment/condition as
 reaction to error condition not related to logic implemented in given function. 
 Example: internal communication errors, hit of resource limits, crashes, etc.</p>
@@ -420,12 +426,13 @@ this limit, unless there is efficient mechanism with O(1) complexity to transfer
 from peer to peer (e.g. shared memory).</p>
 <h2>1.10.1. Max message size adjustment per function definition</h2>
 <p>For some cases it may still be desired to transfer larger data in single call using main message
-exchange transport protocol. It can be set per-function with "maxsize" attribute.</p>
+exchange transport protocol. It can be set per-function with <code>maxreqsize</code> and <code>maxrspsize</code> attributes.</p>
 <p>However, it is discouraged as it may jeopardize service stability.</p>
 <p>Units assumed:
 <em> 'B' - bytes
 </em> 'K' - Kilobytes - 1024 bytes
 * 'M' - Megabytes - 1024 kilobytes</p>
+<p><em>Since: v1.8</em></p>
 <h2>1.11. On Behalf Of calls</h2>
 <p>It is expected that Executor passes authenticated user information in sub-calls, so
 all security checks are done against user, but not Executor itself. It is a 
@@ -443,7 +450,7 @@ in description containing required security level.</p>
 <p>Both Invoker and Executor may support different sets of message coding formats. Whenever
 there is a mismatch, Executor must response with JSON coded error. Then Invoker must
 automatically fallback to JSON coding for all further requests.</p>
-<p>The following rules must apply to auto-detection of message coding format. If starts from ASCII:</p>
+<p>The following rules must apply to auto-detection of message coding format. If message starts from ASCII:</p>
 <ol>
 <li><code>{</code> - use JSON</li>
 <li><code>CBOR</code> - use CBOR</li>
