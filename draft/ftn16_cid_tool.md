@@ -1,16 +1,17 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.2DV
-Date: 2018-03-22
+Date: 2018-04-25
 Copyright: 2015-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.2 - 2018-03-22 - Andrey Galkin
-    - FIXED: clarified .peristent data copying
+* v1.2 - 2018-04-25 - Andrey Galkin
+    - FIXED: clarified .persistent data copying
     - NEW: .writable config support
+    - NEW: extended "deploy set" functionality
 * v1.1 - 2017-10-09 - Andrey Galkin
     * clarified external setup
 * v1.0 - 2017-07-13 - Andrey Galkin
@@ -183,7 +184,7 @@ configuration root or only with its .env part. There should be no other configur
 * .packageChecksums = True, creates .package.checksums of files
 * .persistent - [], list of persistent read-write directory paths.
     - Content of related deployment package paths is copied to persistent location.
-* .writable - [], list of non-peristent read-write directory paths.
+* .writable - [], list of non-persistent read-write directory paths.
     - Can be used for version-specific caches.
 * .entryPoints - {], list of named entry points {}
     * .tool - name of the tool
@@ -562,18 +563,51 @@ Setup deploy directory to allow futoin.json modifications without deployment bei
 
 #### 3.2.7.4.1. cid deploy set action &lt;name> &lt;action>...
 
-Override .action in deployment config. '@default' can be used to call project-defined handlers.
+Override `.action` in deployment config. '@default' can be used to call project-defined handlers.
 
 #### 3.2.7.4.2. cid deploy set persistent &lt;path>...
 
-Add .persistent paths in deployment config. Duplicate entries are automatically merged.
+Add `.persistent` paths in deployment config. Duplicate entries are automatically merged.
 
-#### 3.2.7.4.2. cid deploy set writable &lt;path>...
+#### 3.2.7.4.3. cid deploy set writable &lt;path>...
 
-Add .writable paths in deployment config. Duplicate entries are automatically merged.
+Add `.writable` paths in deployment config. Duplicate entries are automatically merged.
 
+#### 3.2.7.4.4. cid deploy set entrypoint &lt;name> &lt;tool> &lt;entry_path> [&lt;tune>...]
 
-#### 3.2.7.5. common deploy procedure
+Override `.entryPoints` configuration.
+
+The `tune` argument is either inline JSON or space separated `key=value` pairs.
+
+#### 3.2.7.4.5. cid deploy set env &lt;variable> [&lt;value>]...
+
+Set or remove `.env` variable configuration.
+
+#### 3.2.7.4.6. cid deploy set webcfg &lt;variable> [&lt;value>]...
+
+Set or remove `.webcfg` variable configuration.
+
+#### 3.2.7.4.7. cid deploy set webmount &lt;web_path> [&lt;json>]...
+
+Set or remove `.webcfg.mounts` web path configuration.
+
+#### 3.2.7.4.8. cid deploy set tools &lt;tool>...
+
+Override `.tools` configuration.
+
+The `tool` parameter is either tool name ('*' as version is assumed) or `tool=ver` pair.
+
+#### 3.2.7.4.9. cid deploy set tooltune &lt;tool> &lt;tune>...
+
+Override `.toolTune` configuration of specified `tool`.
+
+The `tune` argument is either inline JSON or space separated `key=value` pairs.
+
+#### 3.2.7.5. cid deploy reset [&lt;type]
+
+Reset either all of `cid deploy set` configurations or the specified `type`.
+
+#### 3.2.7.6. common deploy procedure
 
 * {package_dir} - depend on deployment method
 * according to .persistent:
@@ -586,7 +620,7 @@ Add .writable paths in deployment config. Duplicate entries are automatically me
 * trigger external service reload
 * remove all not managed or obsolete files in {.deployDir}
 
-#### 3.2.7.6. deployment assumptions
+#### 3.2.7.7. deployment assumptions
 
 1. Each web application must have own deployment root folder
 2. Each web application should have own user

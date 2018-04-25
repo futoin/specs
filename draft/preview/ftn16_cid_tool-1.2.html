@@ -7,16 +7,17 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
 Version: 1.2DV
-Date: 2018-03-22
+Date: 2018-04-25
 Copyright: 2015-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.2 - 2018-03-22 - Andrey Galkin<ul>
-<li>FIXED: clarified .peristent data copying</li>
+<li>v1.2 - 2018-04-25 - Andrey Galkin<ul>
+<li>FIXED: clarified .persistent data copying</li>
 <li>NEW: .writable config support</li>
+<li>NEW: extended "deploy set" functionality</li>
 </ul>
 </li>
 <li>v1.1 - 2017-10-09 - Andrey Galkin<ul>
@@ -165,7 +166,7 @@ configuration root or only with its .env part. There should be no other configur
 <li>Content of related deployment package paths is copied to persistent location.</li>
 </ul>
 </li>
-<li>.writable - [], list of non-peristent read-write directory paths.<ul>
+<li>.writable - [], list of non-persistent read-write directory paths.<ul>
 <li>Can be used for version-specific caches.</li>
 </ul>
 </li>
@@ -604,12 +605,29 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <h4>3.2.7.4. cid deploy setup</h4>
 <p>Setup deploy directory to allow futoin.json modifications without deployment being is done.</p>
 <h4>3.2.7.4.1. cid deploy set action &lt;name&gt; &lt;action&gt;...</h4>
-<p>Override .action in deployment config. '@default' can be used to call project-defined handlers.</p>
+<p>Override <code>.action</code> in deployment config. '@default' can be used to call project-defined handlers.</p>
 <h4>3.2.7.4.2. cid deploy set persistent &lt;path&gt;...</h4>
-<p>Add .persistent paths in deployment config. Duplicate entries are automatically merged.</p>
-<h4>3.2.7.4.2. cid deploy set writable &lt;path&gt;...</h4>
-<p>Add .writable paths in deployment config. Duplicate entries are automatically merged.</p>
-<h4>3.2.7.5. common deploy procedure</h4>
+<p>Add <code>.persistent</code> paths in deployment config. Duplicate entries are automatically merged.</p>
+<h4>3.2.7.4.3. cid deploy set writable &lt;path&gt;...</h4>
+<p>Add <code>.writable</code> paths in deployment config. Duplicate entries are automatically merged.</p>
+<h4>3.2.7.4.4. cid deploy set entrypoint &lt;name&gt; &lt;tool&gt; &lt;entry_path&gt; [&lt;tune&gt;...]</h4>
+<p>Override <code>.entryPoints</code> configuration.</p>
+<p>The <code>tune</code> argument is either inline JSON or space separated <code>key=value</code> pairs.</p>
+<h4>3.2.7.4.5. cid deploy set env &lt;variable&gt; [&lt;value&gt;]...</h4>
+<p>Set or remove <code>.env</code> variable configuration.</p>
+<h4>3.2.7.4.6. cid deploy set webcfg &lt;variable&gt; [&lt;value&gt;]...</h4>
+<p>Set or remove <code>.webcfg</code> variable configuration.</p>
+<h4>3.2.7.4.7. cid deploy set webmount &lt;web_path&gt; [&lt;json&gt;]...</h4>
+<p>Set or remove <code>.webcfg.mounts</code> web path configuration.</p>
+<h4>3.2.7.4.8. cid deploy set tools &lt;tool&gt;...</h4>
+<p>Override <code>.tools</code> configuration.</p>
+<p>The <code>tool</code> parameter is either tool name ('*' as version is assumed) or <code>tool=ver</code> pair.</p>
+<h4>3.2.7.4.9. cid deploy set tooltune &lt;tool&gt; &lt;tune&gt;...</h4>
+<p>Override <code>.toolTune</code> configuration of specified <code>tool</code>.</p>
+<p>The <code>tune</code> argument is either inline JSON or space separated <code>key=value</code> pairs.</p>
+<h4>3.2.7.5. cid deploy reset [&lt;type]</h4>
+<p>Reset either all of <code>cid deploy set</code> configurations or the specified <code>type</code>.</p>
+<h4>3.2.7.6. common deploy procedure</h4>
 <ul>
 <li>{package_dir} - depend on deployment method</li>
 <li>according to .persistent:<ul>
@@ -624,7 +642,7 @@ Generally, <a href="http://semver.org/">SEMVER</a> is assumed.</p>
 <li>trigger external service reload</li>
 <li>remove all not managed or obsolete files in {.deployDir}</li>
 </ul>
-<h4>3.2.7.6. deployment assumptions</h4>
+<h4>3.2.7.7. deployment assumptions</h4>
 <ol>
 <li>Each web application must have own deployment root folder</li>
 <li>Each web application should have own user</li>
