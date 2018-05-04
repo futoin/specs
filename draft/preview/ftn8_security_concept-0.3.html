@@ -46,49 +46,69 @@ fully distributed.</p>
 </ul>
 <h1>2. Concept</h1>
 <h2>2.1. General guidelines</h2>
-<ol>
-<li>External parties to particular system must never hold internal security-related
-    data even if it is encrypted and/or signed to prevent theoritical falsification
-    attacks.<ul>
+<h3>2.1.1. Exposed data best practices</h3>
+<p>External parties to particular system must never hold internal security-related
+data even if it is encrypted and/or signed to prevent theoritical falsification
+attacks in the future.</p>
+<p>Notes:</p>
+<ul>
 <li>User passwords and similar secrets are not internal data - they belong to user.</li>
-<li>Session tokens must hold only session ID with session-related secrets - no other info.<ul>
-<li>two parts are required to detect bruteforcing</li>
+<li>Session tokens must hold only session ID with session-hardening secrets - no other info.<ul>
+<li>Extra session-hardening secret must be used only to detect and protect from
+  session ID brute-forcing attacks.</li>
 </ul>
 </li>
-<li>Even only informational purpose user IDs, secrets, access levels, etc.
-    must never be stored in untrusted party as it may eventually be used as trusted
-    data source and be subject for attack.</li>
-<li>Use tokens only to reference actual access grants - do not use them as passphrases</li>
-</ul>
-</li>
-<li>There must be limit for failed attempts of bruteforcing any secret<ul>
-<li>authenticated attackers must be blocked by user ID - reject all requests</li>
-<li>attackers must be blocked by source IP first of all</li>
-<li>then object under attack has to be disabled (higher limit)<ul>
-<li>users and resources to be temporary locked</li>
-<li>sessions, keys, temporaries to be destroyed</li>
-</ul>
-</li>
-<li>to prevent DoS of particular user/resource:<ul>
-<li>minimize use of easily guessable IDs</li>
-<li>require authorization for most cases of guessing</li>
+<li>The same applies to data stored only for informational purpose as it may be used for
+  authorization purpose by mistake of inexperienced/incompetent developers.<ul>
+<li>If that is still required then related object must be tokenized and obfuscated to minimize
+  possible harm.</li>
 </ul>
 </li>
 </ul>
-</li>
-<li>Check authentication and authorization in online mode<ul>
-<li>allow caching only if proper real-time invalidation event handling is active</li>
+<h3>2.1.2. Brute-force prevention</h3>
+<p>Any authentication and authorization functionality should  be accounted for failures per exercised
+security resource (e.g. user password, session ID, signing key, etc.). System must forcibly disable
+such resource at reasonable failure count threshold to prevent the attack succeeding.</p>
+<p>As such behavior allows easy Denial-of-Service for target resource, System must block attackers earlier
+than it blocks the target. Also, target identifiers must not be easily guessable (e.g. avoid sequential
+or derived identifiers).</p>
+<p>All thresholds must be specific to time period like day, week, month, quarter, year.</p>
+<p>Notes:</p>
+<ul>
+<li>Once threshold limit is reached, related object (password, key, session ID, etc.) must be destroyed to prevent even legit use.</li>
+<li>Consider using UUID v4 whenever possible.</li>
 </ul>
-</li>
-<li>Centralize authentication and authorization<ul>
-<li>user must be able to overview everything from single dashboard</li>
+<h3>2.1.3. Filtering attackers</h3>
+<p>Each unsuccessful attempt to exercise security operation must be accounted per client source address
+and other meaningful identifiers. Such accounting should be also aggregated based on network range and/or
+domain to protect from distributed attacks.</p>
+<p>However, such behavior can harm legit users. Therefore, complete blocking should be the last resort.
+Instead, System should take more light measurements like throttling requests per minute and preliminary
+verification if session is run by real human. Such light measurements are mandatory, if System is aware
+of legit user.</p>
+<p>Notes:</p>
+<ul>
+<li>Attackers must be blocked by source address first of all.</li>
+<li>Authenticated attackers must be blocked by user ID.</li>
 </ul>
-</li>
-<li>Often used secrets must be updated in reasonable period<ul>
-<li>both usage time and number of secret applications must be taken into account</li>
-</ul>
-</li>
-<li>Avoid information leaks<ul>
+<h3>2.1.4. Online verification</h3>
+<p>Online verification must always be enforced even if it complicates processing, imposes scalability issues
+and/or increases latency. FutoIn Security Concept is strictly against any token-based authentication where
+not trusted party like Client is part of communication channel between Service and AuthService.</p>
+<p>Caching is essential to achieve performance and scalability similar to pure token-based approaches. However,
+such caching is allowed only if reliable cache invalidation is implemented.</p>
+<h3>2.2.5. Centralized authentication and authorization</h3>
+<p>All fully compliant Services must use AuthService for security meaningful decisions.</p>
+<p>Such AuthService must have allow a complete overview and control of granted accesses in the given Service
+or on behalf of the User.</p>
+<h3>2.1.6. Rotation of secrets</h3>
+<p>All secrets used in automated contexts should be rotated based on both usage time and usage count thresholds.
+This is a simple measurement for possible leak of secrets.</p>
+<p>User-defined secrets like password, historical One-Time-Password solution and similar secrets are not required
+to be rotated.</p>
+<h3>2.1.7. Prevent indirect information exposure</h3>
+<p>Some "not important" characteristics may be used to plan attacks and/or to extract businness secrets.</p>
+<ul>
 <li>Do not use sequential IDs</li>
 <li>Do not expose object existence on error<ul>
 <li>Always throw general "SecurityError" with generic error info</li>
@@ -98,52 +118,53 @@ fully distributed.</p>
 <li>Do not use descriptive identifiers in tokens</li>
 <li>Prevent attacks which expose ID existence on authentication</li>
 </ul>
-</li>
-<li>Forward Secrecy<ul>
-<li>use modern TLS, SSH, IPSec or other type of secure channel with
-    perfect forward secrecy characteristics</li>
-<li>use secure symmetric key exchange</li>
-<li>use derived keys for each use occurence<ul>
-<li>use derivation with extra parameter when extra safety is required
-    (e.g. key serial number for dervied encryption keys)</li>
+<h3>2.1.8. Forward Secrecy</h3>
+<p>General rules well-known cryptography practices apply here:</p>
+<ul>
+<li>Use modern TLS, SSH, IPSec or other type of secure channel with  perfect forward secrecy characteristics.</li>
+<li>Use only secure symmetric key exchange.</li>
+<li>Use derived keys for each use occurrence.<ul>
+<li>Use derivation with extra parameter when extra safety is required
+  (e.g. key serial number for derived encryption keys)</li>
 </ul>
 </li>
-<li>End-to-End Encryption API</li>
+<li>Use End-to-End Encryption API for sensitive information exchange even if it is already done
+  through secure channel.</li>
 </ul>
-</li>
-</ol>
 <h2>2.2. Security Contexts</h2>
 <p>There are three major security contexts:</p>
 <ul>
-<li>Service - Both execution environment and executable code is 
-    under full control of the owner.<ul>
+<li><strong>Service</strong> - Both execution environment and executable code is 
+  under full control of the owner.<ul>
 <li>This security context exists on servers.</li>
-<li>Service is a logic unit represented by a union of related
+<li>Service is a logical unit represented by a union of related
     FutoIn specs provided by one or many related end-points.</li>
 </ul>
 </li>
-<li>Client - Execution environment is under control of owner, but
-    executable code is loaded from Service.</li>
-<li>Authentication Service (AuthService) - A special authentication &amp;
-    authorization service trusted by Service and/or by Client.</li>
+<li><strong>Client</strong> - Execution environment is under control of owner, but
+  executable code is loaded from Service.</li>
+<li><strong>AuthService</strong> - A special authentication &amp; authorization service
+  trusted by Service and/or by Client.</li>
 </ul>
 <p>Each Service and each Client must trust only one AuthService.</p>
-<p>The standard auth mechanism does not allow Client code to access
+<p>The standard authorization mechanism does not allow Client code to access
 protected resources in another Service directly. Such feature may be
 implemented as sub-spec.</p>
 <p>In addition, the following optional services exist:</p>
 <ul>
-<li>Defense System (DefenseService) - A special service which helps to detect
-    and fight attacks. Its context is implementation-defined.</li>
+<li><strong>DefenseSystem</strong> - A special service which helps to detect
+  and fight attacks. Its context is implementation-defined.</li>
 </ul>
 <h2>2.3. Holistic pictures</h2>
 <h3>2.3.1. Request Processing</h3>
-<p>It may look as too much overhead for a single request processing, but
-any decent system does exactly the same in fact. However, instead of
-modules are used instead of separate microservices. FutoIn converts
-modules to services by fundamental design. There should be efficient
+<p>It may look as too much overhead for a single request processing, but any decent system does
+exactly the same in fact: security processing is centralized in some application module.</p>
+<p>FutoIn converts modules to )micro-)services by fundamental design. There should be efficient
 in-process calling mechanism to minimize penalties.</p>
-<pre><code>Client         Service        AuthService   DefenseService
+<p>It is known that symmetric cryptography is much faster to process than asymmetric. Therefore,
+message signing is based on automatically rotated shared symmetric secrets which unique to each
+pair of peers. However, asymmetric cryptography is used for key rotation to ensure forward secrecy.</p>
+<pre><code>Client         Service        AuthService   DefenseSystem
     |             .                  .            .
     |-- request -&gt;|                  .            .
     .             |----------- onCall() ---------&gt;|
@@ -161,7 +182,7 @@ in-process calling mechanism to minimize penalties.</p>
 </code></pre>
 <h3>2.3.2. Service to AuthService registration</h3>
 <p>It's assumed that one of Message Authentication Code approaches
-are used which require a preshared secret and secure updates
+are used requiring a preshared secret and secure updates
 of that.</p>
 <p>Initial manual registration:</p>
 <pre><code>Operator                AuthService
@@ -169,7 +190,7 @@ of that.</p>
     |--- register Service --&gt;|
     .                 [gen initial secret]
     |&lt;-- clear text secret --|
-[manually configure Service] .
+[manually configures Service] .
     .                        .
 </code></pre>
 <p>Initial automatic registration through secure channel, if allowed:</p>
@@ -310,14 +331,16 @@ Request Templates.</p>
 </code></pre>
 <h3>2.3.4. Access on behalf of user</h3>
 <p>On-behalf-of calls is standard feature of <a href="./ftn3_iface_definition.html">FTN3</a>.</p>
+<p>User is generic term for security subject. It can be human, specific service,
+group or even some object.</p>
 <p>Each Service registers a list of generic access descriptors it provides
-which can be granted by user to another user(service).</p>
+which can be granted by User to another User (Service).</p>
 <p>Another Service creates Access Request Templates as a list of generic
-access descriptors it wants to ask from User. When user grants the 
-required access, Service can call another Service on behalf of user.</p>
+access descriptors it wants to ask from User. When User grants the 
+required access, Service can call another Service on behalf of the User.</p>
 <p>It's assumed that user has full access to own resources
 protected only by required security levels. User can grant resource access
-to another user or Service based on Access Control descriptors.</p>
+to another User (Service) based on Access Control descriptors.</p>
 <p>Local user:</p>
 <pre><code>Client         Service1     Service2                 AuthService
     .             .             .                         .
@@ -345,8 +368,8 @@ to another user or Service based on Access Control descriptors.</p>
 <p>Foreign user access just adds extra complexity:</p>
 <ol>
 <li>Both user authentication and other user/service authorization is done
-    in foreign AuthService</li>
-<li>User can review &amp; control all grants in home services</li>
+    in foreign AuthService.</li>
+<li>User can review &amp; control all grants in home services.</li>
 <li>Local to Service AccessControl has to consult with foreign AccessControl
     for access, cache it and revoke events similar to user sessions.</li>
 <li>AuthService acts as proxy:<ul>
@@ -440,12 +463,13 @@ AuthService may easily integrate with those.</p>
 efficiently process requests on scale. Such AuthService can be either full-featured
 or limited to support of only foreign users.</p>
 <h2>2.11. General MAC generation requirements</h2>
-<p>MAC stays for Message Authentication Code which prevents decryptable transmission of
-authentication secrets and helps to ensure message integrity.</p>
+<p>MAC stays for Message Authentication Code which helps to ensure message integrity.</p>
 <h3>2.11.1 Rules of MAC payload generation</h3>
 <p><em>Note 1: MAC logic must be abstract of JSON as far as possible to be efficiently used in other
 message coding methods.</em></p>
 <p><em>Note 2: research to be done to support TupleHash and non-JSON representation of fields as an option.</em></p>
+<p><em>Note 3: for performance and simplification a special FutoIn interface to be created for
+message-in-signed-message-field approach.</em></p>
 <ul>
 <li>Payload has a tree structure and coded in JSON or any alternative format</li>
 <li>All keys and fields are feed to MAC generator in text representation</li>
@@ -505,7 +529,7 @@ Key derivation would be used only to get different keys based on purpose.</p>
     channel (e.g. user's web browser).</li>
 </ul>
 <h4>2.11.4.3. Performance tradeoff</h4>
-<p>In most cases, it's not feasibile to generate a new derived key for every message,
+<p>In most cases, it's not feasible to generate a new derived key for every message,
 so Invoker should be able to reuse the key at own discretion.</p>
 <p>As a defensive measure, Executor peer is allowed to reject requests, if derived key
 either changes too often or used for too long. Executor should cache derived keys
@@ -546,7 +570,7 @@ to reject requests with "SecurityError" on mismatch.</p>
 <p>The following fingerpints are essential to enforce extra level of protection.</p>
 <ul>
 <li><code>user_agent</code> - refers to HTTP 'User-Agent' or similar</li>
-<li><code>source_ip</code> - refers ot IPv4/IPv6 source address of Client</li>
+<li><code>source_ip</code> - refers to IPv4/IPv6 source address of Client</li>
 <li><code>x509</code> - X.509 certificate, if provided by client</li>
 <li><code>ssh_pubkey</code> - SSH public key, if provided by client</li>
 <li><code>client_token</code> - Service-specific identification of the Client device<ul>
@@ -563,6 +587,7 @@ to reject requests with "SecurityError" on mismatch.</p>
 <h2>2.14. Authentication rejection limits and blocking</h2>
 <p>The specification suggests the following limits to be enforced. Hit of the limits must
 block any processing. The blocking must be done for entire period of enforcement.</p>
+<p>Advanced System should have more light protection measures first to protect legit user access.</p>
 <ul>
 <li>Subject of blocking:<ul>
 <li>IPv4/32 or IPv6/64 addresses of Client calls<ul>
