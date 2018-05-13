@@ -1,16 +1,16 @@
 <pre>
 FTN6: FutoIn Executor Concept
 Version: 1.8DV
-Date: 2017-12-27
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Date: 2018-05-12
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.8 - 2017-12-27 - Andrey Galkin
+* v1.8 - 2018-05-12 - Andrey Galkin
     * CHANGED: deprecating HMAC format in favor of general FTN8 MAC
-    * NEW: RequestInfo.ccm() shortcut
+    * NEW: RequestInfo.ccm() and RequestInfo.userInfo() shortcuts
 * v1.7 - 2017-12-10 - Andrey Galkin
     * NEW: request processing limits for DoS protection and fair use reasons
 * v1.6 - 2017-08-18 - Andrey Galkin
@@ -290,6 +290,7 @@ are assumed.
     *Note: it is different from as.setTimeout() as inner step timeout does not override outer step
     timeout.*
     * *timeout_ms* - timeout in miliseconds to cancel after. 0 - disable timeout
+1. UserInfo userInfo() - shortcut for info()[INFO_USER_INFO]
 1. Language-specic get accessor for info properties
 
 

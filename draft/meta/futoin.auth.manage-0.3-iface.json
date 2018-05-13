@@ -39,7 +39,8 @@
         "clear_auth": "boolean",
         "mac_auth": "boolean",
         "master_auth": "boolean",
-        "master_auto_reg": "boolean"
+        "master_auto_reg": "boolean",
+        "auth_service": "boolean"
       }
     },
     "ensureUser": {

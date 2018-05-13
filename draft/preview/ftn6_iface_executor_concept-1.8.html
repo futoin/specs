@@ -7,16 +7,16 @@
 <pre>
 FTN6: FutoIn Executor Concept
 Version: 1.8DV
-Date: 2017-12-27
-Copyright: 2014-2017 FutoIn Project (http://futoin.org)
+Date: 2018-05-12
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.8 - 2017-12-27 - Andrey Galkin<ul>
+<li>v1.8 - 2018-05-12 - Andrey Galkin<ul>
 <li>CHANGED: deprecating HMAC format in favor of general FTN8 MAC</li>
-<li>NEW: RequestInfo.ccm() shortcut</li>
+<li>NEW: RequestInfo.ccm() and RequestInfo.userInfo() shortcuts</li>
 </ul>
 </li>
 <li>v1.7 - 2017-12-10 - Andrey Galkin<ul>
@@ -282,6 +282,7 @@ are assumed.</p>
 <li><em>timeout_ms</em> - timeout in miliseconds to cancel after. 0 - disable timeout</li>
 </ul>
 </li>
+<li>UserInfo userInfo() - shortcut for info()[INFO_USER_INFO]</li>
 <li>Language-specic get accessor for info properties</li>
 </ol>
 <h2>2.3. User info</h2>
