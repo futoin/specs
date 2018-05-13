@@ -7,13 +7,18 @@
 <pre>
 FTN8: FutoIn Security Concept
 Version: 0.3DV
-Date: 2017-12-29
+Date: 2018-05-04
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v0.3 - 2018-05-04 - Andrey Galkin<ul>
+<li>CHANGED: rewritten general guidelines for better readability.</li>
+<li>CHANGED: minor revise.</li>
+</ul>
+</li>
 <li>v0.2 - 2017-12-29 - Andrey Galkin<ul>
 <li>CHANGED: heavily revised &amp; split into sub-specs</li>
 <li>CHANGED: moved HMAC logic from FTN6 spec to MAC section here</li>
@@ -920,7 +925,8 @@ block any processing. The blocking must be done for entire period of enforcement
                 "clear_auth" : "boolean",
                 "mac_auth" : "boolean",
                 "master_auth" : "boolean",
-                "master_auto_reg" : "boolean"
+                "master_auto_reg" : "boolean",
+                "auth_service" : "boolean"
             }
         },
         "ensureUser" : {

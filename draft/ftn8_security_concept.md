@@ -1,7 +1,7 @@
 <pre>
 FTN8: FutoIn Security Concept
 Version: 0.3DV
-Date: 2017-12-29
+Date: 2018-05-04
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
@@ -967,7 +967,8 @@ Advanced System should have more light protection measures first to protect legi
                     "clear_auth" : "boolean",
                     "mac_auth" : "boolean",
                     "master_auth" : "boolean",
-                    "master_auto_reg" : "boolean"
+                    "master_auto_reg" : "boolean",
+                    "auth_service" : "boolean"
                 }
             },
             "ensureUser" : {
