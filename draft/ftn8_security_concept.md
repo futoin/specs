@@ -455,10 +455,12 @@ global scope identifier.
 
 Each user has a unique local ID and global ID.
 
-Local ID is arbitrary and assigned by AuthService.
+Local ID is arbitrary and assigned by AuthService. Base64-coded UUID without
+padding is suggested.
 
 Global ID based on local ID and scope name of home AuthService.
-Typically, email address is the global identifier.
+Typically, email address is the global identifier for users and
+fully qualified domain name is the global identifier for services.
 
 ## 2.6. Foreign users
 
@@ -700,6 +702,13 @@ Advanced System should have more light protection measures first to protect legi
     - Second-level domain for service auto-registrations:
         - 10 service auto-registrations in 30 days
 
+### 2.15. Manage service events
+
+* `USR_NEW` - new user is created
+    * `local_id` - local user ID
+* `USR_MOD` - user info updated
+    * `local_id` - local user ID
+
 # 3. Interface
 
 ## 3.1. Common types
@@ -719,8 +728,21 @@ Advanced System should have more light protection measures first to protect legi
                 "type" : "string",
                 "regex" : "^[a-zA-Z]([a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9])?$"
             },
-            "GlobalService" : "Domain",            
-            "GlobalUserID" : [ "Email", "GlobalService" ],
+            "LocalService" : "LocalUser",
+            "GlobalService" : {
+                "type" : "Domain",
+                "maxlen" : 128
+            },
+            "GlobalUser" : {
+                "type" : "Email",
+                "maxlen" : 128
+            },
+            "GlobalUserID" : [ "GlobalUser", "GlobalService" ],
+            "DomainList" : {
+                "type" : "array",
+                "elemtype" : "Domain",
+                "minlen" : 1
+            },
             "MACAlgo" : {
                 "type" : "enum",
                 "items" : [
@@ -937,7 +959,7 @@ Advanced System should have more light protection measures first to protect legi
         "funcs" : {
             "setup" : {
                 "params" : {
-                    "domain" : "Domain",
+                    "domains" : "DomainList",
                     "clear_auth" : {
                         "type" : "boolean",
                         "default" : false
@@ -963,7 +985,7 @@ Advanced System should have more light protection measures first to protect legi
             },
             "genConfig" : {
                 "result" : {
-                    "domain" : "Domain",
+                    "domains" : "DomainList",
                     "clear_auth" : "boolean",
                     "mac_auth" : "boolean",
                     "master_auth" : "boolean",
@@ -974,31 +996,43 @@ Advanced System should have more light protection measures first to protect legi
             "ensureUser" : {
                 "params" : {
                     "user" : "LocalUser",
-                    "global_id" : {
-                        "type": "GlobalUserID",
-                        "default" : null,
-                        "desc" : "Defaults to auto-generated"
-                    },
-                    "hostname" : {
-                        "type" : "Domain",
-                        "default" : null,
-                        "desc" : "Required for Service users"
-                    }
+                    "domain" : "GlobalService"
                 },
-                "result" : "LocalUserID",
-                "throws" : [
-                    "GlobalUserIDMismatch"
-                ]
+                "result" : "LocalUserID"
             },
             "ensureService" : {
                 "params" : {
-                    "hostname" : {
-                        "type" : "GlobalService",
-                        "default" : null,
-                        "desc" : "Act as both local and global user name"
-                    }
+                    "hostname" : "LocalService",
+                    "domain" : "GlobalService"
                 },
                 "result" : "LocalUserID"
+            },
+            "getUserInfo" : {
+                "params" : {
+                    "local_id" : "LocalUserID"
+                },
+                "result" : {
+                    "local_id" : "LocalUserID",
+                    "global_id" : "GlobalUserID",
+                    "is_local" : "boolean",
+                    "is_enabled" : "boolean",
+                    "is_service" : "boolean",
+                    "created" : "Timestamp",
+                    "updated" : "Timestamp"
+                },
+                "throws" : [
+                    "UnknownUser"
+                ]
+            },
+            "setUserInfo" : {
+                "params" : {
+                    "local_id" : "LocalUserID",
+                    "is_enabled" : "boolean"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownUser"
+                ]
             }
         },
         "requires" : [

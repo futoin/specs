@@ -9,7 +9,7 @@
   "funcs": {
     "setup": {
       "params": {
-        "domain": "Domain",
+        "domains": "DomainList",
         "clear_auth": {
           "type": "boolean",
           "default": false
@@ -35,7 +35,7 @@
     },
     "genConfig": {
       "result": {
-        "domain": "Domain",
+        "domains": "DomainList",
         "clear_auth": "boolean",
         "mac_auth": "boolean",
         "master_auth": "boolean",
@@ -46,31 +46,43 @@
     "ensureUser": {
       "params": {
         "user": "LocalUser",
-        "global_id": {
-          "type": "GlobalUserID",
-          "default": null,
-          "desc": "Defaults to auto-generated"
-        },
-        "hostname": {
-          "type": "Domain",
-          "default": null,
-          "desc": "Required for Service users"
-        }
+        "domain": "GlobalService"
       },
-      "result": "LocalUserID",
-      "throws": [
-        "GlobalUserIDMismatch"
-      ]
+      "result": "LocalUserID"
     },
     "ensureService": {
       "params": {
-        "hostname": {
-          "type": "GlobalService",
-          "default": null,
-          "desc": "Act as both local and global user name"
-        }
+        "hostname": "LocalService",
+        "domain": "GlobalService"
       },
       "result": "LocalUserID"
+    },
+    "getUserInfo": {
+      "params": {
+        "local_id": "LocalUserID"
+      },
+      "result": {
+        "local_id": "LocalUserID",
+        "global_id": "GlobalUserID",
+        "is_local": "boolean",
+        "is_enabled": "boolean",
+        "is_service": "boolean",
+        "created": "Timestamp",
+        "updated": "Timestamp"
+      },
+      "throws": [
+        "UnknownUser"
+      ]
+    },
+    "setUserInfo": {
+      "params": {
+        "local_id": "LocalUserID",
+        "is_enabled": "boolean"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownUser"
+      ]
     }
   },
   "requires": [

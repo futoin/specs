@@ -412,9 +412,11 @@ However, AuthService should have a single domain name which is used as
 global scope identifier.</p>
 <h2>2.5. User identification</h2>
 <p>Each user has a unique local ID and global ID.</p>
-<p>Local ID is arbitrary and assigned by AuthService.</p>
+<p>Local ID is arbitrary and assigned by AuthService. Base64-coded UUID without
+padding is suggested.</p>
 <p>Global ID based on local ID and scope name of home AuthService.
-Typically, email address is the global identifier.</p>
+Typically, email address is the global identifier for users and
+fully qualified domain name is the global identifier for services.</p>
 <h2>2.6. Foreign users</h2>
 <p>If the Service or Client trust different AuthServices then it is responsibility
 of AuthService to establish communication to another AuthService. In such case,
@@ -667,6 +669,17 @@ block any processing. The blocking must be done for entire period of enforcement
 </ul>
 </li>
 </ul>
+<h3>2.15. Manage service events</h3>
+<ul>
+<li><code>USR_NEW</code> - new user is created<ul>
+<li><code>local_id</code> - local user ID</li>
+</ul>
+</li>
+<li><code>USR_MOD</code> - user info updated<ul>
+<li><code>local_id</code> - local user ID</li>
+</ul>
+</li>
+</ul>
 <h1>3. Interface</h1>
 <h2>3.1. Common types</h2>
 <pre><code>{
@@ -682,8 +695,21 @@ block any processing. The blocking must be done for entire period of enforcement
             "type" : "string",
             "regex" : "^[a-zA-Z]([a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9])?$"
         },
-        "GlobalService" : "Domain",            
-        "GlobalUserID" : [ "Email", "GlobalService" ],
+        "LocalService" : "LocalUser",
+        "GlobalService" : {
+            "type" : "Domain",
+            "maxlen" : 128
+        },
+        "GlobalUser" : {
+            "type" : "Email",
+            "maxlen" : 128
+        },
+        "GlobalUserID" : [ "GlobalUser", "GlobalService" ],
+        "DomainList" : {
+            "type" : "array",
+            "elemtype" : "Domain",
+            "minlen" : 1
+        },
         "MACAlgo" : {
             "type" : "enum",
             "items" : [
@@ -895,7 +921,7 @@ block any processing. The blocking must be done for entire period of enforcement
     "funcs" : {
         "setup" : {
             "params" : {
-                "domain" : "Domain",
+                "domains" : "DomainList",
                 "clear_auth" : {
                     "type" : "boolean",
                     "default" : false
@@ -921,7 +947,7 @@ block any processing. The blocking must be done for entire period of enforcement
         },
         "genConfig" : {
             "result" : {
-                "domain" : "Domain",
+                "domains" : "DomainList",
                 "clear_auth" : "boolean",
                 "mac_auth" : "boolean",
                 "master_auth" : "boolean",
@@ -932,31 +958,43 @@ block any processing. The blocking must be done for entire period of enforcement
         "ensureUser" : {
             "params" : {
                 "user" : "LocalUser",
-                "global_id" : {
-                    "type": "GlobalUserID",
-                    "default" : null,
-                    "desc" : "Defaults to auto-generated"
-                },
-                "hostname" : {
-                    "type" : "Domain",
-                    "default" : null,
-                    "desc" : "Required for Service users"
-                }
+                "domain" : "GlobalService"
             },
-            "result" : "LocalUserID",
-            "throws" : [
-                "GlobalUserIDMismatch"
-            ]
+            "result" : "LocalUserID"
         },
         "ensureService" : {
             "params" : {
-                "hostname" : {
-                    "type" : "GlobalService",
-                    "default" : null,
-                    "desc" : "Act as both local and global user name"
-                }
+                "hostname" : "LocalService",
+                "domain" : "GlobalService"
             },
             "result" : "LocalUserID"
+        },
+        "getUserInfo" : {
+            "params" : {
+                "local_id" : "LocalUserID"
+            },
+            "result" : {
+                "local_id" : "LocalUserID",
+                "global_id" : "GlobalUserID",
+                "is_local" : "boolean",
+                "is_enabled" : "boolean",
+                "is_service" : "boolean",
+                "created" : "Timestamp",
+                "updated" : "Timestamp"
+            },
+            "throws" : [
+                "UnknownUser"
+            ]
+        },
+        "setUserInfo" : {
+            "params" : {
+                "local_id" : "LocalUserID",
+                "is_enabled" : "boolean"
+            },
+            "result" : "boolean",
+            "throws" : [
+                "UnknownUser"
+            ]
         }
     },
     "requires" : [
