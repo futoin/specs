@@ -1,13 +1,15 @@
 <pre>
 FTN3.1: FutoIn Interface - Common Types
 Version: 1.0
-Date: 2018-01-02
+Date:  2018-05-17
 Copyright: 2017-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.0.1 - 2018-05-17 - Andrey Galkin
+    - FIXED: missing padding for Base64 type
 * v1.0 - 2018-01-02 - Andrey Galkin
     - NEW: Locales & translations
 * DV - 2017-12-29 - Andrey Galkin
@@ -61,7 +63,7 @@ bound to specific parameters like "name" or "description".
         "types" : {
             "Base64" : {
                 "type" : "string",
-                "regex" : "^[a-zA-Z0-9+/]*$",
+                "regex" : "^[a-zA-Z0-9+/]*={0,3}$",
                 "desc" : "Use min/maxlen to control length"
             },
             "UUIDB64" : {
