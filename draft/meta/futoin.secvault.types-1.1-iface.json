@@ -1,0 +1,93 @@
+{
+  "iface": "futoin.secvault.types",
+  "version": "1.1",
+  "ftn3rev": "1.9",
+  "imports": [
+    "futoin.types:1.0"
+  ],
+  "types": {
+    "KeyID": "UUIDB64",
+    "ExtID": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 128
+    },
+    "KeyType": {
+      "type": "GenericIdentifier",
+      "minlen": 1,
+      "maxlen": 32
+    },
+    "KeyUsage": {
+      "type": "set",
+      "items": [
+        "encrypt",
+        "sign",
+        "derive",
+        "shared",
+        "temp"
+      ]
+    },
+    "GenParams": [
+      "string",
+      "integer",
+      "map"
+    ],
+    "KeyInfo": {
+      "type": "map",
+      "fields": {
+        "id": "KeyID",
+        "ext_id": "ExtID",
+        "usage": "KeyUsage",
+        "type": "KeyType",
+        "params": "GenParams",
+        "created": "Timestamp",
+        "used_times": "NotNegativeInteger",
+        "used_bytes": "NotNegativeInteger",
+        "sig_failures": "NotNegativeInteger"
+      }
+    },
+    "KeyIDList": {
+      "type": "array",
+      "elemtype": "KeyID"
+    },
+    "RawData": {
+      "type": "data",
+      "maxlen": 1048576
+    },
+    "KeyData": {
+      "type": "data",
+      "maxlen": 16384
+    },
+    "PublicKeyData": {
+      "type": "data",
+      "maxlen": 16384
+    },
+    "PublicKey": {
+      "type": "map",
+      "fields": {
+        "type": "KeyType",
+        "data": "PublicKeyData"
+      }
+    },
+    "HashType": {
+      "type": "string",
+      "regex": "^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$",
+      "maxlen": 16
+    },
+    "CipherMode": {
+      "type": "string",
+      "regex": "^[A-Z0-9][A-Z0-9_]{1,14}[A-Z0-9]$",
+      "desc": "CBC, CTR, GCM, CFB and others"
+    },
+    "KeyDerivationFunction": "KeyType",
+    "InitializationVector": {
+      "type": "data",
+      "maxlen": 128,
+      "desc": "Most ciphers accept only block size, e.g. 16 bytes"
+    }
+  },
+  "requires": [
+    "SecureChannel",
+    "BinaryData"
+  ]
+}
