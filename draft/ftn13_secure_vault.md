@@ -10,6 +10,7 @@ Authors: Andrey Galkin
     - NEW: PWD key type
     - NEW: MAC processing
     - NEW: MAC aliases
+    - NEW: optional prefix search for key listing
 * v1.0 - 2018-02-13 - Andrey Galkin
     - Final
 * v0.3 - 2018-02-12 - Andrey Galkin
@@ -483,6 +484,12 @@ It must be possible to securely generate, inject, expose, sign and verify.
                 ]
             },
             "listKeys" : {
+                "params" : {
+                    "ext_prefix" : {
+                        "type" : "ExtID",
+                        "default" : null
+                    }
+                },
                 "result" : "KeyIDList"
             }
         },

@@ -155,6 +155,12 @@
       ]
     },
     "listKeys": {
+      "params": {
+        "ext_prefix": {
+          "type": "ExtID",
+          "default": null
+        }
+      },
       "result": "KeyIDList"
     }
   },
