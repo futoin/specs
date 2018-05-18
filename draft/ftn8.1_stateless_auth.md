@@ -1,13 +1,14 @@
 <pre>
 FTN8.1: FutoIn Security Concept - Stateless Authentication
 Version: 0.3DV
-Date: 2017-12-29
+Date: 2018-05-17
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v0.3 - 2018-05-17 - Andrey Galkin
 * v0.2 - 2017-12-29 - Andrey Galkin
     - CHANGED: heavily revised & split into sub-specs
     - CHANGED: replaced HMAC with more generic MAC method
@@ -166,11 +167,24 @@ as used for request signing.
 
 ### 2.3.1. New secret set events
 
-* `STSCRT_NEW` - new stateless secret
-    * `local_id` - local user ID
-* `STSCRT_DEL` - stateless secret is removed
-    * `local_id` - local user ID
+* `STLS_NEW` - new stateless secret
+    * `user_id` - local user ID
+    * `service_id` - local service ID
+    * `key_id` - secure vault key identifier
+    * `for_mac` - if MAC secret
+* `STLS_DEL` - stateless secret is removed
+    * `user_id` - local user ID
+    * `service_id` - local service ID
+    * `key_id` - secure vault key identifier
+    * `for_mac` - if MAC secret
 
+## 2.4. Backward compatibility to historical "#basicauth" interface
+
+For many years, a temporary solution similar to this spec was used. The
+major difference was to use classical usernames instead of local user IDs.
+
+To allow smooth transition, there should be optional implementation-defined
+way to map legacy usernames to local user IDs.
 
 # 3. Interface
 
@@ -185,7 +199,7 @@ minimize risk of exposure.
     {
         "iface" : "futoin.auth.stateless",
         "version" : "{ver}",
-        "ftn3rev" : "1.8",
+        "ftn3rev" : "1.9",
         "imports" : [
             "futoin.ping:1.0",
             "futoin.auth.types:{ver}"
@@ -195,7 +209,7 @@ minimize risk of exposure.
                 "type" : "map",
                 "fields" : {
                     "user" : "LocalUserID",
-                    "secret" : "ClearSecret"
+                    "secret" : "Password"
                 }
             },
             "MACSecField" : {
@@ -243,7 +257,7 @@ minimize risk of exposure.
                 "params" : {
                     "user" : "LocalUserID"
                 },
-                "result" : "StatelessSecret",
+                "result" : "MACKey",
                 "throws" : [
                     "UnknownUser",
                     "NotSet"
@@ -252,7 +266,8 @@ minimize risk of exposure.
             }
         },
         "requires" : [
-            "SecureChannel"
+            "SecureChannel",
+            "MessageSignature"
         ]
     }
 
@@ -267,7 +282,7 @@ This one is complementary to "futoin.auth.manage" iface.
     {
         "iface" : "futoin.auth.stateless.manage",
         "version" : "{ver}",
-        "ftn3rev" : "1.8",
+        "ftn3rev" : "1.9",
         "imports" : [
             "futoin.ping:1.0",
             "futoin.auth.types:{ver}"
@@ -276,18 +291,19 @@ This one is complementary to "futoin.auth.manage" iface.
             "genNewSecret" : {
                 "params" : {
                     "user" : "LocalUserID",
-                    "service" : "LocalUserID"
+                    "service" : "LocalUserID",
+                    "for_mac" : "boolean"
                 },
                 "result" : "StatelessSecret",
                 "throws" : [
-                    "UnknownUser",
-                    "NotSet"
+                    "UnknownUser"
                 ]
             },
             "getSecret" : {
                 "params" : {
                     "user" : "LocalUserID",
-                    "service" : "LocalUserID"
+                    "service" : "LocalUserID",
+                    "for_mac" : "boolean"
                 },
                 "result" : "StatelessSecret",
                 "throws" : [
@@ -298,7 +314,8 @@ This one is complementary to "futoin.auth.manage" iface.
             "removeSecret" : {
                 "params" : {
                     "user" : "LocalUserID",
-                    "service" : "LocalUserID"
+                    "service" : "LocalUserID",
+                    "for_mac" : "boolean"
                 },
                 "result" : "boolean",
                 "throws" : [

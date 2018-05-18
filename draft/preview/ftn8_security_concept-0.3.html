@@ -498,11 +498,8 @@ message-in-signed-message-field approach.</em></p>
 <li>HMAC series are based on <a href="http://www.ietf.org/rfc/rfc2104.txt" title="RFC2104 HMAC">HMAC</a> method<ul>
 <li><code>HMD5</code> - HMAC MD5 128-bit (acceptably secure, even though MD5 itself is weak)</li>
 <li><code>HS256</code> - SHA v2 256-bit (acceptably secure)</li>
+<li><code>HS384</code> - SHA v2 384-bit (acceptably secure)</li>
 <li><code>HS512</code> - SHA v2 512-bit (acceptably secure)</li>
-<li><code>HS512-256</code> - SHA v2 512-bit truncated to 256-bit (acceptably secure)</li>
-<li><code>HS3-256</code> - SHA v3 256-bit (high secure at the moment)</li>
-<li><code>HS3-512</code> - SHA v3 512-bit (high secure at the moment)</li>
-<li><code>HS3-512-256</code> - SHA v3 512-bit truncated to 256-bit (acceptably secure)</li>
 </ul>
 </li>
 <li>KMAC series for SHA v3 - more efficient than HMAC<ul>
@@ -685,7 +682,7 @@ block any processing. The blocking must be done for entire period of enforcement
 <pre><code>{
     "iface" : "futoin.auth.types",
     "version" : "{ver}",
-    "ftn3rev" : "1.8",
+    "ftn3rev" : "1.9",
     "imports" : [
         "futoin.types:1.0"
     ],
@@ -713,31 +710,41 @@ block any processing. The blocking must be done for entire period of enforcement
         "MACAlgo" : {
             "type" : "enum",
             "items" : [
-                "HMAC-MD5",
-                "HMAC-SHA-224",
-                "HMAC-SHA-256",
-                "HMAC-SHA-384",
-                "HMAC-SHA-512",
-                "HMAC-SHA3-224",
-                "HMAC-SHA3-256",
-                "HMAC-SHA3-384",
-                "HMAC-SHA3-512",
+                "HMD5",
+                "HS256",
+                "HS384",
+                "HS512",
                 "KMAC128",
                 "KMAC256"
             ]
         },
-        "StatelessSecret" : {
+        "Password" : {
             "type" : "string",
             "minlen" : 8,
             "maxlen" : 32
         },
+        "PasswordLength" : {
+            "type" : "integer",
+            "min" : 8,
+            "max" : 32
+        },
+        "KeyBits" : {
+            "type" : "enum",
+            "items" : [256, 512]
+        },
+        "MACKey" : {
+            "type": "Base64",
+            "minlen" : 42,
+            "maxlen" : 87
+        },
+        "StatelessSecret": [ "Password", "MACKey" ],
         "MACValue" : {
             "type" : "Base64",
             "minlen" : 1,
             "maxlen" : 128
         },
         "MACBase" : {
-            "type" : "string",
+            "type" : "data",
             "minlen" : 8
         },
         "MasterSecretID" : "UUIDB64",
@@ -913,7 +920,7 @@ block any processing. The blocking must be done for entire period of enforcement
 <pre><code>{
     "iface" : "futoin.auth.manage",
     "version" : "{ver}",
-    "ftn3rev" : "1.8",
+    "ftn3rev" : "1.9",
     "imports" : [
         "futoin.ping:1.0",
         "futoin.auth.types:{ver}"
@@ -941,6 +948,14 @@ block any processing. The blocking must be done for entire period of enforcement
                 "auth_service" : {
                     "type" : "boolean",
                     "default" : false
+                },
+                "password_len" : {
+                    "type" : "PasswordLength",
+                    "default" : 16
+                },
+                "key_bits" : {
+                    "type" : "KeyBits",
+                    "default" : 256
                 }
             },
             "result" : "boolean"
@@ -952,7 +967,9 @@ block any processing. The blocking must be done for entire period of enforcement
                 "mac_auth" : "boolean",
                 "master_auth" : "boolean",
                 "master_auto_reg" : "boolean",
-                "auth_service" : "boolean"
+                "auth_service" : "boolean",
+                "password_len" : "PasswordLength",
+                "key_bits" : "KeyBits"
             }
         },
         "ensureUser" : {

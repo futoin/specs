@@ -7,13 +7,14 @@
 <pre>
 FTN8.1: FutoIn Security Concept - Stateless Authentication
 Version: 0.3DV
-Date: 2017-12-29
+Date: 2018-05-17
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v0.3 - 2018-05-17 - Andrey Galkin</li>
 <li>v0.2 - 2017-12-29 - Andrey Galkin<ul>
 <li>CHANGED: heavily revised &amp; split into sub-specs</li>
 <li>CHANGED: replaced HMAC with more generic MAC method</li>
@@ -138,15 +139,26 @@ as used for request signing.</p>
 <h2>2.3. Events</h2>
 <h3>2.3.1. New secret set events</h3>
 <ul>
-<li><code>STSCRT_NEW</code> - new stateless secret<ul>
-<li><code>local_id</code> - local user ID</li>
+<li><code>STLS_NEW</code> - new stateless secret<ul>
+<li><code>user_id</code> - local user ID</li>
+<li><code>service_id</code> - local service ID</li>
+<li><code>key_id</code> - secure vault key identifier</li>
+<li><code>for_mac</code> - if MAC secret</li>
 </ul>
 </li>
-<li><code>STSCRT_DEL</code> - stateless secret is removed<ul>
-<li><code>local_id</code> - local user ID</li>
+<li><code>STLS_DEL</code> - stateless secret is removed<ul>
+<li><code>user_id</code> - local user ID</li>
+<li><code>service_id</code> - local service ID</li>
+<li><code>key_id</code> - secure vault key identifier</li>
+<li><code>for_mac</code> - if MAC secret</li>
 </ul>
 </li>
 </ul>
+<h2>2.4. Backward compatibility to historical "#basicauth" interface</h2>
+<p>For many years, a temporary solution similar to this spec was used. The
+major difference was to use classical usernames instead of local user IDs.</p>
+<p>To allow smooth transition, there should be optional implementation-defined
+way to map legacy usernames to local user IDs.</p>
 <h1>3. Interface</h1>
 <h2>3.1. Message authentication</h2>
 <p>The interface is used only to process stateless authentication requests.
@@ -155,7 +167,7 @@ minimize risk of exposure.</p>
 <pre><code>{
     "iface" : "futoin.auth.stateless",
     "version" : "{ver}",
-    "ftn3rev" : "1.8",
+    "ftn3rev" : "1.9",
     "imports" : [
         "futoin.ping:1.0",
         "futoin.auth.types:{ver}"
@@ -165,7 +177,7 @@ minimize risk of exposure.</p>
             "type" : "map",
             "fields" : {
                 "user" : "LocalUserID",
-                "secret" : "ClearSecret"
+                "secret" : "Password"
             }
         },
         "MACSecField" : {
@@ -213,7 +225,7 @@ minimize risk of exposure.</p>
             "params" : {
                 "user" : "LocalUserID"
             },
-            "result" : "StatelessSecret",
+            "result" : "MACKey",
             "throws" : [
                 "UnknownUser",
                 "NotSet"
@@ -222,7 +234,8 @@ minimize risk of exposure.</p>
         }
     },
     "requires" : [
-        "SecureChannel"
+        "SecureChannel",
+        "MessageSignature"
     ]
 }
 </code></pre>
@@ -231,7 +244,7 @@ minimize risk of exposure.</p>
 <pre><code>{
     "iface" : "futoin.auth.stateless.manage",
     "version" : "{ver}",
-    "ftn3rev" : "1.8",
+    "ftn3rev" : "1.9",
     "imports" : [
         "futoin.ping:1.0",
         "futoin.auth.types:{ver}"
@@ -240,18 +253,19 @@ minimize risk of exposure.</p>
         "genNewSecret" : {
             "params" : {
                 "user" : "LocalUserID",
-                "service" : "LocalUserID"
+                "service" : "LocalUserID",
+                "for_mac" : "boolean"
             },
             "result" : "StatelessSecret",
             "throws" : [
-                "UnknownUser",
-                "NotSet"
+                "UnknownUser"
             ]
         },
         "getSecret" : {
             "params" : {
                 "user" : "LocalUserID",
-                "service" : "LocalUserID"
+                "service" : "LocalUserID",
+                "for_mac" : "boolean"
             },
             "result" : "StatelessSecret",
             "throws" : [
@@ -262,7 +276,8 @@ minimize risk of exposure.</p>
         "removeSecret" : {
             "params" : {
                 "user" : "LocalUserID",
-                "service" : "LocalUserID"
+                "service" : "LocalUserID",
+                "for_mac" : "boolean"
             },
             "result" : "boolean",
             "throws" : [

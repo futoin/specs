@@ -118,7 +118,7 @@ through `checkAccess()` call.
     {
         "iface" : "futoin.auth.access",
         "version" : "{ver}",
-        "ftn3rev" : "1.8",
+        "ftn3rev" : "1.9",
         "imports" : [
             "futoin.ping:1.0",
             "futoin.auth.types:{ver}"

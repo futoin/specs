@@ -1,7 +1,7 @@
 {
   "iface": "futoin.auth.types",
   "version": "0.3",
-  "ftn3rev": "1.8",
+  "ftn3rev": "1.9",
   "imports": [
     "futoin.types:1.0"
   ],
@@ -32,31 +32,47 @@
     "MACAlgo": {
       "type": "enum",
       "items": [
-        "HMAC-MD5",
-        "HMAC-SHA-224",
-        "HMAC-SHA-256",
-        "HMAC-SHA-384",
-        "HMAC-SHA-512",
-        "HMAC-SHA3-224",
-        "HMAC-SHA3-256",
-        "HMAC-SHA3-384",
-        "HMAC-SHA3-512",
+        "HMD5",
+        "HS256",
+        "HS384",
+        "HS512",
         "KMAC128",
         "KMAC256"
       ]
     },
-    "StatelessSecret": {
+    "Password": {
       "type": "string",
       "minlen": 8,
       "maxlen": 32
     },
+    "PasswordLength": {
+      "type": "integer",
+      "min": 8,
+      "max": 32
+    },
+    "KeyBits": {
+      "type": "enum",
+      "items": [
+        256,
+        512
+      ]
+    },
+    "MACKey": {
+      "type": "Base64",
+      "minlen": 42,
+      "maxlen": 87
+    },
+    "StatelessSecret": [
+      "Password",
+      "MACKey"
+    ],
     "MACValue": {
       "type": "Base64",
       "minlen": 1,
       "maxlen": 128
     },
     "MACBase": {
-      "type": "string",
+      "type": "data",
       "minlen": 8
     },
     "MasterSecretID": "UUIDB64",

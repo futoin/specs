@@ -551,11 +551,8 @@ Executor may refuse to support any MAC algo and throw SecurityError.
 * HMAC series are based on [HMAC][] method
     * `HMD5` - HMAC MD5 128-bit (acceptably secure, even though MD5 itself is weak)
     * `HS256` - SHA v2 256-bit (acceptably secure)
+    * `HS384` - SHA v2 384-bit (acceptably secure)
     * `HS512` - SHA v2 512-bit (acceptably secure)
-    * `HS512-256` - SHA v2 512-bit truncated to 256-bit (acceptably secure)
-    * `HS3-256` - SHA v3 256-bit (high secure at the moment)
-    * `HS3-512` - SHA v3 512-bit (high secure at the moment)
-    * `HS3-512-256` - SHA v3 512-bit truncated to 256-bit (acceptably secure)
 * KMAC series for SHA v3 - more efficient than HMAC
     * `KMAC128` - Keccak MAC 128-bit (high secure at the moment)
     * `KMAC256` - Keccak MAC 256-bit (high secure at the moment)
@@ -718,7 +715,7 @@ Advanced System should have more light protection measures first to protect legi
     {
         "iface" : "futoin.auth.types",
         "version" : "{ver}",
-        "ftn3rev" : "1.8",
+        "ftn3rev" : "1.9",
         "imports" : [
             "futoin.types:1.0"
         ],
@@ -746,31 +743,41 @@ Advanced System should have more light protection measures first to protect legi
             "MACAlgo" : {
                 "type" : "enum",
                 "items" : [
-                    "HMAC-MD5",
-                    "HMAC-SHA-224",
-                    "HMAC-SHA-256",
-                    "HMAC-SHA-384",
-                    "HMAC-SHA-512",
-                    "HMAC-SHA3-224",
-                    "HMAC-SHA3-256",
-                    "HMAC-SHA3-384",
-                    "HMAC-SHA3-512",
+                    "HMD5",
+                    "HS256",
+                    "HS384",
+                    "HS512",
                     "KMAC128",
                     "KMAC256"
                 ]
             },
-            "StatelessSecret" : {
+            "Password" : {
                 "type" : "string",
                 "minlen" : 8,
                 "maxlen" : 32
             },
+            "PasswordLength" : {
+                "type" : "integer",
+                "min" : 8,
+                "max" : 32
+            },
+            "KeyBits" : {
+                "type" : "enum",
+                "items" : [256, 512]
+            },
+            "MACKey" : {
+                "type": "Base64",
+                "minlen" : 42,
+                "maxlen" : 87
+            },
+            "StatelessSecret": [ "Password", "MACKey" ],
             "MACValue" : {
                 "type" : "Base64",
                 "minlen" : 1,
                 "maxlen" : 128
             },
             "MACBase" : {
-                "type" : "string",
+                "type" : "data",
                 "minlen" : 8
             },
             "MasterSecretID" : "UUIDB64",
@@ -951,7 +958,7 @@ Advanced System should have more light protection measures first to protect legi
     {
         "iface" : "futoin.auth.manage",
         "version" : "{ver}",
-        "ftn3rev" : "1.8",
+        "ftn3rev" : "1.9",
         "imports" : [
             "futoin.ping:1.0",
             "futoin.auth.types:{ver}"
@@ -979,6 +986,14 @@ Advanced System should have more light protection measures first to protect legi
                     "auth_service" : {
                         "type" : "boolean",
                         "default" : false
+                    },
+                    "password_len" : {
+                        "type" : "PasswordLength",
+                        "default" : 16
+                    },
+                    "key_bits" : {
+                        "type" : "KeyBits",
+                        "default" : 256
                     }
                 },
                 "result" : "boolean"
@@ -990,7 +1005,9 @@ Advanced System should have more light protection measures first to protect legi
                     "mac_auth" : "boolean",
                     "master_auth" : "boolean",
                     "master_auto_reg" : "boolean",
-                    "auth_service" : "boolean"
+                    "auth_service" : "boolean",
+                    "password_len" : "PasswordLength",
+                    "key_bits" : "KeyBits"
                 }
             },
             "ensureUser" : {
