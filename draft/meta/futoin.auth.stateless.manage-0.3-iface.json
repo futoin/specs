@@ -16,7 +16,8 @@
       "result": "StatelessSecret",
       "throws": [
         "UnknownUser"
-      ]
+      ],
+      "seclvl": "System"
     },
     "getSecret": {
       "params": {
@@ -28,7 +29,8 @@
       "throws": [
         "UnknownUser",
         "NotSet"
-      ]
+      ],
+      "seclvl": "System"
     },
     "removeSecret": {
       "params": {
@@ -39,7 +41,8 @@
       "result": "boolean",
       "throws": [
         "UnknownUser"
-      ]
+      ],
+      "seclvl": "System"
     }
   },
   "requires": [

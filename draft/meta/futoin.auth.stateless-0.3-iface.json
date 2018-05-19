@@ -27,7 +27,7 @@
     "checkClear": {
       "params": {
         "sec": "ClearSecField",
-        "client": "ClientFingerprints"
+        "source": "ClientFingerprints"
       },
       "result": "AuthInfo",
       "throws": [
@@ -38,7 +38,7 @@
       "params": {
         "base": "MACBase",
         "sec": "MACSecField",
-        "client": "ClientFingerprints"
+        "source": "ClientFingerprints"
       },
       "result": "AuthInfo",
       "throws": [
@@ -69,6 +69,7 @@
   },
   "requires": [
     "SecureChannel",
-    "MessageSignature"
+    "MessageSignature",
+    "BinaryData"
   ]
 }

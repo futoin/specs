@@ -9,6 +9,7 @@ Authors: Andrey Galkin
 # CHANGES
 
 * v0.3 - 2018-05-17 - Andrey Galkin
+    - CHANGED: revised with implementation
 * v0.2 - 2017-12-29 - Andrey Galkin
     - CHANGED: heavily revised & split into sub-specs
     - CHANGED: replaced HMAC with more generic MAC method
@@ -225,7 +226,7 @@ minimize risk of exposure.
             "checkClear" : {
                 "params" : {
                     "sec" : "ClearSecField",
-                    "client" : "ClientFingerprints"
+                    "source" : "ClientFingerprints"
                 },
                 "result" : "AuthInfo",
                 "throws" : [
@@ -236,7 +237,7 @@ minimize risk of exposure.
                 "params" : {
                     "base" : "MACBase",
                     "sec" : "MACSecField",
-                    "client" : "ClientFingerprints"
+                    "source" : "ClientFingerprints"
                 },
                 "result" : "AuthInfo",
                 "throws" : [
@@ -267,7 +268,8 @@ minimize risk of exposure.
         },
         "requires" : [
             "SecureChannel",
-            "MessageSignature"
+            "MessageSignature",
+            "BinaryData"
         ]
     }
 
@@ -297,7 +299,8 @@ This one is complementary to "futoin.auth.manage" iface.
                 "result" : "StatelessSecret",
                 "throws" : [
                     "UnknownUser"
-                ]
+                ],
+                "seclvl" : "System"
             },
             "getSecret" : {
                 "params" : {
@@ -309,7 +312,8 @@ This one is complementary to "futoin.auth.manage" iface.
                 "throws" : [
                     "UnknownUser",
                     "NotSet"
-                ]
+                ],
+                "seclvl" : "System"
             },
             "removeSecret" : {
                 "params" : {
@@ -320,7 +324,8 @@ This one is complementary to "futoin.auth.manage" iface.
                 "result" : "boolean",
                 "throws" : [
                     "UnknownUser"
-                ]
+                ],
+                "seclvl" : "System"
             }
         },
         "requires" : [

@@ -14,7 +14,10 @@ Authors: Andrey Galkin
 
 <h1>CHANGES</h1>
 <ul>
-<li>v0.3 - 2018-05-17 - Andrey Galkin</li>
+<li>v0.3 - 2018-05-17 - Andrey Galkin<ul>
+<li>CHANGED: revised with implementation</li>
+</ul>
+</li>
 <li>v0.2 - 2017-12-29 - Andrey Galkin<ul>
 <li>CHANGED: heavily revised &amp; split into sub-specs</li>
 <li>CHANGED: replaced HMAC with more generic MAC method</li>
@@ -193,7 +196,7 @@ minimize risk of exposure.</p>
         "checkClear" : {
             "params" : {
                 "sec" : "ClearSecField",
-                "client" : "ClientFingerprints"
+                "source" : "ClientFingerprints"
             },
             "result" : "AuthInfo",
             "throws" : [
@@ -204,7 +207,7 @@ minimize risk of exposure.</p>
             "params" : {
                 "base" : "MACBase",
                 "sec" : "MACSecField",
-                "client" : "ClientFingerprints"
+                "source" : "ClientFingerprints"
             },
             "result" : "AuthInfo",
             "throws" : [
@@ -235,7 +238,8 @@ minimize risk of exposure.</p>
     },
     "requires" : [
         "SecureChannel",
-        "MessageSignature"
+        "MessageSignature",
+        "BinaryData"
     ]
 }
 </code></pre>
@@ -259,7 +263,8 @@ minimize risk of exposure.</p>
             "result" : "StatelessSecret",
             "throws" : [
                 "UnknownUser"
-            ]
+            ],
+            "seclvl" : "System"
         },
         "getSecret" : {
             "params" : {
@@ -271,7 +276,8 @@ minimize risk of exposure.</p>
             "throws" : [
                 "UnknownUser",
                 "NotSet"
-            ]
+            ],
+            "seclvl" : "System"
         },
         "removeSecret" : {
             "params" : {
@@ -282,7 +288,8 @@ minimize risk of exposure.</p>
             "result" : "boolean",
             "throws" : [
                 "UnknownUser"
-            ]
+            ],
+            "seclvl" : "System"
         }
     },
     "requires" : [

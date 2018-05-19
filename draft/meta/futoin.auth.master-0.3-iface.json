@@ -1,7 +1,7 @@
 {
   "iface": "futoin.auth.master",
   "version": "0.3",
-  "ftn3rev": "1.8",
+  "ftn3rev": "1.9",
   "imports": [
     "futoin.ping:1.0",
     "futoin.auth.types:0.3"
@@ -57,9 +57,29 @@
         "SecurityError"
       ],
       "desc": "Feature to support local key cache"
+    },
+    "getNewEncryptedSecret": {
+      "params": {
+        "type": "ExchangeKeyType",
+        "pubkey": "ExchangeKey",
+        "scope": {
+          "type": "MasterScope",
+          "default": null
+        }
+      },
+      "result": {
+        "id": "MasterSecretID",
+        "esecret": "EncryptedMasterSecret"
+      },
+      "throws": [
+        "SecurityError",
+        "NotSupportedKeyType"
+      ]
     }
   },
   "requires": [
-    "SecureChannel"
+    "SecureChannel",
+    "MessageSignature",
+    "BinaryData"
   ]
 }

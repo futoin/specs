@@ -1,7 +1,7 @@
 {
   "iface": "futoin.auth.master.manage",
   "version": "0.3",
-  "ftn3rev": "1.8",
+  "ftn3rev": "1.9",
   "imports": [
     "futoin.ping:1.0",
     "futoin.auth.types:0.3"
@@ -9,7 +9,7 @@
   "funcs": {
     "getNewPlainSecret": {
       "params": {
-        "user": "LocalUser"
+        "user": "LocalUserID"
       },
       "result": {
         "id": "MasterSecretID",
@@ -18,7 +18,8 @@
       "throws": [
         "UnknownUser",
         "NotSet"
-      ]
+      ],
+      "seclvl": "System"
     }
   },
   "requires": [

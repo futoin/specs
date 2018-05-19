@@ -606,15 +606,26 @@ to reject requests with "SecurityError" on mismatch.
 
 #### 2.11.4.4. Key derivation strategies names
 
-1. `HKDF0` - use [HKDF][] with per GlobalServiceID as "salt" and
-    purpose name for "info" to derive unique keys per purpose from shared Master Secret.
-    - empty or persistent salt should be OK with quality Master Secret
-    - "prm" must not be sent or be empty
-    - default for `MAC` and `EXPOSED` purpose
-2. `HKDF` - use [HKDF][] with UUID for "salt" and purpose name for "info" to
-    derive unique keys per purpose from shared Master Secret.
-    - "salt" must be sent in "prm" field
-    - default for `ENC` purpose
+1. `HKDF256` - HKDF with SHA-256
+1. `HKDF512` - HKDF with SHA-512
+
+
+#### 2.11.4.5. HKDF notes
+
+[HKDF][] is well-known modern method which has the following parameters: hash function,
+salt and info.
+
+- Format `salt` as `{global user ID}:{purpose}`, where global user id is the Executor peer.
+- Optional `prm` is passed to `info` parameter.
+    - For `MAC` and `EXPOSED` case, use of current ISO
+        date time in `YYYYMMDD` or more precise format is suggested.
+    - For `ENC` case, use of UUID per encryption is suggested.
+- Implementation caching should limit maximum number of derived keys
+    per Master Secret ID and Global User ID pair.
+- Defense system should be intelligent enough to protect from brute-forcing:
+    - AuthService should blacklist offending Service,
+    - Service should blacklist offending Client before that.
+
 
 ## 2.12. Security Levels
 
@@ -969,34 +980,43 @@ Advanced System should have more light protection measures first to protect legi
                     "domains" : "DomainList",
                     "clear_auth" : {
                         "type" : "boolean",
-                        "default" : false
+                        "default" : null
                     },
                     "mac_auth" : {
                         "type" : "boolean",
-                        "default" : true
+                        "default" : null
                     },
                     "master_auth" : {
                         "type" : "boolean",
-                        "default" : true
+                        "default" : null
                     },
                     "master_auto_reg" : {
                         "type" : "boolean",
-                        "default" : false
+                        "default" : null
                     },
                     "auth_service" : {
                         "type" : "boolean",
-                        "default" : false
+                        "default" : null
                     },
                     "password_len" : {
                         "type" : "PasswordLength",
-                        "default" : 16
+                        "default" : null
                     },
                     "key_bits" : {
                         "type" : "KeyBits",
-                        "default" : 256
+                        "default" : null
+                    },
+                    "def_user_ms_max" : {
+                        "type" : "NotNegativeInteger",
+                        "default" : null
+                    },
+                    "def_service_ms_max" : {
+                        "type" : "NotNegativeInteger",
+                        "default" : null
                     }
                 },
-                "result" : "boolean"
+                "result" : "boolean",
+                "seclvl" : "System"
             },
             "genConfig" : {
                 "result" : {
@@ -1007,22 +1027,27 @@ Advanced System should have more light protection measures first to protect legi
                     "master_auto_reg" : "boolean",
                     "auth_service" : "boolean",
                     "password_len" : "PasswordLength",
-                    "key_bits" : "KeyBits"
-                }
+                    "key_bits" : "KeyBits",
+                    "def_user_ms_max" : "NotNegativeInteger",
+                    "def_service_ms_max" : "NotNegativeInteger"
+                },
+                "seclvl" : "System"
             },
             "ensureUser" : {
                 "params" : {
                     "user" : "LocalUser",
                     "domain" : "GlobalService"
                 },
-                "result" : "LocalUserID"
+                "result" : "LocalUserID",
+                "seclvl" : "System"
             },
             "ensureService" : {
                 "params" : {
                     "hostname" : "LocalService",
                     "domain" : "GlobalService"
                 },
-                "result" : "LocalUserID"
+                "result" : "LocalUserID",
+                "seclvl" : "System"
             },
             "getUserInfo" : {
                 "params" : {
@@ -1034,22 +1059,37 @@ Advanced System should have more light protection measures first to protect legi
                     "is_local" : "boolean",
                     "is_enabled" : "boolean",
                     "is_service" : "boolean",
+                    "ms_max" : "NotNegativeInteger",
+                    "ds_max" : "NotNegativeInteger",
                     "created" : "Timestamp",
                     "updated" : "Timestamp"
                 },
                 "throws" : [
                     "UnknownUser"
-                ]
+                ],
+                "seclvl" : "System"
             },
             "setUserInfo" : {
                 "params" : {
                     "local_id" : "LocalUserID",
-                    "is_enabled" : "boolean"
+                    "is_enabled" : {
+                        "type": "boolean",
+                        "default": null
+                    },
+                    "ms_max" : {
+                        "type": "NotNegativeInteger",
+                        "default": null
+                    },
+                    "ds_max" : {
+                        "type": "NotNegativeInteger",
+                        "default": null
+                    }
                 },
                 "result" : "boolean",
                 "throws" : [
                     "UnknownUser"
-                ]
+                ],
+                "seclvl" : "System"
             }
         },
         "requires" : [

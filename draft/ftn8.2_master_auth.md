@@ -1,13 +1,15 @@
 <pre>
 FTN8.3: FutoIn Security Concept - Master Secret Authentication
 Version: 0.3DV
-Date: 2017-12-30
+Date: 2018-05-18
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v0.3 - 2018-05-18 - Andrey Galkin
+    - CHANGED: revised with implementation
 * v0.2 - 2017-12-30 - Andrey Galkin
     - CHANGED: heavily revised & split into sub-specs
 * v0.1 - 2014-06-03 - Andrey Galkin
@@ -18,7 +20,7 @@ Authors: Andrey Galkin
 This sub-specification of [FTN8](./ftn8_security_concept.md) covers
 more secure Master Secret Authentication with dynamically updated shared secrets.
 
-Service is assumed to be a unattended software or equal - high number of
+Service is assumed to be a B2B software or equal - high number of
 unattended requests.
 
 # 2. Concept
@@ -37,7 +39,7 @@ unattended requests.
     - do not lock on one method,
     - allow tradeoff between performance and extra security at use time.
 6. Secret exchange interval solely depends on Invoker, but AuthService
-    may deactivate too old/too used keys (defined by configuration).
+    may deactivate too old or too used keys (defined by configuration).
 
 ## 2.2. Secure Master Secret exchange
 
@@ -60,14 +62,14 @@ unattended requests.
 Goals met:
 
 * Forward secrecy even if any secret gets compromised.
-* Works over unencrypted/untrusted channels, but discouraged.
+* Works over unencrypted/untrusted channels, but it is discouraged.
 * Ensure rolling Secret updates without communication interruptions.
 * AuthService controls Secret quality.
 * Resource-heavy assymetric key generation is responsibility of Service to
-    protect AuthService of heavy load.
+  protect AuthService of heavy load.
 * Initiating Service (acting as Invoker) is responsible for periodic
-    Master Secret exchange.
-    - It can not do that at all to reduce complexity, if static key is acceptable.
+  Master Secret exchange.
+    - It may not do that at all to reduce complexity, if static key is acceptable.
     - It avoids overcomplicating design with AuthService-to-Service callbacks.
 
 ## 2.3 "sec" field structured format
@@ -142,7 +144,12 @@ There are various options:
 
 ## 2.8. Events
 
-* `MS_DEL` - new master secret
+* `MSTR_NEW` - new master secret
+    * `user` - LocalUserID
+    * `key_id` - MasterSecretID
+    * `scope` - key scope
+* `MSTR_DEL` - master secret delete
+    * `key_id` - LocalUserID
     * `id` - MasterSecretID
 
 # 3. Interface
@@ -159,7 +166,7 @@ minimize risk of exposure.
     {
         "iface" : "futoin.auth.master",
         "version" : "{ver}",
-        "ftn3rev" : "1.8",
+        "ftn3rev" : "1.9",
         "imports" : [
             "futoin.ping:1.0",
             "futoin.auth.types:{ver}"
@@ -215,30 +222,7 @@ minimize risk of exposure.
                     "SecurityError"
                 ],
                 "desc" : "Feature to support local key cache"
-            }
-        },
-        "requires" : [
-            "SecureChannel"
-        ]
-    }
-
-`}Iface`
-
-## 3.2. Secret exchange
-
-Perform periodic secure symmetric Master Secret exchange initiated by Service.
-
-`Iface{`
-
-    {
-        "iface" : "futoin.auth.master.exchange",
-        "version" : "{ver}",
-        "ftn3rev" : "1.8",
-        "imports" : [
-            "futoin.ping:1.0",
-            "futoin.auth.types:{ver}"
-        ],
-        "funcs" : {
+            },
             "getNewEncryptedSecret" : {
                 "params" : {
                     "type" : "ExchangeKeyType",
@@ -260,13 +244,14 @@ Perform periodic secure symmetric Master Secret exchange initiated by Service.
         },
         "requires" : [
             "SecureChannel",
-            "MessageSignature"
+            "MessageSignature",
+            "BinaryData"
         ]
     }
 
 `}Iface`
 
-## 3.3. Auto registration
+## 3.2. Auto registration
 
 This interface allow anonymous access and should be disabled by default
 configuration.
@@ -278,7 +263,7 @@ TBD.
     {
         "iface" : "futoin.auth.master.register",
         "version" : "{ver}",
-        "ftn3rev" : "1.8",
+        "ftn3rev" : "1.9",
         "imports" : [
             "futoin.ping:1.0",
             "futoin.auth.types:{ver}"
@@ -287,7 +272,7 @@ TBD.
         },
         "requires" : [
             "SecureChannel",
-            "MessageSignature"
+            "AllowAnonymous"
         ]
     }
 
@@ -302,7 +287,7 @@ This one is complementary to "futoin.auth.manage" iface.
     {
         "iface" : "futoin.auth.master.manage",
         "version" : "{ver}",
-        "ftn3rev" : "1.8",
+        "ftn3rev" : "1.9",
         "imports" : [
             "futoin.ping:1.0",
             "futoin.auth.types:{ver}"
@@ -310,7 +295,7 @@ This one is complementary to "futoin.auth.manage" iface.
         "funcs" : {
             "getNewPlainSecret" : {
                 "params" : {
-                    "user" : "LocalUser"
+                    "user" : "LocalUserID"
                 },
                 "result" : {
                     "id" : "MasterSecretID",
@@ -319,7 +304,8 @@ This one is complementary to "futoin.auth.manage" iface.
                 "throws" : [
                     "UnknownUser",
                     "NotSet"
-                ]
+                ],
+                "seclvl" : "System"
             }
         },
         "requires" : [
