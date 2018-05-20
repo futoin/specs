@@ -796,8 +796,8 @@ Advanced System should have more light protection measures first to protect legi
             "KeyDerivationStrategy" : {
                 "type" : "enum",
                 "items" : [
-                    "HKDF",
-                    "HKDF0"
+                    "HKDF256",
+                    "HKDF512"
                 ]
             },
             "KeyPurpose" : {
