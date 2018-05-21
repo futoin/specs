@@ -620,6 +620,7 @@ salt and info.
     - For `MAC` and `EXPOSED` case, use of current ISO
         date time in `YYYYMMDD` or more precise format is suggested.
     - For `ENC` case, use of UUID per encryption is suggested.
+- Key length must match the length of master key
 - Implementation caching should limit maximum number of derived keys
     per Master Secret ID and Global User ID pair.
 - Defense system should be intelligent enough to protect from brute-forcing:

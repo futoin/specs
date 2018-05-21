@@ -158,7 +158,7 @@ Prefered for message size reduction.
 ### 2.2.3. Simple MAC response "sec" field
 
 Response must be authenticated by the same Secret and the same hash algorithm
-as used for request signing.
+as used for request signing. Only signature has to be sent.
 
 ### 2.2.4. Simple MAC security level
 
@@ -249,7 +249,7 @@ minimize risk of exposure.
                     "base" : "MACBase",
                     "reqsec" : "MACSecField"
                 },
-                "result" : "MACSecField",
+                "result" : "MACValue",
                 "throws" : [
                     "SecurityError"
                 ]

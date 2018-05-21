@@ -136,7 +136,7 @@ format is size efficient for transmission.</p>
 <p><code>"-smac:{user}:{algo}:{sig}"</code></p>
 <h3>2.2.3. Simple MAC response "sec" field</h3>
 <p>Response must be authenticated by the same Secret and the same hash algorithm
-as used for request signing.</p>
+as used for request signing. Only signature has to be sent.</p>
 <h3>2.2.4. Simple MAC security level</h3>
 <p><code>SafeOps</code> security level must be assigned.</p>
 <h2>2.3. Events</h2>
@@ -219,7 +219,7 @@ minimize risk of exposure.</p>
                 "base" : "MACBase",
                 "reqsec" : "MACSecField"
             },
-            "result" : "MACSecField",
+            "result" : "MACValue",
             "throws" : [
                 "SecurityError"
             ]

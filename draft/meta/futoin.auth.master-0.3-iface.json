@@ -7,6 +7,10 @@
     "futoin.auth.types:0.3"
   ],
   "types": {
+    "KDSParam": {
+      "type": "string",
+      "regex": "^[a-zA-Z0-9._/+-]{1,32}$"
+    },
     "MACSecField": {
       "type": "map",
       "fields": {
@@ -14,11 +18,21 @@
         "algo": "MACAlgo",
         "kds": "KeyDerivationStrategy",
         "prm": {
-          "type": "Base64",
+          "type": "KDSParam",
           "optional": true
         },
         "sig": "MACValue"
       }
+    },
+    "CipherType": {
+      "type": "GenericIdentifier",
+      "minlen": 1,
+      "maxlen": 32
+    },
+    "CipherMode": {
+      "type": "string",
+      "regex": "^[A-Z0-9][A-Z0-9_]{1,14}[A-Z0-9]$",
+      "desc": "CBC, CTR, GCM, CFB and others"
     }
   },
   "funcs": {
@@ -38,7 +52,7 @@
         "base": "MACBase",
         "reqsec": "MACSecField"
       },
-      "result": "MACSecField",
+      "result": "MACValue",
       "throws": [
         "SecurityError"
       ]
@@ -50,7 +64,10 @@
         "source": "ClientFingerprints"
       },
       "result": {
-        "info": "AuthInfo",
+        "auth": "AuthInfo",
+        "prm": "KDSParam",
+        "etype": "CipherType",
+        "emode": "CipherMode",
         "ekey": "EncryptedKey"
       },
       "throws": [

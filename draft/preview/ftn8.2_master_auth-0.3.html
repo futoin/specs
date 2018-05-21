@@ -130,7 +130,7 @@ unattended requests.</p>
 <p><code>"-mmac:{msid}:{algo}:{dks}:{prm}:{sig}"</code></p>
 <h2>2.5. Master MAC response "sec" field</h2>
 <p>Response must be authenticated by the same Secret and the same hash algorithm
-as used for request signing.</p>
+as used for request signing. Only signature has to be sent.</p>
 <h2>2.6. Master MAC security level</h2>
 <p><code>PrivilegedOps</code> security level must be assigned.</p>
 <h2>2.7. Optional Master Secret Scope</h2>
@@ -176,6 +176,10 @@ minimize risk of exposure.</p>
         "futoin.auth.types:{ver}"
     ],
     "types" : {
+        "KDSParam" : {
+            "type" : "string",
+            "regex" : "^[a-zA-Z0-9._/+-]{1,32}$"
+        },
         "MACSecField" : {
             "type" : "map",
             "fields" : {
@@ -183,11 +187,21 @@ minimize risk of exposure.</p>
                 "algo" : "MACAlgo",
                 "kds" : "KeyDerivationStrategy",
                 "prm" : {
-                    "type" : "Base64",
+                    "type" : "KDSParam",
                     "optional" : true
                 },
                 "sig" : "MACValue"
             }
+        },
+        "CipherType" : {
+            "type" : "GenericIdentifier",
+            "minlen" : 1,
+            "maxlen" : 32
+        },
+        "CipherMode" : {
+            "type" : "string",
+            "regex" : "^[A-Z0-9][A-Z0-9_]{1,14}[A-Z0-9]$",
+            "desc" : "CBC, CTR, GCM, CFB and others"
         }
     },
     "funcs" : {
@@ -207,7 +221,7 @@ minimize risk of exposure.</p>
                 "base" : "MACBase",
                 "reqsec" : "MACSecField"
             },
-            "result" : "MACSecField",
+            "result" : "MACValue",
             "throws" : [
                 "SecurityError"
             ]
@@ -219,7 +233,10 @@ minimize risk of exposure.</p>
                 "source" : "ClientFingerprints"
             },
             "result" : {
-                "info" : "AuthInfo",
+                "auth" : "AuthInfo",
+                "prm" : "KDSParam",
+                "etype" : "CipherType",
+                "emode" : "CipherMode",
                 "ekey" : "EncryptedKey"
             },
             "throws" : [
