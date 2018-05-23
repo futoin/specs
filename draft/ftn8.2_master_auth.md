@@ -121,7 +121,7 @@ as used for request signing. Only signature has to be sent.
 
 ## 2.6. Master MAC security level
 
-`PrivilegedOps` security level must be assigned.
+`ExceptionalOps` security level must be assigned.
 
 ## 2.7. Optional Master Secret Scope
 
@@ -210,7 +210,8 @@ minimize risk of exposure.
                 "result" : "AuthInfo",
                 "throws" : [
                     "SecurityError"
-                ]
+                ],
+                "seclvl" : "PrivilegedOps"
             },
             "genMAC" : {
                 "params" : {
@@ -220,7 +221,8 @@ minimize risk of exposure.
                 "result" : "MACValue",
                 "throws" : [
                     "SecurityError"
-                ]
+                ],
+                "seclvl" : "PrivilegedOps"
             },
             "exposeDerivedKey" : {
                 "params" : {
@@ -238,7 +240,8 @@ minimize risk of exposure.
                 "throws" : [
                     "SecurityError"
                 ],
-                "desc" : "Feature to support local key cache"
+                "desc" : "Feature to support local key cache",
+                "seclvl" : "ExceptionalOps"
             },
             "getNewEncryptedSecret" : {
                 "params" : {
@@ -256,7 +259,8 @@ minimize risk of exposure.
                 "throws" : [
                     "SecurityError",
                     "NotSupportedKeyType"
-                ]
+                ],
+                "seclvl" : "ExceptionalOps"
             }
         },
         "requires" : [

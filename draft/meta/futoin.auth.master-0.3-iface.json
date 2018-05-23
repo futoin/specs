@@ -45,7 +45,8 @@
       "result": "AuthInfo",
       "throws": [
         "SecurityError"
-      ]
+      ],
+      "seclvl": "PrivilegedOps"
     },
     "genMAC": {
       "params": {
@@ -55,7 +56,8 @@
       "result": "MACValue",
       "throws": [
         "SecurityError"
-      ]
+      ],
+      "seclvl": "PrivilegedOps"
     },
     "exposeDerivedKey": {
       "params": {
@@ -73,7 +75,8 @@
       "throws": [
         "SecurityError"
       ],
-      "desc": "Feature to support local key cache"
+      "desc": "Feature to support local key cache",
+      "seclvl": "ExceptionalOps"
     },
     "getNewEncryptedSecret": {
       "params": {
@@ -91,7 +94,8 @@
       "throws": [
         "SecurityError",
         "NotSupportedKeyType"
-      ]
+      ],
+      "seclvl": "ExceptionalOps"
     }
   },
   "requires": [

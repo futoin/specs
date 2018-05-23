@@ -132,7 +132,7 @@ unattended requests.</p>
 <p>Response must be authenticated by the same Secret and the same hash algorithm
 as used for request signing. Only signature has to be sent.</p>
 <h2>2.6. Master MAC security level</h2>
-<p><code>PrivilegedOps</code> security level must be assigned.</p>
+<p><code>ExceptionalOps</code> security level must be assigned.</p>
 <h2>2.7. Optional Master Secret Scope</h2>
 <p>User/Service is in control of its own privacy vs. simplicity. There is an optional,
 <code>scope</code> parameter for new Master Secret generation.</p>
@@ -214,7 +214,8 @@ minimize risk of exposure.</p>
             "result" : "AuthInfo",
             "throws" : [
                 "SecurityError"
-            ]
+            ],
+            "seclvl" : "PrivilegedOps"
         },
         "genMAC" : {
             "params" : {
@@ -224,7 +225,8 @@ minimize risk of exposure.</p>
             "result" : "MACValue",
             "throws" : [
                 "SecurityError"
-            ]
+            ],
+            "seclvl" : "PrivilegedOps"
         },
         "exposeDerivedKey" : {
             "params" : {
@@ -242,7 +244,8 @@ minimize risk of exposure.</p>
             "throws" : [
                 "SecurityError"
             ],
-            "desc" : "Feature to support local key cache"
+            "desc" : "Feature to support local key cache",
+            "seclvl" : "ExceptionalOps"
         },
         "getNewEncryptedSecret" : {
             "params" : {
@@ -260,7 +263,8 @@ minimize risk of exposure.</p>
             "throws" : [
                 "SecurityError",
                 "NotSupportedKeyType"
-            ]
+            ],
+            "seclvl" : "ExceptionalOps"
         }
     },
     "requires" : [

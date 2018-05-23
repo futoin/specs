@@ -32,7 +32,8 @@
       "result": "AuthInfo",
       "throws": [
         "SecurityError"
-      ]
+      ],
+      "seclvl": "SafeOps"
     },
     "checkMAC": {
       "params": {
@@ -43,7 +44,8 @@
       "result": "AuthInfo",
       "throws": [
         "SecurityError"
-      ]
+      ],
+      "seclvl": "PrivilegedOps"
     },
     "genMAC": {
       "params": {
@@ -53,7 +55,8 @@
       "result": "MACValue",
       "throws": [
         "SecurityError"
-      ]
+      ],
+      "seclvl": "PrivilegedOps"
     },
     "getMACSecret": {
       "params": {
@@ -64,7 +67,8 @@
         "UnknownUser",
         "NotSet"
       ],
-      "desc": "For internal caching purposes"
+      "desc": "For internal caching purposes",
+      "seclvl": "PrivilegedOps"
     }
   },
   "requires": [

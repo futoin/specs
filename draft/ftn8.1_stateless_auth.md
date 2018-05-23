@@ -92,7 +92,7 @@ The field must not be present as there is no point for that.
 
 ### 2.1.4. Clear text security level
 
-`Info` security level must be assigned.
+`SafeOps` security level must be assigned.
 
 
 ## 2.2. Simple MAC method
@@ -162,7 +162,7 @@ as used for request signing. Only signature has to be sent.
 
 ### 2.2.4. Simple MAC security level
 
-`SafeOps` security level must be assigned.
+`PrivilegedOps` security level must be assigned.
 
 ## 2.3. Events
 
@@ -231,7 +231,8 @@ minimize risk of exposure.
                 "result" : "AuthInfo",
                 "throws" : [
                     "SecurityError"
-                ]
+                ],
+                "seclvl" : "SafeOps"
             },
             "checkMAC" : {
                 "params" : {
@@ -242,7 +243,8 @@ minimize risk of exposure.
                 "result" : "AuthInfo",
                 "throws" : [
                     "SecurityError"
-                ]
+                ],
+                "seclvl" : "PrivilegedOps"
             },
             "genMAC" : {
                 "params" : {
@@ -252,7 +254,8 @@ minimize risk of exposure.
                 "result" : "MACValue",
                 "throws" : [
                     "SecurityError"
-                ]
+                ],
+                "seclvl" : "PrivilegedOps"
             },
             "getMACSecret" : {
                 "params" : {
@@ -263,7 +266,8 @@ minimize risk of exposure.
                     "UnknownUser",
                     "NotSet"
                 ],
-                "desc" : "For internal caching purposes"
+                "desc" : "For internal caching purposes",
+                "seclvl" : "PrivilegedOps"
             }
         },
         "requires" : [
