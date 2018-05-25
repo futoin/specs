@@ -812,10 +812,9 @@ Advanced System should have more light protection measures first to protect legi
             "ExchangeKeyType" : {
                 "type" : "enum",
                 "items" : [
-                    "RSAE-2048",
-                    "RSAE-4096",
-                    "ECDHE-Curve25519",
-                    "ECDHE-Curve448"
+                    "RSA",
+                    "X25519",
+                    "X448"
                 ]
             },
             "ExchangeKey" : {
