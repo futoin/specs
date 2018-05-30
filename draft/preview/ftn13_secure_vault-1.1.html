@@ -18,6 +18,7 @@ Authors: Andrey Galkin
 <li>NEW: MAC processing</li>
 <li>NEW: MAC aliases</li>
 <li>NEW: optional prefix search for key listing</li>
+<li>NEW: event stream description</li>
 </ul>
 </li>
 <li>v1.0 - 2018-02-13 - Andrey Galkin<ul>
@@ -261,6 +262,13 @@ Any data passed is to be ignored.</p>
 <h2>2.12. Message Authentication Code processing</h2>
 <p>There must be a dedicated "MAC" key type,</p>
 <p>It must be possible to securely generate, inject, expose, sign and verify.</p>
+<h2>2.13. Event names</h2>
+<p>The following events to be generated. Precise description is in interfaces.</p>
+<ul>
+<li><code>SV_NEW</code> - new SecureVault key</li>
+<li><code>SV_DEL</code> - removal of SecureVault key</li>
+<li><code>SV_UPD</code> - usage update for SecureVault</li>
+</ul>
 <h1>3. Interface</h1>
 <h2>3.1. Common types</h2>
 <pre><code>{
@@ -306,9 +314,21 @@ Any data passed is to be ignored.</p>
                 "type" : "KeyType",
                 "params" : "GenParams",
                 "created" : "Timestamp",
-                "used_times" : "NotNegativeInteger",
-                "used_bytes" : "NotNegativeInteger",
-                "sig_failures" : "NotNegativeInteger"
+                "times" : "NotNegativeInteger",
+                "bytes" : "NotNegativeInteger",
+                "failures" : "NotNegativeInteger",
+                "used_times" : {
+                    "type" : "NotNegativeInteger",
+                    "desc" : "Deprecated"
+                },
+                "used_bytes" : {
+                    "type" : "NotNegativeInteger",
+                    "desc" : "Deprecated"
+                },
+                "sig_failures" : {
+                    "type" : "NotNegativeInteger",
+                    "desc" : "Deprecated"
+                }
             }
         },
         "KeyIDList" : {
@@ -350,11 +370,7 @@ Any data passed is to be ignored.</p>
             "maxlen" : 128,
             "desc" : "Most ciphers accept only block size, e.g. 16 bytes"
         }
-    },
-    "requires" : [
-        "SecureChannel",
-        "BinaryData"
-    ]
+    }
 }
 </code></pre>
 <h2>3.2. Key management</h2>
@@ -522,6 +538,18 @@ Any data passed is to be ignored.</p>
                 }
             },
             "result" : "KeyIDList"
+        },
+        "addStats" : {
+            "params" : {
+                "id" : "KeyID",
+                "times" : "NotNegativeInteger",
+                "bytes" : "NotNegativeInteger",
+                "failures" : "NotNegativeInteger"
+            },
+            "result" : "boolean",
+            "throws" : [
+                "UnknownKeyID"
+            ]
         }
     },
     "requires" : [
@@ -625,6 +653,50 @@ Any data passed is to be ignored.</p>
         "SecureChannel",
         "BinaryData"
     ]
+}
+</code></pre>
+<h2>3.4. Events</h2>
+<pre><code>{
+    "iface" : "futoin.secvault.events",
+    "version" : "{ver}",
+    "ftn3rev" : "1.9",
+    "imports" : [
+        "futoin.secvault.types:{ver}"
+    ],
+    "types" : {
+        "SvNew" : {
+            "type" : "map",
+            "fields" : {
+                "id" : "KeyID",
+                "ext_id" : "ExtID",
+                "type" : "KeyType"
+            }
+        },
+        "SvDel" : {
+            "type" : "map",
+            "fields" : {
+                "id" : "KeyID"
+            }
+        },
+        "SvUpd" : {
+            "type" : "map",
+            "fields" : {
+                "id" : "KeyID",
+                "times" : {
+                    "type" : "NotNegativeInteger",
+                    "optional" : true
+                },
+                "bytes" : {
+                    "type" : "NotNegativeInteger",
+                    "optional" : true
+                },
+                "failures" : {
+                    "type" : "NotNegativeInteger",
+                    "optional" : true
+                }
+            }
+        }
+    }
 }
 </code></pre>
 <p>=END OF SPEC=</p>

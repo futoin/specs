@@ -1,0 +1,42 @@
+{
+  "iface": "futoin.secvault.events",
+  "version": "1.1",
+  "ftn3rev": "1.9",
+  "imports": [
+    "futoin.secvault.types:1.1"
+  ],
+  "types": {
+    "SvNew": {
+      "type": "map",
+      "fields": {
+        "id": "KeyID",
+        "ext_id": "ExtID",
+        "type": "KeyType"
+      }
+    },
+    "SvDel": {
+      "type": "map",
+      "fields": {
+        "id": "KeyID"
+      }
+    },
+    "SvUpd": {
+      "type": "map",
+      "fields": {
+        "id": "KeyID",
+        "times": {
+          "type": "NotNegativeInteger",
+          "optional": true
+        },
+        "bytes": {
+          "type": "NotNegativeInteger",
+          "optional": true
+        },
+        "failures": {
+          "type": "NotNegativeInteger",
+          "optional": true
+        }
+      }
+    }
+  }
+}

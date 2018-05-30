@@ -162,6 +162,18 @@
         }
       },
       "result": "KeyIDList"
+    },
+    "addStats": {
+      "params": {
+        "id": "KeyID",
+        "times": "NotNegativeInteger",
+        "bytes": "NotNegativeInteger",
+        "failures": "NotNegativeInteger"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownKeyID"
+      ]
     }
   },
   "requires": [

@@ -11,6 +11,7 @@ Authors: Andrey Galkin
     - NEW: MAC processing
     - NEW: MAC aliases
     - NEW: optional prefix search for key listing
+    - NEW: event stream description
 * v1.0 - 2018-02-13 - Andrey Galkin
     - Final
 * v0.3 - 2018-02-12 - Andrey Galkin
@@ -220,6 +221,14 @@ There must be a dedicated "MAC" key type,
 
 It must be possible to securely generate, inject, expose, sign and verify.
 
+## 2.13. Event names
+
+The following events to be generated. Precise description is in interfaces.
+
+* `SV_NEW` - new SecureVault key
+* `SV_DEL` - removal of SecureVault key
+* `SV_UPD` - usage update for SecureVault
+
 # 3. Interface
 
 ## 3.1. Common types
@@ -270,9 +279,21 @@ It must be possible to securely generate, inject, expose, sign and verify.
                     "type" : "KeyType",
                     "params" : "GenParams",
                     "created" : "Timestamp",
-                    "used_times" : "NotNegativeInteger",
-                    "used_bytes" : "NotNegativeInteger",
-                    "sig_failures" : "NotNegativeInteger"
+                    "times" : "NotNegativeInteger",
+                    "bytes" : "NotNegativeInteger",
+                    "failures" : "NotNegativeInteger",
+                    "used_times" : {
+                        "type" : "NotNegativeInteger",
+                        "desc" : "Deprecated"
+                    },
+                    "used_bytes" : {
+                        "type" : "NotNegativeInteger",
+                        "desc" : "Deprecated"
+                    },
+                    "sig_failures" : {
+                        "type" : "NotNegativeInteger",
+                        "desc" : "Deprecated"
+                    }
                 }
             },
             "KeyIDList" : {
@@ -314,11 +335,7 @@ It must be possible to securely generate, inject, expose, sign and verify.
                 "maxlen" : 128,
                 "desc" : "Most ciphers accept only block size, e.g. 16 bytes"
             }
-        },
-        "requires" : [
-            "SecureChannel",
-            "BinaryData"
-        ]
+        }
     }
 
 `}Iface`
@@ -491,6 +508,18 @@ It must be possible to securely generate, inject, expose, sign and verify.
                     }
                 },
                 "result" : "KeyIDList"
+            },
+            "addStats" : {
+                "params" : {
+                    "id" : "KeyID",
+                    "times" : "NotNegativeInteger",
+                    "bytes" : "NotNegativeInteger",
+                    "failures" : "NotNegativeInteger"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownKeyID"
+                ]
             }
         },
         "requires" : [
@@ -599,6 +628,55 @@ It must be possible to securely generate, inject, expose, sign and verify.
             "SecureChannel",
             "BinaryData"
         ]
+    }
+
+`}Iface`
+
+## 3.4. Events
+
+`Iface{`
+
+    {
+        "iface" : "futoin.secvault.events",
+        "version" : "{ver}",
+        "ftn3rev" : "1.9",
+        "imports" : [
+            "futoin.secvault.types:{ver}"
+        ],
+        "types" : {
+            "SvNew" : {
+                "type" : "map",
+                "fields" : {
+                    "id" : "KeyID",
+                    "ext_id" : "ExtID",
+                    "type" : "KeyType"
+                }
+            },
+            "SvDel" : {
+                "type" : "map",
+                "fields" : {
+                    "id" : "KeyID"
+                }
+            },
+            "SvUpd" : {
+                "type" : "map",
+                "fields" : {
+                    "id" : "KeyID",
+                    "times" : {
+                        "type" : "NotNegativeInteger",
+                        "optional" : true
+                    },
+                    "bytes" : {
+                        "type" : "NotNegativeInteger",
+                        "optional" : true
+                    },
+                    "failures" : {
+                        "type" : "NotNegativeInteger",
+                        "optional" : true
+                    }
+                }
+            }
+        }
     }
 
 `}Iface`
