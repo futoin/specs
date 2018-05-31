@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn8.4_access_control.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN8.4: FutoIn Security Concept - Access Control
+Version: 0.4DV
+Date: 2018-01-05
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v0.2 - 2018-01-05 - Andrey Galkin<ul>
+<li>CHANGED: heavily revised &amp; split into sub-specs</li>
+</ul>
+</li>
+<li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This sub-specification of <a href="./ftn8_security_concept.html">FTN8</a> covers
+Access Control specification.</p>
+<p>Introduction is done in the main spec.</p>
+<h1>2. Concept</h1>
+<p>There are two goals:</p>
+<ol>
+<li>Check if particular User is allowed to access API with particular parameters.</li>
+<li>Allow one Service(A) to access API of another Service(B) on behalf of
+User who grants such access through AuthService based on Auth Query of the first Service(A).</li>
+</ol>
+<p>Details of Auth Query are defined in <a href="./ftn8.3_client_auth.html">FTN8.3</a> sub-spec.</p>
+<h2>2.1. Access Control Descriptor (ACD)</h2>
+<p>This is low level concept which is used to grant and check dynamic access in runtime.</p>
+<p>Access hierarchy: Service -&gt; Interface -&gt; Version -&gt; Function -&gt; Parameters.
+Such combination is called "Access Control Descriptor" in this spec.</p>
+<p>ACD can be partially defined to act like a "mask". In most cases, parameters and functions are omitted.</p>
+<p>Service builds a full ACD based on actual request to be checked using related AuthService.</p>
+<p>Doing an API call for every action may produce a significant overhead. It is important to design
+effective caching mechanism with stable invalidation for security reasons.</p>
+<h2>2.2. Access Groups</h2>
+<p>It's not user-friendly to ask for particular API details. Instead, providing Service
+registers named groups of ACDs with detailed description in multiple languages.</p>
+<p>User grants access based on such named Access Groups. Associated ACDs may get updated,
+but user should not be asked re-confirm access unless Access Group identifier changes.</p>
+<h2>2.3. Access Control check procedure</h2>
+<ul>
+<li>ServiceA performs request to ServiceB on behalf of User</li>
+<li>ServiceB authenticates requests through AuthService</li>
+<li>Of on-behalf-of request field is present<ul>
+<li>ServiceB checks against AuthService if ServiceA is allowed to access
+    ServiceB on behalf of particular User</li>
+<li>AuthService performs necessary checks and returns optional constraints</li>
+<li>ServiceB validated the constraints</li>
+<li>ServiceB caches ACD, if it is able to invalidate it properly</li>
+<li>ServiceB continues processing the request like is done by User</li>
+</ul>
+</li>
+<li>Request is processed as normal</li>
+</ul>
+<h2>2.4. Access control of resources</h2>
+<p>In many cases, there is a fixed number of object types, like users, posts, files, etc.
+And there is a variable size of objects per type, many users, posts and files. Every
+object can have actions like Create/Read/Update/Delete.</p>
+<p>A hierarchy is seen: Service -&gt; Object Types -&gt; Individual Objects -&gt; Individual Object Action.</p>
+<p>However, as all FutoIn operations are done through interfaces, it's possible to map
+those to ACDs described above. This specification does not limit such flexibility and
+the way such access get granted internally, but it's assumed that access is checked
+through <code>checkAccess()</code> call.</p>
+<h2>2.5. Events</h2>
+<ul>
+<li><code>ACD_UPD</code> - update of ACDs per user<ul>
+<li><code>local_id</code> - local user ID</li>
+</ul>
+</li>
+</ul>
+<h2>2.6. Example</h2>
+<h3>2.6.1. Regular call</h3>
+<pre><code>   User/ServiceA              ServiceB                      AuthService
+       |                          .                              .
+       |-------- request -------&gt; |                              .
+       .                          |-------- checkAccess() -----&gt; |
+       .                          | &lt;-- validation constraints --|
+       | &lt;------ response --------|                              .
+       |                          .                              .
+</code></pre>
+<h3>2.6.2. On-Behalf-oF calls</h3>
+<pre><code>    ServiceA                  ServiceB                      AuthService
+       |                          .                              .
+       |-------- request -------&gt; |                              .
+       .                          |-------- checkOBF() --------&gt; |
+       .                          | &lt;-- validation constraints --|
+       .                          |-------- checkAccess() -----&gt; |
+       .                          | &lt;-- validation constraints --|
+       | &lt;------ response --------|                              .
+       |                          .                              .
+</code></pre>
+<h1>3. Interface.</h1>
+<h2>3.1. Access check interface</h2>
+<pre><code>{
+    "iface" : "futoin.auth.access",
+    "version" : "{ver}",
+    "ftn3rev" : "1.9",
+    "imports" : [
+        "futoin.ping:1.0",
+        "futoin.auth.types:{ver}"
+    ],
+    "funcs" : {
+        "checkOBF" : {
+            "params" : {
+                "obf" : "AuthInfo",
+                "iface" : "FTNFace",
+                "ver" : "FTNVersion",
+                "func" : "FTNFunction"
+            },
+            "result" : {
+                "params" : "ParamConstraint"
+            }
+        },
+        "checkAccess" : {
+            "params" : {
+                "user" : "AuthInfo",
+                "iface" : "FTNFace",
+                "ver" : "FTNVersion",
+                "func" : "FTNFunction"
+            },
+            "result" : {
+                "params" : "ParamConstraint"
+            }
+        }
+    },
+    "requires" : [
+        "SecureChannel",
+        "MessageSignature"
+    ]
+}
+</code></pre>
+<p>=END OF SPEC=</p>
+</body></html>

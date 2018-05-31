@@ -1,0 +1,37 @@
+{
+  "iface": "futoin.auth.access",
+  "version": "0.4",
+  "ftn3rev": "1.9",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.auth.types:0.4"
+  ],
+  "funcs": {
+    "checkOBF": {
+      "params": {
+        "obf": "AuthInfo",
+        "iface": "FTNFace",
+        "ver": "FTNVersion",
+        "func": "FTNFunction"
+      },
+      "result": {
+        "params": "ParamConstraint"
+      }
+    },
+    "checkAccess": {
+      "params": {
+        "user": "AuthInfo",
+        "iface": "FTNFace",
+        "ver": "FTNVersion",
+        "func": "FTNFunction"
+      },
+      "result": {
+        "params": "ParamConstraint"
+      }
+    }
+  },
+  "requires": [
+    "SecureChannel",
+    "MessageSignature"
+  ]
+}

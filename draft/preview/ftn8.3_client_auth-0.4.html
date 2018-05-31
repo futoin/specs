@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn8.3_client_auth.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN8.3: FutoIn Security Concept - Client Authentication
+Version: 0.4DV
+Date: 2018-02-27
+Copyright: 2014-2018 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v0.3 - 2018-02-27 - Andrey Galkin<ul>
+<li>NEW: local session ID suggestion</li>
+</ul>
+</li>
+<li>v0.2 - 2017-12-30 - Andrey Galkin<ul>
+<li>CHANGED: heavily revised &amp; split into sub-specs</li>
+<li>NEW: Client Single Sign-On</li>
+</ul>
+</li>
+<li>v0.1 - 2014-06-03 - Andrey Galkin<ul>
+<li>Initial draft</li>
+</ul>
+</li>
+</ul>
+<h1>1. Intro</h1>
+<p>This sub-specification of <a href="./ftn8_security_concept.html">FTN8</a> covers
+Client authentication and Service authorization.</p>
+<p>Client is assumed to be a software under control of User.
+User is a living being like human.</p>
+<p>The ultimate goal is to concentrate primary User and Client authentication logic
+in AuthService as defined in the main spec while Service itself has minimal
+responsibility.</p>
+<h1>2. Concept</h1>
+<h2>2.1. User registration</h2>
+<p>There is an <em>open</em> list of possible use cases:</p>
+<ol>
+<li>By adminstrator of AuthService.</li>
+<li>Via self-registration form.</li>
+<li>By Service which creates users on demand.</li>
+</ol>
+<h2>2.2. Client authentication and sessions</h2>
+<h3>2.2.1. Authentication of Client requests</h3>
+<p>At least for HTTP-based Clients, there is doubtful security of using
+stateless or MAC-based request signing authentication as modern browsers
+support protection of cookies from exposure to applications on page.</p>
+<p>Therefore, this sub-spec is focused on cookie-based authentication. The cookie
+must be bound to particular Service. It must not be possible to re-use it in
+other Service.</p>
+<ol>
+<li>Each non-anonymous request must be undoubtedly associated with User account.<ul>
+<li>Especially important when single Client session has multiple User sessions.</li>
+<li>Selection of active session token is responsibility of Service implementation.<ul>
+<li>One strategy is to switch profiles to always have a single active token:<ul>
+<li>It may be dangerous when some of the windows/tabs is in outdated state.</li>
+</ul>
+</li>
+<li>Another strategy, is to identify sessions in API.<ul>
+<li>Actual API should be agnostics to multi-sessions.</li>
+<li>So, prefer a separate API endpoint associated with cookie index.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>The session token generation and validation is duty of AuthService.</li>
+</ul>
+</li>
+<li>Service passes active session token to AuthService.</li>
+<li>AuthService does authentication implementation-defined way:<ul>
+<li>User must be active,</li>
+<li>User session must still be valid.</li>
+<li>For performance and scalability reasons, local proxy AuthService can be
+    used, if it ensures proper global session invalidation.</li>
+</ul>
+</li>
+<li>AuthService returns user local and global IDs for further processing<ul>
+<li>otherwise, <code>PleaseReauth</code> standard error is thrown</li>
+</ul>
+</li>
+</ol>
+<h3>2.2.2. <code>PleaseReauth</code> handling in Client code</h3>
+<ol>
+<li>Client must immediately request signed redirect URL for login page.</li>
+<li>Client must follow the URL as is.</li>
+<li>Upon successful authentication and return to Service, implementation
+    may restore session state and continue execution as if no
+    interruption occured.</li>
+</ol>
+<p><em>Note: this logic does not apply to Service-to-Service calls</em></p>
+<h3>2.2.3. User authentication in Client</h3>
+<ol>
+<li>If Client comes from Service redirect (Auth Query):<ul>
+<li>validate Service signature first</li>
+</ul>
+</li>
+<li>Client passes implementation-defined authentication procedure on AuthService page.</li>
+<li>HTTP session cookie or its equivalent may be set on Client in scope of AuthService.<ul>
+<li>Optional persistent cookie may be set, implementation-defined.</li>
+</ul>
+</li>
+<li>If the Service has not been Authorized to access user's resource yet then
+    user is prompted for that.</li>
+<li>If Client comes from Service redirect (Auth Query):<ul>
+<li>Client is redirected back with "session start token"</li>
+<li>Client gets back to Service</li>
+<li>Service verifies redirect signature and starts new user session with AuthService
+    using the start token</li>
+<li>AuthService returns new session token and session persistence requirements</li>
+<li>HTTP cookie or its equivalent is set on Client based on response details</li>
+</ul>
+</li>
+</ol>
+<h4>2.2.3.1. "session token" vs. "session start token"</h4>
+<ul>
+<li>Session start token:<ul>
+<li>is exposed in redirect URLs,</li>
+<li>must not be stored in cookie,</li>
+<li>must be used only for a tiny period of new session initiation,</li>
+<li>must not be re-usable - one-time policy,</li>
+<li>must be bound to specific Client fingerprints and
+    NOT allow source address roaming.</li>
+</ul>
+</li>
+<li>Session token:<ul>
+<li>must never be exposed anywhere except for HTTP headers (HTTP-only cookie policy),</li>
+<li>assumed to be stored in cookie,</li>
+<li>must be used for entire User [persistent] session,</li>
+<li>must not be re-usable once session is invalidated,</li>
+<li>must be ignored, if HTTP "Referer" header mismatches allowed URLs,</li>
+<li>must be bound to specific Client fingerprints, but
+    MAY allow source address roaming.</li>
+</ul>
+</li>
+<li>Both:<ul>
+<li>must be bound to target Service.</li>
+</ul>
+</li>
+</ul>
+<h3>2.2.4. User session persistence</h3>
+<ul>
+<li>Depends on AuthService implementation and/or configuration,</li>
+<li>Should have absolute time-to-live to require re-authentication (e.g. day, week, month, etc.),</li>
+<li>May support "remember me" logic,</li>
+<li>Should have idle timeout for automatic logout, if not "remember me",</li>
+<li>Should be stored and survive Client shutdown, if "remember me" logic is activated,</li>
+<li>May be invalidated at any time, if AuthService and/or DefenseService detect suspicious activity.</li>
+</ul>
+<h3>2.2.5. Multiple User sessions in the same Client</h3>
+<p>It's assumed that single Client can have multiple User sessions at the same time.</p>
+<p>Therefore:</p>
+<ol>
+<li>Both Service and AuthService must be aware of possible multiple session cases.</li>
+<li>Login as different user must always be available to add additional sessions,
+    unless there are opposite business requirements - prevention of multiple accounts.</li>
+<li>If multiple user sessions are authenticated in Client then current
+    User selection must be available.</li>
+</ol>
+<h3>2.2.5. Sessions of foreign users</h3>
+<ol>
+<li>Foreign user's home AuthService must be aware of all related sessions and be able to invalidate them.</li>
+<li>Service-local AuthService must listen to foreign user updates from user's home AuthService.</li>
+</ol>
+<p>More details are provided in FTN8.6 sub-spec.</p>
+<h2>2.3. Service Authorization</h2>
+<p>More details of Service authorization to access User's resources on different Services
+is described in the main FTN8 spec and FTN8.4 sub-spec.</p>
+<h3>2.3.1. Auth Queries from Client by Service through AuthService</h3>
+<p>"Auth Query" stays both for "Authentication" and for "Authorization" query. The second
+always depends on the first one, but plain authentication query without asking for any
+resource authorization can be done. In scope of the spec, User authentication can be
+seen as authorization of Service to get basic User's local and global ID.</p>
+<p>User private information available in AuthService is accessible through dedicated interface.
+So, there is no special handling compared to any other resources.</p>
+<p>To request User authorization for some resources, Service may request
+AuthService to ask User to grant access of owned and/or controlled resources
+in another location.</p>
+<p>The important aspects:</p>
+<ol>
+<li>Service must have pre-existing Master Secret exchange with AuthService</li>
+<li>Service/AuthService may want to protect from potential DoS attacks caused
+    by other peer redirects either intentional or due to software bug or due to
+    attacks from Client itself.<ul>
+<li>All redirects must be signed by derived key with "EXPOSED" purpose</li>
+<li>Do not make direct requests to another peer for obviously faked redirects.</li>
+</ul>
+</li>
+<li>AuthService must ask user for actions initiated by Service:<ul>
+<li>Only if query really comes from Service based on redirect signature.</li>
+<li>Any Auth Query must be based on a persistent template created in advance
+    by Service in AuthService.</li>
+<li>Each Auth Query must have unique not reusable ID (UUID is acceptable).</li>
+<li>Client redirection must only execute a known template associated with
+    requesting Service.</li>
+<li>Upon Client return to Service, Service must check result in AuthService.</li>
+<li>Service must keep track of initiated Auth Queries to avoid obviously
+    fake checks to AuthService.</li>
+<li>Service must be ready for User to only partially reject Auth Query.</li>
+</ul>
+</li>
+</ol>
+<h3>2.3.2. Auth Query signing details</h3>
+<ol>
+<li>It's assumed ServiceA and ServiceB are paired to AuthService based on Master Secret auth.</li>
+<li>It's assumed <code>declareAccessControl()</code> is called by Services once per new software version.</li>
+<li>It's assumed Services and AuthService are in time sync.</li>
+<li>ServiceA generates a random nonce (e.g. UUID).</li>
+<li>ServiceA creates <code>AuthQueryRequest</code> payload with access control descriptors of ServiceB.</li>
+<li>ServiceA derives <code>EXPOSED</code> signing key from Master Secret and signed the payload with the key.</li>
+<li>ServiceA uses <code>auth_url</code> concatenated with the payload encoded in Base64.</li>
+<li>ServiceA redirects Clients based on result URL.</li>
+<li>AuthService decodes the request payload and verifies its content:<ul>
+<li>DoS protection:<ul>
+<li>timestamp must not be older than 600 seconds.</li>
+<li>pair of nonce value and template ID must not be seen in the expected age period.</li>
+</ul>
+</li>
+<li>signature must belong to the owner of AuthQuery request template.</li>
+<li>AuthQuery template must be valid.</li>
+</ul>
+</li>
+<li>AuthService authenticates User, if needed.</li>
+<li>AuthService asks User to approve ServiceA access, if needed.<ul>
+<li>The prompting can be skipped for trusted service (e.g. same company).</li>
+<li>User selected language translations are used for prompting.</li>
+<li>Requesting service must be shown.</li>
+<li>The list of requested access groups with icons and descriptions must be shown.</li>
+<li>User is asked to confirm.</li>
+</ul>
+</li>
+<li>AuthService creates <code>AuthQueryResponse</code> using new timestamp, but the same nonce and signing key.</li>
+<li>AuthService redirects user to <code>result_url</code> concatenated with Base64 encoded payload.</li>
+<li>ServiceA decodes the result payload and varifies its content:<ul>
+<li>DoS protection:<ul>
+<li>timestamp must not be older than 600 seconds.</li>
+<li>pair of nonce value and template ID must not be seen in the expected age period.</li>
+</ul>
+</li>
+<li>signature must belong to the owner of AuthQuery request template.</li>
+<li>AuthQuery template must be valid.</li>
+</ul>
+</li>
+<li>ServiceA start User session:<ul>
+<li>request is sent to AuthService.</li>
+<li>response session token is saved in Client.</li>
+</ul>
+</li>
+<li>Optional, ServiceA can make requests to ServiceB on behalf of the user.</li>
+</ol>
+<h3>2.3.3. User session handling</h3>
+<ol>
+<li>After successful Auth Query, Service must call <code>startSession()</code>.</li>
+<li>Service should call <code>resumeSession()</code> once in 10 minutes, if session is used.</li>
+<li>If User is logged out from the Service then <code>closeSession()</code> must be called.</li>
+<li>Service must call `resumeSession() on every client fingerprints change and/or
+    service may force logout.</li>
+</ol>
+<h3>2.3.4. Session invalidation</h3>
+<p>Service should listen to AuthService events through <a href="./ftn18_if_eventstream.html">FTN18 Event Stream</a>
+interface.</p>
+<ul>
+<li><code>SESS_END</code> - event type:<ul>
+<li><code>local_id</code></li>
+<li><code>global_id</code></li>
+<li><code>session_token</code></li>
+</ul>
+</li>
+</ul>
+<h3>2.3.5. Local Session ID suggestion</h3>
+<p>Session ID must meet the following criteria:</p>
+<ol>
+<li>Must be difficult to bruteforce/</li>
+<li>Must be invalidated on detected bruteforce.</li>
+<li>Invalidation on bruteforce detection must not lead to Denial of Service.</li>
+<li>Must be as short as possible.</li>
+</ol>
+<p>Therefore, default implementation should:</p>
+<ol>
+<li>Use 128-bit UUID v4 as primary identifier.</li>
+<li>Use 64-bit random secret for bruteforce detection.</li>
+<li>Encode in Base64 for total of 32 bytes.</li>
+<li>Use short session cookie identifier, like "FSI".</li>
+<li>Reset cookie on invalid session to avoid its reuse.</li>
+<li>Ban bruteforce attacker detected based on random secret.</li>
+<li>Ban bruteforce attacker detected based on 10 session ID misses per day.</li>
+<li>Progressively increase ban period based on attack recurrence: 24 hours, 7 days, 30 days.</li>
+</ol>
+<h1>3. Interface</h1>
+<h2>3.1. Service interface</h2>
+<pre><code>{
+    "iface" : "futoin.auth.service",
+    "version" : "{ver}",
+    "ftn3rev" : "1.9",
+    "imports" : [
+        "futoin.ping:1.0",
+        "futoin.auth.types:{ver}"
+    ],
+    "types" : {
+        "TemplateName" : {
+            "type" : "GenericIdentifier",
+            "maxlen" : 32
+        },
+        "SessionStartToken" : {
+            "type" : "Base64",
+            "minlen" : 22,
+            "maxlen" : 171
+        },
+        "SessionToken" : {
+            "type" : "Base64",
+            "minlen" : 22,
+            "maxlen" : 171
+        },
+        "AuthQueryID" : "UUIDB64",
+        "AuthQueryNonce" : {
+            "type" : "Base64",
+            "maxlen" : 22
+        },
+        "AuthQueryRequest" : {
+            "type" : "map",
+            "fields" : {
+                "id" : "AuthQueryID",
+                "ts" : "Timestamp",
+                "nonce" : "AuthQueryNonce",
+                "msid" : "MasterSecretID"
+            }
+        },
+        "AuthQueryResponse" : {
+            "type" : "map",
+            "fields" : {
+                "token" : "SessionStartToken",
+                "ts" : "Timestamp",
+                "nonce" : "AuthQueryNonce",
+                "msid" : "MasterSecretID"
+            }
+        }
+    },
+    "funcs" : {
+        "declareAccessControl" : {
+            "params" : {
+                "access_groups" : "AccessGroupList"
+            },
+            "result" : "boolean"
+        },
+        "authQueryTemplate" : {
+            "params" : {
+                "name" : "TemplateName",
+                "acds" : "ServiceAccessGroupList",
+                "result_url" : "RedirectURL"
+            },
+            "result" : {
+                "id" : "AuthQueryID",
+                "auth_url" : "RedirectURL"
+            },
+            "throws" : [
+                "SecurityError"
+            ]
+        },
+        "startSession" : {
+            "params" : {
+                "start_token" : "SessionStartToken",
+                "client" : "ClientFingerprints"
+            },
+            "result" : {
+                "token" : "SessionToken",
+                "info" : "AuthInfo"
+            },
+            "throws" : [
+                "InvalidStartToken",
+                "PleaseReauth"
+            ]
+        },
+        "resumeSession" : {
+            "params" : {
+                "start_token" : "SessionToken",
+                "client" : "ClientFingerprints"
+            },
+            "result" : "boolean",
+            "throws" : [
+                "UnknownSession",
+                "PleaseReauth"
+            ]
+        },
+        "closeSession" : {
+            "params" : {
+                "start_token" : "SessionToken"
+            },
+            "result" : "boolean"
+        }
+    },
+    "requires" : [
+        "SecureChannel",
+        "MessageSignature"
+    ]
+}
+</code></pre>
+<h2>3.2. User interface for access grants</h2>
+<pre><code>{
+    "iface" : "futoin.info.me",
+    "version" : "{ver}",
+    "ftn3rev" : "1.9",
+    "imports" : [
+        "futoin.ping:1.0",
+        "futoin.auth.types:{ver}"
+    ],
+    "funcs" : {
+        "getEmail" : {
+            "result" : "Email",
+            "throws" : [
+                "NoValidatedEmail"
+            ]
+        },
+        "getPhone" : {
+            "result" : "Phone",
+            "throws" : [
+                "NoValidatedPhone"
+            ]
+        },
+        "getNames" : {
+            "result" : {
+                "first" : "LatinName",
+                "middle" : "LatinFullName",
+                "last" : "LatinName",
+                "full" : "LatinFullName",
+                "n_first" : "NativeName",
+                "n_middle" : "NativeFullName",
+                "n_last" : "NativeName",
+                "n_full" : "NativeFullName"
+            },
+            "throws" : [
+                "NoValidatedNames"
+            ]
+        },
+        "getAvatar" : {
+            "rawresult" : true
+        },
+        "getDateOfBirth" : {
+            "result" : "Datestamp"
+        },
+        "getPlaceOfBirth" : {
+            "result" : {
+                "place" : "LatinLocation",
+                "n_place" : "NativeLocation"
+            }
+        },
+        "getHomeAddress" : {
+            "result" : {
+                "country" : "ISO3166A3",
+                "address" : "LatinLocation",
+                "n_address" : "NativeLocation"
+            }
+        }
+    },
+    "requires" : [
+        "SecureChannel"
+    ]
+}
+</code></pre>
+<p>=END OF SPEC=</p>
+</body></html>

@@ -1,6 +1,6 @@
 <pre>
 FTN8.4: FutoIn Security Concept - Access Control
-Version: 0.3DV
+Version: 0.4DV
 Date: 2018-01-05
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin

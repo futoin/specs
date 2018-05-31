@@ -1,0 +1,24 @@
+{
+  "title": "FutoIn 'sec' field - Simple MAC",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "user",
+    "algo",
+    "sig"
+  ],
+  "properties": {
+    "user": {
+      "type": "string",
+      "description": "Unique user identification"
+    },
+    "algo": {
+      "type": "string",
+      "description": "MAC algo name as defined in FTN8"
+    },
+    "sig": {
+      "type": "string",
+      "description": "Base64 encoded MAC"
+    }
+  }
+}
