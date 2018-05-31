@@ -1,12 +1,12 @@
 <pre>
 FTN13: FutoIn Secure Vault
-Version: 1.1DV
-Date: 2018-05-17
+Version: 1.1
+Date: 2018-05-31
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
-* v1.1 - 2018-05-17 - Andrey Galkin
+* v1.1 - 2018-05-31 - Andrey Galkin
     - NEW: PWD key type
     - NEW: MAC processing
     - NEW: MAC aliases

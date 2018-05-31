@@ -1,11 +1,17 @@
 <pre>
 FTN13: FutoIn Secure Vault
-Version: 1.0
-Date: 2018-02-13
+Version: 1.1
+Date: 2018-05-31
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
+* v1.1 - 2018-05-31 - Andrey Galkin
+    - NEW: PWD key type
+    - NEW: MAC processing
+    - NEW: MAC aliases
+    - NEW: optional prefix search for key listing
+    - NEW: event stream description
 * v1.0 - 2018-02-13 - Andrey Galkin
     - Final
 * v0.3 - 2018-02-12 - Andrey Galkin
@@ -94,6 +100,9 @@ Suggested list, self-explanatory:
                 - '2012-512'
             * `paramset` - set:
                 - A, B, C, XA, XB - string items
+    * `Password` - plain unicode password secret
+    * `HMAC` - key to be used for Hash-based Message Authentication Code
+    * `KMAC` - key to be used for Kessac Message Authentication Code
 * Symmetric encryption/decryption:
     * `AES-CBC`
     * `AES-CTR`
@@ -106,20 +115,15 @@ Suggested list, self-explanatory:
     * `RSA`
 * Message Authentication:
     * HMAC:
-        * "HMAC-MD5"
+        * "HMAC-MD5" or "HMD5"
         * GOST3411 family:
-            * "HMAC-GOST3411-256"
-            * "HMAC-GOST3411-512"
+            * "HMAC-GOST3411-256" or "HG256"
+            * "HMAC-GOST3411-512" or "HG512"
         * SHA v2 family:
-            * "HMAC-SHA-224"
-            * "HMAC-SHA-256"
-            * "HMAC-SHA-384"
-            * "HMAC-SHA-512"
-        * SHA v3 family:
-            * "HMAC-SHA3-224"
-            * "HMAC-SHA3-256"
-            * "HMAC-SHA3-384"
-            * "HMAC-SHA3-512"
+            * "HMAC-SHA-224" or "HS224"
+            * "HMAC-SHA-256" or "HS256"
+            * "HMAC-SHA-384" or "HS384"
+            * "HMAC-SHA-512" or "HS512"
     * KMAC:
         * "KMAC-128" - Keccak MAC 128-bit
         * "KMAC-256" - Keccak MAC 256-bit
@@ -204,6 +208,27 @@ So, "External ID" is really a string internal to SV which creates internal refer
 external entities. Meanwhile, Internal UUID is unique per SV, but is exposed. So, other
 entities can refence Internal UUID of particular SV instance.
 
+## 2.11. Plain Password handling
+
+It must be possible to securely generate, inject, expose and verify password.
+
+Verification must be a secure comparison of signature against the key itself.
+Any data passed is to be ignored.
+
+## 2.12. Message Authentication Code processing
+
+There must be a dedicated "MAC" key type,
+
+It must be possible to securely generate, inject, expose, sign and verify.
+
+## 2.13. Event names
+
+The following events to be generated. Precise description is in interfaces.
+
+* `SV_NEW` - new SecureVault key
+* `SV_DEL` - removal of SecureVault key
+* `SV_UPD` - usage update for SecureVault
+
 # 3. Interface
 
 ## 3.1. Common types
@@ -254,9 +279,21 @@ entities can refence Internal UUID of particular SV instance.
                     "type" : "KeyType",
                     "params" : "GenParams",
                     "created" : "Timestamp",
-                    "used_times" : "NotNegativeInteger",
-                    "used_bytes" : "NotNegativeInteger",
-                    "sig_failures" : "NotNegativeInteger"
+                    "times" : "NotNegativeInteger",
+                    "bytes" : "NotNegativeInteger",
+                    "failures" : "NotNegativeInteger",
+                    "used_times" : {
+                        "type" : "NotNegativeInteger",
+                        "desc" : "Deprecated"
+                    },
+                    "used_bytes" : {
+                        "type" : "NotNegativeInteger",
+                        "desc" : "Deprecated"
+                    },
+                    "sig_failures" : {
+                        "type" : "NotNegativeInteger",
+                        "desc" : "Deprecated"
+                    }
                 }
             },
             "KeyIDList" : {
@@ -298,11 +335,7 @@ entities can refence Internal UUID of particular SV instance.
                 "maxlen" : 128,
                 "desc" : "Most ciphers accept only block size, e.g. 16 bytes"
             }
-        },
-        "requires" : [
-            "SecureChannel",
-            "BinaryData"
-        ]
+        }
     }
 
 `}Iface`
@@ -468,7 +501,25 @@ entities can refence Internal UUID of particular SV instance.
                 ]
             },
             "listKeys" : {
+                "params" : {
+                    "ext_prefix" : {
+                        "type" : "ExtID",
+                        "default" : null
+                    }
+                },
                 "result" : "KeyIDList"
+            },
+            "addStats" : {
+                "params" : {
+                    "id" : "KeyID",
+                    "times" : "NotNegativeInteger",
+                    "bytes" : "NotNegativeInteger",
+                    "failures" : "NotNegativeInteger"
+                },
+                "result" : "boolean",
+                "throws" : [
+                    "UnknownKeyID"
+                ]
             }
         },
         "requires" : [
@@ -577,6 +628,55 @@ entities can refence Internal UUID of particular SV instance.
             "SecureChannel",
             "BinaryData"
         ]
+    }
+
+`}Iface`
+
+## 3.4. Events
+
+`Iface{`
+
+    {
+        "iface" : "futoin.secvault.events",
+        "version" : "{ver}",
+        "ftn3rev" : "1.9",
+        "imports" : [
+            "futoin.secvault.types:{ver}"
+        ],
+        "types" : {
+            "SvNew" : {
+                "type" : "map",
+                "fields" : {
+                    "id" : "KeyID",
+                    "ext_id" : "ExtID",
+                    "type" : "KeyType"
+                }
+            },
+            "SvDel" : {
+                "type" : "map",
+                "fields" : {
+                    "id" : "KeyID"
+                }
+            },
+            "SvUpd" : {
+                "type" : "map",
+                "fields" : {
+                    "id" : "KeyID",
+                    "times" : {
+                        "type" : "NotNegativeInteger",
+                        "optional" : true
+                    },
+                    "bytes" : {
+                        "type" : "NotNegativeInteger",
+                        "optional" : true
+                    },
+                    "failures" : {
+                        "type" : "NotNegativeInteger",
+                        "optional" : true
+                    }
+                }
+            }
+        }
     }
 
 `}Iface`
