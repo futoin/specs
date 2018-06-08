@@ -1,13 +1,15 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.11
-Date: 2018-02-02
+Version: 1.12
+Date: 2018-06-08
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.12 - 2018-06-08 - Andrey Galkin
+    * NEW: promise() wrapper for execute()
 * v1.11 - 2018-02-02 - Andrey Galkin
     * CHANGED: successStep() to be used for result injection
     * CHANGED: cosmetic fixes for API definition
@@ -669,6 +671,9 @@ However, they are grouped by semantical scope of use.
 1. `execute()` - must be called only once after root object steps are configured.
     * Initiates AsyncSteps execution implementation-defined way
 1. `cancel()` - may be called on root object to asynchronously cancel execution
+1. `promise()` - must be called only once after root object steps are configured.
+    * Wraps `execute()` into native Promise.
+    * Returns native Promise object.
 
 ### 2.2.4. Execution Loop API - can be used only inside `execute_callback`
 
