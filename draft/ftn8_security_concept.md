@@ -883,12 +883,12 @@ Advanced System should have more light protection measures first to protect legi
             },
             "RedirectURL" : {
                 "type" : "string",
-                "regex" : "^https?://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}/[a-Z0-9_/-]*(\\?[a-Z][a-Z0-9]*=)?$",
+                "regex" : "^https?://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}/[a-zA-Z0-9_/-]*(\\?[a-zA-Z][a-zA-Z0-9]*=)?$",
                 "maxlen" : 128
             },
             "ResourceURL" : {
                 "type" : "string",
-                "regex" : "^https?://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}/[a-Z0-9_/?=%&;.-]*$",
+                "regex" : "^https?://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}/[a-zA-Z0-9_/?=%&;.-]*$",
                 "maxlen" : 128
             },
             "ParamConstraint" : {
