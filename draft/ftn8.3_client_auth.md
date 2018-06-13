@@ -400,13 +400,13 @@ Therefore, default implementation should:
             "getNames" : {
                 "result" : {
                     "first" : "LatinName",
-                    "middle" : "LatinFullName",
+                    "middle" : "FullLatinName",
                     "last" : "LatinName",
-                    "full" : "LatinFullName",
+                    "full" : "FullLatinName",
                     "n_first" : "NativeName",
-                    "n_middle" : "NativeFullName",
+                    "n_middle" : "FullNativeName",
                     "n_last" : "NativeName",
-                    "n_full" : "NativeFullName"
+                    "n_full" : "FullNativeName"
                 },
                 "throws" : [
                     "NoValidatedNames"
