@@ -86,7 +86,6 @@ Common types to use in PSP interfaces.
         "version" : "{ver}",
         "ftn3rev" : "1.8",
         "imports" : [
-            "futoin.types:1.0",
             "futoin.currency.types:1.0",
             "futoin.xfer.types:1.0"
         ],
