@@ -1,13 +1,15 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.12
-Date: 2018-06-08
+Version: 1.13DV
+Date: 2018-08-18
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.13 - 2018-08-18 - Andrey Galkin
+    * NEW: newInstance() API
 * v1.12 - 2018-06-08 - Andrey Galkin
     * NEW: promise() wrapper for execute()
 * v1.11 - 2018-02-02 - Andrey Galkin
@@ -644,6 +646,8 @@ However, they are grouped by semantical scope of use.
     - shortcut for `as.add( (as) => as.success( result_arg, ... ) )`
 1. `AsyncSteps await( future_or_promise[, error_callback onerror] )`
     - integrate technology-specific Future/Promise as a step
+1. `AsyncSteps newInstance()`
+    - create a new instance of AsyncSteps for standalone execution
 
 ### 2.2.2. Execution API - can be used only inside execute_callback
 
@@ -668,10 +672,10 @@ However, they are grouped by semantical scope of use.
 
 ### 2.2.3. Control API - can be used only on Root AsyncSteps object
 
-1. `execute()` - must be called only once after root object steps are configured.
+1. `void execute()` - must be called only once after root object steps are configured.
     * Initiates AsyncSteps execution implementation-defined way
-1. `cancel()` - may be called on root object to asynchronously cancel execution
-1. `promise()` - must be called only once after root object steps are configured.
+1. `void cancel()` - may be called on root object to asynchronously cancel execution
+1. `Promise promise()` - must be called only once after root object steps are configured.
     * Wraps `execute()` into native Promise.
     * Returns native Promise object.
 
