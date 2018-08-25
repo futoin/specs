@@ -16,6 +16,7 @@ Authors: Andrey Galkin
 <ul>
 <li>v1.13 - 2018-08-18 - Andrey Galkin<ul>
 <li>NEW: newInstance() API</li>
+<li>NEW: boolean cast checks</li>
 </ul>
 </li>
 <li>v1.12 - 2018-06-08 - Andrey Galkin<ul>
@@ -585,6 +586,8 @@ However, they are grouped by semantical scope of use.</p>
 </li>
 <li><code>Map state()</code><ul>
 <li>returns reference to map/object, which can be populated with arbitrary state values</li>
+<li>note: if boolean cast is not supported in technology then it should return
+    equivalent of <code>null</code> to identify invalid state of AsyncSteps object.</li>
 </ul>
 </li>
 <li><em>get/set/exists/unset</em> wildcard accessor, which map to state() variables<ul>
@@ -615,6 +618,11 @@ from other(model) AsyncSteps object</li>
 </li>
 <li><code>AsyncSteps newInstance()</code><ul>
 <li>create a new instance of AsyncSteps for standalone execution</li>
+</ul>
+</li>
+<li><code>boolean cast()</code><ul>
+<li>true, if AsyncSteps interface is in valid state for usage</li>
+<li>if not possible in technology, then see <code>state()</code> notes</li>
 </ul>
 </li>
 </ol>

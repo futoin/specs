@@ -10,6 +10,7 @@ Authors: Andrey Galkin
 
 * v1.13 - 2018-08-18 - Andrey Galkin
     * NEW: newInstance() API
+    * NEW: boolean cast checks
 * v1.12 - 2018-06-08 - Andrey Galkin
     * NEW: promise() wrapper for execute()
 * v1.11 - 2018-02-02 - Andrey Galkin
@@ -632,6 +633,8 @@ However, they are grouped by semantical scope of use.
         * `success()` does not allow any arguments - use `state()` to pass results
 1. `Map state()`
     * returns reference to map/object, which can be populated with arbitrary state values
+    * note: if boolean cast is not supported in technology then it should return
+        equivalent of `null` to identify invalid state of AsyncSteps object.
 1. *get/set/exists/unset* wildcard accessor, which map to state() variables
     * only if supported by language/platform
 1. `AsyncSteps copyFrom( AsyncSteps other )`
@@ -648,6 +651,9 @@ However, they are grouped by semantical scope of use.
     - integrate technology-specific Future/Promise as a step
 1. `AsyncSteps newInstance()`
     - create a new instance of AsyncSteps for standalone execution
+1. `boolean cast()`
+    - true, if AsyncSteps interface is in valid state for usage
+    - if not possible in technology, then see `state()` notes
 
 ### 2.2.2. Execution API - can be used only inside execute_callback
 
