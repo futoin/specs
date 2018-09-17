@@ -593,11 +593,12 @@ Technology-specific implementation should provide template or generic overload t
 integrate with specific type system and other features. Example:
 
 ```cpp
-template<typename T>
-T& stack();
+template<typename T, typename... Args>
+T& stack(Args&&... args);
 
 // to be used like
 asi.stack<T>();
+asi.stack<T>(SomeCtorParam);
 ```
 
 # 2. Async Steps API
@@ -697,7 +698,7 @@ However, they are grouped by semantical scope of use.
     * set callback, to be used to cancel execution
 1. `void waitExternal()`
     * prevent implicit `as.success()` behavior of current step
-1. `Pointer stack(size)`
+1. `Pointer stack(size[, destroy_cb])`
     * allocate temporary object with lifetime of step for non-GC technologies
 
 ### 2.2.3. Control API - can be used only on Root AsyncSteps object

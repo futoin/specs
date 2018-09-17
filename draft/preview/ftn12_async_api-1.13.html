@@ -525,10 +525,11 @@ regular heap allocation, but allocated memory is automatically freed once step i
 <p>Technology-specific implementation should provide template or generic overload to better
 integrate with specific type system and other features. Example:</p>
 <p>```cpp
-template<typename T>
-T&amp; stack();</p>
+template<typename T, typename... Args>
+T&amp; stack(Args&amp;&amp;... args);</p>
 <p>// to be used like
 asi.stack<T>();
+asi.stack<T>(SomeCtorParam);
 ```</p>
 <h1>2. Async Steps API</h1>
 <h2>2.1. Types</h2>
@@ -672,7 +673,7 @@ for specified timeout in ms. On timeout, error("Timeout") is called</li>
 <li>prevent implicit <code>as.success()</code> behavior of current step</li>
 </ul>
 </li>
-<li><code>Pointer stack(size)</code><ul>
+<li><code>Pointer stack(size[, destroy_cb])</code><ul>
 <li>allocate temporary object with lifetime of step for non-GC technologies</li>
 </ul>
 </li>
