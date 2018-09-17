@@ -524,9 +524,12 @@ regular heap allocation, but allocated memory is automatically freed once step i
 <p>If other lifetime is required then implementation-specific shared pointers should be used.</p>
 <p>Technology-specific implementation should provide template or generic overload to better
 integrate with specific type system and other features. Example:</p>
-<p><code>cpp
-template&lt;typename T&gt;
-T&amp; stack&lt;T&gt;();</code></p>
+<p>```cpp
+template<typename T>
+T&amp; stack();</p>
+<p>// to be used like
+asi.stack<T>();
+```</p>
 <h1>2. Async Steps API</h1>
 <h2>2.1. Types</h2>
 <ul>

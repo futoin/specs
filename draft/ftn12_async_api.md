@@ -594,7 +594,10 @@ integrate with specific type system and other features. Example:
 
 ```cpp
 template<typename T>
-T& stack<T>();
+T& stack();
+
+// to be used like
+asi.stack<T>();
 ```
 
 # 2. Async Steps API
