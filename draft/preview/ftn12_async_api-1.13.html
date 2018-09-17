@@ -17,6 +17,7 @@ Authors: Andrey Galkin
 <li>v1.13 - 2018-08-18 - Andrey Galkin<ul>
 <li>NEW: newInstance() API</li>
 <li>NEW: boolean cast checks</li>
+<li>NEW: stack() API</li>
 </ul>
 </li>
 <li>v1.12 - 2018-06-08 - Andrey Galkin<ul>
@@ -515,6 +516,17 @@ guidelines should be used:</p>
 <li>Errors must be propagated through <code>as.error()</code></li>
 <li>Result must be propagated through <code>as.success()</code></li>
 </ol>
+<h3>1.14. Allocation for technologies without garbage collected heap</h3>
+<p>For most GC-based technologies step closures can use objects allocated in outer steps
+without issues. However, object lifetime management is important for technologies like ISO C++.</p>
+<p>A special <code>Pointer stack(size)</code> execution API is provided. The raw version acts like
+regular heap allocation, but allocated memory is automatically freed once step is destroyed.</p>
+<p>If other lifetime is required then implementation-specific shared pointers should be used.</p>
+<p>Technology-specific implementation should provide template or generic overload to better
+integrate with specific type system and other features. Example:</p>
+<p><code>cpp
+template&lt;typename T&gt;
+T&amp; stack&lt;T&gt;();</code></p>
 <h1>2. Async Steps API</h1>
 <h2>2.1. Types</h2>
 <ul>
@@ -655,6 +667,10 @@ for specified timeout in ms. On timeout, error("Timeout") is called</li>
 </li>
 <li><code>void waitExternal()</code><ul>
 <li>prevent implicit <code>as.success()</code> behavior of current step</li>
+</ul>
+</li>
+<li><code>Pointer stack(size)</code><ul>
+<li>allocate temporary object with lifetime of step for non-GC technologies</li>
 </ul>
 </li>
 </ol>
