@@ -1,14 +1,14 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.13DV
-Date: 2018-08-18
+Version: 1.13
+Date: 2018-09-18
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.13 - 2018-08-18 - Andrey Galkin
+* v1.13 - 2018-09-18 - Andrey Galkin
     * NEW: newInstance() API
     * NEW: boolean cast checks
     * NEW: stack() API

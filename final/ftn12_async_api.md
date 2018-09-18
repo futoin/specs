@@ -1,13 +1,17 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.12
-Date: 2018-06-08
+Version: 1.13
+Date: 2018-09-18
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.13 - 2018-09-18 - Andrey Galkin
+    * NEW: newInstance() API
+    * NEW: boolean cast checks
+    * NEW: stack() API
 * v1.12 - 2018-06-08 - Andrey Galkin
     * NEW: promise() wrapper for execute()
 * v1.11 - 2018-02-02 - Andrey Galkin
@@ -575,6 +579,28 @@ guidelines should be used:
 1. Errors must be propagated through `as.error()`
 1. Result must be propagated through `as.success()`
 
+### 1.14. Allocation for technologies without garbage collected heap
+
+For most GC-based technologies step closures can use objects allocated in outer steps
+without issues. However, object lifetime management is important for technologies like ISO C++.
+
+A special `Pointer stack(size)` execution API is provided. The raw version acts like
+regular heap allocation, but allocated memory is automatically freed once step is destroyed.
+
+If other lifetime is required then implementation-specific shared pointers should be used.
+
+Technology-specific implementation should provide template or generic overload to better
+integrate with specific type system and other features. Example:
+
+```cpp
+template<typename T, typename... Args>
+T& stack(Args&&... args);
+
+// to be used like
+asi.stack<T>();
+asi.stack<T>(SomeCtorParam);
+```
+
 # 2. Async Steps API
 
 ## 2.1. Types
@@ -630,6 +656,8 @@ However, they are grouped by semantical scope of use.
         * `success()` does not allow any arguments - use `state()` to pass results
 1. `Map state()`
     * returns reference to map/object, which can be populated with arbitrary state values
+    * note: if boolean cast is not supported in technology then it should return
+        equivalent of `null` to identify invalid state of AsyncSteps object.
 1. *get/set/exists/unset* wildcard accessor, which map to state() variables
     * only if supported by language/platform
 1. `AsyncSteps copyFrom( AsyncSteps other )`
@@ -644,6 +672,11 @@ However, they are grouped by semantical scope of use.
     - shortcut for `as.add( (as) => as.success( result_arg, ... ) )`
 1. `AsyncSteps await( future_or_promise[, error_callback onerror] )`
     - integrate technology-specific Future/Promise as a step
+1. `AsyncSteps newInstance()`
+    - create a new instance of AsyncSteps for standalone execution
+1. `boolean cast()`
+    - true, if AsyncSteps interface is in valid state for usage
+    - if not possible in technology, then see `state()` notes
 
 ### 2.2.2. Execution API - can be used only inside execute_callback
 
@@ -665,13 +698,15 @@ However, they are grouped by semantical scope of use.
     * set callback, to be used to cancel execution
 1. `void waitExternal()`
     * prevent implicit `as.success()` behavior of current step
+1. `Pointer stack(size[, destroy_cb])`
+    * allocate temporary object with lifetime of step for non-GC technologies
 
 ### 2.2.3. Control API - can be used only on Root AsyncSteps object
 
-1. `execute()` - must be called only once after root object steps are configured.
+1. `void execute()` - must be called only once after root object steps are configured.
     * Initiates AsyncSteps execution implementation-defined way
-1. `cancel()` - may be called on root object to asynchronously cancel execution
-1. `promise()` - must be called only once after root object steps are configured.
+1. `void cancel()` - may be called on root object to asynchronously cancel execution
+1. `Promise promise()` - must be called only once after root object steps are configured.
     * Wraps `execute()` into native Promise.
     * Returns native Promise object.
 
