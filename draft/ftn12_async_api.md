@@ -1,13 +1,15 @@
 <pre>
 FTN12: FutoIn Async API
 Version: 1.13
-Date: 2018-09-18
+Date: 2018-09-24
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.13.1 - 2018-09-24 - Andrey Galkin
+    * FIXED: cosmetic markup issues
 * v1.13 - 2018-09-18 - Andrey Galkin
     * NEW: newInstance() API
     * NEW: boolean cast checks
@@ -592,14 +594,14 @@ If other lifetime is required then implementation-specific shared pointers shoul
 Technology-specific implementation should provide template or generic overload to better
 integrate with specific type system and other features. Example:
 
-```cpp
-template<typename T, typename... Args>
-T& stack(Args&&... args);
+    // Prototype
+    template<typename T, typename... Args>
+    T& stack(Args&&... args);
+    
+    // to be used like
+    asi.stack<T>();
+    asi.stack<T>(SomeCtorParam);
 
-// to be used like
-asi.stack<T>();
-asi.stack<T>(SomeCtorParam);
-```
 
 # 2. Async Steps API
 

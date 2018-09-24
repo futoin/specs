@@ -7,13 +7,17 @@
 <pre>
 FTN12: FutoIn Async API
 Version: 1.13
-Date: 2018-09-18
+Date: 2018-09-24
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v1.13.1 - 2018-09-24 - Andrey Galkin<ul>
+<li>FIXED: cosmetic markup issues</li>
+</ul>
+</li>
 <li>v1.13 - 2018-09-18 - Andrey Galkin<ul>
 <li>NEW: newInstance() API</li>
 <li>NEW: boolean cast checks</li>
@@ -524,13 +528,14 @@ regular heap allocation, but allocated memory is automatically freed once step i
 <p>If other lifetime is required then implementation-specific shared pointers should be used.</p>
 <p>Technology-specific implementation should provide template or generic overload to better
 integrate with specific type system and other features. Example:</p>
-<p>```cpp
-template<typename T, typename... Args>
-T&amp; stack(Args&amp;&amp;... args);</p>
-<p>// to be used like
-asi.stack<T>();
-asi.stack<T>(SomeCtorParam);
-```</p>
+<pre><code>// Prototype
+template&lt;typename T, typename... Args&gt;
+T&amp; stack(Args&amp;&amp;... args);
+
+// to be used like
+asi.stack&lt;T&gt;();
+asi.stack&lt;T&gt;(SomeCtorParam);
+</code></pre>
 <h1>2. Async Steps API</h1>
 <h2>2.1. Types</h2>
 <ul>
