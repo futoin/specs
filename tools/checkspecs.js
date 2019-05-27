@@ -4,6 +4,8 @@ var async_steps = require( 'futoin-asyncsteps' );
 var SpecTools = require('futoin-invoker').SpecTools;
 var iface_cache = {};
 
+SpecTools.on('error', (...args) => console.log(args));
+
 async_steps()
     .add(
         (as) => {
@@ -19,7 +21,7 @@ async_steps()
                             iface: m[2],
                             version: m[3],
                         },
-                        [ m[1] ],
+                        [ m[1], __dirname + '/../final/meta' ],
                         iface_cache
                     );
                 }
