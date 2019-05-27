@@ -1,15 +1,15 @@
 <pre>
 FTN5: FutoIn HTTP integration
 Version: 1.4DV
-Date: 2018-02-17
+Date: 2019-05-27
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.4 - 2018-04-17 - Andrey Galkin
-    * NEW: IANA-registered MIME types
+* v1.4 - 2019-05-27 - Andrey Galkin
+    * NEW: IANA-registered media types
 * v1.3 - 2018-02-14 - Andrey Galkin
     * NEW: MIME-types for CBOR & MessagePack
 * v1.2 - 2015-02-22
@@ -104,7 +104,7 @@ headers do not have correct MIME-type.
 
 Invoker should assume *Use Case #4*, if response MIME-Type is not *FutoinMIME*.
 
-### 2.2.1. IANA-registered MIME-types
+### 2.2.1. IANA-registered Media-types
 
 Due to RFC6838 restrictions, it is not possible to register
 original *FutoinMIME* types without going through IETF/IESG procedures for standard or
@@ -116,9 +116,9 @@ Therefore, the following official registrations are done:
 * `application/vnd.futoin+cbor` for CBOR coding
 * `application/vnd.futoin+msgpack` for MessagePack coding
 
-HTTP server must always accept both unofficial and official MIME types. Response
-MIME-type must be "vnd." prefixed only if request "Content-Type" and/or "Accept" headers
-include "vnd." prefix.
+HTTP server must always accept both unofficial and official MIME/media types. Response
+type must be "vnd." prefixed only if request "Content-Type" and/or "Accept" headers
+include "vnd." prefix. This requirement is kept for backward compatibility of v1 series.
 
 
 # 3. Misc. technical details

@@ -7,15 +7,15 @@
 <pre>
 FTN5: FutoIn HTTP integration
 Version: 1.4DV
-Date: 2018-02-17
+Date: 2019-05-27
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
-<li>v1.4 - 2018-04-17 - Andrey Galkin<ul>
-<li>NEW: IANA-registered MIME types</li>
+<li>v1.4 - 2019-05-27 - Andrey Galkin<ul>
+<li>NEW: IANA-registered media types</li>
 </ul>
 </li>
 <li>v1.3 - 2018-02-14 - Andrey Galkin<ul>
@@ -130,7 +130,7 @@ should be used for messages depending on coding format.</p>
 <p>Implementation must refuse parsing request or response message, if corresponding HTTP
 headers do not have correct MIME-type.</p>
 <p>Invoker should assume <em>Use Case #4</em>, if response MIME-Type is not <em>FutoinMIME</em>.</p>
-<h3>2.2.1. IANA-registered MIME-types</h3>
+<h3>2.2.1. IANA-registered Media-types</h3>
 <p>Due to RFC6838 restrictions, it is not possible to register
 original <em>FutoinMIME</em> types without going through IETF/IESG procedures for standard or
 standards organization approval.</p>
@@ -140,9 +140,9 @@ standards organization approval.</p>
 <li><code>application/vnd.futoin+cbor</code> for CBOR coding</li>
 <li><code>application/vnd.futoin+msgpack</code> for MessagePack coding</li>
 </ul>
-<p>HTTP server must always accept both unofficial and official MIME types. Response
-MIME-type must be "vnd." prefixed only if request "Content-Type" and/or "Accept" headers
-include "vnd." prefix.</p>
+<p>HTTP server must always accept both unofficial and official MIME/media types. Response
+type must be "vnd." prefixed only if request "Content-Type" and/or "Accept" headers
+include "vnd." prefix. This requirement is kept for backward compatibility of v1 series.</p>
 <h1>3. Misc. technical details</h1>
 <p>URI is assumed as defined in its <a href="http://www.ietf.org/rfc/rfc3986.txt" title="Uniform Resource Identifier (URI): Generic Syntax">RFC3986</a> or any later version.</p>
 <p><em>Note: Executor must behave equally with or without trailing slash in URI path part.</em></p>
