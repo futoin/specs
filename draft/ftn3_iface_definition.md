@@ -1,6 +1,6 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.9
+Version: 1.9DV
 Date: 2018-04-17
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -8,6 +8,8 @@ Authors: Andrey Galkin
 
 # CHANGES
 
+* v1.9.2 - 2019-05-27 - Andrey Galkin
+    * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
     * NEW: cosmetic improvements
@@ -458,6 +460,7 @@ exchange transport protocol. It can be set per-function with `maxreqsize` and `m
 However, it is discouraged as it may jeopardize service stability.
 
 Units assumed:
+
 * 'B' - bytes
 * 'K' - Kilobytes - 1024 bytes
 * 'M' - Megabytes - 1024 kilobytes
@@ -510,13 +513,13 @@ leading spaces are not allowed.
 
 CBOR is defined in [RFC 7049](https://tools.ietf.org/html/rfc7049)
 
-All messages must be prefixes with `CBOR` ASCII 4 byte string.
+All messages must be prefixed with `CBOR` ASCII 4 byte string.
 
 ### 1.13.3. MessagePack
 
 MessagePack is defined in [GitHub spec](https://github.com/msgpack/msgpack/blob/master/spec.md).
 
-All messages must be prefixes with `MPCK` ASCII 4 byte string.
+All messages must be prefixed with `MPCK` ASCII 4 byte string.
 
 # 2. Interface concept
 

@@ -6,7 +6,7 @@
 </head><body>
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.9
+Version: 1.9DV
 Date: 2018-04-17
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
@@ -14,6 +14,10 @@ Authors: Andrey Galkin
 
 <h1>CHANGES</h1>
 <ul>
+<li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
+<li>FIXED: minor typo/spelling fixes</li>
+</ul>
+</li>
 <li>v1.9.1 - 2018-04-17 - Andrey Galkin<ul>
 <li>FIXED: minor typo/spelling fixes</li>
 <li>NEW: cosmetic improvements</li>
@@ -428,10 +432,12 @@ from peer to peer (e.g. shared memory).</p>
 <p>For some cases it may still be desired to transfer larger data in single call using main message
 exchange transport protocol. It can be set per-function with <code>maxreqsize</code> and <code>maxrspsize</code> attributes.</p>
 <p>However, it is discouraged as it may jeopardize service stability.</p>
-<p>Units assumed:
-<em> 'B' - bytes
-</em> 'K' - Kilobytes - 1024 bytes
-* 'M' - Megabytes - 1024 kilobytes</p>
+<p>Units assumed:</p>
+<ul>
+<li>'B' - bytes</li>
+<li>'K' - Kilobytes - 1024 bytes</li>
+<li>'M' - Megabytes - 1024 kilobytes</li>
+</ul>
 <p><em>Since: v1.8</em></p>
 <h2>1.11. On Behalf Of calls</h2>
 <p>It is expected that Executor passes authenticated user information in sub-calls, so
@@ -466,10 +472,10 @@ embedded devices.</p>
 leading spaces are not allowed.</p>
 <h3>1.13.2. CBOR</h3>
 <p>CBOR is defined in <a href="https://tools.ietf.org/html/rfc7049">RFC 7049</a></p>
-<p>All messages must be prefixes with <code>CBOR</code> ASCII 4 byte string.</p>
+<p>All messages must be prefixed with <code>CBOR</code> ASCII 4 byte string.</p>
 <h3>1.13.3. MessagePack</h3>
 <p>MessagePack is defined in <a href="https://github.com/msgpack/msgpack/blob/master/spec.html">GitHub spec</a>.</p>
-<p>All messages must be prefixes with <code>MPCK</code> ASCII 4 byte string.</p>
+<p>All messages must be prefixed with <code>MPCK</code> ASCII 4 byte string.</p>
 <h1>2. Interface concept</h1>
 <p>Executor side functions identifiers are grouped into interfaces, which must have
 a specifications in FutoIn format. Further, those will be named "<em>spec</em>" for singular
