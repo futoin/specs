@@ -538,12 +538,12 @@ message-in-signed-message-field approach.*
 * Top level "sec" field is skipped
 * For each nested level, starting from the very root of tree-like payload structure:
     * Key-value pairs are processed in ascending order based on Unicode comparison rules
-    * Key is feed into MAC generator
-    * ':' separator is feed into MAC generator
-    * If value is subtree then recurse this algorithm
-    * else if value is string then feed into MAC generator
+    * Key is fed into MAC generator
+    * ':' separator is fed into MAC generator
+    * If value is a sub-tree then recurse this algorithm
+    * else if value is a string then feed it into MAC generator
     * Otherwise, feed textual JSON representation to MAC generator
-    * ';' separator is feed into MAC generator
+    * ';' separator is fed into MAC generator
 
 ### 2.11.2. Predefined MAC algorithms
 

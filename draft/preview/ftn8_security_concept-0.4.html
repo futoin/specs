@@ -483,12 +483,12 @@ message-in-signed-message-field approach.</em></p>
 <li>Top level "sec" field is skipped</li>
 <li>For each nested level, starting from the very root of tree-like payload structure:<ul>
 <li>Key-value pairs are processed in ascending order based on Unicode comparison rules</li>
-<li>Key is feed into MAC generator</li>
-<li>':' separator is feed into MAC generator</li>
-<li>If value is subtree then recurse this algorithm</li>
-<li>else if value is string then feed into MAC generator</li>
+<li>Key is fed into MAC generator</li>
+<li>':' separator is fed into MAC generator</li>
+<li>If value is a sub-tree then recurse this algorithm</li>
+<li>else if value is a string then feed it into MAC generator</li>
 <li>Otherwise, feed textual JSON representation to MAC generator</li>
-<li>';' separator is feed into MAC generator</li>
+<li>';' separator is fed into MAC generator</li>
 </ul>
 </li>
 </ul>

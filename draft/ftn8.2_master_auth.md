@@ -340,6 +340,6 @@ This one is complementary to "futoin.auth.manage" iface.
 `}Iface`
 
 [HKDF]: https://tools.ietf.org/html/rfc5869
-[ECIES] https://en.wikipedia.org/wiki/Integrated_Encryption_Scheme
+[ECIES]: https://en.wikipedia.org/wiki/Integrated_Encryption_Scheme
 
 =END OF SPEC=
