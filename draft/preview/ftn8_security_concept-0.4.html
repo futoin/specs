@@ -125,7 +125,7 @@ to be rotated.</p>
 <li>Prevent attacks which expose ID existence on authentication</li>
 </ul>
 <h3>2.1.8. Forward Secrecy</h3>
-<p>General rules well-known cryptography practices apply here:</p>
+<p>General rules of well-known cryptography practices apply here:</p>
 <ul>
 <li>Use modern TLS, SSH, IPSec or other type of secure channel with  perfect forward secrecy characteristics.</li>
 <li>Use only secure symmetric key exchange.</li>
@@ -165,7 +165,7 @@ implemented as sub-spec.</p>
 <h3>2.3.1. Request Processing</h3>
 <p>It may look as too much overhead for a single request processing, but any decent system does
 exactly the same in fact: security processing is centralized in some application module.</p>
-<p>FutoIn converts modules to )micro-)services by fundamental design. There should be efficient
+<p>FutoIn converts modules to (micro-)services by fundamental design. There should be efficient
 in-process calling mechanism to minimize penalties.</p>
 <p>It is known that symmetric cryptography is much faster to process than asymmetric. Therefore,
 message signing is based on automatically rotated shared symmetric secrets which unique to each
@@ -336,8 +336,8 @@ Request Templates.</p>
 </code></pre>
 <h3>2.3.4. Access on behalf of user</h3>
 <p>On-behalf-of calls is a standard feature of <a href="./ftn3_iface_definition.html">FTN3</a>.</p>
-<p>User is generic term for security subject. It can be human, specific service,
-group or even some object.</p>
+<p>User is a generic term for security subject. It can be a human, a specific service,
+a group or even some object.</p>
 <p>Each Service registers a list of generic access descriptors it provides.
 Those can be granted by User to another User or Service.</p>
 <p>Another Service creates Access Request Templates as a list of generic
@@ -414,7 +414,7 @@ global scope identifier.</p>
 <p>Each user has a unique local ID and global ID.</p>
 <p>Local ID is arbitrary and assigned by AuthService. Base64-coded UUID without
 padding is suggested.</p>
-<p>Global ID based on local ID and scope name of home AuthService.
+<p>Global ID is based on local ID and scope name of home AuthService.
 Typically, email address is the global identifier for users and
 fully qualified domain name is the global identifier for services.</p>
 <h2>2.6. Foreign users</h2>
@@ -428,7 +428,7 @@ foreign AuthService. However, it may be undesired from security point of view.
 So, only whitelisted foreign AuthServices should be allowed. Whitelist can be either
 local or global in form of association of AuthService providers.</p>
 <h2>2.7. Service to Service interaction (and Service to AuthService in particular)</h2>
-<p>Each Service as logical entity assumes to have own user ID in scope of related AuthService.
+<p>Each Service as logical entity is assumed to have own user ID in scope of the related AuthService.
 Therefore, communication authentication follows the same pattern as Client-to-Service pattern.</p>
 <h2>2.8. Authentication assumptions</h2>
 <p>Client-to-Service and Service-to-Service communication has different natural aspects:</p>

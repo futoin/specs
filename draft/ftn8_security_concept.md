@@ -136,7 +136,7 @@ Some "not important" characteristics may be used to plan attacks and/or to extra
 
 ### 2.1.8. Forward Secrecy
 
-General rules well-known cryptography practices apply here:
+General rules of well-known cryptography practices apply here:
 
 - Use modern TLS, SSH, IPSec or other type of secure channel with  perfect forward secrecy characteristics.
 - Use only secure symmetric key exchange.
@@ -178,7 +178,7 @@ In addition, the following optional services exist:
 It may look as too much overhead for a single request processing, but any decent system does
 exactly the same in fact: security processing is centralized in some application module.
 
-FutoIn converts modules to )micro-)services by fundamental design. There should be efficient
+FutoIn converts modules to (micro-)services by fundamental design. There should be efficient
 in-process calling mechanism to minimize penalties.
 
 It is known that symmetric cryptography is much faster to process than asymmetric. Therefore,
@@ -369,8 +369,8 @@ Foreign users (local AuthService acts as proxy):
 
 On-behalf-of calls is a standard feature of [FTN3][].
 
-User is generic term for security subject. It can be human, specific service,
-group or even some object.
+User is a generic term for security subject. It can be a human, a specific service,
+a group or even some object.
 
 Each Service registers a list of generic access descriptors it provides.
 Those can be granted by User to another User or Service.
@@ -459,7 +459,7 @@ Each user has a unique local ID and global ID.
 Local ID is arbitrary and assigned by AuthService. Base64-coded UUID without
 padding is suggested.
 
-Global ID based on local ID and scope name of home AuthService.
+Global ID is based on local ID and scope name of home AuthService.
 Typically, email address is the global identifier for users and
 fully qualified domain name is the global identifier for services.
 
@@ -479,7 +479,7 @@ local or global in form of association of AuthService providers.
 
 ## 2.7. Service to Service interaction (and Service to AuthService in particular)
 
-Each Service as logical entity assumes to have own user ID in scope of related AuthService.
+Each Service as logical entity is assumed to have own user ID in scope of the related AuthService.
 Therefore, communication authentication follows the same pattern as Client-to-Service pattern.
 
 ## 2.8. Authentication assumptions
