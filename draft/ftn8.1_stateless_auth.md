@@ -113,10 +113,10 @@ The method has serious advantages over clear text method:
 There are still some problems:
 
 * Insecure manual key exchange
-* Once Secret is bruteforced, it easy to fake any messages.
+* Once Secret is bruteforced, it's easy to fake any messages.
 * The same message can be easily replayed, but protocols should be designed the way
     which minimizes replay issues (e.g. using transaction IDs).
-* No key updates and no derived keys used.
+* No key updates and no derived keys are used.
 
 However, it's still relatively simple to implement with meaningful advantages.
 
@@ -149,7 +149,7 @@ However, it's still relatively simple to implement with meaningful advantages.
 
 ### 2.2.2. Simple MAC request "sec" field string format
 
-Prefered for message size reduction.
+Preferred for message size reduction.
 
 ```
     "-smac:{user}:{algo}:{sig}"

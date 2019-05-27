@@ -101,10 +101,10 @@ format is size efficient for transmission.</p>
 <p>There are still some problems:</p>
 <ul>
 <li>Insecure manual key exchange</li>
-<li>Once Secret is bruteforced, it easy to fake any messages.</li>
+<li>Once Secret is bruteforced, it's easy to fake any messages.</li>
 <li>The same message can be easily replayed, but protocols should be designed the way
     which minimizes replay issues (e.g. using transaction IDs).</li>
-<li>No key updates and no derived keys used.</li>
+<li>No key updates and no derived keys are used.</li>
 </ul>
 <p>However, it's still relatively simple to implement with meaningful advantages.</p>
 <h3>2.2.1. Simple MAC request "sec" field structured format</h3>
@@ -132,7 +132,7 @@ format is size efficient for transmission.</p>
 }
 </code></pre>
 <h3>2.2.2. Simple MAC request "sec" field string format</h3>
-<p>Prefered for message size reduction.</p>
+<p>Preferred for message size reduction.</p>
 <p><code>"-smac:{user}:{algo}:{sig}"</code></p>
 <h3>2.2.3. Simple MAC response "sec" field</h3>
 <p>Response must be authenticated by the same Secret and the same hash algorithm

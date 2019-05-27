@@ -48,7 +48,7 @@ fully distributed.
 ### 2.1.1. Exposed data best practices
 
 External parties to particular system must never hold internal security-related
-data even if it is encrypted and/or signed to prevent theoritical falsification
+data even if it is encrypted and/or signed to prevent theoretical falsification
 attacks in the future.
 
 Notes:
@@ -87,8 +87,8 @@ and other meaningful identifiers. Such accounting should be also aggregated base
 domain to protect from distributed attacks.
 
 However, such behavior can harm legit users. Therefore, complete blocking should be the last resort.
-Instead, System should take more light measurements like throttling requests per minute and preliminary
-verification if session is run by real human. Such light measurements are mandatory, if System is aware
+Instead, System should take more light measures like throttling requests per minute and preliminary
+verification if session is run by real human. Such light measures are mandatory, if System is aware
 of legit user.
 
 Notes:
@@ -110,20 +110,22 @@ such caching is allowed only if reliable cache invalidation is implemented.
 
 All fully compliant Services must use AuthService for security meaningful decisions.
 
-Such AuthService must have allow a complete overview and control of granted accesses in the given Service
+Such AuthService must allow a complete overview and control of granted accesses in the given Service
 or on behalf of the User.
 
 ### 2.1.6. Rotation of secrets
 
 All secrets used in automated contexts should be rotated based on both usage time and usage count thresholds.
-This is a simple measurement for possible leak of secrets.
+This is a simple measures for possible leak of secrets.
+
+Identification of secrets should also be rotated based on UUID v4 to complicate tracing of actors.
 
 User-defined secrets like password, historical One-Time-Password solution and similar secrets are not required
 to be rotated.
 
 ### 2.1.7. Prevent indirect information exposure
 
-Some "not important" characteristics may be used to plan attacks and/or to extract businness secrets.
+Some "not important" characteristics may be used to plan attacks and/or to extract business secrets.
 
 - Do not use sequential IDs
 - Do not expose object existence on error
@@ -203,8 +205,7 @@ pair of peers. However, asymmetric cryptography is used for key rotation to ensu
 ### 2.3.2. Service to AuthService registration
 
 It's assumed that one of Message Authentication Code approaches
-are used requiring a preshared secret and secure updates
-of that.
+used requires a preshared secret and secure updates of that.
 
 Initial manual registration:
 
@@ -366,13 +367,13 @@ Foreign users (local AuthService acts as proxy):
 
 ### 2.3.4. Access on behalf of user
 
-On-behalf-of calls is standard feature of [FTN3][].
+On-behalf-of calls is a standard feature of [FTN3][].
 
 User is generic term for security subject. It can be human, specific service,
 group or even some object.
 
-Each Service registers a list of generic access descriptors it provides
-which can be granted by User to another User (Service).
+Each Service registers a list of generic access descriptors it provides.
+Those can be granted by User to another User or Service.
 
 Another Service creates Access Request Templates as a list of generic
 access descriptors it wants to ask from User. When User grants the 
@@ -413,11 +414,11 @@ Foreign user access just adds extra complexity:
     in foreign AuthService.
 2. User can review & control all grants in home services.
 3. Local to Service AccessControl has to consult with foreign AccessControl
-    for access, cache it and revoke events similar to user sessions.
+    for access, cache it and handle revoke events similar to user sessions.
 4. AuthService acts as proxy:
     - authoritative to local Service
     - represents Service for foreign AuthService
-    - consults and keep in sync with foreign
+    - consults and keep in sync with foreign AuthService
 
 ### 2.3.5. Exceptional operation confirmation
 
@@ -557,7 +558,7 @@ Executor may refuse to support any MAC algo and throw SecurityError.
     * `KMAC128` - Keccak MAC 128-bit (high secure at the moment)
     * `KMAC256` - Keccak MAC 256-bit (high secure at the moment)
     
-*Note: current suggested default is either `HS256` or `HS512-256`*
+*Note: current suggested default is `HS256`*
 
 ### 2.11.3. Response "sec" field with MAC
 
@@ -576,15 +577,15 @@ different ways.
 Derived Key ID must be transmitted as Base64 encoding string without padding. Key ID or
 salt should be of recommended size, if applicable.
 
-Based on strategy, no key ID or a fixed minimal derived key ID may be used for current
+Based on this strategy, no key ID or a fixed minimal derived key ID may be used for current
 version of the specification to minimize performance impact and simplify Executor's
 derived key caching logic. Master Secret itself should provide enough entropy to ensure
 derived key's quality. So, key update gets bound to frequency of Master Secret update.
-Key derivation would be used only to get different keys based on purpose.
+Key derivation would be used only to get different keys based on its purpose.
 
 #### 2.11.4.2. Key purpose name
 
-Below is list of ASCII values to use for altering key derivation logic.
+Below is a list of ASCII values to use for altering key derivation logic.
 
 * `MAC` - for message signing.
 * `ENC` - for general encryption.
@@ -637,7 +638,7 @@ It's important to understand characteristics of performed user authentication in
 * `SafeOps` - Info + access to operation, which should not seriously compromise the system
 * `PrivilegedOps` - SafeOps + access to operations, which may compromise the system. Requires SecureChannel
 * `ExceptionalOps` - PrivilegedOps + access to very sensitive operations, like password change
-    * At Service discretion, should be one-time access with immediate downgrade to PrivilegedOps level
+    * At Service discretion, it should be one-time access with immediate downgrade to PrivilegedOps level
 * `System` - internal calls inside the same Service (can be cross-process)
 
 ## 2.13. Client fingerprints
@@ -694,7 +695,7 @@ Advanced System should have more light protection measures first to protect legi
         - 10 failed attempts in 24 hours
         - 30 failed attempts in 7 days
         - 100 failed attempts in 30 days
-        - Master Secret ID should be difficult to guess UUID
+        - Master Secret ID should be a difficult to guess UUID
         - Fallback to previous still active Master Secret can be done for
             automatic recovery
         - Otherwise, manual re-initialization is required
