@@ -1,13 +1,15 @@
 <pre>
 FTN5: FutoIn HTTP integration
-Version: 1.3
-Date: 2018-02-14
+Version: 1.4
+Date: 2019-05-27
 Copyright: 2014-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.4 - 2019-05-27 - Andrey Galkin
+    * NEW: IANA-registered media types
 * v1.3 - 2018-02-14 - Andrey Galkin
     * NEW: MIME-types for CBOR & MessagePack
 * v1.2 - 2015-02-22
@@ -69,7 +71,7 @@ with no multiplexing on communication channel level.
 
 *Note: Executor must accept URI with or without trailing slash in path*
 
-# 2.1. Request processing steps
+## 2.1. Request processing steps
 
 * process request in Executor
 * on success, write response body as (one of):
@@ -82,14 +84,16 @@ with no multiplexing on communication channel level.
 * on error,
     * JSON FutoIn response (even with raw result is expected)
 
-# 2.2. MIME-type
+## 2.2. MIME-type
 
 The following MIME-types are assumed under "FutoinMIME":
 
-* `application/futoin+json` for JSON coding
-* `application/futoin+cbor` for CBOR coding
-* `application/futoin+msgpack` for MessagePack coding
-* `application/futoin+` as prefix for other formats not defined here
+* `application/futoin+json` for JSON coding.
+* `application/futoin+cbor` for CBOR coding.
+* `application/futoin+msgpack` for MessagePack coding.
+* `application/futoin+` as prefix for other formats not defined here.
+
+These types are not recognized by IANA.
 
 FutoIn request and response messages must have *FutoinMIME* MIME-type. This type must be used
 ONLY for actual messages in Invoker-Executor dialog. In any other case, standard MIME-type
@@ -99,6 +103,22 @@ Implementation must refuse parsing request or response message, if corresponding
 headers do not have correct MIME-type.
 
 Invoker should assume *Use Case #4*, if response MIME-Type is not *FutoinMIME*.
+
+### 2.2.1. IANA-registered Media-types
+
+Due to RFC6838 restrictions, it is not possible to register
+original *FutoinMIME* types without going through IETF/IESG procedures for standard or
+standards organization approval.
+
+Therefore, the following official registrations are done:
+
+* `application/vnd.futoin+json` for JSON coding
+* `application/vnd.futoin+cbor` for CBOR coding
+* `application/vnd.futoin+msgpack` for MessagePack coding
+
+HTTP server must always accept both unofficial and official MIME/media types. Response
+type must be "vnd." prefixed only if request "Content-Type" and/or "Accept" headers
+include "vnd." prefix. This requirement is kept for backward compatibility of v1 series.
 
 
 # 3. Misc. technical details
