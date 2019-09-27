@@ -11,7 +11,7 @@
     "DecimalPlaces": {
       "type": "integer",
       "min": 0,
-      "max": 8
+      "max": 39
     },
     "CurrencyName": {
       "type": "string",

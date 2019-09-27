@@ -113,11 +113,11 @@ Common types to use in other interfaces of this spec.
                 },
                 "Amount" : {
                     "type" : "string",
-                    "regex" : "^[0-9]{1,12}(\\.[0-9]{1,8})?$"
+                    "regex" : "^[0-9]{1,39}(\\.[0-9]{1,39})?$"
                 },
                 "Balance" : {
                     "type" : "string",
-                    "regex" : "^-?[0-9]{1,12}(\\.[0-9]{1,8})?$"
+                    "regex" : "^-?[0-9]{1,39}(\\.[0-9]{1,39})?$"
                 },
                 "XferID" : "UUIDB64",
                 "XferExtID" : {

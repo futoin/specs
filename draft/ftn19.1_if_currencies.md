@@ -102,7 +102,7 @@ Common types in scope for currency processing.
                 "DecimalPlaces": {
                     "type" : "integer",
                     "min" : 0,
-                    "max" : 8
+                    "max" : 39
                 },
                 "CurrencyName" : {
                     "type" : "string",
