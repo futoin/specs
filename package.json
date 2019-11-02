@@ -1,6 +1,7 @@
 {
   "name": "@futoin/specs",
   "version": "2019.1102.3",
+  "main": "tools/node_api.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/futoin/specs.git"
