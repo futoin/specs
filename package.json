@@ -7,6 +7,10 @@
     "tools",
     "futoin.json"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/futoin/specs.git"
+  },
   "keywords": [
     "futoin",
     "specs",

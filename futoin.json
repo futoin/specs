@@ -4,6 +4,11 @@
   "vcs": "git",
   "rms": "npm",
   "rmsRepo": "ignored",
+  "toolTune": {
+    "npm": {
+      "access": "public"
+    }
+  },
   "tools": {
     "python": "3",
     "pip": "*",
