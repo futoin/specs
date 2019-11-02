@@ -1,15 +1,15 @@
 {
   "name": "@futoin/specs",
-  "version": "2019.1100.0",
+  "version": "2019.1102.0",
   "vcs": "git",
   "rms": "npm",
   "rmsRepo": "ignored",
-  "tools" : {
-    "python" : "3",
-    "pip" : "*",
-    "node" : "*",
-    "yarn" : "*",
-    "gzip" : "*"
+  "tools": {
+    "python": "3",
+    "pip": "*",
+    "node": "*",
+    "yarn": "*",
+    "gzip": "*"
   },
   "entryPoints": {
     "frontend": {
@@ -18,41 +18,41 @@
     }
   },
   "webcfg": {
-    "root" : "/",
+    "root": "/",
     "mounts": {
       "/": {
-        "static" : true,
+        "static": true,
         "tune": {
-          "autoindex" : true,
+          "autoindex": true,
           "staticGzip": false,
-          "etag" : true,
-          "expires" : "off"
+          "etag": true,
+          "expires": "off"
         }
       },
       "/draft/": {
-        "static" : true,
+        "static": true,
         "tune": {
-          "autoindex" : true,
+          "autoindex": true,
           "staticGzip": true,
-          "etag" : true,
-          "expires" : "off"
+          "etag": true,
+          "expires": "off"
         }
       },
       "/final/": {
-        "static" : true,
+        "static": true,
         "tune": {
-          "autoindex" : true,
+          "autoindex": true,
           "staticGzip": true,
-          "etag" : true,
-          "expires" : "off"
+          "etag": true,
+          "expires": "off"
         }
       }
     }
   },
   "actions": {
     "build": [
-        "./compile.sh",
-        "@cid tool build gzip"
+      "./compile.sh",
+      "@cid tool build gzip"
     ],
     "upgrade-deps": [
       "@cid tool update",
