@@ -1,6 +1,9 @@
 {
+  "name": "@futoin/specs",
+  "version": "2019.1100.0",
   "vcs": "git",
-  "name": "specs",
+  "rms": "npm",
+  "rmsRepo": "ignored",
   "tools" : {
     "python" : "3",
     "pip" : "*",

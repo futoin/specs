@@ -1,5 +1,27 @@
 {
-  "dependencies": {
+  "name": "@futoin/specs",
+  "version": "2019.1100.0",
+  "files": [
+    "draft",
+    "final",
+    "tools",
+    "futoin.json"
+  ],
+  "keywords": [
+    "futoin",
+    "specs",
+    "specifications"
+  ],
+  "author": {
+    "name": "Andrey Galkin",
+    "email": "andrey@futoin.org"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/futoin/specs/issues",
+    "email": "support@futoin.org"
+  },
+  "devDependencies": {
     "futoin-asyncsteps": "^2.4.2",
     "futoin-invoker": "^2.3.1"
   }
