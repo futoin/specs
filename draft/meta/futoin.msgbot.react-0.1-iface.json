@@ -1,0 +1,22 @@
+{
+  "iface": "futoin.msgbot.react",
+  "version": "0.1",
+  "ftn3rev": "1.9",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.msgbot.types:0.1"
+  ],
+  "funcs": {
+    "onMessage": {
+      "params": {
+        "msg": "PushMessage"
+      },
+      "result": {
+        "rsp": "ResponsePayload"
+      }
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

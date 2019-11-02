@@ -1,0 +1,37 @@
+{
+  "iface": "futoin.msgbot.router",
+  "version": "0.1",
+  "ftn3rev": "1.9",
+  "inherit": "futoin.msgbot.react:0.1",
+  "types": {
+    "HandlerName": {
+      "type": "GenericIdentifier",
+      "maxlen": 32
+    },
+    "CommandPrefix": {
+      "type": "string",
+      "maxlen": 32
+    },
+    "CommandPrefixes": {
+      "type": "array",
+      "elemtype": "CommandPrefix",
+      "minlen": 1,
+      "maxlen": 100
+    }
+  },
+  "funcs": {
+    "registerHandler": {
+      "params": {
+        "ccm_name": "HandlerName",
+        "commands": "CommandPrefixes"
+      },
+      "result": "boolean",
+      "throws": [
+        "AlreadyRegistered"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

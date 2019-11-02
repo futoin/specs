@@ -1,0 +1,50 @@
+{
+  "iface": "futoin.msgbot.types",
+  "version": "0.1",
+  "ftn3rev": "1.9",
+  "imports": [
+    "futoin.types:1.0"
+  ],
+  "types": {
+    "ServerID": "UUIDB64",
+    "ChannelID": "UUIDB64",
+    "MessagePayload": {
+      "type": "string",
+      "maxlen": 8192
+    },
+    "ExtActorID": {
+      "type": "string",
+      "maxlen": 32
+    },
+    "BaseMessage": {
+      "type": "map",
+      "fields": {
+        "server": "ServerID",
+        "channel": {
+          "type": "ChannelID",
+          "optional": true,
+          "desc": "Private message, if empty"
+        },
+        "payload": "MessagePayload"
+      }
+    },
+    "InputMessage": {
+      "type": "BaseMessage",
+      "fields": {
+        "sender": "ExtActorID",
+        "ts": "MicroTimestamp"
+      }
+    },
+    "ResponsePayload": "MessagePayload",
+    "PushMessage": {
+      "type": "BaseMessage",
+      "fields": {
+        "recipient": {
+          "type": "ExtActorID",
+          "optional": true,
+          "desc": "For private message, .channel must be obeyed as well"
+        }
+      }
+    }
+  }
+}
