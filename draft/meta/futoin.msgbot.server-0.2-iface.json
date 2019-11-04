@@ -1,0 +1,21 @@
+{
+  "iface": "futoin.msgbot.server",
+  "version": "0.2",
+  "ftn3rev": "1.9",
+  "inherit": "futoin.msgbot.push:0.2",
+  "types": {
+    "Flavour": {
+      "type": "GenericIdentifier",
+      "maxlen": 32,
+      "desc": "Actual actual database driver type"
+    }
+  },
+  "funcs": {
+    "getFlavour": {
+      "result": "Flavour"
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

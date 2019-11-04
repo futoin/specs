@@ -1,0 +1,24 @@
+{
+  "iface": "futoin.msgbot.push",
+  "version": "0.2",
+  "ftn3rev": "1.9",
+  "imports": [
+    "futoin.ping:1.0",
+    "futoin.msgbot.types:0.2"
+  ],
+  "funcs": {
+    "pushMessage": {
+      "params": {
+        "msg": "PushMessage"
+      },
+      "result": "boolean",
+      "throws": [
+        "UnknownServer",
+        "DeliveryFailed"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

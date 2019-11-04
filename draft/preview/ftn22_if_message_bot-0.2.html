@@ -6,14 +6,19 @@
 </head><body>
 <pre>
 FTN22: FutoIn Interface - Message Bot
-Version: 0.1DV
-Date: 2019-11-01
+Version: 0.2DV
+Date: 2019-11-03
 Copyright: 2019 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v0.2 - 2019-11-03 - Andrey Galkin<ul>
+<li>NEW: server iface</li>
+<li>NEW: extended with event concept</li>
+</ul>
+</li>
 <li>v0.1 - 2019-11-01 - Andrey Galkin<ul>
 <li>Initial draft</li>
 </ul>
@@ -81,7 +86,7 @@ references or pointers to follow FutoIn microservice pattern.</p>
 <h2>2.9. Command message router</h2>
 <p>Traditional message bots support various commands of fixed format. Very often, such commands
 are split by functionality into modular parts.</p>
-<p>To support such command handling paradigm, a special message router is required to listen for
+<p>To support such command handling paradigm, a message router is required to listen for
 specially prefixed messages and route them into related message handler parts.</p>
 <p>Custom extensions of such routers should be able to enforce access control for the commands. It should
 be possible to create several message routers in general middleware chain way.</p>
@@ -93,10 +98,14 @@ There must be support for traditional catch all handlers.</p>
 <li><code>#msgbot.</code> - general prefix for interfaces in scope of this specification</li>
 <li><code>#msgbot.router</code> - main reactive message handler</li>
 <li><code>#msgbot.push</code> - main push message handler</li>
-<li><code>#msgbot.system.{UUIDB64}</code> - system interfaces</li>
+<li><code>#msgbot.server.{UUIDB64}</code> - server interfaces</li>
 </ul>
+<h2>2.11. Server interface</h2>
+<p>Server interface is expected to be based on push handler interface with additional features
+to retrieve additional information needed for operation of custom business logic.</p>
 <h1>3. Interfaces</h1>
 <h2>3.1. Common types</h2>
+<p>These are common types to be used in scope of other interfaces.</p>
 <pre><code>    {
         "iface" : "futoin.msgbot.types",
         "version" : "{ver}",
@@ -111,18 +120,19 @@ There must be support for traditional catch all handlers.</p>
                 "type": "string",
                 "maxlen": 8192
             },
-            "ExtActorID": {
+            "ExtID": {
                 "type": "string",
+                "minlen": 1,
                 "maxlen": 32
             },
+            "ExtActorID": "ExtID",
             "BaseMessage": {
                 "type": "map",
                 "fields": {
                     "server": "ServerID",
                     "channel": {
                         "type": "ChannelID",
-                        "optional": true,
-                        "desc": "Private message, if empty"
+                        "optional": true
                     },
                     "payload": "MessagePayload"
                 }
@@ -130,8 +140,14 @@ There must be support for traditional catch all handlers.</p>
             "InputMessage": {
                 "type": "BaseMessage",
                 "fields": {
+                    "private": "boolean",
                     "sender": "ExtActorID",
-                    "ts": "MicroTimestamp"
+                    "ts": "MicroTimestamp",
+                    "ext_id": {
+                        "type": "ExtID",
+                        "optional": true,
+                        "desc": "Unique external message ID, if supported"
+                    }
                 }
             },
             "ResponsePayload": "MessagePayload",
@@ -144,11 +160,31 @@ There must be support for traditional catch all handlers.</p>
                         "desc": "For private message, .channel must be obeyed as well"
                     }
                 }
+            },
+            "EventName": {
+                "type": "string",
+                "minlen": 1,
+                "maxlen": 64
+            },
+            "EventData": [ "string", "map" ],
+            "Event": {
+                "type": "map",
+                "fields": {
+                    "server": "ServerID",
+                    "channel": {
+                        "type": "ChannelID",
+                        "optional": true
+                    },
+                    "name": "EventName",
+                    "data": "EventData",
+                    "ts": "MicroTimestamp"
+                }
             }
         }
     }
 </code></pre>
-<h2>3.2. Reactive message handler interfaces</h2>
+<h2>3.2. Reactive message handler interface</h2>
+<p>This is the base which is expected to be implemented by leaf handlers and routers.</p>
 <pre><code>    {
         "iface" : "futoin.msgbot.react",
         "version" : "{ver}",
@@ -160,10 +196,15 @@ There must be support for traditional catch all handlers.</p>
         "funcs" : {
             "onMessage": {
                 "params": {
-                    "msg": "PushMessage"
+                    "msg": "InputMessage"
                 },
                 "result": {
                     "rsp": "ResponsePayload"
+                }
+            },
+            "onEvent": {
+                "params": {
+                    "evt": "Event"
                 }
             }
         },
@@ -171,6 +212,7 @@ There must be support for traditional catch all handlers.</p>
     }
 </code></pre>
 <h2>3.3. Push message interface</h2>
+<p>This is message pushing interfaces to be implemented by servers and push routers.</p>
 <pre><code>    {
         "iface" : "futoin.msgbot.push",
         "version" : "{ver}",
@@ -182,10 +224,11 @@ There must be support for traditional catch all handlers.</p>
         "funcs" : {
             "pushMessage": {
                 "params": {
-                    "msg": "InputMessage"
+                    "msg": "PushMessage"
                 },
                 "result": "boolean",
                 "throws": [
+                    "UnknownServer",
                     "DeliveryFailed"
                 ]
             }
@@ -193,7 +236,8 @@ There must be support for traditional catch all handlers.</p>
         "requires" : [ "SecureChannel" ]
     }
 </code></pre>
-<h2>3.4. Command router</h2>
+<h2>3.4. Command router interface</h2>
+<p>This is extension of reactive interface to handle router registration logic.</p>
 <pre><code>    {
         "iface" : "futoin.msgbot.router",
         "version" : "{ver}",
@@ -211,7 +255,11 @@ There must be support for traditional catch all handlers.</p>
             "CommandPrefixes": {
                 "type": "array",
                 "elemtype": "CommandPrefix",
-                "minlen": 1,
+                "maxlen": 100
+            },
+            "EventNames": {
+                "type": "array",
+                "elemtype": "EventName",
                 "maxlen": 100
             }
         },
@@ -219,11 +267,172 @@ There must be support for traditional catch all handlers.</p>
             "registerHandler": {
                 "params": {
                     "ccm_name": "HandlerName",
-                    "commands": "CommandPrefixes"
+                    "commands": "CommandPrefixes",
+                    "events": "EventNames",
+                    "catch_all": "boolean"
                 },
                 "result": "boolean",
                 "throws": [
-                    "AlreadyRegistered"
+                    "AlreadyRegistered",
+                    "UnknownInterface"
+                ]
+            },
+            "unRegisterHandler": {
+                "params": {
+                    "ccm_name": "HandlerName"
+                },
+                "result": "boolean",
+                "throws": [
+                    "NotRegistered"
+                ]
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h2>3.5. Server interface</h2>
+<p>The server interface is expected to grow over time via mixins. Mixin strategy is used
+to logically separate scopes of common flat interfaces.</p>
+<h3>3.5.1. Composite server interface</h3>
+<p>This interface should be used for registration and interaction.</p>
+<pre><code>    {
+        "iface" : "futoin.msgbot.server",
+        "version" : "{ver}",
+        "ftn3rev" : "1.9",
+        "inherit" : "futoin.msgbot.push:{ver}",
+        "types" : {
+            "Flavour" : {
+                "type" : "GenericIdentifier",
+                "maxlen" : 32,
+                "desc" : "Actual actual database driver type"
+            }
+        },
+        "funcs" : {
+            "getFlavour": {
+                "result": "Flavour"
+            }
+        },
+        "requires" : [ "SecureChannel" ]
+    }
+</code></pre>
+<h3>3.5.2. Native extensions</h3>
+<p>It expected that the interface provides various helpers for message and event processing.</p>
+<ul>
+<li><code>helpers()</code> - access native helpers</li>
+<li><code>systemIface()</code> - access message system interface implementation</li>
+</ul>
+<h3>3.5.3. Native helpers</h3>
+<p>Text processing API are expected to return input AS-IS, if some feature is not supported.</p>
+<ul>
+<li><code>string bold(string)</code> - returns input wrapped in bold text markup.</li>
+<li><code>string italic(string)</code> - returns input wrapped into italic text markup.</li>
+<li><code>string color(string, hexcolor)</code> - returns input wrapped into RGB color markup.</li>
+<li><code>string imgUrl(url)</code> - insert image by url.</li>
+<li><code>string emoji(name)</code> - add named emoji markup.</li>
+<li><code>string line()</code> - line break</li>
+<li><code>string menion(ext_actor_id)</code> - returns mention of particular user</li>
+</ul>
+<h3>3.5.4. Member server API</h3>
+<pre><code>    {
+        "iface" : "futoin.msgbot.server.members",
+        "version" : "{ver}",
+        "ftn3rev" : "1.9",
+        "imports" : [
+            "futoin.msgbot.types:{ver}"
+        ],
+        "types" : {
+            "ExtActorList": {
+                "type": "array",
+                "elemtype": "ExtActorID",
+                "maxlen": 100
+            }
+        },
+        "funcs" : {
+            "listMembers": {
+                "params": {
+                    "channel": {
+                        "type": "ChannelID",
+                        "default" : null
+                    },
+                    "start": {
+                        "type": "NotNegativeInteger",
+                        "default" : 0
+                    }
+                },
+                "result": "ExtActorList"
+            },
+            "isMember": {
+                "params": {
+                    "actor": "ExtActorID",
+                    "channel": {
+                        "type": "ChannelID",
+                        "default" : null
+                    }
+                },
+                "result": "boolean"
+            },
+            "kick": {
+                "params": {
+                    "actor": "ExtActorID",
+                    "reason": "MessagePayload",
+                    "channel": {
+                        "type": "ChannelID",
+                        "default" : null
+                    }
+                },
+                "result": "boolean",
+                "throws": [
+                    "Failed"
+                ]
+            },
+            "listBanned": {
+                "params": {
+                    "channel": {
+                        "type": "ChannelID",
+                        "default" : null
+                    },
+                    "start": {
+                        "type": "NotNegativeInteger",
+                        "default" : 0
+                    }
+                },
+                "result": "ExtActorList"
+            },
+            "isBanned": {
+                "params": {
+                    "actor": "ExtActorID",
+                    "channel": {
+                        "type": "ChannelID",
+                        "default" : null
+                    }
+                },
+                "result": "boolean"
+            },
+            "ban": {
+                "params": {
+                    "actor": "ExtActorID",
+                    "reason": "MessagePayload",
+                    "channel": {
+                        "type": "ChannelID",
+                        "default" : null
+                    }
+                },
+                "result": "boolean",
+                "throws": [
+                    "Failed"
+                ]
+            },
+            "unBan": {
+                "params": {
+                    "actor": "ExtActorID",
+                    "channel": {
+                        "type": "ChannelID",
+                        "default" : null
+                    }
+                },
+                "result": "boolean",
+                "throws": [
+                    "Failed"
                 ]
             }
         },

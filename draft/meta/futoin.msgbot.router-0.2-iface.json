@@ -1,0 +1,53 @@
+{
+  "iface": "futoin.msgbot.router",
+  "version": "0.2",
+  "ftn3rev": "1.9",
+  "inherit": "futoin.msgbot.react:0.2",
+  "types": {
+    "HandlerName": {
+      "type": "GenericIdentifier",
+      "maxlen": 32
+    },
+    "CommandPrefix": {
+      "type": "string",
+      "maxlen": 32
+    },
+    "CommandPrefixes": {
+      "type": "array",
+      "elemtype": "CommandPrefix",
+      "maxlen": 100
+    },
+    "EventNames": {
+      "type": "array",
+      "elemtype": "EventName",
+      "maxlen": 100
+    }
+  },
+  "funcs": {
+    "registerHandler": {
+      "params": {
+        "ccm_name": "HandlerName",
+        "commands": "CommandPrefixes",
+        "events": "EventNames",
+        "catch_all": "boolean"
+      },
+      "result": "boolean",
+      "throws": [
+        "AlreadyRegistered",
+        "UnknownInterface"
+      ]
+    },
+    "unRegisterHandler": {
+      "params": {
+        "ccm_name": "HandlerName"
+      },
+      "result": "boolean",
+      "throws": [
+        "NotRegistered"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

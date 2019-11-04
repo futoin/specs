@@ -1,0 +1,107 @@
+{
+  "iface": "futoin.msgbot.server.members",
+  "version": "0.2",
+  "ftn3rev": "1.9",
+  "imports": [
+    "futoin.msgbot.types:0.2"
+  ],
+  "types": {
+    "ExtActorList": {
+      "type": "array",
+      "elemtype": "ExtActorID",
+      "maxlen": 100
+    }
+  },
+  "funcs": {
+    "listMembers": {
+      "params": {
+        "channel": {
+          "type": "ChannelID",
+          "default": null
+        },
+        "start": {
+          "type": "NotNegativeInteger",
+          "default": 0
+        }
+      },
+      "result": "ExtActorList"
+    },
+    "isMember": {
+      "params": {
+        "actor": "ExtActorID",
+        "channel": {
+          "type": "ChannelID",
+          "default": null
+        }
+      },
+      "result": "boolean"
+    },
+    "kick": {
+      "params": {
+        "actor": "ExtActorID",
+        "reason": "MessagePayload",
+        "channel": {
+          "type": "ChannelID",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "throws": [
+        "Failed"
+      ]
+    },
+    "listBanned": {
+      "params": {
+        "channel": {
+          "type": "ChannelID",
+          "default": null
+        },
+        "start": {
+          "type": "NotNegativeInteger",
+          "default": 0
+        }
+      },
+      "result": "ExtActorList"
+    },
+    "isBanned": {
+      "params": {
+        "actor": "ExtActorID",
+        "channel": {
+          "type": "ChannelID",
+          "default": null
+        }
+      },
+      "result": "boolean"
+    },
+    "ban": {
+      "params": {
+        "actor": "ExtActorID",
+        "reason": "MessagePayload",
+        "channel": {
+          "type": "ChannelID",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "throws": [
+        "Failed"
+      ]
+    },
+    "unBan": {
+      "params": {
+        "actor": "ExtActorID",
+        "channel": {
+          "type": "ChannelID",
+          "default": null
+        }
+      },
+      "result": "boolean",
+      "throws": [
+        "Failed"
+      ]
+    }
+  },
+  "requires": [
+    "SecureChannel"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "iface": "futoin.msgbot.types",
+  "version": "0.2",
+  "ftn3rev": "1.9",
+  "imports": [
+    "futoin.types:1.0"
+  ],
+  "types": {
+    "ServerID": "UUIDB64",
+    "ChannelID": "UUIDB64",
+    "MessagePayload": {
+      "type": "string",
+      "maxlen": 8192
+    },
+    "ExtID": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 32
+    },
+    "ExtActorID": "ExtID",
+    "BaseMessage": {
+      "type": "map",
+      "fields": {
+        "server": "ServerID",
+        "channel": {
+          "type": "ChannelID",
+          "optional": true
+        },
+        "payload": "MessagePayload"
+      }
+    },
+    "InputMessage": {
+      "type": "BaseMessage",
+      "fields": {
+        "private": "boolean",
+        "sender": "ExtActorID",
+        "ts": "MicroTimestamp",
+        "ext_id": {
+          "type": "ExtID",
+          "optional": true,
+          "desc": "Unique external message ID, if supported"
+        }
+      }
+    },
+    "ResponsePayload": "MessagePayload",
+    "PushMessage": {
+      "type": "BaseMessage",
+      "fields": {
+        "recipient": {
+          "type": "ExtActorID",
+          "optional": true,
+          "desc": "For private message, .channel must be obeyed as well"
+        }
+      }
+    },
+    "EventName": {
+      "type": "string",
+      "minlen": 1,
+      "maxlen": 64
+    },
+    "EventData": [
+      "string",
+      "map"
+    ],
+    "Event": {
+      "type": "map",
+      "fields": {
+        "server": "ServerID",
+        "channel": {
+          "type": "ChannelID",
+          "optional": true
+        },
+        "name": "EventName",
+        "data": "EventData",
+        "ts": "MicroTimestamp"
+      }
+    }
+  }
+}
