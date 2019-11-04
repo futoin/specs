@@ -1,13 +1,15 @@
 <pre>
 FTN3.1: FutoIn Interface - Common Types
 Version: 1.0
-Date:  2018-05-17
+Date:  2019-11-04
 Copyright: 2017-2018 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.0.2 - 2019-11-04 - Andrey Galkin
+    - FIXED: bug in MicroTimestamp
 * v1.0.1 - 2018-05-17 - Andrey Galkin
     - FIXED: missing padding for Base64 type
 * v1.0 - 2018-01-02 - Andrey Galkin
@@ -95,7 +97,7 @@ bound to specific parameters like "name" or "description".
             },
             "MicroTimestamp" : {
                 "type" : "string",
-                "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z[0-9]{0,6}$"
+                "regex": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(.[0-9]{0,6})?Z$"
             },
             "Domain" : {
                 "type" : "string",
