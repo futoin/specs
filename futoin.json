@@ -55,6 +55,10 @@
     }
   },
   "actions": {
+    "prepare": [
+        "@cte pip install markdown",
+        "@default"
+    ],
     "build": [
       "./compile.sh",
       "@cid tool build gzip"
