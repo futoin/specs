@@ -1,13 +1,15 @@
 <pre>
 FTN16: FutoIn - Continuous Integration & Delivery Tool
-Version: 1.2
-Date: 2018-04-25
-Copyright: 2015-2018 FutoIn Project (http://futoin.org)
+Version: 1.3DV
+Date: 2020-02-01
+Copyright: 2015-2020 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.3 - 2020-02-01 - Andrey Galkin
+    - NEW: .spaRoutes web mount tune option
 * v1.2 - 2018-04-25 - Andrey Galkin
     - FIXED: clarified .persistent data copying
     - NEW: .writable config support
@@ -229,6 +231,7 @@ configuration root or only with its .env part. There should be no other configur
                 - .autoindex = false - enable auto-indexing
                 - .index = 'index.html' - default index file
                 - .etag = false - enable ETag
+                - .spaRoutes = false - Single Page Application routes (try URI and then .index)
 * .actions - {}, optional override of auto-detect commands.
     Each either a string or list of strings.
     Use '@default' in [] to run the default auto-detected tasks too.
