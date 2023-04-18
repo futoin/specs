@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn12_async_api.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<pre>
+FTN12: FutoIn Async API
+Version: 1.14DV
+Date: 2023-03-29
+Copyright: 2014-2023 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.14 - 2023-03-29 - Andrey Galkin<ul>
+<li>FIXED: minor wording and grammar fixes</li>
+<li>NEW: universal binary interface</li>
+<li>NEW: formal documentation of AsyncTool interface</li>
+</ul>
+</li>
+<li>v1.13.1 - 2018-09-24 - Andrey Galkin<ul>
+<li>FIXED: cosmetic markup issues</li>
+</ul>
+</li>
+<li>v1.13 - 2018-09-18 - Andrey Galkin<ul>
+<li>NEW: newInstance() API</li>
+<li>NEW: boolean cast checks</li>
+<li>NEW: stack() API</li>
+</ul>
+</li>
+<li>v1.12 - 2018-06-08 - Andrey Galkin<ul>
+<li>NEW: promise() wrapper for execute()</li>
+</ul>
+</li>
+<li>v1.11 - 2018-02-02 - Andrey Galkin<ul>
+<li>CHANGED: successStep() to be used for result injection</li>
+<li>CHANGED: cosmetic fixes for API definition</li>
+<li>NEW: Promise/await integration</li>
+</ul>
+</li>
+<li>v1.10 - 2017-12-06 - Andrey Galkin<ul>
+<li>NEW: added max queue length for <code>Mutex</code> and <code>Throttle</code></li>
+<li>NEW: <code>Limiter</code> primitive</li>
+</ul>
+</li>
+<li>v1.9 - 2017-11-17 - Andrey Galkin<ul>
+<li>NEW: async_stack state variable</li>
+<li>NEW: adding steps in error handler</li>
+</ul>
+</li>
+<li>v1.8 - 2017-08-29 - Andrey Galkin<ul>
+<li>Added .sync() API &amp; protocol</li>
+<li>Added .waitExternal()</li>
+<li>Added Mutex class</li>
+<li>Added Throttle class</li>
+</ul>
+</li>
+<li>v1.7 - 2015-06-01<ul>
+<li>Removed .utils() artifact</li>
+<li>Added 1.10 "Reserved keyword name clash"</li>
+</ul>
+</li>
+<li>v1.6 - 2015-01-02<ul>
+<li>Added last_exception state variable</li>
+</ul>
+</li>
+<li>v1.5 - 2014-12-09<ul>
+<li>Added concept of implicit as.success()</li>
+<li>Deprecated as.successStep()</li>
+<li>Updated examples</li>
+<li>Updated "The Safety Rules of libraries with AsyncSteps interface"</li>
+</ul>
+</li>
+<li>v1.4 - 2014-12-09<ul>
+<li>Updated 1.6.1 and renamed to "The Safety Rules of AsyncSteps helpers"</li>
+<li>Added 1.8 "Async Loops" and extended interface</li>
+</ul>
+</li>
+<li>v1.3 - 2014-10-18<ul>
+<li>Documented existing any way as.cancel()</li>
+<li>Split AsyncSteps API in logical groups for better understanding</li>
+</ul>
+</li>
+<li>v1.2 - 2014-09-30<ul>
+<li>Added concept of successStep()</li>
+<li>Added "error_info" convention</li>
+<li>Changed behavior of as.error() to throw exception (not backward-compatible, but more like a bugfix)</li>
+</ul>
+</li>
+<li>v1.1 - 2014-09-07<ul>
+<li>Added cloning concept and requirements</li>
+</ul>
+</li>
+<li>v1.0 - 2014-08-31</li>
+</ul>
+<h1>1. Concept</h1>
+<p>This interface was born as a secondary option for
+executor concept. However, it quickly became clear that
+async/reactor/proactor/light threads/etc. should be the base
+of scalable high performance server implementations, even though it is
+more difficult for understanding and/or debugging.
+Traditional synchronous program flow becomes an addon
+on top of asynchronous base for legacy code and/or too
+complex logic. Academical and practical research in this direction
+was started in field of cooperative multitasking back in XX century.</p>
+<p>Program flow is split into non-blocking execution steps, represented
+with execution callback function. Processing Unit (eg. CPU) halting/
+spinning/switching-to-another-task is seen as a blocking action in program flow.
+Execution of such fragments is partially ordered.</p>
+<p>Any step must not call any of blocking functions, except for synchronization
+with guaranteed minimal period of lock acquisition.
+<em>Note: under minimal period, it is assumed that any acquired lock is 
+immediately released after action with O(1) complexity and no delay
+caused by programmatic suspension/locking of executing task</em></p>
+<p>Every step is executed sequentially. Success result of any step
+becomes input for the following step.</p>
+<p>Each step can have own error handler. Error handler is called, if
+AsyncSteps.error() is called within step execution or any of its 
+sub-steps. Typical behavior is to ignore error and continue or
+to make cleanup actions and complete job with error.</p>
+<p>Each step can have own sequence of sub-steps. Sub-steps can be added
+only during that step execution. Sub-step sequence is executed after
+current step execution is finished.</p>
+<p>If there are any sub-steps added then current step must not call
+AsyncSteps.success() or AsyncSteps.error(). Otherwise, InternalError
+is raised.</p>
+<p>It is possible to create a special "parallel" sub-step and add
+independent sub-steps to it. Execution of each parallel sub-step
+is started all together. Parallel step completes with success
+when all sub-steps complete with success. If error is raised in
+any sub-step of parallel step then all other sub-steps are canceled.</p>
+<p>Out-of-order cancel of execution can occur by timeout, 
+execution control engine decision (e.g. Invoker disconnect) or
+failure of sibling parallel step. Each step can install custom
+on-cancel handler to free resources and/or cancel external jobs.
+After cancel, it must be safe to destroy AsyncSteps object.</p>
+<p>AsyncSteps must be used in Executor request processing. The same 
+[root] AsyncSteps object must be used for all asynchronous tasks within
+given request processing.</p>
+<p>AsyncSteps may be used by Invoker implementation.</p>
+<p>AsyncSteps must support derived classes in implementation-defined way.
+Typical use case: functionality extension (e.g. request processing API).</p>
+<p>For performance reasons, it is not economical to initialize AsyncSteps
+with business logic every time. Every implementation must support
+platform-specific AsyncSteps cloning/duplicating.</p>
+<h2>1.1. Levels</h2>
+<p>When AsyncSteps (or derived) object is created all steps are added
+sequentially in Level 0 through add() and/or parallel(). Note: each
+parallel() is seen as a step.</p>
+<p>After AsyncSteps execution is initiated, each step of Level 0 is executed.
+All sub-steps are added in Level n+1. Example:</p>
+<pre><code>add() -&gt; Level 0 #1
+    add() -&gt; Level 1 #1
+        add() -&gt; Level 2 #1
+        parallel() -&gt; Level 2 #2
+        add() -&gt; Level 2 #3
+    parallel() -&gt; Level 1 #2
+    add() -&gt; Level 1 #3
+parallel() -&gt; Level 0 #2
+add() -&gt; Level 0 #3
+</code></pre>
+<p>Execution cannot continue to the next step of current Level until all steps of higher Level
+are executed.</p>
+<p>The execution sequence would be:</p>
+<pre><code>Level 0 add #1
+Level 1 add #1
+Level 2 add #1
+Level 2 parallel #2
+Level 2 add #3
+Level 1 parallel #2
+Level 1 add #3
+Level 0 parallel #2
+Level 0 add #3
+</code></pre>
+<h2>1.2. Error handling</h2>
+<p>Due to non-linear programming, classic try/catch blocks are converted into execute/onerror.
+Each added step may have custom error handler. If error handler is not specified then
+control passed to lower Level error handler. If non is defined then execution is aborted.</p>
+<p>Example:</p>
+<pre><code>add( -&gt; Level 0
+    func( as ){
+        print( "Level 0 func" )
+        add( -&gt; Level 1
+            func( as ){
+                print( "Level 1 func" )
+                as.error( "myerror" )
+            },
+            onerror( as, error ){
+                print( "Level 1 onerror: " + error )
+                as.error( "newerror" )
+            }
+        )
+    },
+    onerror( as, error ){
+        print( "Level 0 onerror: " + error )
+        as.success( "Prm" )
+    }
+)
+add( -&gt; Level 0
+    func( as, param ){
+        print( "Level 0 func2: " + param )
+        as.success()
+    }
+)
+</code></pre>
+<p>Output would be:</p>
+<pre><code>Level 0 func
+Level 1 func
+Level 1 onerror: myerror
+Level 0 onerror: newerror
+Level 0 func2: Prm
+</code></pre>
+<p>In synchronous way, it would look like:</p>
+<pre><code>variable = null
+
+try
+{
+    print( "Level 0 func" )
+
+    try
+    {
+        print( "Level 1 func" )
+        throw "myerror"
+    }
+    catch ( error )
+    {
+        print( "Level 1 onerror: " + error )
+        throw "newerror"
+    }
+}
+catch( error )
+{
+    print( "Level 0 onerror: " + error )
+    variable = "Prm"
+}
+
+print( "Level 0 func2: " + variable )
+</code></pre>
+<h2>1.2.1. Steps in error handler</h2>
+<p>Very often, error handler creates an alternative complex program path which
+requires own async operation. Therefore, error handler must accept <code>as.add()</code>
+as implicit <code>as.success()</code>.</p>
+<p>If steps are added inside error handler they must remain on the same async stack
+level while error handler itself gets removed.</p>
+<p>Example:</p>
+<pre><code>add( -&gt; Level 0
+    func( as ){
+        print( "Level 0 func" )
+        add( -&gt; Level 1
+            func( as ){
+                print( "Level 1 func" )
+                as.error( "first" )
+            },
+            onerror( as, error ){
+                print( "Level 1 onerror: " + error )
+                as.add( -&gt; Level 2
+                    func() {
+                        print( "Level 2 func" )
+                        as.error( "second" );
+                    },
+                    onerror( as, error ) {
+                        print( "Level 2 onerror: " + error )
+                    }
+                )
+            }
+        )
+    },
+    onerror( as, error ){
+        print( "Level 0 onerror: " + error )
+    }
+)
+</code></pre>
+<p>Output would be:</p>
+<pre><code>Level 0 func
+Level 1 func
+Level 1 onerror: first
+Level 2 func
+Level 2 onerror: second
+Level 0 onerror: second
+</code></pre>
+<p><em>Note: "Level 1 onerror" is not executed second time!</em></p>
+<h2>1.3. Wait for external resources</h2>
+<p>Very often, execution of step cannot continue without waiting for external event like input from network or disk.
+It is forbidden to block execution in event waiting. As a solution, there are special setTimeout() and setCancel()
+methods.</p>
+<p>Example:</p>
+<pre><code>add(
+    func( as ){
+        socket.read( function( data ){
+            as.success( data )
+        } )
+
+        as.setCancel( function(){
+            socket.cancel_read()
+        } )
+
+        as.setTimeout( 30_000 ) // 30 seconds
+    },
+    onerror( as, error ){
+        if ( error == timeout ) {
+            print( "Timeout" )
+        }
+        else
+        {
+            print( "Read Error" )
+        }
+    }
+)
+</code></pre>
+<h2>1.4. Parallel execution abort</h2>
+<p>Definition of parallel steps makes no sense to continue execution if any of steps fails. To avoid
+excessive time and resources spent on other steps, there is a concept of canceling execution similar to 
+timeout above.</p>
+<p>Example:</p>
+<pre><code>as.parallel()
+    .add(
+        func( as ){
+            as.setCancel( function(){ ... } )
+
+            // do parallel job #1
+            as.state()-&gt;result1 = ...;
+        }
+    )
+    .add(
+        func( as ){
+            as.setCancel( function(){ ... } )
+
+            // do parallel job #1
+            as.state()-&gt;result2 = ...;
+        }
+    )
+    .add(
+        func( as ){
+            as.error( "Some Error" )
+        }
+    )
+as.add(
+    func( as ){
+        print( as.state()-&gt;result1 + as.state-&gt;result2 )
+        as.success()
+    }
+)
+</code></pre>
+<h2>1.5. AsyncSteps cloning</h2>
+<p>In long living applications the same business logic may be re-used multiple times
+during execution.</p>
+<p>In a REST API server example, complex business logic can be defined only once and
+stored in a kind of AsyncSteps object repository.
+On each request, a reference object from the repository would be copied for actual
+processing with minimal overhead.</p>
+<p>However, there would be no performance difference in sub-step definition unless
+its callback function is also created at initialization time, but not at parent
+step execution time (the default concept). So, it should be possible to predefine
+those as well and copy/inherit during step execution. Copying steps must also
+involve copying of state variables.</p>
+<p>Example:</p>
+<pre><code>AsyncSteps req_repo_common;
+req_repo_common.add(func( as ){
+    as.add( func( as ){ ... } );
+    as.copyFrom( as.state().business_logic );
+    as.add( func( as ){ ... } );
+});
+
+AsyncSteps req_repo_buslog1;
+req_repo_buslog1
+    .add(func( as ){ ... })
+    .add(func( as ){ ... });
+
+AsyncSteps actual_exec = copy req_repo_common;
+actual_exec.state().business_logic = req_repo_buslog1;
+actual_exec.execute();
+</code></pre>
+<p>However, this approach only makes sense for deep performance optimizations.</p>
+<h2>1.6. Implicit as.success()</h2>
+<p>If there are no sub-steps added, no timeout set and no cancel handler set then
+implicit <code>as.success()</code> call is assumed to simplify code and increase efficiency.</p>
+<pre><code>as.add(func( as ){
+    doSomeStuff( as );
+})
+</code></pre>
+<p>As in many cases it's required to wait for external event without any additional
+conditions, the general approach used to be adding an empty cancel handler. To
+avoid that, an explicit <code>as.waitExternal()</code> API is available.</p>
+<h2>1.7. Error Info, Last Exception and Async Call Stack</h2>
+<p>Pre-defined state variables:</p>
+<ul>
+<li><strong>error_info</strong> - value of the second parameter passed to the last <em>as.error()</em> call</li>
+<li><strong>last_exception</strong> - the last exception caught, if feasible</li>
+<li><strong>async_stack</strong> - implementation-defined stack of step handler references</li>
+</ul>
+<p>Error code is not always descriptive enough, especially, if it can be generated in multiple ways.
+As a convention, special <code>error_info</code> state field should hold descriptive information of the last error.
+Therefore, <code>as.error()</code> is extended with optional parameter <code>error_info</code>.</p>
+<p>The <code>last_exception</code> state variables may hold the last exception object caught, if feasible
+to implement. It should be populated with FutoIn errors as well.</p>
+<h2>1.8. Async Loops</h2>
+<p>Almost always, async program flow is not linear. Sometimes, loops are required.</p>
+<p>Basic principals of async loops:</p>
+<pre><code>    as.loop( func( as ){
+        call_some_library( as );
+        as.add( func( as, result ){
+            if ( !result )
+            {
+                // exit loop
+                as.break();
+            }
+        } );
+    } )
+</code></pre>
+<p>Inner loops and identifiers:</p>
+<pre><code>    // start loop
+    as.loop( 
+        func( as ){
+            as.loop( func( as ){
+                call_some_library( as );
+                as.add( func( as, result ){
+                    if ( !result )
+                    {
+                        // exit loop
+                        as.continue( "OUTER" );
+                    }
+
+                    as.success( result );
+                } );
+            } );
+
+            as.add( func( as, result ){
+                // use it somehow
+                as.success();
+            } );
+        },
+        "OUTER"
+    )
+</code></pre>
+<p>Loop n times.</p>
+<pre><code>    as.repeat( 3, func( as, i ){
+        print( 'Iteration: ' + i )
+    } )
+</code></pre>
+<p>Traverse through list or map:</p>
+<pre><code>    as.forEach(
+        [ 'apple', 'banana' ],
+        func( as, k, v ){
+            print( k + " = " + v )
+        }
+    )
+</code></pre>
+<h3>1.8.1. Termination</h3>
+<p>Normal loop termination is performed either by loop condition (e.g. <code>as.forEach()</code>, <code>as.repeat()</code>)
+or by <code>as.break()</code> call. Normal termination is seen as as.success() call.</p>
+<p>Abnormal termination is possible through <code>as.error()</code>, including timeout, or external <code>as.cancel()</code>.
+Abnormal termination is seen as <code>as.error()</code> call.</p>
+<h2>1.9. The Safety Rules of libraries with AsyncSteps interface</h2>
+<p>It is possible to split a single step into several functional fragments. In this case, the
+topmost function is assumed the one passed to <code>as.add()</code> directly.</p>
+<ol>
+<li><code>as.success()</code> should be called only in the topmost function of the step.</li>
+<li><code>as.setCancel()</code> and/or <code>as.setTimeout()</code> must be called only in the topmost function
+    as repeated calls override those in the scope of the step.</li>
+<li>Library entry points on project boundaries should call <code>as.add()</code> internally for any
+    operation with side effects to ensure correct order of operations.</li>
+</ol>
+<h2>1.10. Reserved keyword name clash</h2>
+<p>If any of API identifiers clashes with one of reserved words or has illegal symbols then
+implementation-defined name mangling is allowed, but with the following guidelines
+in priority.</p>
+<p>Pre-defined alternative method names, if the default matches language-specific reserved keywords:</p>
+<ul>
+<li><em>loop</em> -&gt; makeLoop</li>
+<li><em>forEach</em> -&gt; loopForEach</li>
+<li><em>repeat</em> -&gt; repeatLoop</li>
+<li><em>break</em> -&gt; breakLoop</li>
+<li><em>continue</em> -&gt; continueLoop</li>
+<li>Otherwise, - try adding underscore to the end of the
+    identifier (e.g. do -&gt; do_)</li>
+</ul>
+<h2>1.11. Synchronization</h2>
+<h3>1.11.1. Mutual exclusion</h3>
+<p>As with any multi-threaded application, multi-step cases may also require synchronization
+to ensure not more than N steps enter the same critical section which spans over several
+fragments (steps) of the asynchronous flow.</p>
+<p>Implemented as <code>Mutex</code> class.</p>
+<h3>1.11.2. Throttling</h3>
+<p>For general stability reasons and protection of self-DoS, it may be required to limit
+number of steps allowed to enter critical section within time period.</p>
+<p>Implemented as <code>Throttle</code> class.</p>
+<h3>1.11.3. API details</h3>
+<p>A special <code>as.sync(obj, step, err_handler)</code> API is available to synchronize against
+any object supporting synchronization protocol <code>as.sync(as, step, err_handler)</code>.</p>
+<p>Synchronization object is allowed to add own steps and is responsible for adding
+request steps under protection of provided synchronization. Synchronization object
+must correctly handle canceled execution and possible errors.</p>
+<p>Incoming success parameters must be passed to critical section step.
+Resulting success parameters must be forwarded to the following steps like there is
+no critical section logic.</p>
+<h3>1.11.4. Reentrance requirements</h3>
+<p>All synchronization implementations must either allow multiple reentrance of the
+same AsyncSteps instance or properly detect and raise error on such event.</p>
+<p>All implementations must correctly detect parallel flows in the scope of a single AsyncSteps
+instance and treat each as a separate one. None of paralleled steps should inherit
+the lock state of its parent step.</p>
+<h3>1.11.5. Deadlock detection</h3>
+<p>Deadlock detection is optional and is not mandatory required.</p>
+<h3>1.11.6. Max queue limits</h3>
+<p>It may be required to limit maximum number of pending AsyncSteps flows. If overall
+queue limit is reached then new entries must get "DefenseRejected" error.</p>
+<h3>1.11.7. Processing limits</h3>
+<p>Request processing stability requires to limit both simultaneous connections and
+request rate. Therefore a special synchronization primitive <code>Limiter</code> wrapping
+<code>Mutex</code> and <code>Throttle</code> is introduced to impose limits in scope.</p>
+<h3>1.12. Success step and result injection</h3>
+<p>Sometimes, it's required to return a value after inner steps are executed. It leads
+to code like:</p>
+<p><code>value = 123;
+    as.add( subStep() );
+    as.add( (as) =&gt; as.success( value ) );</code></p>
+<p>To optimize and make the code cleaner previously deprecated <code>as.successStep()</code> is
+returned. Example:</p>
+<p><code>value = 123;
+    as.add( subStep() );
+    as.successStep( value );</code></p>
+<h3>1.13. Promise/await integration</h3>
+<p>As Promises and <code>await</code> patterns become more and more popular in modern technologies,
+AsyncSteps should support them through <code>as.await(future_or_promise)</code> call.</p>
+<p>Details of implementation is specific to particular technology. However, the following
+guidelines should be used:</p>
+<ol>
+<li>Async step must be added.</li>
+<li>If <code>future_or_promise</code> is cancellable then <code>as.setCancel()</code> must be used.</li>
+<li>Otherwise, <code>as.waitExternal()</code> to be used.</li>
+<li>Errors must be propagated through <code>as.error()</code></li>
+<li>Result must be propagated through <code>as.success()</code></li>
+</ol>
+<h3>1.14. Allocation for technologies without garbage collected heap</h3>
+<p>For most GC-based technologies step closures can use objects allocated in outer steps
+without issues. However, object lifetime management is important for technologies like ISO C++.</p>
+<p>A special <code>Pointer stack(size)</code> execution API is provided. The raw version acts like
+regular heap allocation, but allocated memory is automatically freed once step is destroyed.</p>
+<p>If other lifetime is required then implementation-specific shared pointers should be used.</p>
+<p>Technology-specific implementation should provide template or generic overload to better
+integrate with specific type system and other features. Example:</p>
+<pre><code>// Prototype
+template&lt;typename T, typename... Args&gt;
+T&amp; stack(Args&amp;&amp;... args);
+
+// to be used like
+asi.stack&lt;T&gt;();
+asi.stack&lt;T&gt;(SomeCtorParam);
+</code></pre>
+<h1>2. Async Steps API</h1>
+<h2>2.1. Types</h2>
+<ul>
+<li><code>void execute_callback( AsyncSteps as[, previous_success_args] )</code>:<ul>
+<li>the first argument is always AsyncSteps object;</li>
+<li>other arguments come from the previous as.success() call, if any;</li>
+<li>returns nothing;</li>
+<li>behavior:<ul>
+<li>either set completion status through <code>as.success()</code> or <code>as.error()</code>,</li>
+<li>or add sub-steps through <code>as.add()</code> and/or <code>as.parallel()</code>,</li>
+<li>Optionally, set set time limit through <code>as.setTimeout()</code> and/or
+    set cancel handler through <code>as.setCancel()</code>,</li>
+<li>any violation is reported as <code>as.error( InternalError )</code>;</li>
+</ul>
+</li>
+<li>can use <code>as.state()</code> for global current job state data.</li>
+</ul>
+</li>
+<li><code>void error_callback( AsyncSteps as, error )</code>:<ul>
+<li>the first argument is always AsyncSteps object;</li>
+<li>the second argument comes from the previous <code>as.error()</code> call;</li>
+<li>returns nothing;</li>
+<li>behavior, completes through:<ul>
+<li><code>as.success()</code> - continue execution from the next step, after return,</li>
+<li><code>as.error()</code> - change error string,</li>
+<li>silent return - continue unwinding error handler stack,</li>
+<li>any violation is reported as <code>as.error( InternalError )</code>.</li>
+</ul>
+</li>
+<li>can use <code>as.state()</code> for global current job state data.</li>
+</ul>
+</li>
+<li><code>void cancel_callback( AsyncSteps as )</code>:<ul>
+<li>it must be used to cancel out of AsyncSteps program flow actions, like
+    waiting on connection, timer, dedicated task, etc.</li>
+</ul>
+</li>
+<li><code>interface ISync</code><ul>
+<li><code>void sync( AsyncSteps, execute_callback[, error_callback] )</code>:<ul>
+<li>synchronized independent or parallel AsyncSteps, execute provided
+    callbacks in critical section.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2>2.2. Functions</h2>
+<p>It is assumed that all functions in this section are part of <strong>the single AsyncSteps interface</strong>.
+However, they are grouped by semantical scope of use.</p>
+<h3>2.2.1. Common API - can be used in any context</h3>
+<ol>
+<li><code>AsyncSteps add( execute_callback func[, error_callback onerror] )</code>:<ul>
+<li>adds a step, the executor callback gets async interface as the first parameter;</li>
+<li>can be called multiple times to add sub-steps of the same level (sequential execution);</li>
+<li>steps are queued in the same execution level (sub-steps create a new level);</li>
+<li>returns current level <code>AsyncSteps</code> object accessor for easy chaining.</li>
+</ul>
+</li>
+<li><code>AsyncSteps parallel( [error_callback onerror] )</code>:<ul>
+<li>creates a step and returns specialization of AsyncSteps interface:<ul>
+<li>all <code>add()</code>'ed sub-steps are executed in parallel (not strictly required),</li>
+<li>the next step in the current level is executed only when all parallel steps complete,</li>
+<li>sub-steps of parallel steps follow normal sequential semantics,</li>
+<li><code>success()</code> does not allow any arguments - use <code>state()</code> to pass results.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Map state()</code>:<ul>
+<li>returns a reference to map/object, which can be populated with arbitrary state values;</li>
+<li>note: if boolean cast is not supported in given technology then it should return
+    equivalent of <code>null</code> to identify invalid state of AsyncSteps object.</li>
+</ul>
+</li>
+<li><em>get/set/exists/unset</em> wildcard accessor, which map to state() variables:<ul>
+<li>only if supported by language/platform.</li>
+</ul>
+</li>
+<li><code>AsyncSteps copyFrom( AsyncSteps other )</code>:<ul>
+<li>copies steps and state variables not present in the current state
+from other(model) AsyncSteps object;</li>
+<li>see cloning concept.</li>
+</ul>
+</li>
+<li><em>clone</em>/<em>copy c-tor</em><ul>
+<li>implementation-defined way of cloning AsyncSteps object.</li>
+</ul>
+</li>
+<li><code>AsyncSteps sync(ISync obj, execute_callback func[, error_callback onerror] )</code>:<ul>
+<li>adds a step, which is synchronized against <code>obj</code>.</li>
+</ul>
+</li>
+<li><code>AsyncSteps successStep( [result_arg, ...] )</code>:<ul>
+<li>an efficient shortcut for <code>as.add( (as) =&gt; as.success( result_arg, ... ) )</code>.</li>
+</ul>
+</li>
+<li><code>AsyncSteps await( future_or_promise[, error_callback onerror] )</code>:<ul>
+<li>integrate technology-specific Future/Promise as a step.</li>
+</ul>
+</li>
+<li><code>AsyncSteps newInstance()</code>:<ul>
+<li>create a new instance of AsyncSteps for standalone execution.</li>
+</ul>
+</li>
+<li><code>boolean cast()</code>:<ul>
+<li>true, if AsyncSteps interface is in valid state for usage;</li>
+<li>if not possible in given technology, then see the <code>state()</code> notes.</li>
+</ul>
+</li>
+<li><code>FutoInAsyncSteps cast()</code>:<ul>
+<li>cast to binary AsyncSteps interface pointer as applicable in technology;</li>
+<li>if not possible in given technology, then see the <code>binary()</code> notes..</li>
+</ul>
+</li>
+<li><code>FutoInAsyncSteps binary()</code>:<ul>
+<li>get naked binary AsyncSteps interface pointer as applicable in technology.</li>
+</ul>
+</li>
+<li><code>AsyncSteps wrap(FutoInAsyncSteps)</code>:<ul>
+<li>adopt the binary interface pointer as applicable;</li>
+<li>if the binary interface is implemented by the same technology then
+    it should be a simple cast;</li>
+<li>otherwise, foreign implementation should be seamlessly wrapped;</li>
+<li>returned instance must be used, but not the one on which <code>wrap()</code> is being called.</li>
+</ul>
+</li>
+</ol>
+<h3>2.2.2. Execution API - can be used only inside execute_callback</h3>
+<p><em>Note: <code>success()</code> and <code>error()</code> can be used in error_callback as well</em></p>
+<ol>
+<li><code>void success( [result_arg, ...] )</code><ul>
+<li>successfully completes the current step's execution;</li>
+<li>it should be normally called from <code>execute_callback</code>;</li>
+<li>however, it can be called outside of <code>AsyncSteps</code> stack during external event waiting.</li>
+</ul>
+</li>
+<li><code>void error( name [, error_info] )</code>:<ul>
+<li>completes the step with error;</li>
+<li>throws <code>FutoIn.Error</code> exception immediately;</li>
+<li>calls <code>onerror( async_iface, name )</code> after returning to execution engine;</li>
+<li><code>error_info</code>- assigned to <code>error_info</code> state field.</li>
+</ul>
+</li>
+<li><code>void setTimeout( timeout_ms )</code>:<ul>
+<li>disables implicit success with assumption of external event waiting, if no sub-steps are added;</li>
+<li>on timeout, <code>Timeout</code> error is raised.</li>
+</ul>
+</li>
+<li><code>call operator overloading</code>:<ul>
+<li>if supported by language/platform, it is an alias for <code>as.success()</code>.</li>
+</ul>
+</li>
+<li><code>void setCancel( cancel_callback oncancel )</code>:<ul>
+<li>set the callback, to be used to cancel execution.</li>
+</ul>
+</li>
+<li><code>void waitExternal()</code>:<ul>
+<li>prevent implicit <code>as.success()</code> behavior of the current step.</li>
+</ul>
+</li>
+<li><code>Pointer stack(size[, destroy_cb])</code>:<ul>
+<li>allocate a temporary object with lifetime of the current step for non-GC technologies.</li>
+</ul>
+</li>
+</ol>
+<h3>2.2.3. Control API - can be used only on Root AsyncSteps objects</h3>
+<ol>
+<li><code>void execute()</code> - must be called only once after root object steps are configured.<ul>
+<li>Initiates AsyncSteps execution implementation-defined way.</li>
+</ul>
+</li>
+<li><code>void cancel()</code> - may be called on root object to asynchronously cancel execution.<ul>
+<li>Cancellation typically happens on continuation of <code>AsyncSteps</code> execution.</li>
+</ul>
+</li>
+<li><code>Promise promise()</code> - must be called only once after the root object steps are configured.<ul>
+<li>Wraps <code>execute()</code> into a native Promise object.</li>
+<li>Returns a native Promise object.</li>
+</ul>
+</li>
+</ol>
+<h3>2.2.4. Execution Loop API - can be used only inside <code>execute_callback</code></h3>
+<ol>
+<li><code>void loop( func, [, label] )</code>:<ul>
+<li>executes the loop until <code>as.break()</code> is called;</li>
+<li><code>func( as )</code> - the loop body;</li>
+<li><code>label</code> - am optional label to use for <code>as.break()</code> and <code>as.continue()</code> in inner loops.</li>
+</ul>
+</li>
+<li><code>void forEach( map|list, func [, label] )</code>:<ul>
+<li>for each <code>map</code> or <code>list</code> element, call <code>func( as, key, value )</code>;</li>
+<li><code>func( as, key, value )</code> - the loop body;</li>
+<li><code>label</code> - an optional label to use for <code>as.break()</code> and <code>as.continue()</code> in inner loops.</li>
+</ul>
+</li>
+<li><code>void repeat( count, func [, label] )</code>:<ul>
+<li>calls <code>func(as, i)</code> for <code>count</code> times;</li>
+<li><code>count</code> - how many times to call the <code>func</code>;</li>
+<li><code>func( as, i )</code> - the loop body, i - current iteration starting from <code>0</code>;</li>
+<li><code>label</code> - an optional label to use for <code>as.break()</code> and <code>as.continue()</code> in inner loops.</li>
+</ul>
+</li>
+<li><code>void break( [label] )</code>:<ul>
+<li>breaks execution of current loop;</li>
+<li>also raises a special exception which gets handled by <code>AsyncSteps</code> internally;</li>
+<li><code>label</code> - unwinds nested loops, until <code>label</code> named loop is exited.</li>
+</ul>
+</li>
+<li><code>void continue( [label] )</code>:<ul>
+<li>continue loop execution from the next iteration;</li>
+<li>also raises a special exception which gets handled by <code>AsyncSteps</code> internally;</li>
+<li><code>label</code> - break nested loops, until <code>label</code> named loop is found.</li>
+</ul>
+</li>
+</ol>
+<h3>2.3. <code>Mutex</code> class</h3>
+<ul>
+<li>It must implement <code>ISync</code> interface.</li>
+<li>Functions:<ul>
+<li><code>c-tor(unsigned integer max=1, unsigned integer max_queue=null)</code>:<ul>
+<li>sets the maximum number of parallel AsyncSteps entering the critical section;</li>
+<li><code>max_queue</code> - optionally, limit the queue length.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>2.4. <code>Throttle</code> class</h3>
+<ul>
+<li>It must implement <code>ISync</code> interface.</li>
+<li>Functions:<ul>
+<li><code>c-tor(unsigned integer max, unsigned integer period_ms=1000, unsigned integer max_queue=null)</code>:<ul>
+<li>sets the maximum number of the critical section entries within the given time period;</li>
+<li><code>period_ms</code> - the time period in milliseconds;</li>
+<li><code>max_queue</code> - optionally, limit the queue length.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>2.5. <code>Limiter</code> class</h3>
+<ul>
+<li>It must implement <code>ISync</code> interface.</li>
+<li>Functions:<ul>
+<li><code>c-tor(options)</code>:<ul>
+<li>Complex limit handling;</li>
+<li><code>options.concurrent=1</code> - the number maximum of concurrent flows;</li>
+<li><code>options.max_queue=0</code> - the number maximum of queued flows;</li>
+<li><code>options.rate=1</code> - the number maximum of the critical section entries in the given period;</li>
+<li><code>options.period_ms=1000</code> - the time period in milliseconds;</li>
+<li><code>options.burst=0</code> - the number maximum of queued flows for rate limiting.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>2.6. AsyncTool event loop interface</h3>
+<p>There is a strong assumption that AsyncSteps instances are executed in partial order by a common
+instance of event loop, with a historical name AsyncTool.</p>
+<p>There is an assumption that AsyncTool will be extended with Input/Output event support to act
+as a true reactor, but it may not be always possible.</p>
+<p>AsyncTool was not defined in previous versions of the specification while it was always existing
+because its interface is specific to technology. Below is only <strong>a general suggestion</strong>.</p>
+<ol>
+<li><code>Handle immediate( func )</code>:<ul>
+<li>schedule an immediate callback;</li>
+<li><code>func()</code> - general callback.</li>
+</ul>
+</li>
+<li><code>Handle deferred( delay, func )</code>:<ul>
+<li>schedule a callback with delay;</li>
+<li><code>delay</code> - typically time period in milliseconds;</li>
+<li><code>func()</code> - general callback.</li>
+</ul>
+</li>
+<li><code>bool is_same_thread()</code>:<ul>
+<li>check if current operating system thread is the same as the internal event loop's one;</li>
+<li>if applicable at all.</li>
+</ul>
+</li>
+<li><code>void cancel( handle )</code>:<ul>
+<li>cancel a previously scheduled callback;</li>
+<li>it should not be an error, if callback has been already executed;</li>
+<li>this method may be a part of the <code>Handle</code> object's interface.</li>
+</ul>
+</li>
+<li><code>void is_valid( handle )</code>:<ul>
+<li>an ability to check if the handle still refers to scheduled task;</li>
+<li>this method may be a part of the <code>Handle</code> object's interface.</li>
+</ul>
+</li>
+</ol>
+<h3>2.7. Universal binary interface</h3>
+<p>To achieve the initial goal of the FutoIn project - universal cross-technology interface, a certain
+minimal binary interface has to be defined to be passed as an ordinary memory pointer for the first
+parameter of callback functions, so any technology-specific solution could wrap that as necessary and
+allow mixing asynchronous step fragments written in different languages like C, C++, C#, ECMAScript,
+Java, Lua, Ruby, Rust and others in scope of a single asynchronous thread.</p>
+<p>As the base idea, Java Native Interface approach is taken, where a pointer to an abstract plain structure
+is passed. The first field of such structure is a pointer to a table of plain C functions, each API
+functions also assumes to get the pointer to the structure as the first parameter. C++ virtual table
+is also working similar way.</p>
+<p>Plain ISO C is supported one way or another in almost every technology to create bindings and other type
+of glue functionality. Therefore, it is used to describe the binary interface with assumption of
+only standard platform-defined paddings and pointer sizes while all API callbacks use the standard
+platform-defined calling convention.</p>
+<p>There are certain limitations as it is problematic to guarantee type safety without significant overhead,
+so binary interface user must be more aware of what is being done. State access is split into two API
+functions which operate over abstract <code>void</code> pointers.</p>
+<h4>2.7.1. Binary data</h4>
+<p>Binary data interface is used to pass <code>execute_callback</code> arguments between technologies. Directly
+are supported:</p>
+<ol>
+<li>all ISO C primitive integers, floating point and boolean types,</li>
+<li>single dimension dynamic arrays(vectors) of such types,</li>
+<li>8-, 16- and 32-bit Unicode strings,</li>
+<li>custom technology-specific types.</li>
+</ol>
+<p>For efficiency reasons, complex types like vectors may be stored both in agnostic C format and
+as a technology-specific object instance. Therefore, binary value holding object supports
+cleanup callbacks to properly destroy such objects even from C or Assembly code.</p>
+<p>```c
+typedef struct FutoInBinaryValue_ FutoInBinaryValue;
+typedef struct FutoInType_ FutoInType;
+typedef uint8_t FutoInTypeFlags;</p>
+<p>enum
+{
+    FTN_TYPE_CUSTOM_OBJECT = 0x01,
+    FTN_TYPE_STRING = 0x02,
+    FTN_TYPE_STRING16 = 0x03,
+    FTN_TYPE_STRING32 = 0x04,
+    FTN_TYPE_BOOL = 0x05,
+    FTN_TYPE_INT8 = 0x06,
+    FTN_TYPE_INT16 = 0x07,
+    FTN_TYPE_INT32 = 0x08,
+    FTN_TYPE_INT64 = 0x09,
+    FTN_TYPE_UINT8 = 0x0A,
+    FTN_TYPE_UINT16 = 0x0B,
+    FTN_TYPE_UINT32 = 0x0C,
+    FTN_TYPE_UINT64 = 0x0D,
+    FTN_TYPE_FLOAT = 0x0E,
+    FTN_TYPE_DOUBLE = 0x0F,
+    FTN_BASE_TYPE_MASK = 0x0F,
+    // --
+    FTN_TYPE_ARRAY = 0x10,
+    FTN_COMPLEX_TYPE_MASK = 0xF0,
+};</p>
+<p>struct FutoInType_
+{
+    const FutoInTypeFlags flags;
+    void (<em>const cleanup)(FutoInBinaryValue</em> v);
+    // NOTE: extendable by implementation
+};</p>
+<p>struct FutoInBinaryValue_
+{
+    const FutoInType<em> type;
+    union
+    {
+        const void</em> p;
+        const char<em> cstr;
+        const char16_t</em> cstr16;
+        const char32_t<em> cstr32;
+        bool b;
+        int8_t i8;
+        int16_t i16;
+        int32_t i32;
+        int64_t i64;
+        uint8_t u8;
+        uint16_t u16;
+        uint32_t u32;
+        uint64_t u64;
+        float f;
+        double d;
+    };
+    void</em> custom_data;
+    uint32_t length;
+};</p>
+<p>static inline void futoin_reset_binval(FutoInBinaryValue<em> v)
+{
+    auto tp = v-&gt;type;
+    if (tp) {
+        auto</em> f = tp-&gt;cleanup;
+        if (f) {
+            f(v);
+        }
+    }</p>
+<pre><code>v-&gt;type = 0;
+v-&gt;u64 = 0;
+v-&gt;custom_data = 0;
+v-&gt;length = 0;
+</code></pre>
+<p>}
+```</p>
+<h4>2.7.2. Binary AsyncSteps interface</h4>
+<p>Binary interface has a maximum limit of 4 custom arguments according to the industry best practices.
+Thefore, argument object is a collection of 4 binary value holders.</p>
+<p>Binary interface is inspired by a typical C++ vtable and Java Native Interface specification.
+It is assumed that a pointer to an agnostic <code>FutoInAsyncSteps</code> structure is passed instead
+of technology-specific interface object. Such structure has the first field of a pointer to a function
+table. Each function receives the same pointer to the structure as the first argument. There may
+be additional implementation-defined fields. Therefore, business logic code must not assume that
+it knows actual size of such structure.</p>
+<p>Unlike most of traditional cases, ISO C11 does not support exceptions and that imposes some restrictions
+and duties for business logic. For example, raising errors requires returning from the handler function
+manually.</p>
+<p>The meaning of functions is the same, except additional <code>data</code> and similar arguments may be added to
+bind dynamic data to callbacks user-defined way.</p>
+<p>The function table is also extended with AsyncTool interface for convenience.</p>
+<p>```c
+typedef struct FutoInAsyncStepsAPI_ FutoInAsyncStepsAPI;
+typedef struct FutoInAsyncSteps_ FutoInAsyncSteps;
+typedef struct FutoInSyncAPI_ FutoInSyncAPI;
+typedef struct FutoInSync_ FutoInSync;
+typedef struct FutoInArgs_ FutoInArgs;
+typedef struct FutoInHandle_ FutoInHandle;</p>
+<p>struct FutoInArgs_
+{
+    union
+    {
+        struct
+        {
+            FutoInBinaryValue arg0;
+            FutoInBinaryValue arg1;
+            FutoInBinaryValue arg2;
+            FutoInBinaryValue arg3;
+        };
+        FutoInBinaryValue args[4];
+    };
+};</p>
+<p>struct FutoInHandle_
+{
+    void<em> data1;
+    void</em> data2;
+    ptrdiff_t data3;
+};</p>
+<p>typedef void (<em>FutoInAsyncSteps_execute_callback)(
+        FutoInAsyncSteps</em> bsi, void<em> data, const FutoInArgs</em> args);
+typedef void (<em>FutoInAsyncSteps_error_callback)(
+        FutoInAsyncSteps</em> bsi, void<em> data, const char</em> code);
+typedef void (<em>FutoInAsyncSteps_cancel_callback)(
+        FutoInAsyncSteps</em> bsi, void* data);</p>
+<p>struct FutoInAsyncStepsAPI_
+{
+    union
+    {
+        struct
+        {
+            // Index 0
+            void (<em>add)(
+                    FutoInAsyncSteps</em> bsi,
+                    void<em> data,
+                    FutoInAsyncSteps_execute_callback f,
+                    FutoInAsyncSteps_error_callback eh);
+            // Index 1
+            FutoInAsyncSteps</em> (<em>parallel)(
+                    FutoInAsyncSteps</em> bsi,
+                    void<em> data,
+                    FutoInAsyncSteps_error_callback eh);
+            // Index 2
+            void</em> (<em>stateVariable)(
+                    FutoInAsyncSteps</em> bsi,
+                    void<em> data,
+                    const char</em> name,
+                    void<em> (</em>allocate)(void<em> data),
+                    void (</em>cleanup)(void<em> data, void</em> value));
+            // Index 3
+            void<em> (</em>stack)(
+                    FutoInAsyncSteps<em> bsi,
+                    size_t data_size,
+                    void (</em>cleanup)(void<em> value));
+            // Index 4
+            void (</em>success)(FutoInAsyncSteps<em> bsi, FutoInArgs</em> args);
+            // Index 5
+            void (<em>handle_error)(
+                    FutoInAsyncSteps</em> bsi, const char<em> code, const char</em> info);
+            // Index 6
+            void (<em>setTimeout)(FutoInAsyncSteps</em> bsi, uint32_t timeout_ms);
+            // Index 7
+            void (<em>setCancel)(
+                    FutoInAsyncSteps</em> bsi,
+                    void<em> data,
+                    FutoInAsyncSteps_cancel_callback ch);
+            // Index 8
+            void (</em>waitExternal)(FutoInAsyncSteps<em> bsi);
+            // Index 9
+            void (</em>loop)(
+                    FutoInAsyncSteps<em> bsi,
+                    void</em> data,
+                    void (<em>f)(FutoInAsyncSteps</em> bsi, void<em> data),
+                    const char</em> label);
+            // Index 10
+            void (<em>repeat)(
+                    FutoInAsyncSteps</em> bsi,
+                    void<em> data,
+                    size_t count,
+                    void (</em>f)(FutoInAsyncSteps<em> bsi, void</em> data, size_t i),
+                    const char<em> label);
+            // Index 11
+            void (</em>breakLoop)(FutoInAsyncSteps<em> bsi, const char</em> label);
+            // Index 12
+            void (<em>continueLoop)(FutoInAsyncSteps</em> bsi, const char<em> label);
+            // Index 13
+            void (</em>execute)(
+                    FutoInAsyncSteps<em> bsi,
+                    void</em> data,
+                    FutoInAsyncSteps_error_callback unhandled_error);
+            // Index 14
+            void (<em>cancel)(FutoInAsyncSteps</em> bsi);
+            // Index 15
+            void (<em>addSync)(
+                    FutoInAsyncSteps</em> bsi,
+                    FutoInSync<em> sync,
+                    void</em> data,
+                    FutoInAsyncSteps_execute_callback f,
+                    FutoInAsyncSteps_error_callback eh);
+            // Index 16
+            ptrdiff_t (<em>rootId)(FutoInAsyncSteps</em> bsi);
+            // Index 17
+            int (<em>isValid)(FutoInAsyncSteps</em> bsi);
+            // Index 18
+            FutoInAsyncSteps<em> (</em>newInstance)(FutoInAsyncSteps<em> bsi);
+            // Index 19
+            void (</em>free)(FutoInAsyncSteps<em> bsi);
+            // Index 20
+            FutoInHandle (</em>sched_immediate)(
+                    FutoInAsyncSteps<em> bsi, void</em> data, void (<em>cb)(void</em> data));
+            // Index 21
+            FutoInHandle (<em>sched_deferred)(
+                    FutoInAsyncSteps</em> bsi,
+                    uint32_t delay_ms,
+                    void<em> data,
+                    void (</em>cb)(void<em> data));
+            // Index 22
+            void (</em>sched_cancel)(FutoInAsyncSteps<em> bsi, FutoInHandle</em> handle);
+            // Index 23
+            int (<em>sched_is_valid)(FutoInAsyncSteps</em> bsi, FutoInHandle<em> handle);
+            // Index 24
+            int (</em>is_same_thread)(FutoInAsyncSteps<em> bsi);
+        };
+        void</em> funcs[25];
+    };
+    // NOTE: extendable by implementation
+};
+struct FutoInAsyncSteps_
+{</p>
+<h1>ifdef __cplusplus</h1>
+<pre><code>FutoInAsyncSteps_(const FutoInAsyncStepsAPI* api) noexcept : api(api) {}
+</code></pre>
+<h1>endif</h1>
+<pre><code>const FutoInAsyncStepsAPI* const api;
+// NOTE: extendable by implementation
+</code></pre>
+<p>};
+```</p>
+<h4>2.7.3. Binary synchronization primitive's interface</h4>
+<p>Synchronization object interface is defined separately from the AsyncSteps one as
+it is quite possible that AsyncSteps may be implemented in one technology while the
+synchronization object is implemented in an absolutely different one.</p>
+<p>```c
+struct FutoInSyncAPI_
+{
+    union
+    {
+        struct
+        {
+            // Index 0
+            void (<em>lock)(FutoInAsyncSteps</em> bsi, FutoInSync<em> sync);
+            // Index 1
+            void (</em>unlock)(FutoInAsyncSteps<em> bsi, FutoInSync</em> sync);
+        };
+        void* funcs[2];
+    };
+    // NOTE: extendable by implementation
+};
+struct FutoInSync_
+{</p>
+<h1>ifdef __cplusplus</h1>
+<pre><code>FutoInSync_() noexcept : api(nullptr) {}
+</code></pre>
+<h1>endif</h1>
+<pre><code>const FutoInSyncAPI* const api;
+// NOTE: extendable by implementation
+</code></pre>
+<p>};
+```</p>
+<h1>3. Examples</h1>
+<p>In pseudo-code.</p>
+<h2>3.1. Single-level steps</h2>
+<pre><code>AsyncStepsImpl as;
+
+as.add(
+    function( inner_as ){
+        if ( something )
+            inner_as.success( 1, 2 )
+        else
+            inner_as.error( NotImplemented )
+    },
+    function( inner_as, error ){
+        externalError( error );
+    }
+).add(
+    function( inner_as, res1, res2 ){
+        externalSuccess( res1, res2 );
+    },
+)
+</code></pre>
+<h2>3.2. Sub-steps</h2>
+<pre><code>AsyncStepsImpl as;
+
+as.add(
+    function( inner_as ){
+        inner_as.add(
+            function( inner2_as ){
+                if ( something )
+                    inner2_as.success( 1 )
+                else
+                    inner2_as.error( NotImplemented )
+            },
+            function( inner2_as, error )
+            {
+                log( "Spotted error " + error )
+                // continue with higher level error handlers
+            }
+        )
+        inner_as.add(
+            function( inner2_as, res1 ){
+                inner2_as.success( res1, 2 )
+            }
+        )
+    },
+    function( inner_as, error ){
+        externalError( error );
+    }
+).add(
+    function( inner_as, res1, res2 ){
+        externalSuccess( res1, res2 );
+    },
+)
+</code></pre>
+<h2>3.3. parallel() steps and state()</h2>
+<pre><code>AsyncStepsImpl as;
+
+as.add(
+    function( inner_as ){
+        inner_as.parallel().add(
+            function( inner2_as ){
+                inner2_as.state().parallel_1 = 1;
+            },
+            function( inner2_as, error )
+            {
+                log( "Spotted error " + error )
+                // continue with higher level error handlers
+            }
+        ).add(
+            function( inner2_as ){
+                inner2_as.state().parallel_2 = 2;
+            },
+            function( inner2_as, error )
+            {
+                inner2_as.state().parallel_2 = 0;
+                // ignore error
+            }
+        )
+    },
+    function( inner_as, error ){
+        externalError( error );
+    }
+).add(
+    function( inner_as, res1, res2 ){
+        externalSuccess(
+            as.state().parallel_1,
+            as.state().parallel_2
+        );
+    },
+)
+</code></pre>
+<h2>3.4. loops</h2>
+<pre><code>AsyncStepsImpl as;
+
+as.add(
+    function( as ){
+        as.repeat( 3, function( as, i ) {
+            print i;
+        } );
+
+        as.forEach( [ 1, 3, 3 ], function( as, k, v ) {
+            print k "=" v;
+        } );
+
+        as.forEach( as.state(), function( as, k, v ) {
+            print k "=" v;
+        } );
+    },
+)
+</code></pre>
+<h2>3.5. External event wait</h2>
+<pre><code>AsyncStepsImpl as;
+
+as.add(
+    function( as ){
+        as.waitExternal();
+
+        callSomeExternal( function(err) {
+            if (err)
+            {
+                try {
+                    as.error(err);
+                } catch {
+                    // ignore
+                }
+            }
+            else
+            {
+                as.success();
+            }
+        } );
+    },
+)
+</code></pre>
+<h2>3.6. Synchronization</h2>
+<pre><code>AsyncStepsImpl as;
+MutexImpl mutex(10);
+
+as.sync(
+    mutex,
+    function( as ){
+        // critical section with regular AsyncSteps
+    },
+)
+</code></pre>
+<p>=END OF SPEC=</p>
+</body></html>

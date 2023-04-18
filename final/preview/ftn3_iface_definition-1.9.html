@@ -293,7 +293,7 @@ in message multiplexing mode.</p>
 <li><em>CustomType</em> - any pre-defined custom type defined, inherited or imported
     in the same iface</li>
 </ul>
-<p><em>Note: <strong>null</strong> can be used only as placeholder in "default" values.</em></p>
+<p><em>Note: </em><em>null</em><em> can be used only as placeholder in "default" values.</em></p>
 <h3>1.8.1. Custom types</h3>
 <p>Each iface can define own types in the optional "types" fields.</p>
 <p>The types are inherited and imported. It is an error to redefine type in such case.</p>
@@ -429,8 +429,8 @@ from peer to peer (e.g. shared memory).</p>
 exchange transport protocol. It can be set per-function with <code>maxreqsize</code> and <code>maxrspsize</code> attributes.</p>
 <p>However, it is discouraged as it may jeopardize service stability.</p>
 <p>Units assumed:
-<em> 'B' - bytes
-</em> 'K' - Kilobytes - 1024 bytes
+* 'B' - bytes
+* 'K' - Kilobytes - 1024 bytes
 * 'M' - Megabytes - 1024 kilobytes</p>
 <p><em>Since: v1.8</em></p>
 <h2>1.11. On Behalf Of calls</h2>
@@ -787,7 +787,7 @@ is called through parent interface (it should ignore additional result variable 
 <p><em>Note: multiple interface inheritance is not supported at the moment</em></p>
 <p>Unfortunately, due to Executor's interface selection logic. The same base iface must not
 be used for inheritance of more than one derived interface within the same Executor instance.
-<em>The primary use of inheritance feature is to create reusable <strong>base implementation logic</strong>
+<em>The primary use of inheritance feature is to create reusable </em><em>base implementation logic</em><em>
 with customized extensions possible through derived interface.</em></p>
 <p>If only the interface itself, but not the implementation logic needs to be re-used then
 mixin/import feature is appropriate solution.</p>
