@@ -855,7 +855,7 @@ For efficiency reasons, complex types like vectors may be stored both in agnosti
 as a technology-specific object instance. Therefore, binary value holding object supports
 cleanup callbacks to properly destroy such objects even from C or Assembly code.
 
-```c
+``` c
 typedef struct FutoInBinaryValue_ FutoInBinaryValue;
 typedef struct FutoInType_ FutoInType;
 typedef uint8_t FutoInTypeFlags;
@@ -953,7 +953,7 @@ bind dynamic data to callbacks user-defined way.
 
 The function table is also extended with AsyncTool interface for convenience.
 
-```c
+``` c
 typedef struct FutoInAsyncStepsAPI_ FutoInAsyncStepsAPI;
 typedef struct FutoInAsyncSteps_ FutoInAsyncSteps;
 typedef struct FutoInSyncAPI_ FutoInSyncAPI;
@@ -1108,7 +1108,7 @@ Synchronization object interface is defined separately from the AsyncSteps one a
 it is quite possible that AsyncSteps may be implemented in one technology while the
 synchronization object is implemented in an absolutely different one.
 
-```c
+``` c
 struct FutoInSyncAPI_
 {
     union

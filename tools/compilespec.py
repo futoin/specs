@@ -258,7 +258,11 @@ def compilespec( spec_file ) :
     output_file.write( '<title>' + os.path.basename( spec_file ) + '</title>\n' )
     output_file.write( '<link rel="stylesheet" type="text/css" href="../../css/specs.css">\n' )
     output_file.write( '</head><body>\n' )
-    output_file.write( markdown.markdown( ''.join( text ), output_format='html5' ) )
+    output_file.write(
+            markdown.markdown(
+                    ''.join( text ),
+                    extensions=['fenced_code'],
+                    output_format='html5' ) )
     output_file.write( '\n</body></html>' )
     output_file.close()
     input_file.close()

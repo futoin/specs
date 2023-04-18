@@ -513,14 +513,16 @@ request rate. Therefore a special synchronization primitive <code>Limiter</code>
 <h3>1.12. Success step and result injection</h3>
 <p>Sometimes, it's required to return a value after inner steps are executed. It leads
 to code like:</p>
-<p><code>value = 123;
+<pre><code>    value = 123;
     as.add( subStep() );
-    as.add( (as) =&gt; as.success( value ) );</code></p>
+    as.add( (as) =&gt; as.success( value ) );
+</code></pre>
 <p>To optimize and make the code cleaner previously deprecated <code>as.successStep()</code> is
 returned. Example:</p>
-<p><code>value = 123;
+<pre><code>    value = 123;
     as.add( subStep() );
-    as.successStep( value );</code></p>
+    as.successStep( value );
+</code></pre>
 <h3>1.13. Promise/await integration</h3>
 <p>As Promises and <code>await</code> patterns become more and more popular in modern technologies,
 AsyncSteps should support them through <code>as.await(future_or_promise)</code> call.</p>
@@ -870,11 +872,11 @@ are supported:</p>
 <p>For efficiency reasons, complex types like vectors may be stored both in agnostic C format and
 as a technology-specific object instance. Therefore, binary value holding object supports
 cleanup callbacks to properly destroy such objects even from C or Assembly code.</p>
-<p>```c
-typedef struct FutoInBinaryValue_ FutoInBinaryValue;
+<pre><code class="language-c">typedef struct FutoInBinaryValue_ FutoInBinaryValue;
 typedef struct FutoInType_ FutoInType;
-typedef uint8_t FutoInTypeFlags;</p>
-<p>enum
+typedef uint8_t FutoInTypeFlags;
+
+enum
 {
     FTN_TYPE_CUSTOM_OBJECT = 0x01,
     FTN_TYPE_STRING = 0x02,
@@ -895,22 +897,24 @@ typedef uint8_t FutoInTypeFlags;</p>
     // --
     FTN_TYPE_ARRAY = 0x10,
     FTN_COMPLEX_TYPE_MASK = 0xF0,
-};</p>
-<p>struct FutoInType_
+};
+
+struct FutoInType_
 {
     const FutoInTypeFlags flags;
-    void (<em>const cleanup)(FutoInBinaryValue</em> v);
+    void (*const cleanup)(FutoInBinaryValue* v);
     // NOTE: extendable by implementation
-};</p>
-<p>struct FutoInBinaryValue_
+};
+
+struct FutoInBinaryValue_
 {
-    const FutoInType<em> type;
+    const FutoInType* type;
     union
     {
-        const void</em> p;
-        const char<em> cstr;
-        const char16_t</em> cstr16;
-        const char32_t<em> cstr32;
+        const void* p;
+        const char* cstr;
+        const char16_t* cstr16;
+        const char32_t* cstr32;
         bool b;
         int8_t i8;
         int16_t i16;
@@ -923,25 +927,26 @@ typedef uint8_t FutoInTypeFlags;</p>
         float f;
         double d;
     };
-    void</em> custom_data;
+    void* custom_data;
     uint32_t length;
-};</p>
-<p>static inline void futoin_reset_binval(FutoInBinaryValue<em> v)
+};
+
+static inline void futoin_reset_binval(FutoInBinaryValue* v)
 {
     auto tp = v-&gt;type;
     if (tp) {
-        auto</em> f = tp-&gt;cleanup;
+        auto* f = tp-&gt;cleanup;
         if (f) {
             f(v);
         }
-    }</p>
-<pre><code>v-&gt;type = 0;
-v-&gt;u64 = 0;
-v-&gt;custom_data = 0;
-v-&gt;length = 0;
+    }
+
+    v-&gt;type = 0;
+    v-&gt;u64 = 0;
+    v-&gt;custom_data = 0;
+    v-&gt;length = 0;
+}
 </code></pre>
-<p>}
-```</p>
 <h4>2.7.2. Binary AsyncSteps interface</h4>
 <p>Binary interface has a maximum limit of 4 custom arguments according to the industry best practices.
 Thefore, argument object is a collection of 4 binary value holders.</p>
@@ -957,14 +962,14 @@ manually.</p>
 <p>The meaning of functions is the same, except additional <code>data</code> and similar arguments may be added to
 bind dynamic data to callbacks user-defined way.</p>
 <p>The function table is also extended with AsyncTool interface for convenience.</p>
-<p>```c
-typedef struct FutoInAsyncStepsAPI_ FutoInAsyncStepsAPI;
+<pre><code class="language-c">typedef struct FutoInAsyncStepsAPI_ FutoInAsyncStepsAPI;
 typedef struct FutoInAsyncSteps_ FutoInAsyncSteps;
 typedef struct FutoInSyncAPI_ FutoInSyncAPI;
 typedef struct FutoInSync_ FutoInSync;
 typedef struct FutoInArgs_ FutoInArgs;
-typedef struct FutoInHandle_ FutoInHandle;</p>
-<p>struct FutoInArgs_
+typedef struct FutoInHandle_ FutoInHandle;
+
+struct FutoInArgs_
 {
     union
     {
@@ -977,163 +982,161 @@ typedef struct FutoInHandle_ FutoInHandle;</p>
         };
         FutoInBinaryValue args[4];
     };
-};</p>
-<p>struct FutoInHandle_
+};
+
+struct FutoInHandle_
 {
-    void<em> data1;
-    void</em> data2;
+    void* data1;
+    void* data2;
     ptrdiff_t data3;
-};</p>
-<p>typedef void (<em>FutoInAsyncSteps_execute_callback)(
-        FutoInAsyncSteps</em> bsi, void<em> data, const FutoInArgs</em> args);
-typedef void (<em>FutoInAsyncSteps_error_callback)(
-        FutoInAsyncSteps</em> bsi, void<em> data, const char</em> code);
-typedef void (<em>FutoInAsyncSteps_cancel_callback)(
-        FutoInAsyncSteps</em> bsi, void* data);</p>
-<p>struct FutoInAsyncStepsAPI_
+};
+
+typedef void (*FutoInAsyncSteps_execute_callback)(
+        FutoInAsyncSteps* bsi, void* data, const FutoInArgs* args);
+typedef void (*FutoInAsyncSteps_error_callback)(
+        FutoInAsyncSteps* bsi, void* data, const char* code);
+typedef void (*FutoInAsyncSteps_cancel_callback)(
+        FutoInAsyncSteps* bsi, void* data);
+
+struct FutoInAsyncStepsAPI_
 {
     union
     {
         struct
         {
             // Index 0
-            void (<em>add)(
-                    FutoInAsyncSteps</em> bsi,
-                    void<em> data,
+            void (*add)(
+                    FutoInAsyncSteps* bsi,
+                    void* data,
                     FutoInAsyncSteps_execute_callback f,
                     FutoInAsyncSteps_error_callback eh);
             // Index 1
-            FutoInAsyncSteps</em> (<em>parallel)(
-                    FutoInAsyncSteps</em> bsi,
-                    void<em> data,
+            FutoInAsyncSteps* (*parallel)(
+                    FutoInAsyncSteps* bsi,
+                    void* data,
                     FutoInAsyncSteps_error_callback eh);
             // Index 2
-            void</em> (<em>stateVariable)(
-                    FutoInAsyncSteps</em> bsi,
-                    void<em> data,
-                    const char</em> name,
-                    void<em> (</em>allocate)(void<em> data),
-                    void (</em>cleanup)(void<em> data, void</em> value));
+            void* (*stateVariable)(
+                    FutoInAsyncSteps* bsi,
+                    void* data,
+                    const char* name,
+                    void* (*allocate)(void* data),
+                    void (*cleanup)(void* data, void* value));
             // Index 3
-            void<em> (</em>stack)(
-                    FutoInAsyncSteps<em> bsi,
+            void* (*stack)(
+                    FutoInAsyncSteps* bsi,
                     size_t data_size,
-                    void (</em>cleanup)(void<em> value));
+                    void (*cleanup)(void* value));
             // Index 4
-            void (</em>success)(FutoInAsyncSteps<em> bsi, FutoInArgs</em> args);
+            void (*success)(FutoInAsyncSteps* bsi, FutoInArgs* args);
             // Index 5
-            void (<em>handle_error)(
-                    FutoInAsyncSteps</em> bsi, const char<em> code, const char</em> info);
+            void (*handle_error)(
+                    FutoInAsyncSteps* bsi, const char* code, const char* info);
             // Index 6
-            void (<em>setTimeout)(FutoInAsyncSteps</em> bsi, uint32_t timeout_ms);
+            void (*setTimeout)(FutoInAsyncSteps* bsi, uint32_t timeout_ms);
             // Index 7
-            void (<em>setCancel)(
-                    FutoInAsyncSteps</em> bsi,
-                    void<em> data,
+            void (*setCancel)(
+                    FutoInAsyncSteps* bsi,
+                    void* data,
                     FutoInAsyncSteps_cancel_callback ch);
             // Index 8
-            void (</em>waitExternal)(FutoInAsyncSteps<em> bsi);
+            void (*waitExternal)(FutoInAsyncSteps* bsi);
             // Index 9
-            void (</em>loop)(
-                    FutoInAsyncSteps<em> bsi,
-                    void</em> data,
-                    void (<em>f)(FutoInAsyncSteps</em> bsi, void<em> data),
-                    const char</em> label);
+            void (*loop)(
+                    FutoInAsyncSteps* bsi,
+                    void* data,
+                    void (*f)(FutoInAsyncSteps* bsi, void* data),
+                    const char* label);
             // Index 10
-            void (<em>repeat)(
-                    FutoInAsyncSteps</em> bsi,
-                    void<em> data,
+            void (*repeat)(
+                    FutoInAsyncSteps* bsi,
+                    void* data,
                     size_t count,
-                    void (</em>f)(FutoInAsyncSteps<em> bsi, void</em> data, size_t i),
-                    const char<em> label);
+                    void (*f)(FutoInAsyncSteps* bsi, void* data, size_t i),
+                    const char* label);
             // Index 11
-            void (</em>breakLoop)(FutoInAsyncSteps<em> bsi, const char</em> label);
+            void (*breakLoop)(FutoInAsyncSteps* bsi, const char* label);
             // Index 12
-            void (<em>continueLoop)(FutoInAsyncSteps</em> bsi, const char<em> label);
+            void (*continueLoop)(FutoInAsyncSteps* bsi, const char* label);
             // Index 13
-            void (</em>execute)(
-                    FutoInAsyncSteps<em> bsi,
-                    void</em> data,
+            void (*execute)(
+                    FutoInAsyncSteps* bsi,
+                    void* data,
                     FutoInAsyncSteps_error_callback unhandled_error);
             // Index 14
-            void (<em>cancel)(FutoInAsyncSteps</em> bsi);
+            void (*cancel)(FutoInAsyncSteps* bsi);
             // Index 15
-            void (<em>addSync)(
-                    FutoInAsyncSteps</em> bsi,
-                    FutoInSync<em> sync,
-                    void</em> data,
+            void (*addSync)(
+                    FutoInAsyncSteps* bsi,
+                    FutoInSync* sync,
+                    void* data,
                     FutoInAsyncSteps_execute_callback f,
                     FutoInAsyncSteps_error_callback eh);
             // Index 16
-            ptrdiff_t (<em>rootId)(FutoInAsyncSteps</em> bsi);
+            ptrdiff_t (*rootId)(FutoInAsyncSteps* bsi);
             // Index 17
-            int (<em>isValid)(FutoInAsyncSteps</em> bsi);
+            int (*isValid)(FutoInAsyncSteps* bsi);
             // Index 18
-            FutoInAsyncSteps<em> (</em>newInstance)(FutoInAsyncSteps<em> bsi);
+            FutoInAsyncSteps* (*newInstance)(FutoInAsyncSteps* bsi);
             // Index 19
-            void (</em>free)(FutoInAsyncSteps<em> bsi);
+            void (*free)(FutoInAsyncSteps* bsi);
             // Index 20
-            FutoInHandle (</em>sched_immediate)(
-                    FutoInAsyncSteps<em> bsi, void</em> data, void (<em>cb)(void</em> data));
+            FutoInHandle (*sched_immediate)(
+                    FutoInAsyncSteps* bsi, void* data, void (*cb)(void* data));
             // Index 21
-            FutoInHandle (<em>sched_deferred)(
-                    FutoInAsyncSteps</em> bsi,
+            FutoInHandle (*sched_deferred)(
+                    FutoInAsyncSteps* bsi,
                     uint32_t delay_ms,
-                    void<em> data,
-                    void (</em>cb)(void<em> data));
+                    void* data,
+                    void (*cb)(void* data));
             // Index 22
-            void (</em>sched_cancel)(FutoInAsyncSteps<em> bsi, FutoInHandle</em> handle);
+            void (*sched_cancel)(FutoInAsyncSteps* bsi, FutoInHandle* handle);
             // Index 23
-            int (<em>sched_is_valid)(FutoInAsyncSteps</em> bsi, FutoInHandle<em> handle);
+            int (*sched_is_valid)(FutoInAsyncSteps* bsi, FutoInHandle* handle);
             // Index 24
-            int (</em>is_same_thread)(FutoInAsyncSteps<em> bsi);
+            int (*is_same_thread)(FutoInAsyncSteps* bsi);
         };
-        void</em> funcs[25];
+        void* funcs[25];
     };
     // NOTE: extendable by implementation
 };
 struct FutoInAsyncSteps_
-{</p>
-<h1>ifdef __cplusplus</h1>
-<pre><code>FutoInAsyncSteps_(const FutoInAsyncStepsAPI* api) noexcept : api(api) {}
+{
+#ifdef __cplusplus
+    FutoInAsyncSteps_(const FutoInAsyncStepsAPI* api) noexcept : api(api) {}
+#endif
+    const FutoInAsyncStepsAPI* const api;
+    // NOTE: extendable by implementation
+};
 </code></pre>
-<h1>endif</h1>
-<pre><code>const FutoInAsyncStepsAPI* const api;
-// NOTE: extendable by implementation
-</code></pre>
-<p>};
-```</p>
 <h4>2.7.3. Binary synchronization primitive's interface</h4>
 <p>Synchronization object interface is defined separately from the AsyncSteps one as
 it is quite possible that AsyncSteps may be implemented in one technology while the
 synchronization object is implemented in an absolutely different one.</p>
-<p>```c
-struct FutoInSyncAPI_
+<pre><code class="language-c">struct FutoInSyncAPI_
 {
     union
     {
         struct
         {
             // Index 0
-            void (<em>lock)(FutoInAsyncSteps</em> bsi, FutoInSync<em> sync);
+            void (*lock)(FutoInAsyncSteps* bsi, FutoInSync* sync);
             // Index 1
-            void (</em>unlock)(FutoInAsyncSteps<em> bsi, FutoInSync</em> sync);
+            void (*unlock)(FutoInAsyncSteps* bsi, FutoInSync* sync);
         };
         void* funcs[2];
     };
     // NOTE: extendable by implementation
 };
 struct FutoInSync_
-{</p>
-<h1>ifdef __cplusplus</h1>
-<pre><code>FutoInSync_() noexcept : api(nullptr) {}
+{
+#ifdef __cplusplus
+    FutoInSync_() noexcept : api(nullptr) {}
+#endif
+    const FutoInSyncAPI* const api;
+    // NOTE: extendable by implementation
+};
 </code></pre>
-<h1>endif</h1>
-<pre><code>const FutoInSyncAPI* const api;
-// NOTE: extendable by implementation
-</code></pre>
-<p>};
-```</p>
 <h1>3. Examples</h1>
 <p>In pseudo-code.</p>
 <h2>3.1. Single-level steps</h2>
