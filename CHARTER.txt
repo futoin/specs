@@ -1,0 +1,42 @@
+
+FutoIn Charter
+--------------
+July 05, 2026
+
+1. FutoIn is a sovereign organization, created by its Founder, which can be
+   identified by the person with name Andrey Galkin, on August 10, 2013 at
+   00:18 UTC in Riga, city located on the Baltic Sea.
+
+2. For compatibility with various jurisdictions, FutoIn can be considered as an
+   independent Trust.
+
+3. "FutoIn", "FutoIn Trust", "FutoIn Project" and "FutoIn Foundation" can be
+   used interchangeably as the organization names.
+
+4. The Founder is rightful to represent the organization without limits, adjust
+   this Charter and define any other internal and external regulation
+   and ruling.
+
+5. The Founder's decision in FutoIn-related disputes is final and unappealable
+   in any other jurisdiction.
+
+6. FutoIn is automatically entrusted with copyright and all related intellectual
+   property rights of all FutoIn projects regardless of any other jurisdiction
+   regulations and original author intentions.
+
+7. FutoIn's purpose is to provide reusable concepts, detailed specifications,
+   reference implementations and other software solutions while bearing to
+   open source principles.
+
+8. FutoIn respects the original authorship of its projects and discourages any
+   type of disgrace or disrespect of the original ideas and intentions with
+   modifications, derived works and/or borrowed ideas without proper attribution
+   and/or without keeping the original copyright.
+
+9. All FutoIn projects are provided AS-IS, without any explicit or implicit
+   warranty of any kind, the users and integrators take full responsibility on
+   own account for any direct and indirect damages and losses.
+
+10. FutoIn can have various licenses, including non-free, and FutoIn is rightful
+    to lease licenses and collect royalty on behalf of FutoIn project authors.
+
