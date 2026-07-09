@@ -7,6 +7,7 @@
       "desc": "Informs Enclave of graceful shutdown of the channel"
     },
     "wipeOut": {
+      "result": "boolean",
       "desc": "Request Enclave to wipe out all its stored data"
     }
   },

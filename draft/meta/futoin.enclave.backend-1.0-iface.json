@@ -48,9 +48,13 @@
           "type": "SessionID",
           "desc": "Previous SessionID, if known",
           "default": null
-        }
+        },
+        "ts": "MicroTimestamp"
       },
       "result": "HelloResponse",
+      "throws": [
+        "TimeDrift"
+      ],
       "desc": "Initialize the communication channel"
     }
   },

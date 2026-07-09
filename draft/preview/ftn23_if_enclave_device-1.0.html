@@ -160,9 +160,13 @@ directly or inherited for custom extensions.</p>
                         "type": "SessionID",
                         "desc": "Previous SessionID, if known",
                         "default": null
-                    }
+                    },
+                    "ts": "MicroTimestamp"
                 },
                 "result": "HelloResponse",
+                "throws": [
+                    "TimeDrift"
+                ],
                 "desc": "Initialize the communication channel"
             }
         },
@@ -184,6 +188,7 @@ directly or inherited for custom extensions.</p>
                 "desc": "Informs Enclave of graceful shutdown of the channel"
             },
             "wipeOut": {
+                "result": "boolean",
                 "desc": "Request Enclave to wipe out all its stored data"
             }
         },

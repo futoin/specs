@@ -187,9 +187,13 @@ This is a base Backend iface from which custom interfaces should inherit.
                             "type": "SessionID",
                             "desc": "Previous SessionID, if known",
                             "default": null
-                        }
+                        },
+                        "ts": "MicroTimestamp"
                     },
                     "result": "HelloResponse",
+                    "throws": [
+                        "TimeDrift"
+                    ],
                     "desc": "Initialize the communication channel"
                 }
             },
@@ -217,6 +221,7 @@ This is a base Device iface from which custom interfaces should inherit.
                     "desc": "Informs Enclave of graceful shutdown of the channel"
                 },
                 "wipeOut": {
+                    "result": "boolean",
                     "desc": "Request Enclave to wipe out all its stored data"
                 }
             },
