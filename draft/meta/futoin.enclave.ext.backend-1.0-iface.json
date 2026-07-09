@@ -1,37 +1,27 @@
 {
-  "iface": "futoin.enclave.backend",
+  "iface": "futoin.enclave.ext.backend",
   "version": "1.0",
   "ftn3rev": "1.8",
-  "imports": [
-    "futoin.types:1.0"
-  ],
+  "inherit": "futoin.enclave.backend:1.0",
   "types": {
-    "DeviceID": {
-      "type": "UUIDB64",
-      "desc": "Enclave-generated Base64-encoded UUID of the device"
+    "TelemetryTraits": {
+      "type": "map",
+      "elemtype": "string",
+      "desc": "Implementation-defined telemetry"
     },
-    "InstanceID": {
-      "type": "UUIDB64",
-      "desc": "Enclave-generated Base64-encoded UUID of the current startup"
+    "DeviceConfig": {
+      "type": "map",
+      "elemtype": "string",
+      "desc": "Implementation-defined dynamic configuration"
     },
-    "PublicKey": {
-      "type": "Base64",
-      "minlen": 22,
-      "maxlen": 4096,
-      "desc": "Base64-encoded implementation-defined public key up to ML-DSA-87 with framing"
-    },
-    "SessionID": {
-      "type": "Base64",
-      "minlen": 22,
-      "maxlen": 64
-    },
-    "HelloResponse": {
+    "ExtHelloResponse": {
       "type": "map",
       "fields": {
         "sess_id": "SessionID",
-        "pub_key": {
-          "type": "PublicKey",
-          "desc": "Backend-generated PublicKey"
+        "pub_key": "PublicKey",
+        "cfg": {
+          "type": "DeviceConfig",
+          "optional": true
         }
       }
     }
@@ -50,9 +40,13 @@
           "desc": "Previous SessionID, if known",
           "default": null
         },
-        "ts": "MicroTimestamp"
+        "ts": "MicroTimestamp",
+        "traits": {
+          "type": "TelemetryTraits",
+          "default": null
+        }
       },
-      "result": "HelloResponse",
+      "result": "ExtHelloResponse",
       "throws": [
         "TimeDrift"
       ],

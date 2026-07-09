@@ -126,6 +126,13 @@ as casual support activities.
 Both ends of the communication channel should support standalone
 *FTN4: FutoIn Interface - Ping-Pong*.
 
+## 1.10. Extended Telemetry and Device Configuration
+
+While not being the fundamental part of enclave concept, the separate
+extension interfaces allow sending extended telemetry of the device and
+receiving up-to-date configuration from the Backend.
+
+
 # 2. Interface schema
 
 This specs defines Backend and Device base interfaces. Those can be used either
@@ -156,11 +163,12 @@ This is a base Backend iface from which custom interfaces should inherit.
                 "PublicKey": {
                     "type": "Base64",
                     "minlen": 22,
-                    "maxlen": 128,
-                    "desc": "Base64-encoded implementation-defined public key"
+                    "maxlen": 4096,
+                    "desc": "Base64-encoded implementation-defined public key up to ML-DSA-87 with framing"
                 },
                 "SessionID": {
-                    "type": "GenericIdentifier",
+                    "type": "Base64",
+                    "minlen": 22,
                     "maxlen": 64
                 },
                 "HelloResponse": {
@@ -231,6 +239,77 @@ This is a base Device iface from which custom interfaces should inherit.
                 "MessageSignature"
             ],
             "desc" : "Enclave Device interface"
+        }
+
+`}Iface`
+
+## 2.3. Extended Enclave Backend interface
+
+This interface has mostly demonstrative purpose as the real custom extension
+should have more specific types for strict checking.
+
+`Iface{`
+
+        {
+            "iface" : "futoin.enclave.ext.backend",
+            "version" : "{ver}",
+            "ftn3rev" : "1.8",
+            "inherit": "futoin.enclave.backend:{ver}",
+            "types": {
+                "TelemetryTraits": {
+                    "type": "map",
+                    "elemtype": "string",
+                    "desc": "Implementation-defined telemetry"
+                },
+                "DeviceConfig": {
+                    "type": "map",
+                    "elemtype": "string",
+                    "desc": "Implementation-defined dynamic configuration"
+                },
+                "ExtHelloResponse": {
+                    "type": "map",
+                    "fields": {
+                        "sess_id": "SessionID",
+                        "pub_key": "PublicKey",
+                        "cfg": {
+                            "type": "DeviceConfig",
+                            "optional": true
+                        }
+                    }
+                }
+            },
+            "funcs" : {
+                "hello": {
+                    "params": {
+                        "device_id": "DeviceID",
+                        "instance_id": "InstanceID",
+                        "pub_key": {
+                            "type": "PublicKey",
+                            "desc": "Enclave-generated execution environment-bound PublicKey"
+                        },
+                        "prev_sess_id": {
+                            "type": "SessionID",
+                            "desc": "Previous SessionID, if known",
+                            "default": null
+                        },
+                        "ts": "MicroTimestamp",
+                        "traits": {
+                            "type": "TelemetryTraits",
+                            "default": null
+                        }
+                    },
+                    "result": "ExtHelloResponse",
+                    "throws": [
+                        "TimeDrift"
+                    ],
+                    "desc": "Initialize the communication channel"
+                }
+            },
+            "requires" : [
+                "AllowAnonymous",
+                "SecureChannel"
+            ],
+            "desc" : "Enclave Backend interface"
         }
 
 `}Iface`
