@@ -1,0 +1,19 @@
+{
+  "iface": "futoin.enclave.device",
+  "version": "1.0",
+  "ftn3rev": "1.8",
+  "funcs": {
+    "shutdown": {
+      "desc": "Informs Enclave of graceful shutdown of the channel"
+    },
+    "wipeOut": {
+      "desc": "Request Enclave to wipe out all its stored data"
+    }
+  },
+  "requires": [
+    "AllowAnonymous",
+    "SecureChannel",
+    "MessageSignature"
+  ],
+  "desc": "Enclave Device interface"
+}

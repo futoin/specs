@@ -35,6 +35,7 @@ Authors: Andrey Galkin
     * [FTN8.7: End-to-End Encryption](./ftn8.7\_e2ee.md)
     * [FTN8.8: QA Requirements](./ftn8.8\_qa\_requirements.md)
 * [FTN13: Secure Vault](./ftn13\_secure\_vault.md)
+* [FTN23: FutoIn Enclave Device](./ftn23\_if\_enclave\_device.md)
 
 # 5. Interfaces
 ## 5.1. Core

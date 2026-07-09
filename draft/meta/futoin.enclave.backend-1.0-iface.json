@@ -1,0 +1,62 @@
+{
+  "iface": "futoin.enclave.backend",
+  "version": "1.0",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.types:1.0"
+  ],
+  "types": {
+    "DeviceID": {
+      "type": "UUIDB64",
+      "desc": "Enclave-generated Base64-encoded UUID of the device"
+    },
+    "InstanceID": {
+      "type": "UUIDB64",
+      "desc": "Enclave-generated Base64-encoded UUID of the current startup"
+    },
+    "PublicKey": {
+      "type": "Base64",
+      "minlen": 22,
+      "maxlen": 128,
+      "desc": "Base64-encoded implementation-defined public key"
+    },
+    "SessionID": {
+      "type": "GenericIdentifier",
+      "maxlen": 64
+    },
+    "HelloResponse": {
+      "type": "map",
+      "fields": {
+        "sess_id": "SessionID",
+        "pub_key": {
+          "type": "PublicKey",
+          "desc": "Backend-generated PublicKey"
+        }
+      }
+    }
+  },
+  "funcs": {
+    "hello": {
+      "params": {
+        "device_id": "DeviceID",
+        "instance_id": "InstanceID",
+        "pub_key": {
+          "type": "PublicKey",
+          "desc": "Enclave-generated execution environment-bound PublicKey"
+        },
+        "prev_sess_id": {
+          "type": "SessionID",
+          "desc": "Previous SessionID, if known",
+          "default": null
+        }
+      },
+      "result": "HelloResponse",
+      "desc": "Initialize the communication channel"
+    }
+  },
+  "requires": [
+    "AllowAnonymous",
+    "SecureChannel"
+  ],
+  "desc": "Enclave Backend interface"
+}
