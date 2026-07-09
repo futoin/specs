@@ -12,3 +12,22 @@ html {
 p, ul, ol {
     max-width: 50em;
 }
+
+nav {
+    padding: 1rem;
+}
+
+nav img {
+    vertical-align: middle;
+}
+
+nav a {
+    text-decoration: none;
+    margin-right: 3rem;
+}
+
+@media print {
+    nav {
+        display: none
+    }
+}
