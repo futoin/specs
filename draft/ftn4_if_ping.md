@@ -1,5 +1,5 @@
 <pre>
-FTN3: FutoIn Interface - Ping-Pong
+FTN4: FutoIn Interface - Ping-Pong
 Version: 1.0
 Date: 2017-07-22
 Copyright: 2015-2017 FutoIn Project (http://futoin.org)
@@ -7,6 +7,9 @@ Authors: Andrey Galkin
 </pre>
 
 # CHANGES
+
+* v1.0.1 - 2026-07-09 - Andrey Galkin
+    - FIXED: FTN4 typo in the header of the spec
 
 * v1.0 - 2017-07-22 - Andrey Galkin
     - Split into AllowAnonymous & secure
