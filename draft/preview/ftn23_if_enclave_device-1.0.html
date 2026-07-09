@@ -100,7 +100,10 @@ as casual support activities.</p>
 <p>Both ends of the communication channel should support standalone
 <em>FTN4: FutoIn Interface - Ping-Pong</em>.</p>
 <h1>2. Interface schema</h1>
+<p>This specs defines Backend and Device base interfaces. Those can be used either
+directly or inherited for custom extensions.</p>
 <h2>2.1. Enclave Backend interface</h2>
+<p>This is a base Backend iface from which custom interfaces should inherit.</p>
 <pre><code>    {
         "iface" : "futoin.enclave.backend",
         "version" : "{ver}",
@@ -165,7 +168,7 @@ as casual support activities.</p>
     }
 </code></pre>
 <h2>2.2. Enclave Device interface</h2>
-<p>This is a placeholder iface from which custom interfaces should inherit.</p>
+<p>This is a base Device iface from which custom interfaces should inherit.</p>
 <pre><code>    {
         "iface" : "futoin.enclave.device",
         "version" : "{ver}",

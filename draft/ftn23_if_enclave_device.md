@@ -128,7 +128,12 @@ Both ends of the communication channel should support standalone
 
 # 2. Interface schema
 
+This specs defines Backend and Device base interfaces. Those can be used either
+directly or inherited for custom extensions.
+
 ## 2.1. Enclave Backend interface
+
+This is a base Backend iface from which custom interfaces should inherit.
 
 `Iface{`
 
@@ -199,7 +204,7 @@ Both ends of the communication channel should support standalone
 
 ## 2.2. Enclave Device interface
 
-This is a placeholder iface from which custom interfaces should inherit.
+This is a base Device iface from which custom interfaces should inherit.
 
 `Iface{`
 
