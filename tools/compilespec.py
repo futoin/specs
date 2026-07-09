@@ -47,7 +47,7 @@ def compilespec( spec_file ) :
     json_text = []
     parsing_iface = False
     parsing_schema = False
-    schema_re = re.compile( '^`Schema\\(([a-z0-9\-_]+)\\){`$' )
+    schema_re = re.compile( '^`Schema\\(([a-z0-9\\-_]+)\\){`$' )
     curr_line = 1
     in_header = True
     spec_ver = ''
@@ -215,7 +215,7 @@ def compilespec( spec_file ) :
             
     #---
     if not end_of_spec_seen:
-        die( "Missing '=END OF SPEC='"  )
+        die( "Missing '=END OF SPEC=' in %s" % ( spec_file )  )
 
     #---
     html_ver_file = html_file.replace( '.html', '-' + spec_ver + '.html' )
