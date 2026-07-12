@@ -60,8 +60,9 @@
     }
   },
   "requires": [
-    "AllowAnonymous",
-    "SecureChannel"
+    "BiDirectChannel",
+    "SecureChannel",
+    "MessageSignature"
   ],
-  "desc": "Enclave Backend interface"
+  "desc": "FutoIn Enclave Backend interface"
 }

@@ -206,10 +206,11 @@ This is a base Backend iface from which custom interfaces should inherit.
                 }
             },
             "requires" : [
-                "AllowAnonymous",
-                "SecureChannel"
+                "BiDirectChannel",
+                "SecureChannel",
+                "MessageSignature"
             ],
-            "desc" : "Enclave Backend interface"
+            "desc" : "FutoIn Enclave Backend interface"
         }
 
 `}Iface`
@@ -234,11 +235,10 @@ This is a base Device iface from which custom interfaces should inherit.
                 }
             },
             "requires" : [
-                "AllowAnonymous",
                 "SecureChannel",
                 "MessageSignature"
             ],
-            "desc" : "Enclave Device interface"
+            "desc" : "FutoIn Enclave Device interface"
         }
 
 `}Iface`
@@ -306,10 +306,11 @@ should have more specific types for strict checking.
                 }
             },
             "requires" : [
-                "AllowAnonymous",
-                "SecureChannel"
+                "BiDirectChannel",
+                "SecureChannel",
+                "MessageSignature"
             ],
-            "desc" : "Enclave Backend interface"
+            "desc" : "FutoIn Enclave Extended Backend interface"
         }
 
 `}Iface`

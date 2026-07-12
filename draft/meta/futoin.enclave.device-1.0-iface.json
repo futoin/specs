@@ -12,9 +12,8 @@
     }
   },
   "requires": [
-    "AllowAnonymous",
     "SecureChannel",
     "MessageSignature"
   ],
-  "desc": "Enclave Device interface"
+  "desc": "FutoIn Enclave Device interface"
 }

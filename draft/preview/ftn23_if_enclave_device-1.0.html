@@ -176,10 +176,11 @@ directly or inherited for custom extensions.</p>
             }
         },
         "requires" : [
-            "AllowAnonymous",
-            "SecureChannel"
+            "BiDirectChannel",
+            "SecureChannel",
+            "MessageSignature"
         ],
-        "desc" : "Enclave Backend interface"
+        "desc" : "FutoIn Enclave Backend interface"
     }
 </code></pre>
 <h2>2.2. Enclave Device interface</h2>
@@ -198,11 +199,10 @@ directly or inherited for custom extensions.</p>
             }
         },
         "requires" : [
-            "AllowAnonymous",
             "SecureChannel",
             "MessageSignature"
         ],
-        "desc" : "Enclave Device interface"
+        "desc" : "FutoIn Enclave Device interface"
     }
 </code></pre>
 <h2>2.3. Extended Enclave Backend interface</h2>
@@ -264,10 +264,11 @@ should have more specific types for strict checking.</p>
             }
         },
         "requires" : [
-            "AllowAnonymous",
-            "SecureChannel"
+            "BiDirectChannel",
+            "SecureChannel",
+            "MessageSignature"
         ],
-        "desc" : "Enclave Backend interface"
+        "desc" : "FutoIn Enclave Extended Backend interface"
     }
 </code></pre>
 <p>=END OF SPEC=</p>
