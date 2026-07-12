@@ -130,6 +130,27 @@ instead of timeouts, which are relative and cannot be reliably calculated in
 distribution systems.</p>
 <p>Device action on current context expiration is to send "action" request with
 predefined <code>Expired</code> as action ID to receive new UI Flow instructions.</p>
+<h2>1.7. Predefined Process, Screen and Action IDs</h2>
+<p>The following predefined Processes IDs exist:</p>
+<ul>
+<li><code>Home</code> - the home screen process in the device;</li>
+<li><code>Register</code> - the enrollment of the device process;</li>
+<li><code>SignIn</code> - the authentication on the device process;</li>
+</ul>
+<p>The following predefined Screen IDs exist:</p>
+<ul>
+<li><code>Home</code> - used in combination with the <code>Home</code> process, landing screen;</li>
+<li><code>Transition</code> - a placeholder type of screens;</li>
+<li><code>Error</code> - normal error condition;</li>
+<li><code>Failure</code> - unexpected type of problem;</li>
+</ul>
+<p>The following predefined Action IDs exist:</p>
+<ul>
+<li><code>Expired</code> - when current time reaches Process Context <code>expires</code> timestamp;</li>
+<li><code>Next</code> - general continuation action (button);</li>
+<li><code>Back</code> - general return action (button);</li>
+<li><code>Cancel</code> - general cancellation action (button);</li>
+</ul>
 <h1>2. Interface schema</h1>
 <p>This specs defines Backend and Device base interfaces. Those can be used either
 directly or inherited for custom extensions.</p>

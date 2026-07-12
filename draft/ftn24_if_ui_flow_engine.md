@@ -154,6 +154,30 @@ distribution systems.
 Device action on current context expiration is to send "action" request with
 predefined `Expired` as action ID to receive new UI Flow instructions.
 
+## 1.7. Predefined Process, Screen and Action IDs
+
+The following predefined Processes IDs exist:
+
+- `Home` - the home screen process in the device;
+- `Register` - the enrollment of the device process;
+- `SignIn` - the authentication on the device process;
+
+The following predefined Screen IDs exist:
+
+- `Home` - used in combination with the `Home` process, landing screen;
+- `Transition` - a placeholder type of screens;
+- `Error` - normal error condition;
+- `Failure` - unexpected type of problem;
+
+The following predefined Action IDs exist:
+
+- `Expired` - when current time reaches Process Context `expires` timestamp;
+- `Next` - general continuation action (button);
+- `Back` - general return action (button);
+- `Cancel` - general cancellation action (button);
+
+
+
 # 2. Interface schema
 
 This specs defines Backend and Device base interfaces. Those can be used either
