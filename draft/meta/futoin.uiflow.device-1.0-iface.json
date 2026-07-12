@@ -1,0 +1,21 @@
+{
+  "iface": "futoin.uiflow.device",
+  "version": "1.0",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.uiflow.types:1.0"
+  ],
+  "funcs": {
+    "context": {
+      "params": {
+        "context": "ProcessContext"
+      },
+      "desc": "Out-of-band update of the Device with new state"
+    }
+  },
+  "requires": [
+    "SecureChannel",
+    "MessageSignature"
+  ],
+  "desc": "UI Flow Device interface"
+}

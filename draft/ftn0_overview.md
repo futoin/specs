@@ -44,6 +44,7 @@ Authors: Andrey Galkin
 * [FTN9: Audit Log](./ftn9\_if\_auditlog.md)
 * [FTN17: Database](./ftn17\_if\_database.md)
 * [FTN18: Event Stream](./ftn18\_if\_eventstream.md)
+* [FTN24: FutoIn UI Flow Engine](./ftn24_if_ui_flow_engine.md)
 
 ## 5.2. Financial Transactions
 * [FTN19: Transaction Engine](./ftn19\_if\_xfer\_engine.md)

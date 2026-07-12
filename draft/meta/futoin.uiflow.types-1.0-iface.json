@@ -1,0 +1,51 @@
+{
+  "iface": "futoin.uiflow.types",
+  "version": "1.0",
+  "ftn3rev": "1.8",
+  "imports": [
+    "futoin.types:1.0"
+  ],
+  "types": {
+    "ScreenID": {
+      "type": "GenericIdentifier",
+      "minlen": 1,
+      "maxlen": 64
+    },
+    "ProcessID": {
+      "type": "GenericIdentifier",
+      "minlen": 1,
+      "maxlen": 64
+    },
+    "ActionID": {
+      "type": "GenericIdentifier",
+      "minlen": 1,
+      "maxlen": 64
+    },
+    "GenericProperties": {
+      "type": "map",
+      "elemtype": "any"
+    },
+    "ProcessContext": {
+      "type": "map",
+      "fields": {
+        "lang": "FTNLocale",
+        "expires": "Timestamp",
+        "user_props": {
+          "type": "GenericProperties",
+          "optional": true
+        },
+        "process": "ProcessID",
+        "process_props": {
+          "type": "GenericProperties",
+          "optional": true
+        },
+        "screen": "ScreenID",
+        "screen_props": {
+          "type": "GenericProperties",
+          "optional": true
+        }
+      }
+    }
+  },
+  "desc": "FutoIn UI Flow common types"
+}
