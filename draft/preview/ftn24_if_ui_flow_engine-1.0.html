@@ -156,7 +156,15 @@ instructions.</p>
 <li><code>Next</code> - a general continuation action (button);</li>
 <li><code>Back</code> - a general return action (button);</li>
 <li><code>Cancel</code> - a general cancellation action (button);</li>
+<li><code>UnknownPage</code> - a code to inform Backend of unsupported native screen;</li>
 </ul>
+<h2>1.8. WebView Fallback Logic concept</h2>
+<p>Whenever the Application receives instruction for a Process or a Screen it does
+not support. It must immediately inform the Backend with an <code>action</code> call using
+the <code>UnknownPage</code> code.</p>
+<p>The Backend's behavior is to request rendering of the same screen via WebView
+instead of embedded code. Therefore, all applications should support WebView
+rendering of pages even if those are not present in the original requirements.</p>
 <h1>2. Interface schema</h1>
 <p>This specs defines Backend and Device base interfaces. Those can be used either
 directly or inherited for custom extensions.</p>

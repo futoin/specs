@@ -181,7 +181,17 @@ The following predefined Action IDs exist:
 - `Next` - a general continuation action (button);
 - `Back` - a general return action (button);
 - `Cancel` - a general cancellation action (button);
+- `UnknownPage` - a code to inform Backend of unsupported native screen;
 
+## 1.8. WebView Fallback Logic concept
+
+Whenever the Application receives instruction for a Process or a Screen it does
+not support. It must immediately inform the Backend with an `action` call using
+the `UnknownPage` code.
+
+The Backend's behavior is to request rendering of the same screen via WebView
+instead of embedded code. Therefore, all applications should support WebView
+rendering of pages even if those are not present in the original requirements.
 
 
 # 2. Interface schema
