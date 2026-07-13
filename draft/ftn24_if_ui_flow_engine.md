@@ -74,9 +74,9 @@ that should temporary override the Backend flow when the features are activated.
 
 ## 1.2. Process Context concept
 
-The context consists a subset of process and user data. The Application must not
-receive the full context with possible sensitive information like risk factors
-and other signals.
+The context consists of a subset of process and user data. The Application must
+not receive the full context with possible sensitive information like risk
+factors and other signals.
 
 User data subset consists of important for UI/UX properties like greeting name,
 current language, accessibility settings, and others.
@@ -185,9 +185,9 @@ The following predefined Action IDs exist:
 
 ## 1.8. WebView Fallback Logic concept
 
-Whenever the Application receives instruction for a Process or a Screen it does
-not support. It must immediately inform the Backend with an `action` call using
-the `UnknownPage` code.
+Whenever the Application receives instruction for a Process or a Screen, which
+it does not support. It must immediately inform the Backend with an `action`
+call using the `UnknownPage` code.
 
 The Backend's behavior is to request rendering of the same screen via WebView
 instead of embedded code. Therefore, all applications should support WebView

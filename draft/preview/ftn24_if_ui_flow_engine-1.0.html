@@ -72,9 +72,9 @@ instructions.</p>
 <p>There is one exception - application-specific settings and similar features
 that should temporary override the Backend flow when the features are activated.</p>
 <h2>1.2. Process Context concept</h2>
-<p>The context consists a subset of process and user data. The Application must not
-receive the full context with possible sensitive information like risk factors
-and other signals.</p>
+<p>The context consists of a subset of process and user data. The Application must
+not receive the full context with possible sensitive information like risk
+factors and other signals.</p>
 <p>User data subset consists of important for UI/UX properties like greeting name,
 current language, accessibility settings, and others.</p>
 <p>Process data subset consists of the current screen to show, its dynamic
@@ -159,9 +159,9 @@ instructions.</p>
 <li><code>UnknownPage</code> - a code to inform Backend of unsupported native screen;</li>
 </ul>
 <h2>1.8. WebView Fallback Logic concept</h2>
-<p>Whenever the Application receives instruction for a Process or a Screen it does
-not support. It must immediately inform the Backend with an <code>action</code> call using
-the <code>UnknownPage</code> code.</p>
+<p>Whenever the Application receives instruction for a Process or a Screen, which
+it does not support. It must immediately inform the Backend with an <code>action</code>
+call using the <code>UnknownPage</code> code.</p>
 <p>The Backend's behavior is to request rendering of the same screen via WebView
 instead of embedded code. Therefore, all applications should support WebView
 rendering of pages even if those are not present in the original requirements.</p>
