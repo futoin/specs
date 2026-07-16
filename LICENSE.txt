@@ -7,7 +7,7 @@
 The principles of the license are based on values and intentions defined in the
 FutoIn Charter.
 
-Given the following listed provisions and intentions are obeyed,
+Given that the following listed provisions and intentions are obeyed,
 
     a) the copyright notice and the license must be retained and demonstrated
        among other licenses in all possible activities with the subject of the
@@ -23,7 +23,7 @@ Given the following listed provisions and intentions are obeyed,
        uses that for rendering services when the work is the reason, the essence
        for receiving gains or income unless defined by a separate agreement;
 
-    d) in case of modifications any authorship, copyright and/or intellectual
+    d) in case of modifications, any authorship, copyright and/or intellectual
        property rights for the changes are automatically transferred to the
        FutoIn Project with irrevocable royalty-free license for use of any
        patent, related to such modifications;
@@ -35,9 +35,9 @@ Given the following listed provisions and intentions are obeyed,
     f) the subject of the license is provided AS-IS, without any explicit or
        implicit warranty, even that which could be expected by traditions,
        custom, legislation or any other means, without any liability of the
-       authors or the copyrights holders in any event;
+       authors or the copyright holders in any event;
 
-permission is hereby granted, free of charge, to any person obtaining the copy
+permission is hereby granted, free of charge, to any person obtaining a copy
 of the subject of the license to use, copy, modify without breaking the idea's
 integrity and without disgracing the original work, redistribute in any form,
-and bundle as utilitarian part of either free or commercial product.
+and bundle as a utilitarian part of either a free or commercial product.
