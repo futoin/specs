@@ -193,6 +193,27 @@ The Backend's behavior is to request rendering of the same screen via WebView
 instead of embedded code. Therefore, all applications should support WebView
 rendering of pages even if those are not present in the original requirements.
 
+## 1.9. Return to Previous Screens
+
+Sometimes, users want to change input made on previous screens. This spec
+suggests two main options:
+
+    a) removal of input data from the Process Context, while previous data is
+       saved for input default;
+    b) forcing showing of the specific screen without Process Conext
+       modifications, but using the current values as input defaults.
+
+Both approaches are valid. The former moves ensures that user is presented with
+the screen even after refreshes and reloads as the input data is no longer
+present in the context. The latter allows the process to continue without user's
+input reentry or reconfirmation.
+
+It is suggested that return is targeted for a specific action instead of
+generalized "Back" button. In case general "Back" is desired, the stack of input
+screens should be maintained inside the Process Context for navigational
+purposes. However, such approach has caveats if the sequence of screens depends
+on input of the previous screens.
+
 
 # 2. Interface schema
 
