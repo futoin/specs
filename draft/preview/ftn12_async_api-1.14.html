@@ -13,13 +13,17 @@
 <pre>
 FTN12: FutoIn Async API
 Version: 1.14
-Date: 2023-03-29
+Date: 2026-07-27
 Copyright: 2014-2023 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 <h1>CHANGES</h1>
 <ul>
+<li>v1.14.1 - 2026-07-27 - Andrey Galkin<ul>
+<li>FIXED: is_valid() return type</li>
+</ul>
+</li>
 <li>v1.14 - 2023-03-29 - Andrey Galkin<ul>
 <li>FIXED: minor wording and grammar fixes</li>
 <li>NEW: universal binary interface</li>
@@ -843,7 +847,7 @@ because its interface is specific to technology. Below is only <strong>a general
 <li>this method may be a part of the <code>Handle</code> object's interface.</li>
 </ul>
 </li>
-<li><code>void is_valid( handle )</code>:<ul>
+<li><code>bool is_valid( handle )</code>:<ul>
 <li>an ability to check if the handle still refers to scheduled task;</li>
 <li>this method may be a part of the <code>Handle</code> object's interface.</li>
 </ul>

@@ -1,13 +1,15 @@
 <pre>
 FTN12: FutoIn Async API
 Version: 1.14
-Date: 2023-03-29
+Date: 2026-07-27
 Copyright: 2014-2023 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.14.1 - 2026-07-27 - Andrey Galkin
+    * FIXED: is_valid() return type
 * v1.14 - 2023-03-29 - Andrey Galkin
     * FIXED: minor wording and grammar fixes
     * NEW: universal binary interface
@@ -815,7 +817,7 @@ because its interface is specific to technology. Below is only **a general sugge
     - cancel a previously scheduled callback;
     - it should not be an error, if callback has been already executed;
     - this method may be a part of the `Handle` object's interface.
-1. `void is_valid( handle )`:
+1. `bool is_valid( handle )`:
     - an ability to check if the handle still refers to scheduled task;
     - this method may be a part of the `Handle` object's interface.
 
