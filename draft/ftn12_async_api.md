@@ -10,6 +10,7 @@ Authors: Andrey Galkin
 
 * v1.15 - 2026-08-11 - Andrey Galkin
     * NEW: asi.errorNoThrow() API
+    * NEW: asi.breakNoThrow() and asi.continueNoThrow() API
     * CHANGED: revised the spec text, also with meaningful changes:
         - deprecated the `asi.copyFrom()` idea;
         - relaxed requirement for inheritance support of the AsyncSteps;
@@ -872,12 +873,18 @@ This API can be used only inside `execute_callback`.
       internally;
     * `label` - unwinds nested loops, until `label` named loop is exited.
     * the label must be recorded as `error_info`.
+1. `void breakNoThrow( [label] )`:
+    * a variation of `break()` that does not throw, the user must return from
+      the step immediately.
 1. `void continue( [label] )`:
     * continue loop execution from the next iteration;
     * also raises a special exception which gets handled by `AsyncSteps`
       internally;
     * `label` - break nested loops, until `label` named loop is found.
     * the label must be recorded as `error_info`.
+1. `void continueNoThrow( [label] )`:
+    * a variation of `continue()` that does not throw, the user must return from
+      the step immediately.
 
 ### 2.3. `Mutex` class
 
