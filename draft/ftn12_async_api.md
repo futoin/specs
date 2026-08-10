@@ -8,6 +8,8 @@ Authors: Andrey Galkin
 
 # CHANGES
 
+* v1.15 - 2026-08-11 - Andrey Galkin
+    * NEW: asi.errorNoThrow() API
 * v1.14.1 - 2026-07-27 - Andrey Galkin
     * FIXED: is_valid() return type
 * v1.14 - 2023-03-29 - Andrey Galkin
@@ -717,6 +719,9 @@ However, they are grouped by semantical scope of use.
     * throws `FutoIn.Error` exception immediately;
     * calls `onerror( async_iface, name )` after returning to execution engine;
     * `error_info`- assigned to `error_info` state field.
+1. `void errorNoThrow( name [, error_info] )`:
+    * a special variation of the `asi.error()`, which does not throw and the
+      user must return from the executing function without relying on the exception.
 1. `void setTimeout( timeout_ms )`:
     * disables implicit success with assumption of external event waiting, if no sub-steps are added;
     * on timeout, `Timeout` error is raised.
