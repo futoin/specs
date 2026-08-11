@@ -1,6 +1,6 @@
 {
   "name": "@futoin/specs",
-  "version": "2019.1104.0",
+  "version": "2026.0811.0",
   "vcs": "git",
   "rms": "npm",
   "rmsRepo": "ignored",
@@ -56,8 +56,8 @@
   },
   "actions": {
     "prepare": [
-        "@cte pip install markdown",
-        "@default"
+      "@cte pip install markdown",
+      "@default"
     ],
     "build": [
       "./compile.sh",
