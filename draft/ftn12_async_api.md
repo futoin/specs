@@ -1,13 +1,18 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.15
-Date: 2026-08-11
+Version: 1.16DV
+Date: 2026-08-13
 Copyright: 2014-2026 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.15 - 2026-08-13 - Andrey Galkin
+    * NEW: asi.relinquish() API
+    * NEW: formalized the execution burst logic
+    * NEW: revised the `State` interface for better compatibility with ABI.
+    * NEW: defined the convention of stateVariable` ABI.
 * v1.15 - 2026-08-11 - Andrey Galkin
     * NEW: asi.errorNoThrow() API
     * NEW: asi.breakNoThrow() and asi.continueNoThrow() API
@@ -675,6 +680,18 @@ Example:
     asi.stack<T>();
     asi.stack<T>(SomeCtorParam);
 
+## 1.15. Execution Burst
+
+Originally, this feature was a non-spec optimization introduced to JS reference
+implementation to aid performance by improving data locality in CPU caches.
+
+Each AsyncSteps instance is expected to run a burst of steps until it requires
+to wait for an external event. The default recommended burst is 100 sub-steps.
+The burst can be reduced, if it takes too long, e.g. 1 millisecond.
+
+A non-core helper `asi.relinquish()` should be provided as a shortcut for an
+empty sub-step, triggering external wait with immediate completion from the
+event-loop, effectively moving the current instance to the end of the queue.
 
 # 2. Async Steps API
 
@@ -718,15 +735,15 @@ Example:
           execption;
         - `interface UnhandledError` for `callback(error)` on any unhandled
           FutoIn error in the steps;
-        - `Map<String, Object> dynamic_items()` - a map for dynamic variable
-            pairs;
         - `get<V>(key)` - get-accessor for dynamic items, type cast;
         - `set<V>(key, value)`- set-accessor for dynamic items, type cast;
-        - `error_info` - last `error_info` accessor;
-        - `last_exception` - last caught exception;
-        - `set_catch_trace()` or `catch_trace` - to setup `CatchTrace` handler;
-        - `set_unhandled_error()` or `unhandled_error` - to setup
-          `UnhandledError` handler;
+        - `error_info` - get/set last `error_info` property;
+            - split `set_error_info()` / `error_info()` accessor as applicable;
+        - `last_exception()` - get last caught exception;
+        - `catch_trace` - get/set last `CatchTrace` property;
+            - split `set_catch_trace(cb)` / `catch_trace(exc)` accessor as applicable;
+        - `unhandled_error` - get/set last `UnhandledError` property;
+            - split `set_unhandled_error(cb)` / `unhandled_error(code)` accessor as applicable;
         - `mem_pool()` - access associated memory pool, if applicable;
 
 ## 2.2. Functions
@@ -825,6 +842,9 @@ and `error()` can be used in `error_callback` context as well.
     * set the callback, to be used to cancel execution.
 1. `void waitExternal()`:
     * prevents the implicit success behavior of the current step.
+1. `void relinquish()`:
+    * a shortcut for a step add(), which force AsyncSteps engine relinquish the
+      control flow back to AsyncTool event loop.
 1. `Pointer stack(size[, destroy_cb])`:
     * allocates a temporary object with lifetime of the current step for non-GC
       technologies.
@@ -950,7 +970,7 @@ interface is specific to technology while it was always existing. Below is only
     - an ability to check if the handle still refers to scheduled task;
     - this method may be a part of the `Handle` object's interface.
 
-### 2.7. Universal Binary Interface
+### 2.7. Universal Binary Interface (ABI)
 
 To achieve the initial goal of the FutoIn project - universal cross-technology interface, a certain
 minimal binary interface has to be defined to be passed as an ordinary memory pointer for the first
@@ -1083,6 +1103,15 @@ The meaning of functions is the same, except additional `data` and similar argum
 bind dynamic data to callbacks user-defined way.
 
 The function table is also extended with AsyncTool interface for convenience.
+
+The `stateVariable()` ABI primary purpose is to provide storage for technology-native
+value type, that breaks general interoperability guarantees, unless such variables
+get intentionally mapped as plain ISO C11 types.
+
+By convention, special variable keys correspond to execution-related functionality,
+and act as read-only. They allocation and cleanup handlers must be null pointers.
+The special key "error_info" must be accessible as a `const char*`; "last_execption"
+must be accessible as `void *` mapped to C++ `const std::exception_ptr*`.
 
 ``` c
 typedef struct FutoInAsyncStepsAPI_ FutoInAsyncStepsAPI;
