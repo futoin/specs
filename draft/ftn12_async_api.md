@@ -1,13 +1,15 @@
 <pre>
 FTN12: FutoIn Async API
 Version: 1.16DV
-Date: 2026-08-13
+Date: 2026-09-05
 Copyright: 2014-2026 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.16 - 2026-09-05 - Andrey Galkin
+    * CHANGED: asi.newInstance() to inherit catch_trace and unhandled_error.
 * v1.15 - 2026-08-13 - Andrey Galkin
     * NEW: asi.relinquish() API
     * NEW: formalized the execution burst logic
@@ -792,7 +794,8 @@ This API can be used in any context.
     - integrate technology-specific Future/Promise as a step.
 1. `AsyncSteps newInstance()`:
     - create a new instance of AsyncSteps for standalone execution through
-      the agnostic interface with direct dependency on the implementation.
+      the agnostic interface with direct dependency on the implementation;
+    - the new instance must inherit `catch_trace` and `unhandled_error`.
 1. `boolean cast()`:
     - true, if AsyncSteps interface is in valid state for usage;
     - if not possible in the given technology then see the `state()` notes.
