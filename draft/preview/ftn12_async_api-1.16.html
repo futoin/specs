@@ -21,7 +21,12 @@ Authors: Andrey Galkin
 <h1>CHANGES</h1>
 <ul>
 <li>v1.16 - 2026-09-05 - Andrey Galkin<ul>
-<li>CHANGED: asi.newInstance() to inherit catch_trace and unhandled_error.</li>
+<li>BREAKING CHANGE: overall state callbacks receive root state instance,
+  a minor change due to backward compatibility option and lack of prior
+  clear definition.</li>
+<li>CHANGED: asi.newInstance() to inherit catch_trace, unhandled_error and
+  cancel handler.</li>
+<li>NEW: overall state handler support via the <code>State</code>.</li>
 </ul>
 </li>
 <li>v1.15 - 2026-08-13 - Andrey Galkin<ul>
@@ -691,9 +696,9 @@ event-loop, effectively moving the current instance to the end of the queue.</p>
 <li>dynamically-typed (e.g. ECMAScript):
     an object or a map of key-values pairs;</li>
 <li>statically-typed (e.g. C++, Java):<ul>
-<li><code>interface CatchTrace</code> for <code>callback(exception)</code> on any caught
+<li><code>interface CatchTrace</code> for <code>callback(asi, exception)</code> on any caught
   execption;</li>
-<li><code>interface UnhandledError</code> for <code>callback(error)</code> on any unhandled
+<li><code>interface UnhandledError</code> for <code>callback(asi, error)</code> on any unhandled
   FutoIn error in the steps;</li>
 <li><code>get&lt;V&gt;(key)</code> - get-accessor for dynamic items, type cast;</li>
 <li><code>set&lt;V&gt;(key, value)</code>- set-accessor for dynamic items, type cast;</li>
@@ -703,11 +708,15 @@ event-loop, effectively moving the current instance to the end of the queue.</p>
 </li>
 <li><code>last_exception()</code> - get last caught exception;</li>
 <li><code>catch_trace</code> - get/set last <code>CatchTrace</code> property;<ul>
-<li>split <code>set_catch_trace(cb)</code> / <code>catch_trace(exc)</code> accessor as applicable;</li>
+<li>split <code>set_catch_trace(cb)</code> / <code>get_catch_trace()</code> accessor as applicable;</li>
 </ul>
 </li>
 <li><code>unhandled_error</code> - get/set last <code>UnhandledError</code> property;<ul>
-<li>split <code>set_unhandled_error(cb)</code> / <code>unhandled_error(code)</code> accessor as applicable;</li>
+<li>split <code>set_unhandled_error(cb)</code> / <code>get_unhandled_error()</code> accessor as applicable;</li>
+</ul>
+</li>
+<li><code>cancel_handler</code> - get/set last <code>CancelCallback</code> property;<ul>
+<li>split <code>set_cancel_handler(cb)</code> / <code>get_cancel_handler()</code> accessor as applicable;</li>
 </ul>
 </li>
 <li><code>mem_pool()</code> - access associated memory pool, if applicable;</li>
@@ -776,7 +785,8 @@ intentionally.</p>
 <li><code>AsyncSteps newInstance()</code>:<ul>
 <li>create a new instance of AsyncSteps for standalone execution through
   the agnostic interface with direct dependency on the implementation;</li>
-<li>the new instance must inherit <code>catch_trace</code> and <code>unhandled_error</code>.</li>
+<li>the new instance must inherit <code>catch_trace</code>, <code>unhandled_error</code> and
+  <code>cancel_handler</code>.</li>
 </ul>
 </li>
 <li><code>boolean cast()</code>:<ul>

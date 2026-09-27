@@ -9,7 +9,12 @@ Authors: Andrey Galkin
 # CHANGES
 
 * v1.16 - 2026-09-05 - Andrey Galkin
-    * CHANGED: asi.newInstance() to inherit catch_trace and unhandled_error.
+    * BREAKING CHANGE: overall state callbacks receive root state instance,
+      a minor change due to backward compatibility option and lack of prior
+      clear definition.
+    * CHANGED: asi.newInstance() to inherit catch_trace, unhandled_error and
+      cancel handler.
+    * NEW: overall state handler support via the `State`.
 * v1.15 - 2026-08-13 - Andrey Galkin
     * NEW: asi.relinquish() API
     * NEW: formalized the execution burst logic
@@ -733,9 +738,9 @@ event-loop, effectively moving the current instance to the end of the queue.
     * dynamically-typed (e.g. ECMAScript):
         an object or a map of key-values pairs;
     * statically-typed (e.g. C++, Java):
-        - `interface CatchTrace` for `callback(exception)` on any caught
+        - `interface CatchTrace` for `callback(asi, exception)` on any caught
           execption;
-        - `interface UnhandledError` for `callback(error)` on any unhandled
+        - `interface UnhandledError` for `callback(asi, error)` on any unhandled
           FutoIn error in the steps;
         - `get<V>(key)` - get-accessor for dynamic items, type cast;
         - `set<V>(key, value)`- set-accessor for dynamic items, type cast;
@@ -743,9 +748,11 @@ event-loop, effectively moving the current instance to the end of the queue.
             - split `set_error_info()` / `error_info()` accessor as applicable;
         - `last_exception()` - get last caught exception;
         - `catch_trace` - get/set last `CatchTrace` property;
-            - split `set_catch_trace(cb)` / `catch_trace(exc)` accessor as applicable;
+            - split `set_catch_trace(cb)` / `get_catch_trace()` accessor as applicable;
         - `unhandled_error` - get/set last `UnhandledError` property;
-            - split `set_unhandled_error(cb)` / `unhandled_error(code)` accessor as applicable;
+            - split `set_unhandled_error(cb)` / `get_unhandled_error()` accessor as applicable;
+        - `cancel_handler` - get/set last `CancelCallback` property;
+            - split `set_cancel_handler(cb)` / `get_cancel_handler()` accessor as applicable;
         - `mem_pool()` - access associated memory pool, if applicable;
 
 ## 2.2. Functions
@@ -795,7 +802,8 @@ This API can be used in any context.
 1. `AsyncSteps newInstance()`:
     - create a new instance of AsyncSteps for standalone execution through
       the agnostic interface with direct dependency on the implementation;
-    - the new instance must inherit `catch_trace` and `unhandled_error`.
+    - the new instance must inherit `catch_trace`, `unhandled_error` and
+      `cancel_handler`.
 1. `boolean cast()`:
     - true, if AsyncSteps interface is in valid state for usage;
     - if not possible in the given technology then see the `state()` notes.
