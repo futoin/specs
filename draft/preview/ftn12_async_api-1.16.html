@@ -24,9 +24,12 @@ Authors: Andrey Galkin
 <li>BREAKING CHANGE: overall state callbacks receive root state instance,
   a minor change due to backward compatibility option and lack of prior
   clear definition.</li>
-<li>CHANGED: asi.newInstance() to inherit catch_trace, unhandled_error and
-  cancel handler.</li>
+<li>BREAKING CHANGED: <code>asi.newInstance()</code> to inherit <code>catch_trace</code>,
+  <code>unhandled_error</code> and <code>cancel_handler</code>. Handlers may need to check the
+  referenced object now.</li>
 <li>NEW: overall state handler support via the <code>State</code>.</li>
+<li>NEW: extended the <code>State</code> accessors definition and <code>asi.state()</code>
+  shortcuts.</li>
 </ul>
 </li>
 <li>v1.15 - 2026-08-13 - Andrey Galkin<ul>
@@ -700,8 +703,11 @@ event-loop, effectively moving the current instance to the end of the queue.</p>
   execption;</li>
 <li><code>interface UnhandledError</code> for <code>callback(asi, error)</code> on any unhandled
   FutoIn error in the steps;</li>
-<li><code>get&lt;V&gt;(key)</code> - get-accessor for dynamic items, type cast;</li>
-<li><code>set&lt;V&gt;(key, value)</code>- set-accessor for dynamic items, type cast;</li>
+<li><code>ValueRef get&lt;V&gt;(key)</code> - get-accessor for dynamic items, type cast;</li>
+<li><code>ValueRef set&lt;V&gt;(key, value)</code>- set-accessor for dynamic items,
+   type cast;</li>
+<li><code>ValueRef set_default&lt;V&gt;(key, value)</code>- set for dynamic items, if not
+   present, type cast;</li>
 <li><code>error_info</code> - get/set last <code>error_info</code> property;<ul>
 <li>split <code>set_error_info()</code> / <code>error_info()</code> accessor as applicable;</li>
 </ul>
@@ -719,7 +725,10 @@ event-loop, effectively moving the current instance to the end of the queue.</p>
 <li>split <code>set_cancel_handler(cb)</code> / <code>get_cancel_handler()</code> accessor as applicable;</li>
 </ul>
 </li>
-<li><code>mem_pool()</code> - access associated memory pool, if applicable;</li>
+<li><code>mem_pool</code> - get associated memory pool property, if applicable;<ul>
+<li>or <code>mem_pool()</code> accessor as applicable.</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -760,7 +769,13 @@ intentionally.</p>
   state values;    </li>
 <li>note: if boolean cast is not supported in given technology then it should
   return an equivalent of <code>null</code> to identify invalid state of the AsyncSteps
-  object.</li>
+  object;</li>
+<li>additional helpers:<ol>
+<li><code>ValueRef state(key)</code> - an alias for <code>state().get(key)</code>;</li>
+<li><code>ValueRef state(key, defaltValue)</code> - an alias for
+   <code>state().set_default(key, value)</code>.</li>
+</ol>
+</li>
 </ul>
 </li>
 <li><code>AsyncSteps copyFrom( AsyncSteps other )</code>:<ul>
@@ -786,7 +801,9 @@ intentionally.</p>
 <li>create a new instance of AsyncSteps for standalone execution through
   the agnostic interface with direct dependency on the implementation;</li>
 <li>the new instance must inherit <code>catch_trace</code>, <code>unhandled_error</code> and
-  <code>cancel_handler</code>.</li>
+  <code>cancel_handler</code> handlers.</li>
+<li>the new instance must directly or indirectly inherit the associated
+  <code>mem pool</code>.</li>
 </ul>
 </li>
 <li><code>boolean cast()</code>:<ul>

@@ -12,9 +12,12 @@ Authors: Andrey Galkin
     * BREAKING CHANGE: overall state callbacks receive root state instance,
       a minor change due to backward compatibility option and lack of prior
       clear definition.
-    * CHANGED: asi.newInstance() to inherit catch_trace, unhandled_error and
-      cancel handler.
+    * BREAKING CHANGED: `asi.newInstance()` to inherit `catch_trace`,
+      `unhandled_error` and `cancel_handler`. Handlers may need to check the
+      referenced object now.
     * NEW: overall state handler support via the `State`.
+    * NEW: extended the `State` accessors definition and `asi.state()`
+      shortcuts.
 * v1.15 - 2026-08-13 - Andrey Galkin
     * NEW: asi.relinquish() API
     * NEW: formalized the execution burst logic
@@ -742,8 +745,11 @@ event-loop, effectively moving the current instance to the end of the queue.
           execption;
         - `interface UnhandledError` for `callback(asi, error)` on any unhandled
           FutoIn error in the steps;
-        - `get<V>(key)` - get-accessor for dynamic items, type cast;
-        - `set<V>(key, value)`- set-accessor for dynamic items, type cast;
+        - `ValueRef get<V>(key)` - get-accessor for dynamic items, type cast;
+        - `ValueRef set<V>(key, value)`- set-accessor for dynamic items,
+           type cast;
+        - `ValueRef set_default<V>(key, value)`- set for dynamic items, if not
+           present, type cast;
         - `error_info` - get/set last `error_info` property;
             - split `set_error_info()` / `error_info()` accessor as applicable;
         - `last_exception()` - get last caught exception;
@@ -753,7 +759,8 @@ event-loop, effectively moving the current instance to the end of the queue.
             - split `set_unhandled_error(cb)` / `get_unhandled_error()` accessor as applicable;
         - `cancel_handler` - get/set last `CancelCallback` property;
             - split `set_cancel_handler(cb)` / `get_cancel_handler()` accessor as applicable;
-        - `mem_pool()` - access associated memory pool, if applicable;
+        - `mem_pool` - get associated memory pool property, if applicable;
+            - or `mem_pool()` accessor as applicable.
 
 ## 2.2. Functions
 
@@ -787,7 +794,11 @@ This API can be used in any context.
       state values;    
     * note: if boolean cast is not supported in given technology then it should
       return an equivalent of `null` to identify invalid state of the AsyncSteps
-      object.
+      object;
+    * additional helpers:
+        1. `ValueRef state(key)` - an alias for `state().get(key)`;
+        1. `ValueRef state(key, defaltValue)` - an alias for
+           `state().set_default(key, value)`.
 1. `AsyncSteps copyFrom( AsyncSteps other )`:
     * **deprecated**;
     * copies steps and state variables not present in the current state
@@ -803,7 +814,9 @@ This API can be used in any context.
     - create a new instance of AsyncSteps for standalone execution through
       the agnostic interface with direct dependency on the implementation;
     - the new instance must inherit `catch_trace`, `unhandled_error` and
-      `cancel_handler`.
+      `cancel_handler` handlers.
+    - the new instance must directly or indirectly inherit the associated
+      `mem pool`.
 1. `boolean cast()`:
     - true, if AsyncSteps interface is in valid state for usage;
     - if not possible in the given technology then see the `state()` notes.
