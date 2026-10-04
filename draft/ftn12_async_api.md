@@ -1,14 +1,14 @@
 <pre>
 FTN12: FutoIn Async API
-Version: 1.16DV
-Date: 2026-09-05
+Version: 1.16
+Date: 2026-10-04
 Copyright: 2014-2026 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
-* v1.16 - 2026-09-05 - Andrey Galkin
+* v1.16 - 2026-10-04 - Andrey Galkin
     * BREAKING CHANGE: overall state callbacks receive root state instance,
       a minor change due to backward compatibility option and lack of prior
       clear definition.
