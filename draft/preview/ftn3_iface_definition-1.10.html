@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ftn3_iface_definition.md</title>
+<link rel="stylesheet" type="text/css" href="../../css/specs.css">
+</head><body>
+<nav>
+<a href="/"> <img src="data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAwIDE1MDAiPjxkZWZzPjxzdHlsZT4uY2xzLTF7ZmlsbDojMzExYjkyO30uY2xzLTJ7ZmlsbDojZmZmO308L3N0eWxlPjwvZGVmcz48dGl0bGU+RnV0b0luX2xvZ288L3RpdGxlPjxyZWN0IGNsYXNzPSJjbHMtMSIgd2lkdGg9IjE1MDAiIGhlaWdodD0iMTUwMCIvPjxjaXJjbGUgY2xhc3M9ImNscy0yIiBjeD0iNzUwIiBjeT0iNzUwIiByPSIyMzcuODgiLz48cmVjdCBjbGFzcz0iY2xzLTIiIHg9IjcyNC4yMyIgeT0iMTQ2LjczIiB3aWR0aD0iNTEuNDQiIGhlaWdodD0iMTIwNi40NiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTQ5OS45NiAwLjA1KSByb3RhdGUoOTApIi8+PHJlY3QgY2xhc3M9ImNscy0yIiB4PSI3MjQuMjMiIHk9IjE0Ni43NiIgd2lkdGg9IjUxLjQ0IiBoZWlnaHQ9IjEyMDYuNCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTQ5OS45NSAxNDk5Ljk2KSByb3RhdGUoMTgwKSIvPjxyZWN0IGNsYXNzPSJjbHMtMiIgeD0iODg1Ljc5IiB5PSIzODcuNTgiIHdpZHRoPSIyOS4zOSIgaGVpZ2h0PSI0MjQuOTEiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDExMTIuOTggMTY2MS4xKSByb3RhdGUoLTEzNSkiLz48Y2lyY2xlIGNsYXNzPSJjbHMtMiIgY3g9IjEzNTMuMiIgY3k9Ijc1MCIgcj0iOTEuODUiLz48Y2lyY2xlIGNsYXNzPSJjbHMtMiIgY3g9IjE0Ni44IiBjeT0iNzUwIiByPSI5MS44NSIvPjxjaXJjbGUgY2xhc3M9ImNscy0yIiBjeD0iNzUwIiBjeT0iMTQ2LjgiIHI9IjkxLjg1Ii8+PGNpcmNsZSBjbGFzcz0iY2xzLTIiIGN4PSI3NTAiIGN5PSIxMzUzLjIiIHI9IjkxLjg1Ii8+PGNpcmNsZSBjbGFzcz0iY2xzLTIiIGN4PSIxMDUzLjA0IiBjeT0iNDQ5LjM5IiByPSI1NS4xMSIvPjxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTEwMjkuNDUsNzI0LjI0aDE3N2MzMC40MSwwLDU4LjcyLTEzLjkyLDc4Ljc5LTM2Ljc3LDEzLjM2LTE1LjIxLDM0LjcyLTI5LjM3LDY4LTI5LjM3LDAsMCw0NCwxODUsMCwxODMuNzEtMzMuMTMtLjk0LTU0LjQyLTE0LjkyLTY3Ljc2LTI5Ljc3LTIwLjItMjIuNDktNDguMjQtMzYuMzYtNzguNDctMzYuMzZoLTE3NyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wNSAwLjA0KSIvPjxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTc3NS42OCwxMDI5LjQ2djE3N2MwLDMwLjQxLDEzLjkyLDU4LjcyLDM2Ljc3LDc4Ljc5LDE1LjIxLDEzLjM2LDI5LjM3LDM0LjcyLDI5LjM3LDY4LDAsMC0xODUsNDQtMTgzLjcxLDBDNjU5LDEzMjAsNjczLDEyOTguNzQsNjg3Ljg4LDEyODUuNGMyMi40OS0yMC4yLDM2LjM2LTQ4LjI0LDM2LjM2LTc4LjQ3di0xNzciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAuMDUgMC4wNCkiLz48cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik00NzAuNDUsNzc1LjY5aC0xNzdjLTMwLjQxLDAtNTguNzIsMTMuOTItNzguNzksMzYuNzctMTMuMzYsMTUuMjEtMzQuNzIsMjkuMzctNjgsMjkuMzcsMCwwLTQ0LTE4NSwwLTE4My43MSwzMy4xMywwLjk0LDU0LjQyLDE0LjkyLDY3Ljc2LDI5Ljc3LDIwLjIsMjIuNDksNDguMjQsMzYuMzYsNzguNDcsMzYuMzZINDcwIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLjA1IDAuMDQpIi8+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJNNzI0LjIzLDQ3MC40NnYtMTc3YzAtMzAuNDEtMTMuOTItNTguNzItMzYuNzctNzguNzktMTUuMjEtMTMuMzYtMjkuMzctMzQuNzItMjkuMzctNjgsMCwwLDE4NS00NCwxODMuNzEsMC0wLjk0LDMzLjEzLTE0LjkyLDU0LjQyLTI5Ljc3LDY3Ljc2LTIyLjQ5LDIwLjItMzYuMzYsNDguMjQtMzYuMzYsNzguNDdWNDcwIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLjA1IDAuMDQpIi8+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJNOTI1LDU1NC42OWw2NC4xOS02NC4xOWEzNC4zNiwzNC4zNiwwLDAsMCw5LjE4LTMxLjQ1Yy0yLjY2LTEyLjY5LTIuMTQtMzAuODUsMTQuMjgtNDcuMjcsMCwwLDk4LjU1LDU4LjA4LDc5LjI3LDc2LjU0LTE4LjYyLDE3LjgzLTM3LjY1LDE4LjE5LTUwLjcsMTUuMTFhMzQuMzksMzQuMzksMCwwLDAtMzIuMzUsOWwtNjMuMTcsNjMuMTciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAuMDUgMC4wNCkiLz48cmVjdCBjbGFzcz0iY2xzLTIiIHg9IjU4NC43MiIgeT0iNjg3LjQzIiB3aWR0aD0iMjkuMzkiIGhlaWdodD0iNDI0LjkxIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4MTEuOTMgLTE2MC4yNSkgcm90YXRlKDQ1KSIvPjxjaXJjbGUgY2xhc3M9ImNscy0yIiBjeD0iNDQ2Ljk2IiBjeT0iMTA1MC42MSIgcj0iNTUuMTEiLz48cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik01NzQuODUsOTQ1LjI0bC02NC4xOSw2NC4xOWEzNC4zNiwzNC4zNiwwLDAsMC05LjE4LDMxLjQ1YzIuNjYsMTIuNjksMi4xNCwzMC44NS0xNC4yOCw0Ny4yNywwLDAtOTguNTUtNTguMDgtNzkuMjctNzYuNTQsMTguNjItMTcuODMsMzcuNjUtMTguMTksNTAuNy0xNS4xMWEzNC4zOSwzNC4zOSwwLDAsMCwzMi4zNS05bDYzLjE3LTYzLjE3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLjA1IDAuMDQpIi8+PHJlY3QgY2xhc3M9ImNscy0yIiB4PSI4ODUuMTgiIHk9IjY4OC4wNCIgd2lkdGg9IjI5LjM5IiBoZWlnaHQ9IjQyNC45MSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTM3My4xMyA5MDAuMDkpIHJvdGF0ZSgtNDUpIi8+PGNpcmNsZSBjbGFzcz0iY2xzLTIiIGN4PSIxMDUwLjYxIiBjeT0iMTA1My4wNCIgcj0iNTUuMTEiLz48cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik05NDUuMjIsOTI1LjA2bDY0LjE5LDY0LjE5YTM0LjM2LDM0LjM2LDAsMCwwLDMxLjQ1LDkuMThjMTIuNjktMi42NiwzMC44NS0yLjE0LDQ3LjI3LDE0LjI4LDAsMC01OC4wOCw5OC41NS03Ni41NCw3OS4yNy0xNy44My0xOC42Mi0xOC4xOS0zNy42NS0xNS4xMS01MC43YTM0LjM5LDM0LjM5LDAsMCwwLTktMzIuMzVsLTYzLjE3LTYzLjE3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLjA1IDAuMDQpIi8+PHJlY3QgY2xhc3M9ImNscy0yIiB4PSI1ODUuMDYiIHk9IjM4Ny40OSIgd2lkdGg9IjI5LjM5IiBoZWlnaHQ9IjQyNC45MSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTQ0OC4xMSA2MDAuMTIpIHJvdGF0ZSgxMzUpIi8+PGNpcmNsZSBjbGFzcz0iY2xzLTIiIGN4PSI0NDkuMTIiIGN5PSI0NDcuNDgiIHI9IjU1LjExIi8+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJNNTU0LjQsNTc1LjM4bC02NC4xOS02NC4xOUEzNC4zNiwzNC4zNiwwLDAsMCw0NTguNzcsNTAyYy0xMi42OSwyLjY2LTMwLjg1LDIuMTQtNDcuMjctMTQuMjgsMCwwLDU4LjA4LTk4LjU1LDc2LjU0LTc5LjI3LDE3LjgzLDE4LjYyLDE4LjE5LDM3LjY1LDE1LjExLDUwLjdhMzQuMzksMzQuMzksMCwwLDAsOSwzMi4zNWw2My4xNyw2My4xNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wNSAwLjA0KSIvPjwvc3ZnPgo=" style="width:24px;height:24px;" data-reactid="11"> &nbsp;Main</a>
+<a href="/final/preview/ftn0_overview.html"> Final Specs </a>
+<a href="/draft/preview/ftn0_overview.html"> Draft Specs </a>
+<a href="https://futoin.org/" target="_top"> FutoIn Guide </a>
+</nav>
+<pre>
+FTN3: FutoIn Interface Definition
+Version: 1.10DV
+Date: 2026-10-04
+Copyright: 2014-2026 FutoIn Project (http://futoin.org)
+Authors: Andrey Galkin
+</pre>
+
+<h1>CHANGES</h1>
+<ul>
+<li>v1.10 - 2026-10-04 - Andrey Galkin<ul>
+<li>CHANGED: AI-aided proofreading changes.</li>
+</ul>
+</li>
+<li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
+<li>FIXED: minor typo/spelling fixes</li>
+</ul>
+</li>
+<li>v1.9.1 - 2018-04-17 - Andrey Galkin<ul>
+<li>FIXED: minor typo/spelling fixes</li>
+<li>NEW: cosmetic improvements</li>
+</ul>
+</li>
+<li>v1.9 - 2018-01-14 - Andrey Galkin<ul>
+<li>NEW: fundamental "data" type</li>
+<li>NEW: multiple transport format support</li>
+<li>NEW: "BinaryData" interface constraint</li>
+</ul>
+</li>
+<li>v1.8 - 2017-12-05 - Andrey Galkin<ul>
+<li>NEW: "maxreqsize" &amp; "maxrspsize" function definition attribute</li>
+</ul>
+</li>
+<li>v1.7 - 2017-08-11 - Andrey Galkin<ul>
+<li>NEW: added support for result as type instead of result object</li>
+</ul>
+</li>
+<li>v1.6 - 2017-08-04 - Andrey Galkin<ul>
+<li>FIXED: minor enforcements for interface schema</li>
+<li>NEW: "enum" and "set" basic type support</li>
+<li>NEW: type variations</li>
+<li>NEW: "elemtype" for "map"</li>
+</ul>
+</li>
+<li>v1.5 - 2017-08-03 - Andrey Galkin<ul>
+<li>NEW: minlen/maxlen instead of only regex for string support</li>
+</ul>
+</li>
+<li>v1.4.1 - 2017-07-20 - Andrey Galkin<ul>
+<li>FIXED: JSON schema issue with "types" type shortcut</li>
+</ul>
+</li>
+<li>v1.4 - 2017-07-19 - Andrey Galkin<ul>
+<li>FIXED: interface JSON schema "fields" constraints</li>
+<li>NEW: clarified imports logic in diamond shaped cases</li>
+<li>NEW: clarified default "null" behavior</li>
+<li>NEW: type, field, parameter or result shortcut for type definition</li>
+</ul>
+</li>
+<li>v1.3 - 2015-03-08 - Andrey Galkin<ul>
+<li>Added "obf" - on behalf field support</li>
+<li>Added "seclvl" - user authentication security level minimum</li>
+</ul>
+</li>
+<li>v1.2 - 2015-02-22 - Andrey Galkin<ul>
+<li>Extended 'rid' field regex to support custom prefix part</li>
+<li>Added "MessageSignature" interface constraint</li>
+</ul>
+</li>
+<li>v1.1 - 2015-01-08 - Andrey Galkin<ul>
+<li>Added response.edesc optional field</li>
+<li>Added iface.ftn3rev field</li>
+<li>Added custom types concept</li>
+<li>Added import/mixin concept</li>
+<li>Added "any" type</li>
+<li>Added clarification of inheritance feature purpose compared to import</li>
+<li>Added "BiDirectChannel" constraint</li>
+<li>Added "heavy" function property</li>
+<li>Officially documented payload size safety limits</li>
+</ul>
+</li>
+<li>v1.0 - 2014-09-08 - Andrey Galkin</li>
+</ul>
+<h1>1. Basic concept</h1>
+<h2>1.1. Peer-to-peer communication</h2>
+<p>There are Invoker and Executor sides. Both can be implemented within the scope
+of a single process, across different processes, or across different machines
+over a network.</p>
+<p>Multi-peer communication is assumed to be a higher-level concept built on top of
+the current one.</p>
+<p>Object-oriented remote calls are also assumed to be a higher-level concept.</p>
+<p>It is assumed that there is a language- and/or platform-specific standardized
+low-level API/ABI for establishing connections and making calls, coupled with an
+optional standardized high-level binding/mapping of FutoIn interfaces to native
+language features.</p>
+<p>All specifications and implementations are assumed to support loose coupling of 
+each component, making them suitable for easy separation, replacement, and unit 
+testing.</p>
+<p>Each call has a request message and may have a response message containing the
+key-value pairs described below. If a call does not expect to return any result,
+no response message must be sent or expected. It must be possible to override
+this behavior using the <em>forcersp</em> flag in the request message.
+<br>
+<em>Note: This means a call must return at least something to allow the Invoker to
+detect whether the call was executed properly.</em></p>
+<p>For large data transfer efficiency, if the message transport allows such
+extensions, a request message can be coupled with raw request data and/or a
+response can be <em>replaced</em> with raw response data. A typical scenario is a file
+upload and/or download via HTTP(S).</p>
+<p>The lower-level message exchange protocol is out of the scope of this
+specification.</p>
+<p>Possible examples of Peer-to-peer communication types:</p>
+<ul>
+<li>Raw datagrams (e.g., UNIX Domain Sockets, UDP, or SCTP)</li>
+<li>WebSockets</li>
+<li>HTTP with the request in POST and response in the body</li>
+<li>HTTP with the request in the GET path with parameters and response in the body</li>
+<li>HTTP with the request in POST or GET and a non-message payload in the body
+  (e.g. BLOB)</li>
+<li>HTTP CRUDL mapped to/from a FutoIn interface</li>
+</ul>
+<h2>1.2. Function Call</h2>
+<p>The major components are: <strong>function identifier</strong>, <strong>parameters</strong>, <strong>result</strong>,
+and <strong>exception</strong>.</p>
+<ul>
+<li><strong>function identifier</strong> - A unique associative string containing the interface
+name, version, and interface function encoded within it.</li>
+<li><strong>parameters</strong> - Key-value pairs:<ul>
+<li>key - Unique associative string name.</li>
+<li>value - Value of an arbitrary JSON type defined in the interface.</li>
+</ul>
+</li>
+<li><strong>result</strong> - Key-value pairs, structured similarly to parameters.</li>
+<li><strong>exception</strong> - Associative name of the first error that occurred during
+  function execution.</li>
+</ul>
+<h2>1.3. Client-server/service multiplexing mode</h2>
+<p>The Invoker is responsible for enabling request message (and consequently
+response message) multiplexing by adding a special <em>request ID</em> field. The
+Executor is responsible for echoing the exact same field back in the related
+response message.</p>
+<p>Please note that <em>Invoker</em> and <em>Client</em>, as well as <em>Executor</em> and <em>Server</em>, are
+NOT synonymous terms. The Client is the peer that initiated the peer-to-peer
+communication channel. The Server is the peer that accepts peer-to-peer
+communications. On the other hand, an Invoker sends a request and an Executor
+replies to it.</p>
+<p>Client-side request IDs must be prefixed with "C".
+Server-side request IDs must be prefixed with "S".</p>
+<p>The rest of the request ID should be an integer value starting at 1 and
+incrementing with every subsequent request sent. However, implementations should
+allow adding other custom prefixes to this value.</p>
+<p><em>Note: A Request ID must never be used outside of a multiplexing context, as it
+is, by definition, duplicated across different communication channels.</em></p>
+<h2>1.4. Uni-directional call pattern</h2>
+<p>The Invoker/Executor side is semantically defined and does not rely on the
+Client/Server status of the peer. There is no protocol-level support for
+enforcing this relationship; each side controls whether it can act as an
+Executor.</p>
+<p>It is recommended that the Client side always acts as the Invoker in a
+uni-directional pattern.</p>
+<p>Both serial and multiplexing modes are permitted.</p>
+<h2>1.5. Bi-directional call pattern</h2>
+<p>Each side acts as both Invoker and Executor. The bi-directional pattern must
+always operate in message multiplexing mode.</p>
+<h2>1.6. Request schema</h2>
+<p>Using <a href="http://tools.ietf.org/html/draft-fge-json-schema-validation-00" title="JSON-SCHEMA">JSON-SCHEMA</a>:</p>
+<p class="futoin-schema">Schema: futoin-request</p>
+
+<pre><code>    {
+        "title" : "FutoIn request schema",
+        "type" : "object",
+        "required" : [ "f", "p" ],
+        "additionalProperties" : false,
+        "properties" : {
+            "f" : {
+                "type" : "string",
+                "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)*:[0-9]+\\.[0-9]+:[a-z][a-zA-Z0-9]*$",
+                "description" : "Unique interface identifier, version and function identifier"
+            },
+            "p" : {
+                "type" : "object",
+                "additionalProperties" : false,
+                "patternProperties" : {
+                    "^[a-z][a-z0-9_]*$" : {}
+                },
+                "description" : "Parameters key-value pairs"
+            },
+            "rid" : {
+                "type" : "string",
+                "pattern" : "^(C|S)[a-zA-Z0-9_\\-]*[0-9]+$",
+                "description" : "Optional request ID for multiplexing"
+            },
+            "forcersp" : {
+                "type" : "boolean",
+                "description" : "If present and true, force response to be sent, even if no result is expected"
+            },
+            "sec" : {
+                "type" : "object",
+                "description" : "Security-defined extension"
+            },
+            "obf" : {
+                "type" : "object",
+                "description" : "On-Behalf-oF user info",
+                "additionalProperties" : false,
+                "properties" : {
+                    "lid" : {
+                        "type" : "string",
+                        "description" : "Local User ID"
+                    },
+                    "gid" : {
+                        "type" : "string",
+                        "description" : "Global User ID"
+                    },
+                    "slvl" : {
+                        "type" : "string",
+                        "description" : "User authentication security level"
+                    }
+                }
+            }
+        }
+    }
+</code></pre>
+<p><em>Example:</em></p>
+<pre><code>    {
+        "f" : "futoin.event:1.0:reliableEvent",
+        "p" : {
+            "event" : "SomeEvent"
+        }
+    }
+</code></pre>
+<h2>1.7. Response schema</h2>
+<p>Using <a href="http://tools.ietf.org/html/draft-fge-json-schema-validation-00" title="JSON-SCHEMA">JSON-SCHEMA</a>:</p>
+<p class="futoin-schema">Schema: futoin-response</p>
+
+<pre><code>    {
+        "title" : "FutoIn response schema",
+        "type" : "object",
+        "additionalProperties" : false,
+        "minProperties" : 1,
+        "maxProperties" : 3,
+        "properties" : {
+            "r" : {
+                "description" : "Result key-value pairs (pre-1.7) or any type"
+            },
+            "e" : {
+                "type" : "string",
+                "description" : "Exception/error name. Either r or e must be present"
+            },
+            "edesc" : {
+                "type" : "string",
+                "description" : "Optional. Error description, if e is present"
+            },
+            "rid" : {
+                "type" : "string",
+                "pattern" : "^(C|S)[0-9]+$",
+                "description" : "Optional request ID for multiplexing"
+            },
+            "sec" : {
+                "type" : "object",
+                "description" : "Security-defined extension"
+            }
+        }
+    }
+</code></pre>
+<p><em>Example:</em></p>
+<pre><code>    {
+        "r" : {
+            "delivered" : true
+        }
+    }
+      or 
+    {
+        "e" : "NotImplemented"
+    }
+</code></pre>
+<h2>1.8. Parameter and result types</h2>
+<p>Standard FutoIn interface types:</p>
+<ul>
+<li><code>boolean</code> - <code>true</code> or <code>false</code></li>
+<li><code>integer</code> - Signed integer with 32-bit precision</li>
+<li><code>number</code> - Floating-point value with 32-bit precision</li>
+<li><code>string</code> - String of unlimited length</li>
+<li><code>map</code> - Key-value pairs (effectively a JSON object). No ordering is guaranteed.<ul>
+<li><code>key</code> - String</li>
+<li><code>value</code> - Any type defined in this section</li>
+</ul>
+</li>
+<li><code>array</code> - Ordered list of values<ul>
+<li><code>value</code> - Any type defined in this section</li>
+</ul>
+</li>
+<li><code>enum</code> - Value from a predefined set<ul>
+<li><code>value</code> - Integer or string</li>
+</ul>
+</li>
+<li><code>set</code> - List of unique values<ul>
+<li><code>value</code> - Integer or string</li>
+</ul>
+</li>
+<li><code>data</code> - Binary data<ul>
+<li><code>value</code> - Sequence of bytes</li>
+</ul>
+</li>
+<li><code>any</code> - Field type is not validated</li>
+<li><em>CustomType</em> - Any custom type defined, inherited, or imported within the same
+    interface</li>
+</ul>
+<p><em>Note: </em><em>null</em><em> can be used only as a placeholder in "default" values.</em></p>
+<h3>1.8.1. Custom types</h3>
+<p>Each interface can define its own types in the optional "types" field.</p>
+<p>Custom types are inherited and imported. Re-defining an existing type in such
+cases constitutes an error.</p>
+<p>Each custom type must be based on one of the standard types, but can define
+various <em>optional</em> constraints:</p>
+<ul>
+<li><code>integer</code> and <code>number</code>:<ul>
+<li><code>min</code> - Minimum allowed value (inclusive).</li>
+<li><code>max</code> - Maximum allowed value (inclusive).</li>
+</ul>
+</li>
+<li><code>string</code>:<ul>
+<li><code>regex</code> - ECMAScript regular expression.</li>
+<li><code>minlen</code> - Minimum string length (inclusive).</li>
+<li><code>maxlen</code> - Maximum string length (inclusive).</li>
+</ul>
+</li>
+<li><code>array</code>:<ul>
+<li><code>minlen</code> - Minimum array length (inclusive).</li>
+<li><code>maxlen</code> - Maximum array length (inclusive).</li>
+<li><code>elemtype</code> - Required element type.</li>
+</ul>
+</li>
+<li><code>map</code>:<ul>
+<li><code>fields</code> - A map of field names to:<ul>
+<li><code>type</code> - Required field type</li>
+<li><code>optional</code> - Optional boolean. <code>true</code> if the field can be omitted.</li>
+<li><code>desc</code> - Optional string description of the field.</li>
+</ul>
+</li>
+<li><code>elemtype</code> - Required element type, if no "fields" map is provided.</li>
+</ul>
+</li>
+<li><code>enum</code>:<ul>
+<li><code>items</code> - List of allowed integer or string values.</li>
+</ul>
+</li>
+<li><code>set</code>:<ul>
+<li><code>items</code> - Complete set of allowed integer or string values.</li>
+</ul>
+</li>
+<li><code>data</code>:<ul>
+<li><code>minlen</code> - Minimum byte length (inclusive).</li>
+<li><code>maxlen</code> - Maximum byte length (inclusive).</li>
+</ul>
+</li>
+</ul>
+<p><em>NOTE: An omitted optional field of a custom map type must be set to <code>null</code> on
+incoming messages (requests for the Executor and responses for the Invoker).
+Optional fields must also be permitted to be sent explicitly as <code>null</code>.</em></p>
+<h3>1.8.2. "null" parameter value</h3>
+<p>As a special case, any parameter can be marked with a default value of <code>"null"</code>.
+Beyond providing a default value, this triggers special parameter verification
+logic that bypasses constraint validation if the actual provided value is
+<code>null</code>.</p>
+<h3>1.8.3. Shortcut for type definition</h3>
+<p>Parameters, result variables, fields in a <code>map</code>, and types can be defined using
+a simple string representing a known type name.</p>
+<p>For example:
+<code>"param" : "integer"</code>
+is equivalent to:
+<code>"param" : {
+        "type" : "integer"
+    }</code></p>
+<h3>1.8.4. Type variations</h3>
+<p>Occasionally, a single parameter or result field may accept multiple distinct
+types. For example, a database query might return either integer or string field
+data.</p>
+<p>To support this, the specification permits listing multiple types in an array.
+This approach is supported exclusively in shortcut type definition form, e.g.:
+<code>"param" : ["integer", "string"]</code></p>
+<p><em>Since: v1.6</em></p>
+<h3>1.8.5. Result type</h3>
+<p>Functions frequently return a single scalar value. Wrapping single-value results
+in an object leads to redundant access paths like <code>result.result</code>. Therefore,
+results may be defined as a string referring directly to a standard or custom
+type.</p>
+<p>Type variations are not allowed in result type definitions.</p>
+<p><em>Since: v1.7</em></p>
+<h3>1.8.6. Binary "data" type</h3>
+<p>Although the original intent was to exclude raw binary data in favor of explicit
+encodings, supporting the "microservice as library" concept requires native
+handling of binary data. FutoIn supports raw binary data for efficient
+in-process calls and binary-friendly codecs.</p>
+<p>If an interface uses binary data, it should include the "BinaryData"
+requirement. An alternative interface or function can be provided to support
+text-only protocols.</p>
+<p><em>Since: v1.9</em></p>
+<h2>1.9. Errors and exceptions</h2>
+<p>Any function call can produce expected or unexpected errors. This concept is
+analogous to checked and unchecked exceptions in Java.</p>
+<p>All expected exceptions/errors that occur during standard execution flow must be
+enumerated in the <code>throws</code> clause of the function declaration inside interface
+definitions (see below).</p>
+<p>Unexpected exceptions/errors are generated by the execution environment/runtime
+in response to error conditions unrelated to the logic of the specific function
+(e.g., internal communication failures, resource limit breaches, crashes, etc.).</p>
+<p>Where possible, language/platform-specific bindings should enforce that the
+Invoker explicitly checks for all declared expected errors.</p>
+<h3>1.9.1. Predefined unexpected errors</h3>
+<ul>
+<li><strong>ConnectError</strong> - Connection error occurring before the request is sent.
+    <em>Must be generated only on the Invoker side</em>.</li>
+<li><strong>CommError</strong> - Communication error occurring at any stage after the request
+    is sent and before a response is received.
+    <em>Must be generated only on the Invoker side</em>.</li>
+<li><strong>UnknownInterface</strong> - The requested interface is unknown.
+    <em>Must be generated only on the Executor side</em>.</li>
+<li><strong>NotImplemented</strong> - The interface function is not implemented on the Executor
+    side.
+    <em>Must be generated only on the Executor side</em>.</li>
+<li><strong>NotSupportedVersion</strong> - The requested interface version is not supported.
+    <em>Must be generated only on the Executor side</em>.</li>
+<li><strong>Unauthorized</strong> - The Executor's security policy prohibits access to the
+    interface or specific function.
+    <em>Must be generated only on the Executor side</em>.</li>
+<li><strong>InternalError</strong> - Unexpected internal error on the Executor side, including
+    internal CommErrors.
+    <em>Must be generated only on the Executor side</em>.</li>
+<li><strong>InvokerError</strong> - Unexpected internal error on the Invoker side unrelated to
+    CommErrors.
+    <em>Must be generated only on the Invoker side</em>.</li>
+<li><strong>InvalidRequest</strong> - Invalid payload passed as a FutoIn request.
+    <em>Must be generated only on the Executor side</em>.</li>
+<li><strong>DefenseRejected</strong> - Security defense systems triggered a rejection.
+    <em>Must be generated on the Executor side, but may also be raised on the
+    Invoker side</em>.</li>
+<li><strong>PleaseReauth</strong> - Executor demands user re-authentication.
+    <em>Must be generated only on the Executor side</em>.</li>
+<li><strong>SecurityError</strong> - The <code>sec</code> request section contains invalid data or
+    requires a SecureChannel.
+    <em>Must be generated only on the Executor side</em>.</li>
+<li><strong>Timeout</strong> - Timeout occurred during any execution stage.
+    <em>Must be used only internally</em>.</li>
+</ul>
+<h2>1.10. Payload size safety limits</h2>
+<p>Both request and response messages are assumed to be relatively small. Heavy
+data should be transferred as raw payload via HTTP or other lower-level
+protocols. Therefore, a default safety limit of <strong>64 KBytes</strong> is enforced for
+any payload type. Both Invoker and Executor must enforce this limit unless an
+efficient mechanism with $O(1)$ complexity is used to transfer messages between
+peers (e.g., shared memory).</p>
+<h2>1.10.1. Max message size adjustment per function definition</h2>
+<p>In cases where transferring larger payloads directly in the primary message
+exchange protocol is necessary, limits can be adjusted per function using the
+<code>maxreqsize</code> and <code>maxrspsize</code> attributes.</p>
+<p>However, this practice is discouraged, as it may compromise service stability.</p>
+<p>Supported units:</p>
+<ul>
+<li>'B' - Bytes</li>
+<li>'K' - Kilobytes (1024 bytes)</li>
+<li>'M' - Megabytes (1024 kilobytes)</li>
+</ul>
+<p><em>Since: v1.8</em></p>
+<h2>1.11. On Behalf Of calls</h2>
+<p>Executors are expected to pass authenticated user information in downstream
+sub-calls so that all authorization checks are evaluated against the end user
+rather than the Executor service itself. This mechanism simplifies access
+control implementations in nested service topologies. If a sub-call is intended
+to execute with service-level credentials, this must be managed via the System
+Invoker interface options.</p>
+<h2>1.12. Minimum user authentication security level</h2>
+<p>Each function can define a <code>seclvl</code> attribute specifying the minimum required
+user authentication security level. This governs user validation rather than
+access control (e.g., sensitive operations may mandate two-factor or public-key
+authentication). A security level mismatch must trigger a <strong>PleaseReauth</strong>
+error, with the first word of the error description specifying the required
+security level.</p>
+<p>All unrecognized security level identifiers must be treated as requiring the
+maximum level of security.</p>
+<h2>1.13. Message coding formats</h2>
+<p>Invokers and Executors may support different sets of message serialization
+formats. Whenever a format mismatch occurs, the Executor must respond with a
+JSON-encoded error. The Invoker must then automatically fall back to JSON
+encoding for all subsequent requests.</p>
+<p>Auto-detection of message serialization formats follows these rules (when the
+message begins with ASCII):</p>
+<ol>
+<li><code>{</code> - Use JSON</li>
+<li><code>CBOR</code> - Use CBOR</li>
+<li><code>MPCK</code> - Use MessagePack</li>
+<li>Otherwise - Fall back and attempt JSON parsing</li>
+</ol>
+<h3>1.13.1. JSON</h3>
+<p>JSON is defined in <a href="http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf">ECMA-404</a>.</p>
+<p>JSON encoding must be supported by all standard Invoker and Executor
+implementations. Implementations for resource-constrained embedded devices may
+omit JSON support provided there is a clear justification based on size
+reduction.</p>
+<p>Because every FutoIn message is a JSON object, messages must start with the
+ASCII character <code>{</code> with no leading whitespace.</p>
+<h3>1.13.2. CBOR</h3>
+<p>CBOR is defined in <a href="https://tools.ietf.org/html/rfc7049">RFC 7049</a>.</p>
+<p>All CBOR-encoded messages must be prefixed with the 4-byte ASCII string <code>CBOR</code>.</p>
+<h3>1.13.3. MessagePack</h3>
+<p>MessagePack is defined in the <a href="https://github.com/msgpack/msgpack/blob/master/spec.html">GitHub spec</a>.</p>
+<p>All MessagePack-encoded messages must be prefixed with the 4-byte ASCII string
+<code>MPCK</code>.</p>
+<h1>2. Interface concept</h1>
+<p>Executor-side function identifiers are grouped into interfaces defined using
+FutoIn format specifications (referred to individually as a "<em>spec</em>" or
+collectively as "<em>specs</em>").</p>
+<p>All specs used in a system should be available to both Invoker and Executor for
+dynamic retrieval from specialized repositories over the network. Repository
+access structures are described later in this document.</p>
+<p>For performance and reliability, specs may be pre-bundled or embedded directly
+within Invoker and Executor applications.</p>
+<p>Interfaces must be defined in a machine-readable JSON format. While generic
+JSON Schema specifications exist, they are too flexible for strict interface
+definitions. FutoIn therefore defines its own structured JSON schema for
+interface specifications below.</p>
+<h2>2.1. Interface definition schema</h2>
+<p>Using <a href="http://tools.ietf.org/html/draft-fge-json-schema-validation-00" title="JSON-SCHEMA">JSON-SCHEMA</a>:</p>
+<p class="futoin-schema">Schema: futoin-interface</p>
+
+<pre><code>    {
+        "title" : "FutoIn interface definition schema",
+        "type" : "object",
+        "required" : [ "iface", "version", "ftn3rev" ],
+        "additionalProperties" : false,
+        "properties" : {
+            "iface" : {
+                "type" : "string",
+                "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)+$",
+                "description" : "Unique interface identifier"
+            },
+            "version" : {
+                "type" : "string",
+                "pattern" : "^[0-9]+\\.[0-9]+$",
+                "description" : "Version of the given interface"
+            },
+            "ftn3rev" : {
+                "type" : "string",
+                "pattern" : "^[0-9]+\\.[0-9]+$",
+                "description" : "Version of the FTN3 spec, according to which the iface is defined"
+            },
+            "types" : {
+                "type" : "object",
+                "description" : "iface types. Must start with Capital",
+                "patternProperties" : {
+                    "^[A-Z][a-zA-Z0-9]*$" : {
+                        "type" : ["object", "string", "array"],
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "additionalProperties" : false,
+                        "properties" : {
+                            "type" :  {
+                                "type" : "string",
+                                "pattern" : "^any|boolean|integer|number|string|map|array|enum|set|data|[A-Z][a-zA-Z0-9]+$"
+                            },
+                            "min" : {
+                                "type": "number"
+                            },
+                            "max" : {
+                                "type": "number"
+                            },
+                            "minlen" : {
+                                "type": "number"
+                            },
+                            "maxlen" : {
+                                "type": "number"
+                            },
+                            "regex" : {
+                                "type": "string"
+                            },
+                            "elemtype" : {
+                                "type": "string"
+                            },
+                            "fields" : {
+                                "type": "object",
+                                "additionalProperties" : false,
+                                "patternProperties" : {
+                                    "^[a-z][a-z0-9_]*$" : {
+                                        "type" : ["object", "string", "array"],
+                                        "uniqueItems": true,
+                                        "additionalProperties" : false,
+                                        "properties" : {
+                                            "type" :  {
+                                                "type" : "string",
+                                                "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                                            },
+                                            "optional" : {
+                                                "type" : "boolean",
+                                                "description" : "If true the field is optional. Defaults to null"
+                                            },
+                                            "desc" : {
+                                                "type" : "string",
+                                                "description" : "Result variable description"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "items" : {
+                                "type" : "array",
+                                "uniqueItems": true,
+                                "additionalItems": false,
+                                "items" : {
+                                    "type" : ["string", "integer"]
+                                },
+                                "minItems": 1,
+                                "maxItems": 1000
+                            },
+                            "desc" : {
+                                "type" : "string",
+                                "description" : "Custom type description"
+                            }
+                        }
+                    }
+                },
+                "additionalProperties" : false
+            },
+            "funcs" : {
+                "type" : "object",
+                "description" : "Member function declaration",
+                "additionalProperties" : false,
+                "patternProperties" : {
+                    "^[a-z][a-zA-Z0-9]*$" : {
+                        "type" : "object",
+                        "additionalProperties" : false,
+                        "properties" : {
+                            "params" : {
+                                "type" : "object",
+                                "additionalProperties" : false,
+                                "patternProperties" : {
+                                    "^[a-z][a-z0-9_]*$" : {
+                                        "type" : ["object", "string", "array"],
+                                        "uniqueItems": true,
+                                        "additionalProperties" : false,
+                                        "properties" : {
+                                            "type" :  {
+                                                "type" : "string",
+                                                "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                                            },
+                                            "default" : {
+                                                "type" : [ "boolean", "integer", "number", "string", "object", "array", "null" ]
+                                            },
+                                            "desc" : {
+                                                "type" : "string",
+                                                "description" : "Parameter description"
+                                            }
+                                        }
+                                    }
+                                },
+                                "description" : "List of allowed parameter key-value pairs"
+                            },
+                            "result" : {
+                                "type" : ["object", "string"],
+                                "additionalProperties" : false,
+                                "patternProperties" : {
+                                    "^[a-z][a-z0-9_]*$" : {
+                                        "type" : ["object", "string", "array"],
+                                        "uniqueItems": true,
+                                        "additionalProperties" : false,
+                                        "properties" : {
+                                            "type" :  {
+                                                "type" : "string",
+                                                "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                                            },
+                                            "desc" : {
+                                                "type" : "string",
+                                                "description" : "Result variable description"
+                                            }
+                                        }
+                                    }
+                                },
+                                "description" : "List of allowed result key-value pairs"
+                            },
+                            "rawupload" : {
+                                "type" : "boolean",
+                                "description" : "If not set then arbitrary data upload is not allowed."
+                            },
+                            "rawresult" : {
+                                "type" : "boolean",
+                                "description" : "If set then no FutoIn response is assumed. Arbitrary raw data is sent instead."
+                            },
+                            "throws" : {
+                                "type" : "array",
+                                "uniqueItems": true,
+                                "description" : "List of associative error names, which can be triggered by function execution"
+                            },
+                            "heavy" : {
+                                "type" : "boolean",
+                                "description" : "Mark request as \"heavy\" in terms processing"
+                            },
+                            "maxreqsize" :  {
+                                "type" : "string",
+                                "pattern" : "^[1-9][0-9]*(B|K|M)$",
+                                "description" : "Specify max request size"
+                            },
+                            "maxrspsize" :  {
+                                "type" : "string",
+                                "pattern" : "^[1-9][0-9]*(B|K|M)$",
+                                "description" : "Specify max response size"
+                            },
+                            "seclvl" : {
+                                "type" : "string",
+                                "description" : "Minimum user authentication security level"
+                            },
+                            "desc" : {
+                                "type" : "string",
+                                "description" : "Interface Function description"
+                            }
+                        },
+                        "description" : "Interface Function declaration"
+                    }
+                }
+            },
+            "desc" : {
+                "type" : "string",
+                "description" : "Description of the interface"
+            },
+            "inherit" : {
+                "type" : "string",
+                "description" : "Name:version of interface to be inherited"
+            },
+            "imports" : {
+                "type" : "array",
+                "uniqueItems": true,
+                "description" : "Name:version of interface to be imported as a mixin"
+            },
+            "requires" : {
+                "type" : "array",
+                "description" : "List of conditions for interface operation",
+                "items" : {
+                    "type" : "string",
+                    "pattern" : "^AllowAnonymous|SecureChannel|BiDirectChannel|MessageSignature|BinaryData|[a-zA-Z0-9]+$"
+                },
+                "uniqueItems": true,
+                "additionalItems": false
+            }
+        }
+    }
+</code></pre>
+<p><em>Example:</em></p>
+<pre><code>    {
+        "iface" : "futoin.event.receiver",
+        "version" : "0.1",
+        "funcs" : {
+            "onEvent" : {
+                "params" : {
+                    "event" : {
+                        "type" : "string",
+                        "desc" : "Event name"
+                    },
+                    "data" : {
+                        "default" : null,
+                        "desc" : "Arbitrary event data"
+                    },
+                    "ref" : "string"
+                },
+                "desc" : "Asynchronously send event"
+            },
+            "reliableEvent" : {
+                "params" : {
+                    "event" : {
+                        "type" : "string",
+                        "desc" : "Event name"
+                    },
+                    "data" : {
+                        "default" : null,
+                        "desc" : "Arbitrary event data"
+                    }
+                },
+                "result" : {
+                    "delivered" : {
+                        "type" : "boolean",
+                        "desc" : "Must be true, if completed normally"
+                    }
+                },
+                "desc" : "Synchronously send event"
+            }
+        }
+    }
+</code></pre>
+<h2>2.2. Naming convention</h2>
+<h3>2.2.1. Interface identifier</h3>
+<p>An interface identifier (name) is assumed to be unique and consists of several
+string tokens joined by dot (<code>.</code>) separators. Each token must be a lowercase
+alphanumeric ASCII sequence.</p>
+<pre><code>Example: "futoin.event.receiver", "futoin.event.poll"
+</code></pre>
+<p>The first token of the identifier must reference a related domain name or be
+sufficiently unique to prevent name collisions (e.g., trademarks or registered
+namespaces).</p>
+<pre><code>Example: "example.com.interface", "example.org.namespace.interface"
+</code></pre>
+<p><strong>Note: The "futoin." interface prefix is reserved exclusively for official
+FutoIn project specifications.</strong></p>
+<h3>2.2.2. Function identifier</h3>
+<p>Function names follow camelCase formatting. Example: "someFunc", "anotherFunc"</p>
+<p><strong>Note: The "futoin" function prefix is reserved for internal system functions.</strong></p>
+<h3>2.2.3. Parameter/Result identifier</h3>
+<p>Parameter and result variable names follow snake_case formatting
+(<code>small_caps_with_underscore</code>).
+Example: "some_param", "some_result_value"</p>
+<h2>2.3. Interface inheritance</h2>
+<p>Domain-specific interfaces often share a large set of common functionality and
+require only a few extra functions or parameters.</p>
+<p>An interface can inherit from another interface. It must be possible to call any
+derived interface through its parent or grandparent interfaces.</p>
+<p>Inheritance is strictly restricted to:</p>
+<ul>
+<li>Adding new functions</li>
+<li>Adding new parameters to existing functions:<ul>
+<li>The Executor must accept <code>null</code> or omitted values for these additional
+  parameters.</li>
+<li>All added parameters must define default values.</li>
+</ul>
+</li>
+<li>Adding new result fields to existing return types:<ul>
+<li>The Invoker must ignore new result fields when calling the function
+  through a parent interface (and should generally ignore unrecognized
+  result fields).</li>
+<li>Note: Changing the <code>rawresult</code> flag is strictly forbidden.</li>
+</ul>
+</li>
+</ul>
+<p><em>Note: Multiple interface inheritance is not supported at this time.</em></p>
+<p>Due to how Executors handle interface lookup, a single base interface must not
+be inherited by multiple derived interfaces within the same Executor instance.
+<em>The primary purpose of inheritance is to establish reusable
+</em><em>base implementation logic</em><em> that can be extended by a single derived
+interface.</em></p>
+<p>If only an interface's definitions should be reused without sharing implementation
+logic then the mixin/import feature should be used instead.</p>
+<h2>2.4. Interface operation requirements</h2>
+<p>Interfaces can enforce runtime requirements using the <code>requires</code> attribute.</p>
+<p>Standard requirement options:</p>
+<ul>
+<li><code>AllowAnonymous</code> - The interface accepts calls without Client Authentication
+    details.</li>
+<li><code>SecureChannel</code> - Message transport must occur over an encrypted channel to
+    protect sensitive payloads. Channel encryption is the joint responsibility
+    of the Client and Service implementations.</li>
+<li><code>BiDirectChannel</code> - Transport channels must support bi-directional message
+    exchange (allowing both peers to act as Invokers and Executors).</li>
+<li><code>MessageSignature</code> - Mandates payload signatures for all messages (e.g., HMAC).</li>
+<li><code>BinaryData</code> - Mandates binary-friendly transport protocols and codecs (e.g.,
+    CBOR instead of JSON).</li>
+</ul>
+<p>To maintain security, inheriting interfaces must explicitly re-declare all
+<code>requires</code> directives defined by parent interfaces.</p>
+<h2>2.5. Interface repositories</h2>
+<p>All publicly released specifications must be hosted in an accessible repository
+containing two identically structured directory trees: "<strong>draft</strong>" and
+"<strong>final</strong>".</p>
+<p>Each tree contains:</p>
+<ul>
+<li><strong>meta/</strong> - Directory containing generated machine-readable data files.</li>
+<li><strong>preview/</strong> - Directory containing generated HTML renderings of
+    specifications.</li>
+<li><strong>misc/{spec_name}/</strong> - Optional directory holding assets used to generate
+    the specification.</li>
+<li>Markdown (<code>.html</code>) specification source files using FutoIn custom extensions.</li>
+</ul>
+<p>The <strong>meta/</strong> and <strong>preview/</strong> folders must follow this naming convention:</p>
+<ul>
+<li><strong>{interface_name}-{major}.{minor}-iface.json</strong> - Explicit version spec
+    definition file (historical versions must be retained).</li>
+<li><strong>{interface_name}-{major}-iface.json</strong> - Pointer/symlink to the latest
+    <code>{minor}</code> version for the <code>{major}</code> release.</li>
+<li><strong>{interface_name}-iface.json</strong> - Pointer/symlink to the latest overall
+    interface version.</li>
+<li><strong>{schema_name}-{major}.{minor}-schema.json</strong> - Versioned JSON Schema file
+    (following the same symlink conventions).</li>
+<li><strong>{schema_name}-{major}-schema.json</strong> - Latest major release schema pointer.</li>
+<li><strong>{schema_name}-schema.json</strong> - Absolute latest schema pointer.</li>
+</ul>
+<p><em>Note: <code>{minor}</code> version numbers must not include the <code>DV</code> prefix.</em></p>
+<p><em>Note: By convention, specification repository domain names should use the
+<code>specs.</code> subdomain prefix and be available via HTTP and/or HTTPS.</em></p>
+<p>Automatic retrieval processes must check <strong>final/meta/</strong> first before searching
+<strong>draft/meta/</strong>. This allows application code to remain unchanged during spec
+development and after final publication. However, draft specifications remain
+subject to change without version updates; applications should cache draft specs
+using short Time-To-Live (TTL) durations or disable caching entirely.</p>
+<h2>2.6. Iface definition spec version</h2>
+<p>Every interface definition must specify an <code>ftn3rev</code> field formatted as
+<code>MAJOR.MINOR</code>. If this field is omitted, FTN3 revision 1.0 is assumed.</p>
+<p>Invoker implementations must permit interface loading as long as the major
+version is supported, regardless of the minor version.</p>
+<p>Executor implementations must permit interface loading only if the exact
+specified FTN3 revision is fully supported.</p>
+<h2>2.7. Interface mixin</h2>
+<p>Interface mixins provide a lightweight solution when <strong>interface definitions</strong>
+need to be reused across unrelated implementation structures (for example,
+standard CRUDL patterns).</p>
+<p>Mixin interfaces are imported using the <code>imports</code> array containing
+<code>iface:version</code> string identifiers.</p>
+<p>The import procedure handles <code>types</code>, <code>funcs</code>, and <code>requires</code> declarations
+identically to standard inheritance. However, an imported mixin is not
+recognized as a parent interface class.</p>
+<p>If an imported interface contains its own <code>imports</code> definitions, these must be
+treated as if declared directly at the top level of the primary interface.
+Duplicate imports of compatible interface versions will be merged automatically
+to resolve diamond-dependency patterns.</p>
+<h2>2.8. "Heavy" requests</h2>
+<p>Functions that require significant system resources can be designated as
+"heavy". Executors may use this metadata to constrain concurrent heavy
+invocations to protect system stability and performance. Heavy requests may also
+be assigned longer default timeout thresholds.</p>
+<p>=END OF SPEC=</p>
+</body></html>

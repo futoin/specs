@@ -1,13 +1,15 @@
 <pre>
 FTN3: FutoIn Interface Definition
-Version: 1.9DV
-Date: 2018-04-17
-Copyright: 2014-2018 FutoIn Project (http://futoin.org)
+Version: 1.10DV
+Date: 2026-10-04
+Copyright: 2014-2026 FutoIn Project (http://futoin.org)
 Authors: Andrey Galkin
 </pre>
 
 # CHANGES
 
+* v1.10 - 2026-10-04 - Andrey Galkin
+    * CHANGED: AI-aided proofreading changes.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -57,100 +59,107 @@ Authors: Andrey Galkin
 
 ## 1.1. Peer-to-peer communication
 
-There is Invoker and Executor side. Both can be implemented in scope of single
-process, different processes or different machines across network.
+There are Invoker and Executor sides. Both can be implemented within the scope
+of a single process, across different processes, or across different machines
+over a network.
 
-Multi-peer communication is assumed to be a higher level concept on top of 
-current one.
+Multi-peer communication is assumed to be a higher-level concept built on top of
+the current one.
 
-Object-oriented remote calls is also assumed to be a higher level concept.
+Object-oriented remote calls are also assumed to be a higher-level concept.
 
-It assumed that there is language- and/or software platform-specific
-standardized low-level API/ABI for connection establishing and calls coupled
-with optional standardized high-level binding/mapping of FutoIn interfaces
-to native features.
+It is assumed that there is a language- and/or platform-specific standardized
+low-level API/ABI for establishing connections and making calls, coupled with an
+optional standardized high-level binding/mapping of FutoIn interfaces to native
+language features.
 
-All specifications and implementations assume to support loose coupling of
-each components, suitable for easy separation, replacement and unit testing.
+All specifications and implementations are assumed to support loose coupling of 
+each component, making them suitable for easy separation, replacement, and unit 
+testing.
 
-Each call has a request and may have a response messages with key-value pairs described below.
-If a call does not expect to return any result then no response message must be
-sent and/or expected to be received. It must be possible to override with *forcersp*
-flag in request message.
+Each call has a request message and may have a response message containing the
+key-value pairs described below. If a call does not expect to return any result,
+no response message must be sent or expected. It must be possible to override
+this behavior using the *forcersp* flag in the request message.
 <br>
-*Note: it means that call must return at least something to detect on invoker if the
-call is properly executed*
+*Note: This means a call must return at least something to allow the Invoker to
+detect whether the call was executed properly.*
 
-For large data transfer efficiency purposes, if message transport allows such extension,
-request message can be coupled with raw request data and/or response can be *replaced*
-with raw response data. Typical scenario is file upload and/or download through HTTP(S).
+For large data transfer efficiency, if the message transport allows such
+extensions, a request message can be coupled with raw request data and/or a
+response can be *replaced* with raw response data. A typical scenario is a file
+upload and/or download via HTTP(S).
 
-Lower-level protocol of message exchange is out of scope of this specification.
-
+The lower-level message exchange protocol is out of the scope of this
+specification.
 
 Possible examples of Peer-to-peer communication types:
 
-* raw datagram like UNIX Socket, UDP or SCTP
+* Raw datagrams (e.g., UNIX Domain Sockets, UDP, or SCTP)
 * WebSockets
-* HTTP with request in POST and response in body
-* HTTP with request in GET path with parameters and response in body
-* HTTP with request in POST or GET and non-message payload in body (e.g. BLOB)
-* HTTP CRUDL mapped to/from FutoIn interface
-
-
+* HTTP with the request in POST and response in the body
+* HTTP with the request in the GET path with parameters and response in the body
+* HTTP with the request in POST or GET and a non-message payload in the body
+  (e.g. BLOB)
+* HTTP CRUDL mapped to/from a FutoIn interface
 
 
 ## 1.2. Function Call
 
-The major parts: **function identifier**, **parameters**, **result** and
-**exception**.
+The major components are: **function identifier**, **parameters**, **result**,
+and **exception**.
 
-* **function identifier** - unique associative name of string type with interface name,
-    version and interface function coded in it
-* **parameters** - key-value pairs
-    * key - unique associative name of string type
-    * value - value of arbitrary JSON type defined in interface
-* **result** - key-value pairs, similar to parameters
-* **exception** - associative name of the first error occurred during function execution
+* **function identifier** - A unique associative string containing the interface
+name, version, and interface function encoded within it.
+* **parameters** - Key-value pairs:
+    * key - Unique associative string name.
+    * value - Value of an arbitrary JSON type defined in the interface.
+* **result** - Key-value pairs, structured similarly to parameters.
+* **exception** - Associative name of the first error that occurred during
+  function execution.
 
 
 ## 1.3. Client-server/service multiplexing mode
 
-Invoker is responsible to enable request message (and response therefore)
-multiplexing by adding special *request ID* field. Executor is responsible
-for adding the same field to related response message.
+The Invoker is responsible for enabling request message (and consequently
+response message) multiplexing by adding a special *request ID* field. The
+Executor is responsible for echoing the exact same field back in the related
+response message.
 
-Please note that *Invoker* and *Client*, *Executor* and *Server* are NOT the same terms.
-Client is the peer which initiated peer-to-peer communication. Server is the peer 
-which accepts peer-to-peer communications. On the other hand, Invoker sends request and
-Executor replies to the request.
+Please note that *Invoker* and *Client*, as well as *Executor* and *Server*, are
+NOT synonymous terms. The Client is the peer that initiated the peer-to-peer
+communication channel. The Server is the peer that accepts peer-to-peer
+communications. On the other hand, an Invoker sends a request and an Executor
+replies to it.
 
-Client side request ID must be prefixed with "C".
-Server side request ID must be prefixed with "S".
+Client-side request IDs must be prefixed with "C".
+Server-side request IDs must be prefixed with "S".
 
-The rest of request ID should be integer value starting with 1 and incrementing with
-every subsequent request sent. However, it should be allowed to add other prefixes
-to this value.
+The rest of the request ID should be an integer value starting at 1 and
+incrementing with every subsequent request sent. However, implementations should
+allow adding other custom prefixes to this value.
 
-*Note: Request ID must never be used outside of multiplexing context as it by definition
-duplicates across different communication channels*
+*Note: A Request ID must never be used outside of a multiplexing context, as it
+is, by definition, duplicated across different communication channels.*
 
 
 ## 1.4. Uni-directional call pattern
 
-Invoker/Executor side is semantically defined and does not rely on Client/Server
-status of peer. There is no protocol-level support for that. Each side controls if
-it can act as Executor.
+The Invoker/Executor side is semantically defined and does not rely on the
+Client/Server status of the peer. There is no protocol-level support for
+enforcing this relationship; each side controls whether it can act as an
+Executor.
 
-It is suggested that Client side is always Invoker in uni-directional pattern.
+It is recommended that the Client side always acts as the Invoker in a
+uni-directional pattern.
 
-Both serial and multiplexing modes are allowed.
+Both serial and multiplexing modes are permitted.
 
 
 ## 1.5. Bi-directional call pattern
 
-Each side is both Invoker and Executor. Bi-directional pattern must always work
-in message multiplexing mode.
+Each side acts as both Invoker and Executor. The bi-directional pattern must
+always operate in message multiplexing mode.
 
 
 ## 1.6. Request schema
@@ -281,82 +290,85 @@ Using [JSON-SCHEMA][]:
 
 ## 1.8. Parameter and result types
 
-The standard FutoIn interface types:
+Standard FutoIn interface types:
 
-* `boolean` - true or false
-* `integer` - signed integer with 32-bit precision
-* `number` - float value with 32-bit precision
-* `string` - string of unlimited length
-* `map` - key-value pairs (JSON object by fact). No ordering is guaranteed.
-    * `key` - string
-    * `value` - any type defined in this section
-* `array` - ordered list of values
-    * `value` - any type defined in this section
-* `enum` - value from predefined set
-    * `value` - integer or string
-* `set` - list of unique values
-    * `value` - integer or string
-* `data` - binary data
-    * `value` - sequence of bytes
-* `any` - field type is not checked
-* *CustomType* - any pre-defined custom type defined, inherited or imported
-    in the same iface
+* `boolean` - `true` or `false`
+* `integer` - Signed integer with 32-bit precision
+* `number` - Floating-point value with 32-bit precision
+* `string` - String of unlimited length
+* `map` - Key-value pairs (effectively a JSON object). No ordering is guaranteed.
+    * `key` - String
+    * `value` - Any type defined in this section
+* `array` - Ordered list of values
+    * `value` - Any type defined in this section
+* `enum` - Value from a predefined set
+    * `value` - Integer or string
+* `set` - List of unique values
+    * `value` - Integer or string
+* `data` - Binary data
+    * `value` - Sequence of bytes
+* `any` - Field type is not validated
+* *CustomType* - Any custom type defined, inherited, or imported within the same
+    interface
 
-*Note: **null** can be used only as placeholder in "default" values.*
+*Note: **null** can be used only as a placeholder in "default" values.*
 
 ### 1.8.1. Custom types
 
-Each iface can define own types in the optional "types" fields.
+Each interface can define its own types in the optional "types" field.
 
-The types are inherited and imported. It is an error to redefine type in such case.
+Custom types are inherited and imported. Re-defining an existing type in such
+cases constitutes an error.
 
 Each custom type must be based on one of the standard types, but can define
 various *optional* constraints:
 
 * `integer` and `number`:
-    * `min` - minimal allowed value (inclusive).
-    * `max` - maximal allowed value (inclusive).
+    * `min` - Minimum allowed value (inclusive).
+    * `max` - Maximum allowed value (inclusive).
 * `string`:
     * `regex` - ECMAScript regular expression.
-    * `minlen` - minimal string length (inclusive).
-    * `maxlen` - maximal string length (inclusive).
+    * `minlen` - Minimum string length (inclusive).
+    * `maxlen` - Maximum string length (inclusive).
 * `array`:
-    * `minlen` - minimal array length (inclusive).
-    * `maxlen` - maximal array length (inclusive).
-    * `elemtype` - required element type.
+    * `minlen` - Minimum array length (inclusive).
+    * `maxlen` - Maximum array length (inclusive).
+    * `elemtype` - Required element type.
 * `map`:
-    * `fields` - a map of field_name to:
-        * `type` - required field type
-        * `optional` - optional. boolean. True, if the field can be omitted.
-        * `desc` - optional. string, Description of the field.
-    * `elemtype` - required element type, if no "fields" are provided.
+    * `fields` - A map of field names to:
+        * `type` - Required field type
+        * `optional` - Optional boolean. `true` if the field can be omitted.
+        * `desc` - Optional string description of the field.
+    * `elemtype` - Required element type, if no "fields" map is provided.
 * `enum`:
-    * `items` - list of allowed integer or string values
+    * `items` - List of allowed integer or string values.
 * `set`:
-    * `items` - complete set of allowed integer or string values
+    * `items` - Complete set of allowed integer or string values.
 * `data`:
-    * `minlen` - minimal data array byte length (inclusive).
-    * `maxlen` - maximal data array byte length (inclusive).
+    * `minlen` - Minimum byte length (inclusive).
+    * `maxlen` - Maximum byte length (inclusive).
 
-*NOTE: omitted optional field of custom map type must be set to null on incoming message (request
-for Executor and response for Invoker case). Optional fields should be allowed to be sent as null.*
+*NOTE: An omitted optional field of a custom map type must be set to `null` on
+incoming messages (requests for the Executor and responses for the Invoker).
+Optional fields must also be permitted to be sent explicitly as `null`.*
 
 ### 1.8.2. "null" parameter value
 
-As a special case, it's possible to mark any parameter with default value of "null". Besides
-providing the default value, it also triggers a special parameter verification logic which skips
-any constraint check, if actual value is null.
+As a special case, any parameter can be marked with a default value of `"null"`.
+Beyond providing a default value, this triggers special parameter verification
+logic that bypasses constraint validation if the actual provided value is
+`null`.
 
 ### 1.8.3. Shortcut for type definition
 
-Parameter, result variable, field in "map" and type can be defined with string.
-The string must be a name of a known type.
+Parameters, result variables, fields in a `map`, and types can be defined using
+a simple string representing a known type name.
 
-So,
+For example:
 `
     "param" : "integer"
 `
-is equivalent to
+is equivalent to:
 `
     "param" : {
         "type" : "integer"
@@ -365,11 +377,12 @@ is equivalent to
 
 ### 1.8.4. Type variations
 
-Sometimes the same parameter or result may be allowed to have different types.
-For example: database query can return both integer and string field data.
+Occasionally, a single parameter or result field may accept multiple distinct
+types. For example, a database query might return either integer or string field
+data.
 
-For that purpose, specification allows listing several types in array. Such
-approach is supported only in shortcut type definition form, e.g.:
+To support this, the specification permits listing multiple types in an array.
+This approach is supported exclusively in shortcut type definition form, e.g.:
 `
     "param" : ["integer", "string"]
 `
@@ -378,166 +391,183 @@ approach is supported only in shortcut type definition form, e.g.:
 
 ### 1.8.5. Result type
 
-Very often function calls return only single value. It is not efficient and
-is redundant to access a single value result like `result.result`. Therefore, it's allowed
-to define result as string referring to standard or custom type.
+Functions frequently return a single scalar value. Wrapping single-value results
+in an object leads to redundant access paths like `result.result`. Therefore,
+results may be defined as a string referring directly to a standard or custom
+type.
 
-Type variations are not allowed in result.
+Type variations are not allowed in result type definitions.
 
 *Since: v1.7*
 
 ### 1.8.6. Binary "data" type
 
-Even though original intention was not to include raw binary data. Instead, any
-sort of encoding was assumed. However, to allow moving "microservice as library"
-concept further, FutoIn needs to support raw binary data for efficient in-process
-calls and binary-friendly codecs.
+Although the original intent was to exclude raw binary data in favor of explicit
+encodings, supporting the "microservice as library" concept requires native
+handling of binary data. FutoIn supports raw binary data for efficient
+in-process calls and binary-friendly codecs.
 
-If interface uses binary data then it should use "BinaryData" constraint.
-An alternative interface or function can be defined to support text-only protocols.
+If an interface uses binary data, it should include the "BinaryData"
+requirement. An alternative interface or function can be provided to support
+text-only protocols.
 
 *Since: v1.9*
 
 ## 1.9. Errors and exceptions
 
-Any functional call can result in expected or unexpected errors. This concept
-is similar to checked/unchecked exceptions in Java language.
+Any function call can produce expected or unexpected errors. This concept is
+analogous to checked and unchecked exceptions in Java.
 
-All expected exceptions/errors, which appear in standard flow must be enumerated
-in `throws` clause of function declaration in interface definitions (see below).
+All expected exceptions/errors that occur during standard execution flow must be
+enumerated in the `throws` clause of the function declaration inside interface
+definitions (see below).
 
-Unexpected exceptions/errors are generated by execution environment/condition as
-reaction to error condition not related to logic implemented in given function. 
-Example: internal communication errors, hit of resource limits, crashes, etc.
+Unexpected exceptions/errors are generated by the execution environment/runtime
+in response to error conditions unrelated to the logic of the specific function
+(e.g., internal communication failures, resource limit breaches, crashes, etc.).
 
-If possible, language/platform-specific bindings should enforce Invoker to check
-for all excepted errors.
+Where possible, language/platform-specific bindings should enforce that the
+Invoker explicitly checks for all declared expected errors.
 
 ### 1.9.1. Predefined unexpected errors
 
-* **ConnectError** - connection error before request is sent.
-    *Must be generated only on Invoker side*.
-* **CommError** - communication error at any stage after request is sent
-    and before response is received.
-    *Must be generated only on Invoker side*.
-* **UnknownInterface** - unknown interface requested.
-    *Must be generated only on Executor side*.
-* **NotImplemented** - in case interface function is not implemented on Executor side
-    *Must be generated only on Executor side*.
-* **NotSupportedVersion** - not supported interface version
-    *Must be generated only on Executor side*.
-* **Unauthorized** - security policy on Executor side does not allow to
-    access interface or specific function.
-    *Must be generated only on Executor side*.
-* **InternalError** - unexpected internal error on Executor side, including internal CommErrors.
-    *Must be generated only on Executor side*.
-* **InvokerError** - unexpected internal error on Invoker side, not related to CommErrors.
-    *Must be generated only on Invoker side*.
-* **InvalidRequest** - invalid data is passed as FutoIn request.
-    *Must be generated only on Executor side*.
-* **DefenseRejected** - defense system has triggered rejection
-    *Must be generated on Executor side, but also possible to be triggered on Invoker*.
-* **PleaseReauth** - Executor requests re-authorization
-    *Must be generated only on Executor side*.
-* **SecurityError** - 'sec' request section has invalid data or not SecureChannel
-    *Must be generated only on Executor side*.
-* **Timeout** - Timeout occurred in any stage
+* **ConnectError** - Connection error occurring before the request is sent.
+    *Must be generated only on the Invoker side*.
+* **CommError** - Communication error occurring at any stage after the request
+    is sent and before a response is received.
+    *Must be generated only on the Invoker side*.
+* **UnknownInterface** - The requested interface is unknown.
+    *Must be generated only on the Executor side*.
+* **NotImplemented** - The interface function is not implemented on the Executor
+    side.
+    *Must be generated only on the Executor side*.
+* **NotSupportedVersion** - The requested interface version is not supported.
+    *Must be generated only on the Executor side*.
+* **Unauthorized** - The Executor's security policy prohibits access to the
+    interface or specific function.
+    *Must be generated only on the Executor side*.
+* **InternalError** - Unexpected internal error on the Executor side, including
+    internal CommErrors.
+    *Must be generated only on the Executor side*.
+* **InvokerError** - Unexpected internal error on the Invoker side unrelated to
+    CommErrors.
+    *Must be generated only on the Invoker side*.
+* **InvalidRequest** - Invalid payload passed as a FutoIn request.
+    *Must be generated only on the Executor side*.
+* **DefenseRejected** - Security defense systems triggered a rejection.
+    *Must be generated on the Executor side, but may also be raised on the
+    Invoker side*.
+* **PleaseReauth** - Executor demands user re-authentication.
+    *Must be generated only on the Executor side*.
+* **SecurityError** - The `sec` request section contains invalid data or
+    requires a SecureChannel.
+    *Must be generated only on the Executor side*.
+* **Timeout** - Timeout occurred during any execution stage.
     *Must be used only internally*.
 
 ## 1.10. Payload size safety limits
 
-It is assumed that both request and response messages are relatively small. All heavy data should be
-transfered as raw HTTP or other lower level protocol payload. Therefore, a default safety limit
-of **64 KBytes** is imposed for any type of payload. Both Invoker and Executor should control
-this limit, unless there is efficient mechanism with O(1) complexity to transfer message
-from peer to peer (e.g. shared memory).
+Both request and response messages are assumed to be relatively small. Heavy
+data should be transferred as raw payload via HTTP or other lower-level
+protocols. Therefore, a default safety limit of **64 KBytes** is enforced for
+any payload type. Both Invoker and Executor must enforce this limit unless an
+efficient mechanism with $O(1)$ complexity is used to transfer messages between
+peers (e.g., shared memory).
 
 ## 1.10.1. Max message size adjustment per function definition
 
-For some cases it may still be desired to transfer larger data in single call using main message
-exchange transport protocol. It can be set per-function with `maxreqsize` and `maxrspsize` attributes.
+In cases where transferring larger payloads directly in the primary message
+exchange protocol is necessary, limits can be adjusted per function using the
+`maxreqsize` and `maxrspsize` attributes.
 
-However, it is discouraged as it may jeopardize service stability.
+However, this practice is discouraged, as it may compromise service stability.
 
-Units assumed:
+Supported units:
 
-* 'B' - bytes
-* 'K' - Kilobytes - 1024 bytes
-* 'M' - Megabytes - 1024 kilobytes
+* 'B' - Bytes
+* 'K' - Kilobytes (1024 bytes)
+* 'M' - Megabytes (1024 kilobytes)
 
 *Since: v1.8*
 
 ## 1.11. On Behalf Of calls
 
-It is expected that Executor passes authenticated user information in sub-calls, so
-all security checks are done against user, but not Executor itself. It is a 
-simple security measure to avoid error-prone access control implementation in sub-calls.
-If call is expected to be done on behalf of system then it should be controlled by
-System's Invoker iface option.
+Executors are expected to pass authenticated user information in downstream
+sub-calls so that all authorization checks are evaluated against the end user
+rather than the Executor service itself. This mechanism simplifies access
+control implementations in nested service topologies. If a sub-call is intended
+to execute with service-level credentials, this must be managed via the System
+Invoker interface options.
 
 ## 1.12. Minimum user authentication security level
 
-Each function can have *seclvl* defined to control minimum security level of user
-authentication. It is not related to access control, but user validation, e.g.
-important functionality may require dual factor or public key based authentication.
-**PleaseReauth** is to be triggered on security level mismatch with the first word
-in description containing required security level.
+Each function can define a `seclvl` attribute specifying the minimum required
+user authentication security level. This governs user validation rather than
+access control (e.g., sensitive operations may mandate two-factor or public-key
+authentication). A security level mismatch must trigger a **PleaseReauth**
+error, with the first word of the error description specifying the required
+security level.
 
-All unknown security levels are to be treated as maximum level of security.
+All unrecognized security level identifiers must be treated as requiring the
+maximum level of security.
 
-## 1.13. Message coding formats:
+## 1.13. Message coding formats
 
-Both Invoker and Executor may support different sets of message coding formats. Whenever
-there is a mismatch, Executor must response with JSON coded error. Then Invoker must
-automatically fallback to JSON coding for all further requests.
+Invokers and Executors may support different sets of message serialization
+formats. Whenever a format mismatch occurs, the Executor must respond with a
+JSON-encoded error. The Invoker must then automatically fall back to JSON
+encoding for all subsequent requests.
 
-The following rules must apply to auto-detection of message coding format. If message starts from ASCII:
+Auto-detection of message serialization formats follows these rules (when the
+message begins with ASCII):
 
-1. `{` - use JSON
-2. `CBOR` - use CBOR
-3. `MPCK` - use MessagePack
-4. Otherwise, fallback and try JSON
+1. `{` - Use JSON
+2. `CBOR` - Use CBOR
+3. `MPCK` - Use MessagePack
+4. Otherwise - Fall back and attempt JSON parsing
 
 ### 1.13.1. JSON
 
 JSON is defined in [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 
-JSON encoding must always be supported by both Invoker and Executor. However, some
-implementations may omit it with justification of size reduction - software for
-embedded devices.
+JSON encoding must be supported by all standard Invoker and Executor
+implementations. Implementations for resource-constrained embedded devices may
+omit JSON support provided there is a clear justification based on size
+reduction.
 
-As FutoIn message is always an object - it must start with `{` ASCII character, but
-leading spaces are not allowed.
+Because every FutoIn message is a JSON object, messages must start with the
+ASCII character `{` with no leading whitespace.
 
 ### 1.13.2. CBOR
 
-CBOR is defined in [RFC 7049](https://tools.ietf.org/html/rfc7049)
+CBOR is defined in [RFC 7049](https://tools.ietf.org/html/rfc7049).
 
-All messages must be prefixed with `CBOR` ASCII 4 byte string.
+All CBOR-encoded messages must be prefixed with the 4-byte ASCII string `CBOR`.
 
 ### 1.13.3. MessagePack
 
-MessagePack is defined in [GitHub spec](https://github.com/msgpack/msgpack/blob/master/spec.md).
+MessagePack is defined in the [GitHub spec](https://github.com/msgpack/msgpack/blob/master/spec.md).
 
-All messages must be prefixed with `MPCK` ASCII 4 byte string.
+All MessagePack-encoded messages must be prefixed with the 4-byte ASCII string
+`MPCK`.
 
 # 2. Interface concept
 
-Executor side functions identifiers are grouped into interfaces, which must have
-a specifications in FutoIn format. Further, those will be named "*spec*" for singular
-or "*specs*" for plural.
+Executor-side function identifiers are grouped into interfaces defined using
+FutoIn format specifications (referred to individually as a "*spec*" or
+collectively as "*specs*").
 
-All used specs should be available to Invoker and Executor for dynamic retrieval
-from special repositories through network. Repository access and format will
-be described later in this document.
+All specs used in a system should be available to both Invoker and Executor for
+dynamic retrieval from specialized repositories over the network. Repository
+access structures are described later in this document.
 
-For optimization and reliability reasons, specs can be bundled and/or
-embedded into Invoker and/or Executor application.
+For performance and reliability, specs may be pre-bundled or embedded directly
+within Invoker and Executor applications.
 
-Interfaces must be defined in machine-readable form using [JSON][].
-There is existing neutral JSON Schema, but it is universal and therefore too
-loose for interface definition. Therefore FutoIn defines own JSON
-structure for interface definition below.
+Interfaces must be defined in a machine-readable JSON format. While generic
+JSON Schema specifications exist, they are too flexible for strict interface
+definitions. FutoIn therefore defines its own structured JSON schema for
+interface specifications below.
 
 
 ## 2.1. Interface definition schema
@@ -815,143 +845,163 @@ Using [JSON-SCHEMA][]:
 
 ### 2.2.1. Interface identifier
 
-It is assumed that interface identifier (name) is unique and consists of several string tokens
-concatenated with dots ("."). Each token is small latin alpha-numeric sequence.
+An interface identifier (name) is assumed to be unique and consists of several
+string tokens joined by dot (`.`) separators. Each token must be a lowercase
+alphanumeric ASCII sequence.
 
     Example: "futoin.event.receiver", "futoin.event.poll"
 
-The first part of identifier must reference related project domain name or be unique enough
-to avoid name clashing (e.g. trademark, reserved prefix, etc.).
+The first token of the identifier must reference a related domain name or be
+sufficiently unique to prevent name collisions (e.g., trademarks or registered
+namespaces).
     
     Example: "example.com.interface", "example.org.namespace.interface"
 
-**Note: "futoin." interface prefix is reserved for official FutoIn project specs**
+**Note: The "futoin." interface prefix is reserved exclusively for official
+FutoIn project specifications.**
 
 ### 2.2.2. Function identifier
 
-Function names follow camelCase. Example: "someFunc", anotherFunc"
+Function names follow camelCase formatting. Example: "someFunc", "anotherFunc"
 
-**Note: "futoin" function prefix is reserved for internal purposes**
+**Note: The "futoin" function prefix is reserved for internal system functions.**
 
 
 ### 2.2.3. Parameter/Result identifier
 
-Parameter and result variable names follow small_caps_with_underscore pattern.
+Parameter and result variable names follow snake_case formatting
+(`small_caps_with_underscore`).
 Example: "some_param", "some_result_value"
 
 
 
 ## 2.3. Interface inheritance
 
-In many cases, domain-specific interfaces have a large universal subset and only a few
-domain-specific additional functions and/or function parameters.
+Domain-specific interfaces often share a large set of common functionality and
+require only a few extra functions or parameters.
 
-Interface can inherit another interface. It should be possible to call any interface
-through its parent or any grandparent.
+An interface can inherit from another interface. It must be possible to call any
+derived interface through its parent or grandparent interfaces.
 
-Inheritance is limited to:
+Inheritance is strictly restricted to:
 
-* Adding additional functions
-* Adding additional parameters to existing function parameters
-    * Executor must accept null/absent values for additional parameters
-    * All additional parameters must have default value
-* Adding additional result fields to existing result variables
-    * Invoker must ignore additional result variables, if function
-    is called through parent interface (it should ignore additional result variable in general)
-    * Note: it is not allowed to change "rawresult" flag
+* Adding new functions
+* Adding new parameters to existing functions:
+    * The Executor must accept `null` or omitted values for these additional
+      parameters.
+    * All added parameters must define default values.
+* Adding new result fields to existing return types:
+    * The Invoker must ignore new result fields when calling the function
+      through a parent interface (and should generally ignore unrecognized
+      result fields).
+    * Note: Changing the `rawresult` flag is strictly forbidden.
 
-*Note: multiple interface inheritance is not supported at the moment*
+*Note: Multiple interface inheritance is not supported at this time.*
 
-Unfortunately, due to Executor's interface selection logic. The same base iface must not
-be used for inheritance of more than one derived interface within the same Executor instance.
-*The primary use of inheritance feature is to create reusable **base implementation logic**
-with customized extensions possible through derived interface.*
+Due to how Executors handle interface lookup, a single base interface must not
+be inherited by multiple derived interfaces within the same Executor instance.
+*The primary purpose of inheritance is to establish reusable
+**base implementation logic** that can be extended by a single derived
+interface.*
 
-If only the interface itself, but not the implementation logic needs to be re-used then
-mixin/import feature is appropriate solution.
+If only an interface's definitions should be reused without sharing implementation
+logic then the mixin/import feature should be used instead.
 
 
 ## 2.4. Interface operation requirements
 
-Some interfaces must be restricted to certain conditions. This can be defined on interface level
-through "requires" attribute.
+Interfaces can enforce runtime requirements using the `requires` attribute.
 
-Standard requirement type:
+Standard requirement options:
 
-* `AllowAnonymous` - interface can be called without Client Authentication information
-* `SecureChannel` - message exchange must be done through secure channel as it contains
-    not encrypted sensitive information. Channel security control is both Client and Service
-    implementation responsibility
-* `BiDirectChannel` - communication channel must allow bi-directional message exchange (both
-    peers should be able to act as invoker and executor)
-* `MessageSignature` - requires full message signing (e.g. HMAC)
-* `BinaryData` - requires binary friendly message codec (e.g. CBOR instead of JSON)
+* `AllowAnonymous` - The interface accepts calls without Client Authentication
+    details.
+* `SecureChannel` - Message transport must occur over an encrypted channel to
+    protect sensitive payloads. Channel encryption is the joint responsibility
+    of the Client and Service implementations.
+* `BiDirectChannel` - Transport channels must support bi-directional message
+    exchange (allowing both peers to act as Invokers and Executors).
+* `MessageSignature` - Mandates payload signatures for all messages (e.g., HMAC).
+* `BinaryData` - Mandates binary-friendly transport protocols and codecs (e.g.,
+    CBOR instead of JSON).
 
-
-For safety reasons, inheriting interface must re-define all "requires" items from
-inherited interface.
+To maintain security, inheriting interfaces must explicitly re-declare all
+`requires` directives defined by parent interfaces.
 
 ## 2.5. Interface repositories
 
-For all publicly released specs, there must be associated repository. Repository must have
-two identical in structure folder trees "**draft**" and "**final**".
+All publicly released specifications must be hosted in an accessible repository
+containing two identically structured directory trees: "**draft**" and
+"**final**".
 
-Each tree must have:
+Each tree contains:
 
-* **meta/** folder for generated machine-readable data
-* **preview/** simple generated HTML versions of specifications
-* **misc/{spec_name}/** optional folder for any additional file used for spec creation
-* files with "*md*" extension - original specs in Markdown format with custom extensions
+* **meta/** - Directory containing generated machine-readable data files.
+* **preview/** - Directory containing generated HTML renderings of
+    specifications.
+* **misc/{spec_name}/** - Optional directory holding assets used to generate
+    the specification.
+* Markdown (`.md`) specification source files using FutoIn custom extensions.
 
-Both "**meta**" and "**preview**" folders must have files in the following format:
+The **meta/** and **preview/** folders must follow this naming convention:
 
-* **{interface_name}-{major}.{minor}-iface.json** - spec definition file (old versions should remain)
-* **{interface_name}-{major}-iface.json** - the latest version for {major}, typically a symlink to above
-* **{interface_name}-iface.json** - the latest version, typically a symlink to above
-* **{schema_name}-{major}.{minor}-schema.json** - the same as above, but for JSON Schema files
-* **{schema_name}-{major}-schema.json** - as above
-* **{schema_name}-schema.json** - as above
+* **{interface_name}-{major}.{minor}-iface.json** - Explicit version spec
+    definition file (historical versions must be retained).
+* **{interface_name}-{major}-iface.json** - Pointer/symlink to the latest
+    `{minor}` version for the `{major}` release.
+* **{interface_name}-iface.json** - Pointer/symlink to the latest overall
+    interface version.
+* **{schema_name}-{major}.{minor}-schema.json** - Versioned JSON Schema file
+    (following the same symlink conventions).
+* **{schema_name}-{major}-schema.json** - Latest major release schema pointer.
+* **{schema_name}-schema.json** - Absolute latest schema pointer.
 
-*Note: {minor} should not include DV prefix*
+*Note: `{minor}` version numbers must not include the `DV` prefix.*
 
-*Note: as a convention, repository domain name should start from "specs." and be available through HTTP and/or HTTPS*
+*Note: By convention, specification repository domain names should use the
+`specs.` subdomain prefix and be available via HTTP and/or HTTPS.*
 
-It is assumed that automatic meta file retrieval first looks in **final/meta/** and then tries **draft/meta/**. So,
-application source will not need to be changed during development of new spec and after release of the spec. However,
-all draft specs are subject to change without version update. So, all draft specs should be cached with small
-Time-To-Live or not cached at all.
+Automatic retrieval processes must check **final/meta/** first before searching
+**draft/meta/**. This allows application code to remain unchanged during spec
+development and after final publication. However, draft specifications remain
+subject to change without version updates; applications should cache draft specs
+using short Time-To-Live (TTL) durations or disable caching entirely.
 
 ## 2.6. Iface definition spec version
 
-Each interface must define "ftn3rev" field in standard MAJOR.MINOR version format.
-When the field is missing, FTN3 revision 1.0 is assumed.
+Every interface definition must specify an `ftn3rev` field formatted as
+`MAJOR.MINOR`. If this field is omitted, FTN3 revision 1.0 is assumed.
 
-Invoker part must allow loading interface definition only if major version is supported,
-regardless of minor version.
+Invoker implementations must permit interface loading as long as the major
+version is supported, regardless of the minor version.
 
-Executor part must allow loading interface only if specified FTN3 spec revision is fully
-supported.
+Executor implementations must permit interface loading only if the exact
+specified FTN3 revision is fully supported.
 
 ## 2.7. Interface mixin
 
-Interface mixin is appropriate solution when only **interface definition** needs to be re-used,
-but the logic behind is absolutely different. Example: CRUDL-like interface.
+Interface mixins provide a lightweight solution when **interface definitions**
+need to be reused across unrelated implementation structures (for example,
+standard CRUDL patterns).
 
-Mixin interfaces are defined using "imports" field - an array of imported "iface:version"
-identifiers.
+Mixin interfaces are imported using the `imports` array containing
+`iface:version` string identifiers.
 
-Import procedure must act exactly as inheritance in scope of processing "types", "funcs"
-and "requires" fields. However, imported interface must never be listed as inherited.
+The import procedure handles `types`, `funcs`, and `requires` declarations
+identically to standard inheritance. However, an imported mixin is not
+recognized as a parent interface class.
 
-If imported interfaces includes own "imports" field it must be treated as if imported
-interfaces are listed in the top-most main interface. Interface imports of compatible
-interface versions must get merged together. This is a workaround for diamond-shaped cases.
+If an imported interface contains its own `imports` definitions, these must be
+treated as if declared directly at the top level of the primary interface.
+Duplicate imports of compatible interface versions will be merged automatically
+to resolve diamond-dependency patterns.
 
 ## 2.8. "Heavy" requests
 
-Some request functions can be marked as "heavy". Executor implementation may use this meta-
-information to limit number of concurrent "heavy" requests for stability and performance
-reasons. Heavy requests may also get a different default timeout value.
+Functions that require significant system resources can be designated as
+"heavy". Executors may use this metadata to constrain concurrent heavy
+invocations to protect system stability and performance. Heavy requests may also
+be assigned longer default timeout thresholds.
 
 
 [json]: http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "JSON"
