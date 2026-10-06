@@ -21,6 +21,7 @@ Authors: Andrey Galkin
 <h1>CHANGES</h1>
 <ul>
 <li>v1.10 - 2026-10-04 - Andrey Galkin<ul>
+<li>NEW: extended "obf" field use cases and predefined field names.</li>
 <li>CHANGED: AI-aided proofreading changes.</li>
 </ul>
 </li>
@@ -213,7 +214,7 @@ always operate in message multiplexing mode.</p>
             "obf" : {
                 "type" : "object",
                 "description" : "On-Behalf-oF user info",
-                "additionalProperties" : false,
+                "additionalProperties" : true,
                 "properties" : {
                     "lid" : {
                         "type" : "string",
@@ -226,6 +227,14 @@ always operate in message multiplexing mode.</p>
                     "slvl" : {
                         "type" : "string",
                         "description" : "User authentication security level"
+                    },
+                    "token" : {
+                        "type" : "string",
+                        "description" : "Original user token"
+                    },
+                    "trace_id" : {
+                        "type" : "string",
+                        "description" : "Associated tracing ID"
                     }
                 }
             }
@@ -480,6 +489,21 @@ rather than the Executor service itself. This mechanism simplifies access
 control implementations in nested service topologies. If a sub-call is intended
 to execute with service-level credentials, this must be managed via the System
 Invoker interface options.</p>
+<p><em>Since: v1.3</em></p>
+<p>A set of predefined optional field names is available, but the <code>obf</code> object is
+extendable with custom metadata by design. Edge executors must ensure that the
+field is rejected for security reasons, except for some custom designated
+metadata, which cannot compromise system's security model. All field values
+must be of string type.</p>
+<p>Predefined optional fields:</p>
+<ul>
+<li><code>lid</code>: for local service user IDs;</li>
+<li><code>gid</code>: for global/federated user IDs;</li>
+<li><code>slvl</code>: for original security level as identified by the edge Executor;</li>
+<li><code>token</code>: for JWT and similar original tokens passthrough;</li>
+<li><code>trace_id</code>: for correlation IDs defined by edge Executors.</li>
+</ul>
+<p><em>Since v1.10</em></p>
 <h2>1.12. Minimum user authentication security level</h2>
 <p>Each function can define a <code>seclvl</code> attribute specifying the minimum required
 user authentication security level. This governs user validation rather than
@@ -606,7 +630,7 @@ interface specifications below.</p>
                                             },
                                             "desc" : {
                                                 "type" : "string",
-                                                "description" : "Result variable description"
+                                                "description" : "Field description"
                                             }
                                         }
                                     }

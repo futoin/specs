@@ -82,7 +82,7 @@
                     },
                     "desc": {
                       "type": "string",
-                      "description": "Result variable description"
+                      "description": "Field description"
                     }
                   }
                 }

@@ -9,6 +9,7 @@ Authors: Andrey Galkin
 # CHANGES
 
 * v1.10 - 2026-10-04 - Andrey Galkin
+    * NEW: extended "obf" field use cases and predefined field names.
     * CHANGED: AI-aided proofreading changes.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
@@ -203,7 +204,7 @@ Using [JSON-SCHEMA][]:
                 "obf" : {
                     "type" : "object",
                     "description" : "On-Behalf-oF user info",
-                    "additionalProperties" : false,
+                    "additionalProperties" : true,
                     "properties" : {
                         "lid" : {
                             "type" : "string",
@@ -216,6 +217,14 @@ Using [JSON-SCHEMA][]:
                         "slvl" : {
                             "type" : "string",
                             "description" : "User authentication security level"
+                        },
+                        "token" : {
+                            "type" : "string",
+                            "description" : "Original user token"
+                        },
+                        "trace_id" : {
+                            "type" : "string",
+                            "description" : "Associated tracing ID"
                         }
                     }
                 }
@@ -499,6 +508,25 @@ control implementations in nested service topologies. If a sub-call is intended
 to execute with service-level credentials, this must be managed via the System
 Invoker interface options.
 
+*Since: v1.3*
+
+A set of predefined optional field names is available, but the `obf` object is
+extendable with custom metadata by design. Edge executors must ensure that the
+field is rejected for security reasons, except for some custom designated
+metadata, which cannot compromise system's security model. All field values
+must be of string type.
+
+Predefined optional fields:
+
+- `lid`: for local service user IDs;
+- `gid`: for global/federated user IDs;
+- `slvl`: for original security level as identified by the edge Executor;
+- `token`: for JWT and similar original tokens passthrough;
+- `trace_id`: for correlation IDs defined by edge Executors.
+
+
+*Since v1.10*
+
 ## 1.12. Minimum user authentication security level
 
 Each function can define a `seclvl` attribute specifying the minimum required
@@ -648,7 +676,7 @@ Using [JSON-SCHEMA][]:
                                                 },
                                                 "desc" : {
                                                     "type" : "string",
-                                                    "description" : "Result variable description"
+                                                    "description" : "Field description"
                                                 }
                                             }
                                         }

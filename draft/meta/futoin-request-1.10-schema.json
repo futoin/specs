@@ -36,7 +36,7 @@
     "obf": {
       "type": "object",
       "description": "On-Behalf-oF user info",
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "lid": {
           "type": "string",
@@ -49,6 +49,14 @@
         "slvl": {
           "type": "string",
           "description": "User authentication security level"
+        },
+        "token": {
+          "type": "string",
+          "description": "Original user token"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "Associated tracing ID"
         }
       }
     }
