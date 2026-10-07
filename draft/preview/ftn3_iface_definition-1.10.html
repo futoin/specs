@@ -21,8 +21,9 @@ Authors: Andrey Galkin
 <h1>CHANGES</h1>
 <ul>
 <li>v1.10 - 2026-10-04 - Andrey Galkin<ul>
-<li>NEW: extended "obf" field use cases and predefined field names.</li>
+<li>CHANGED: use Java package naming convention as guideline.</li>
 <li>CHANGED: AI-aided proofreading changes.</li>
+<li>NEW: extended "obf" field use cases and predefined field names.</li>
 </ul>
 </li>
 <li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
@@ -827,8 +828,9 @@ alphanumeric ASCII sequence.</p>
 </code></pre>
 <p>The first token of the identifier must reference a related domain name or be
 sufficiently unique to prevent name collisions (e.g., trademarks or registered
-namespaces).</p>
-<pre><code>Example: "example.com.interface", "example.org.namespace.interface"
+namespaces). <a href="https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html" title="JAVA-NAME">Java package naming convention</a> is highly suggested as
+the guideline.</p>
+<pre><code>Example: "com.example.interface", "org.example.namespace.interface"
 </code></pre>
 <p><strong>Note: The "futoin." interface prefix is reserved exclusively for official
 FutoIn project specifications.</strong></p>

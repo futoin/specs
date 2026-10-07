@@ -9,8 +9,9 @@ Authors: Andrey Galkin
 # CHANGES
 
 * v1.10 - 2026-10-04 - Andrey Galkin
-    * NEW: extended "obf" field use cases and predefined field names.
+    * CHANGED: use Java package naming convention as guideline.
     * CHANGED: AI-aided proofreading changes.
+    * NEW: extended "obf" field use cases and predefined field names.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -881,9 +882,10 @@ alphanumeric ASCII sequence.
 
 The first token of the identifier must reference a related domain name or be
 sufficiently unique to prevent name collisions (e.g., trademarks or registered
-namespaces).
+namespaces). [Java package naming convention][JAVA-NAME] is highly suggested as
+the guideline.
     
-    Example: "example.com.interface", "example.org.namespace.interface"
+    Example: "com.example.interface", "org.example.namespace.interface"
 
 **Note: The "futoin." interface prefix is reserved exclusively for official
 FutoIn project specifications.**
@@ -1034,6 +1036,7 @@ be assigned longer default timeout thresholds.
 
 [json]: http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "JSON"
 [json-schema]: http://tools.ietf.org/html/draft-fge-json-schema-validation-00 "JSON-SCHEMA"
+[java-name]: https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html "JAVA-NAME"
 
 
 =END OF SPEC=
