@@ -48,10 +48,10 @@
               "type": "number"
             },
             "minlen": {
-              "type": "number"
+              "type": "integer"
             },
             "maxlen": {
-              "type": "number"
+              "type": "integer"
             },
             "regex": {
               "type": "string"

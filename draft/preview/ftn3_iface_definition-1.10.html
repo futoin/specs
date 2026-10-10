@@ -23,6 +23,7 @@ Authors: Andrey Galkin
 <li>v1.10 - 2026-10-04 - Andrey Galkin<ul>
 <li>CHANGED: use Java package naming convention as guideline.</li>
 <li>CHANGED: AI-aided proofreading changes.</li>
+<li>FIXED: formality, "minlen"/"maxlen" to require integer type.</li>
 <li>NEW: extended "obf" field use cases and predefined field names.</li>
 <li>NEW: type variations support in detailed "fields", "elemtype", "params",
   and "results" definitions.</li>
@@ -338,19 +339,19 @@ cases constitutes an error.</p>
 various <em>optional</em> constraints:</p>
 <ul>
 <li><code>integer</code> and <code>number</code>:<ul>
-<li><code>min</code> - Minimum allowed value (inclusive).</li>
-<li><code>max</code> - Maximum allowed value (inclusive).</li>
+<li><code>min</code> - Minimum allowed value number (inclusive).</li>
+<li><code>max</code> - Maximum allowed value number (inclusive).</li>
 </ul>
 </li>
 <li><code>string</code>:<ul>
 <li><code>regex</code> - ECMAScript regular expression.</li>
-<li><code>minlen</code> - Minimum string length (inclusive).</li>
-<li><code>maxlen</code> - Maximum string length (inclusive).</li>
+<li><code>minlen</code> - Minimum string length integer (inclusive).</li>
+<li><code>maxlen</code> - Maximum string length integer (inclusive).</li>
 </ul>
 </li>
 <li><code>array</code>:<ul>
-<li><code>minlen</code> - Minimum array length (inclusive).</li>
-<li><code>maxlen</code> - Maximum array length (inclusive).</li>
+<li><code>minlen</code> - Minimum array length integer (inclusive).</li>
+<li><code>maxlen</code> - Maximum array length integer (inclusive).</li>
 <li><code>elemtype</code> - Required element type.</li>
 </ul>
 </li>
@@ -373,8 +374,8 @@ various <em>optional</em> constraints:</p>
 </ul>
 </li>
 <li><code>data</code>:<ul>
-<li><code>minlen</code> - Minimum byte length (inclusive).</li>
-<li><code>maxlen</code> - Maximum byte length (inclusive).</li>
+<li><code>minlen</code> - Minimum byte length integer (inclusive).</li>
+<li><code>maxlen</code> - Maximum byte length integer (inclusive).</li>
 </ul>
 </li>
 </ul>
@@ -603,10 +604,10 @@ interface specifications below.</p>
                                 "type": "number"
                             },
                             "minlen" : {
-                                "type": "number"
+                                "type": "integer"
                             },
                             "maxlen" : {
-                                "type": "number"
+                                "type": "integer"
                             },
                             "regex" : {
                                 "type": "string"

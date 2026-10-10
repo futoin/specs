@@ -11,6 +11,7 @@ Authors: Andrey Galkin
 * v1.10 - 2026-10-04 - Andrey Galkin
     * CHANGED: use Java package naming convention as guideline.
     * CHANGED: AI-aided proofreading changes.
+    * FIXED: formality, "minlen"/"maxlen" to require integer type.
     * NEW: extended "obf" field use cases and predefined field names.
     * NEW: type variations support in detailed "fields", "elemtype", "params",
       and "results" definitions.
@@ -336,15 +337,15 @@ Each custom type must be based on one of the standard types, but can define
 various *optional* constraints:
 
 * `integer` and `number`:
-    * `min` - Minimum allowed value (inclusive).
-    * `max` - Maximum allowed value (inclusive).
+    * `min` - Minimum allowed value number (inclusive).
+    * `max` - Maximum allowed value number (inclusive).
 * `string`:
     * `regex` - ECMAScript regular expression.
-    * `minlen` - Minimum string length (inclusive).
-    * `maxlen` - Maximum string length (inclusive).
+    * `minlen` - Minimum string length integer (inclusive).
+    * `maxlen` - Maximum string length integer (inclusive).
 * `array`:
-    * `minlen` - Minimum array length (inclusive).
-    * `maxlen` - Maximum array length (inclusive).
+    * `minlen` - Minimum array length integer (inclusive).
+    * `maxlen` - Maximum array length integer (inclusive).
     * `elemtype` - Required element type.
 * `map`:
     * `fields` - A map of field names to:
@@ -357,8 +358,8 @@ various *optional* constraints:
 * `set`:
     * `items` - Complete set of allowed integer or string values.
 * `data`:
-    * `minlen` - Minimum byte length (inclusive).
-    * `maxlen` - Maximum byte length (inclusive).
+    * `minlen` - Minimum byte length integer (inclusive).
+    * `maxlen` - Maximum byte length integer (inclusive).
 
 *NOTE: An omitted optional field of a custom map type must be set to `null` on
 incoming messages (requests for the Executor and responses for the Invoker).
@@ -649,10 +650,10 @@ Using [JSON-SCHEMA][]:
                                     "type": "number"
                                 },
                                 "minlen" : {
-                                    "type": "number"
+                                    "type": "integer"
                                 },
                                 "maxlen" : {
-                                    "type": "number"
+                                    "type": "integer"
                                 },
                                 "regex" : {
                                     "type": "string"
