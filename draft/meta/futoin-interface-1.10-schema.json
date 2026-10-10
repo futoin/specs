@@ -57,7 +57,10 @@
               "type": "string"
             },
             "elemtype": {
-              "type": "string"
+              "type": [
+                "string",
+                "array"
+              ]
             },
             "fields": {
               "type": "object",
@@ -73,7 +76,10 @@
                   "additionalProperties": false,
                   "properties": {
                     "type": {
-                      "type": "string",
+                      "type": [
+                        "string",
+                        "array"
+                      ],
                       "pattern": "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                     },
                     "optional": {
@@ -133,7 +139,10 @@
                   "additionalProperties": false,
                   "properties": {
                     "type": {
-                      "type": "string",
+                      "type": [
+                        "string",
+                        "array"
+                      ],
                       "pattern": "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                     },
                     "default": {
@@ -173,7 +182,10 @@
                   "additionalProperties": false,
                   "properties": {
                     "type": {
-                      "type": "string",
+                      "type": [
+                        "string",
+                        "array"
+                      ],
                       "pattern": "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                     },
                     "desc": {

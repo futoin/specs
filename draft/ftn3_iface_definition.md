@@ -12,6 +12,8 @@ Authors: Andrey Galkin
     * CHANGED: use Java package naming convention as guideline.
     * CHANGED: AI-aided proofreading changes.
     * NEW: extended "obf" field use cases and predefined field names.
+    * NEW: type variations support in detailed "fields", "elemtype", "params",
+      and "results" definitions.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -656,7 +658,7 @@ Using [JSON-SCHEMA][]:
                                     "type": "string"
                                 },
                                 "elemtype" : {
-                                    "type": "string"
+                                    "type": ["string", "array"]
                                 },
                                 "fields" : {
                                     "type": "object",
@@ -668,7 +670,7 @@ Using [JSON-SCHEMA][]:
                                             "additionalProperties" : false,
                                             "properties" : {
                                                 "type" :  {
-                                                    "type" : "string",
+                                                    "type" : ["string", "array"],
                                                     "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                                                 },
                                                 "optional" : {
@@ -721,7 +723,7 @@ Using [JSON-SCHEMA][]:
                                             "additionalProperties" : false,
                                             "properties" : {
                                                 "type" :  {
-                                                    "type" : "string",
+                                                    "type" : ["string", "array"],
                                                     "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                                                 },
                                                 "default" : {
@@ -746,7 +748,7 @@ Using [JSON-SCHEMA][]:
                                             "additionalProperties" : false,
                                             "properties" : {
                                                 "type" :  {
-                                                    "type" : "string",
+                                                    "type" : ["string", "array"],
                                                     "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                                                 },
                                                 "desc" : {

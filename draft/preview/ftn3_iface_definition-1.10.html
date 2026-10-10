@@ -24,6 +24,8 @@ Authors: Andrey Galkin
 <li>CHANGED: use Java package naming convention as guideline.</li>
 <li>CHANGED: AI-aided proofreading changes.</li>
 <li>NEW: extended "obf" field use cases and predefined field names.</li>
+<li>NEW: type variations support in detailed "fields", "elemtype", "params",
+  and "results" definitions.</li>
 </ul>
 </li>
 <li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
@@ -610,7 +612,7 @@ interface specifications below.</p>
                                 "type": "string"
                             },
                             "elemtype" : {
-                                "type": "string"
+                                "type": ["string", "array"]
                             },
                             "fields" : {
                                 "type": "object",
@@ -622,7 +624,7 @@ interface specifications below.</p>
                                         "additionalProperties" : false,
                                         "properties" : {
                                             "type" :  {
-                                                "type" : "string",
+                                                "type" : ["string", "array"],
                                                 "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                                             },
                                             "optional" : {
@@ -675,7 +677,7 @@ interface specifications below.</p>
                                         "additionalProperties" : false,
                                         "properties" : {
                                             "type" :  {
-                                                "type" : "string",
+                                                "type" : ["string", "array"],
                                                 "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                                             },
                                             "default" : {
@@ -700,7 +702,7 @@ interface specifications below.</p>
                                         "additionalProperties" : false,
                                         "properties" : {
                                             "type" :  {
-                                                "type" : "string",
+                                                "type" : ["string", "array"],
                                                 "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
                                             },
                                             "desc" : {
