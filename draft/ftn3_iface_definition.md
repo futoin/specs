@@ -12,6 +12,7 @@ Authors: Andrey Galkin
     * CHANGED: use Java package naming convention as guideline.
     * CHANGED: AI-aided proofreading changes.
     * FIXED: formality, "minlen"/"maxlen" to require integer type.
+    * FIXED: formality, allow new types in inheritance.
     * NEW: extended "obf" field use cases and predefined field names.
     * NEW: type variations support in detailed "fields", "elemtype", "params",
       and "results" definitions.
@@ -919,10 +920,13 @@ derived interface through its parent or grandparent interfaces.
 Inheritance is strictly restricted to:
 
 * Adding new functions
+* Adding new custom types
 * Adding new parameters to existing functions:
     * The Executor must accept `null` or omitted values for these additional
       parameters.
-    * All added parameters must define default values.
+    * All added parameters must define default values, which must be substituted
+      by Executor, if input parameters are missing. Invoker can skip sending
+      default values.
 * Adding new result fields to existing return types:
     * The Invoker must ignore new result fields when calling the function
       through a parent interface (and should generally ignore unrecognized
