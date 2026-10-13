@@ -13,10 +13,12 @@ Authors: Andrey Galkin
     * CHANGED: AI-aided proofreading changes.
     * CHANGED: formality, rephrased and precised rules of inheritance and
       backward compatibility.
+    * CHANGED: reworked message encoding to support non-prefixed messages.
     * FIXED: formality, "minlen"/"maxlen" to require integer type.
     * NEW: extended "obf" field use cases and predefined field names.
     * NEW: type variations support in detailed "fields", "elemtype", "params",
       and "results" definitions.
+    * NEW: explicit listing of Avro and Protobuf message encoding.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -545,7 +547,53 @@ security level.
 All unrecognized security level identifiers must be treated as requiring the
 maximum level of security.
 
-## 1.13. Message coding formats
+## 1.13. Message encoding formats
+
+The appropriate message format highly depends on the context. When both peers
+are controlled by the same System, the message encoding format can be chosen
+arbitrary.
+
+When message transport supports additional characteristics like headers in HTTP
+or message brokers, the message format can be identified by media type headers.
+
+Otherwise, automatic handling of message encoding format must be used as defined
+in section 1.13.2.
+
+## 1.13.1. Media types
+
+The officially registered media types start with `application/vnd.futoin+`
+prefix. Those are preferred when other use case constraints do not impose
+limitations. Compliant implementation should support all listed types for
+message encoding detection.
+
+The following [officially registered by IANA][media-types] media types are:
+
+- `application/vnd.futoin+cbor` - for CBOR-encoded messages;
+- `application/vnd.futoin+json` - for JSON-encoded messages;
+
+to be registered:
+
+- `application/vnd.futoin+avro` - for Avro-encoded messages;
+- `application/vnd.futoin+msgpack` - for MessagePack-encoded messages;
+- `application/vnd.futoin+protobuf` - for Protobuf-encoded messages;
+
+The fallback list in case of external constraints:
+
+- `application/avro` - for Avro-encoded messages;
+- `application/cbor` - for CBOR-encoded messages;
+- `application/json` - for JSON-encoded messages;
+- `application/msgpack` - for MessagePack-encoded messages;
+- `application/protobuf` - for Protobuf messages;
+
+Not registered media types, which have been used and listed in FTN5 spec:
+
+- `application/futoin+cbor` for CBOR-encoded messages.
+- `application/futoin+json` for JSON-encoded messages.
+- `application/futoin+msgpack` for MessagePack-encoded messages.
+- `application/futoin+` as prefix for other formats not defined here.
+
+
+## 1.13.2. Message automatic format handling
 
 Invokers and Executors may support different sets of message serialization
 formats. Whenever a format mismatch occurs, the Executor must respond with a
@@ -555,12 +603,14 @@ encoding for all subsequent requests.
 Auto-detection of message serialization formats follows these rules (when the
 message begins with ASCII):
 
-1. `{` - Use JSON
-2. `CBOR` - Use CBOR
-3. `MPCK` - Use MessagePack
-4. Otherwise - Fall back and attempt JSON parsing
+1. `{` - Use JSON;
+2. `CBOR` - Use CBOR;
+3. `MPCK` - Use MessagePack;
+4. `PBUF` - Use ProtoBuf;
+5. `AVRO` - Use Avro;
+6. Otherwise, fall back and attempt JSON parsing.
 
-### 1.13.1. JSON
+### 1.13.3. JSON
 
 JSON is defined in [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 
@@ -572,18 +622,35 @@ reduction.
 Because every FutoIn message is a JSON object, messages must start with the
 ASCII character `{` with no leading whitespace.
 
-### 1.13.2. CBOR
+### 1.13.4. CBOR
 
 CBOR is defined in [RFC 7049](https://tools.ietf.org/html/rfc7049).
 
-All CBOR-encoded messages must be prefixed with the 4-byte ASCII string `CBOR`.
+All CBOR-encoded messages in auto-detection cases must be prefixed with the
+4-byte ASCII string `CBOR`.
 
-### 1.13.3. MessagePack
+### 1.13.5. MessagePack
 
 MessagePack is defined in the [GitHub spec](https://github.com/msgpack/msgpack/blob/master/spec.md).
 
-All MessagePack-encoded messages must be prefixed with the 4-byte ASCII string
-`MPCK`.
+All MessagePack-encoded messages in auto-detection cases must be prefixed with
+the 4-byte ASCII string `MPCK`.
+
+### 1.13.6. Protobuf
+
+Protobuf wire format is defined in the [Protobuf Encoding spec](https://protobuf.dev/programming-guides/encoding/).
+Due to wire-compatibility both v2 and v3 language specifications can be supported.
+
+All MessagePack-encoded messages in auto-detection cases must be prefixed with
+the 4-byte ASCII string `PBUF`.
+
+### 1.13.7. Avro
+
+Avro wire format is defined in the [Avro Specification](https://avro.apache.org/docs/++version++/specification/#data-serialization-and-deserialization).
+
+All Avro-encoded messages in auto-detection cases must be prefixed with
+the 4-byte ASCII string `AVRO`.
+
 
 # 2. Interface concept
 
@@ -958,6 +1025,9 @@ The following compatibility rules exist:
     - The `maxrspsize` must not increase.
 6. The `requires` constraints cannot be more restrictive for inheritance, and
    must not change in general, but those can change for import mixins.
+7. The order of definitions in `params`, `results`, type `fields` and type
+   `items` must not change for specs using FTN3 revision 1.10 and above.
+   The order of `funcs`, `types`, `imports` must not affect positional encoding.
 
 
 *Note: Multiple interface inheritance is not supported at this time.*
@@ -1073,6 +1143,7 @@ be assigned longer default timeout thresholds.
 [json]: http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "JSON"
 [json-schema]: http://tools.ietf.org/html/draft-fge-json-schema-validation-00 "JSON-SCHEMA"
 [java-name]: https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html "JAVA-NAME"
+[media-types]: https://www.iana.org/assignments/media-types "IANA Media Types"
 
 
 =END OF SPEC=
