@@ -1023,6 +1023,7 @@ The following compatibility rules exist:
     - The `rawresult` flag must not change.
     - The `maxreqsize` must not decrease.
     - The `maxrspsize` must not increase.
+    - The `seclvl` must not change.
 6. The `requires` constraints cannot be more restrictive for inheritance, and
    must not change in general, but those can change for import mixins.
 7. The order of definitions in `params`, `results`, type `fields` and type
