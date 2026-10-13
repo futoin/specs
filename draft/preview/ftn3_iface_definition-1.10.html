@@ -23,8 +23,9 @@ Authors: Andrey Galkin
 <li>v1.10 - 2026-10-04 - Andrey Galkin<ul>
 <li>CHANGED: use Java package naming convention as guideline.</li>
 <li>CHANGED: AI-aided proofreading changes.</li>
+<li>CHANGED: formality, rephrased and precised rules of inheritance and
+  backward compatibility.</li>
 <li>FIXED: formality, "minlen"/"maxlen" to require integer type.</li>
-<li>FIXED: formality, allow new types in inheritance.</li>
 <li>NEW: extended "obf" field use cases and predefined field names.</li>
 <li>NEW: type variations support in detailed "fields", "elemtype", "params",
   and "results" definitions.</li>
@@ -850,27 +851,54 @@ Example: "some_param", "some_result_value"</p>
 require only a few extra functions or parameters.</p>
 <p>An interface can inherit from another interface. It must be possible to call any
 derived interface through its parent or grandparent interfaces.</p>
-<p>Inheritance is strictly restricted to:</p>
-<ul>
-<li>Adding new functions</li>
-<li>Adding new custom types</li>
-<li>Adding new parameters to existing functions:<ul>
-<li>The Executor must accept <code>null</code> or omitted values for these additional
-  parameters.</li>
-<li>All added parameters must define default values, which must be substituted
-  by Executor, if input parameters are missing. Invoker can skip sending
-  default values.</li>
+<h2>2.3.1. Derived and Base interface compatibility rules</h2>
+<p>The following compatibility rules exist:</p>
+<ol>
+<li>Type compatibility is controlled based on function parameters and result
+   variable using the base builtin types, ignoring the type names.</li>
+<li>For function parameter types:<ul>
+<li>new function parameters can be added only with mandatory <code>default</code> value;</li>
+<li>types of existing parameters, <code>fields</code> and <code>elemtype</code> can be extended with
+  type variants;</li>
+<li><code>fields</code> can defined only additional optional fields;</li>
+<li>the <code>min</code>, <code>max</code>, <code>minlen</code> and <code>maxlen</code> attribute range can only expand;</li>
+<li>the <code>regex</code> can become only more permissive;</li>
+<li>the <code>items</code> can only expand;</li>
+<li>the changes must not alter the call semantics;</li>
+<li>Invoker may skip sending <code>default</code> values in parameters or send explicit
+  <code>null</code>, but it is now encourage to send the defaults to minimize possible
+  errors and for easier integration of third-party technologies;</li>
+<li>Executor must ensure that the missing parameter values are substituted
+  with the defaults before such requests are passed to the corresponding
+  service implementation.</li>
 </ul>
 </li>
-<li>Adding new result fields to existing return types:<ul>
-<li>The Invoker must ignore new result fields when calling the function
-  through a parent interface (and should generally ignore unrecognized
-  result fields).</li>
-<li>Note: Changing the <code>rawresult</code> flag is strictly forbidden.</li>
+<li>For function result variables:<ul>
+<li>new results variables can be added;</li>
+<li>types of existing result variables, <code>fields</code> and <code>elemtype</code> cannot change
+  to incompatible representation as defined below;</li>
+<li><code>fields</code> can defined additional mandatory or optional fields;</li>
+<li>the <code>min</code>, <code>max</code>, <code>minlen</code> and <code>maxlen</code> attribute range can only narrow
+  down;</li>
+<li>the <code>regex</code> attribute can only become more restrictive;</li>
+<li>the <code>items</code> attribute can only shrink;</li>
+<li>the changes must not alter result semantics;
+. Invoker must expect unknown result variables to appear.</li>
 </ul>
 </li>
+<li>New functions can be added with no restriction.</li>
+<li>For function attributes:<ul>
+<li>The <code>rawupload</code> flag must not change.</li>
+<li>The <code>rawresult</code> flag must not change.</li>
+<li>The <code>maxreqsize</code> must not decrease.</li>
+<li>The <code>maxrspsize</code> must not increase.</li>
 </ul>
+</li>
+<li>The <code>requires</code> constraints cannot be more restrictive for inheritance, and
+   must not change in general, but those can change for import mixins.</li>
+</ol>
 <p><em>Note: Multiple interface inheritance is not supported at this time.</em></p>
+<h2>2.3.2. Inheritance conflict resolution in Executor</h2>
 <p>Due to how Executors handle interface lookup, a single base interface must not
 be inherited by multiple derived interfaces within the same Executor instance.
 <em>The primary purpose of inheritance is to establish reusable
@@ -944,7 +972,7 @@ standard CRUDL patterns).</p>
 <code>iface:version</code> string identifiers.</p>
 <p>The import procedure handles <code>types</code>, <code>funcs</code>, and <code>requires</code> declarations
 identically to standard inheritance. However, an imported mixin is not
-recognized as a parent interface class.</p>
+recognized as a parent interface class. See also section 2.3.1.</p>
 <p>If an imported interface contains its own <code>imports</code> definitions, these must be
 treated as if declared directly at the top level of the primary interface.
 Duplicate imports of compatible interface versions will be merged automatically

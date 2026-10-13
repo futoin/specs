@@ -11,8 +11,9 @@ Authors: Andrey Galkin
 * v1.10 - 2026-10-04 - Andrey Galkin
     * CHANGED: use Java package naming convention as guideline.
     * CHANGED: AI-aided proofreading changes.
+    * CHANGED: formality, rephrased and precised rules of inheritance and
+      backward compatibility.
     * FIXED: formality, "minlen"/"maxlen" to require integer type.
-    * FIXED: formality, allow new types in inheritance.
     * NEW: extended "obf" field use cases and predefined field names.
     * NEW: type variations support in detailed "fields", "elemtype", "params",
       and "results" definitions.
@@ -917,23 +918,51 @@ require only a few extra functions or parameters.
 An interface can inherit from another interface. It must be possible to call any
 derived interface through its parent or grandparent interfaces.
 
-Inheritance is strictly restricted to:
+## 2.3.1. Derived and Base interface compatibility rules
 
-* Adding new functions
-* Adding new custom types
-* Adding new parameters to existing functions:
-    * The Executor must accept `null` or omitted values for these additional
-      parameters.
-    * All added parameters must define default values, which must be substituted
-      by Executor, if input parameters are missing. Invoker can skip sending
-      default values.
-* Adding new result fields to existing return types:
-    * The Invoker must ignore new result fields when calling the function
-      through a parent interface (and should generally ignore unrecognized
-      result fields).
-    * Note: Changing the `rawresult` flag is strictly forbidden.
+The following compatibility rules exist:
+
+1. Type compatibility is controlled based on function parameters and result
+   variable using the base builtin types, ignoring the type names.
+2. For function parameter types:
+    - new function parameters can be added only with mandatory `default` value;
+    - types of existing parameters, `fields` and `elemtype` can be extended with
+      type variants;
+    - `fields` can defined only additional optional fields;
+    - the `min`, `max`, `minlen` and `maxlen` attribute range can only expand;
+    - the `regex` can become only more permissive;
+    - the `items` can only expand;
+    - the changes must not alter the call semantics;
+    - Invoker may skip sending `default` values in parameters or send explicit
+      `null`, but it is now encourage to send the defaults to minimize possible
+      errors and for easier integration of third-party technologies;
+    - Executor must ensure that the missing parameter values are substituted
+      with the defaults before such requests are passed to the corresponding
+      service implementation.
+3. For function result variables:
+    - new results variables can be added;
+    - types of existing result variables, `fields` and `elemtype` cannot change
+      to incompatible representation as defined below;
+    - `fields` can defined additional mandatory or optional fields;
+    - the `min`, `max`, `minlen` and `maxlen` attribute range can only narrow
+      down;
+    - the `regex` attribute can only become more restrictive;
+    - the `items` attribute can only shrink;
+    - the changes must not alter result semantics;
+    . Invoker must expect unknown result variables to appear.
+4. New functions can be added with no restriction.
+5. For function attributes:
+    - The `rawupload` flag must not change.
+    - The `rawresult` flag must not change.
+    - The `maxreqsize` must not decrease.
+    - The `maxrspsize` must not increase.
+6. The `requires` constraints cannot be more restrictive for inheritance, and
+   must not change in general, but those can change for import mixins.
+
 
 *Note: Multiple interface inheritance is not supported at this time.*
+
+## 2.3.2. Inheritance conflict resolution in Executor
 
 Due to how Executors handle interface lookup, a single base interface must not
 be inherited by multiple derived interfaces within the same Executor instance.
@@ -1026,7 +1055,7 @@ Mixin interfaces are imported using the `imports` array containing
 
 The import procedure handles `types`, `funcs`, and `requires` declarations
 identically to standard inheritance. However, an imported mixin is not
-recognized as a parent interface class.
+recognized as a parent interface class. See also section 2.3.1.
 
 If an imported interface contains its own `imports` definitions, these must be
 treated as if declared directly at the top level of the primary interface.
