@@ -33,6 +33,7 @@ Authors: Andrey Galkin
   and "results" definitions.</li>
 <li>NEW: explicit listing of Avro and Protobuf message encoding.</li>
 <li>NEW: "minlen"/"maxlen" for "map" of key-value type.</li>
+<li>NEW: "samples" constraint for "string" type.</li>
 </ul>
 </li>
 <li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
@@ -351,6 +352,8 @@ various <em>optional</em> constraints:</p>
 </li>
 <li><code>string</code>:<ul>
 <li><code>regex</code> - ECMAScript regular expression.</li>
+<li><code>samples</code> - Array of samples to validate backward compatibility of <code>regex</code>
+  in derived specs (revised, inherited or imported).</li>
 <li><code>minlen</code> - Minimum string length integer (inclusive).</li>
 <li><code>maxlen</code> - Maximum string length integer (inclusive).</li>
 </ul>
@@ -688,6 +691,9 @@ interface specifications below.</p>
                             "regex" : {
                                 "type": "string"
                             },
+                            "samples" : {
+                                "type": "array"
+                            },
                             "elemtype" : {
                                 "type": ["string", "array"]
                             },
@@ -926,6 +932,12 @@ require only a few extra functions or parameters.</p>
 <p>An interface can inherit from another interface. It must be possible to call any
 derived interface through its parent or grandparent interfaces.</p>
 <h2>2.3.1. Derived and Base interface compatibility rules</h2>
+<p>There are three cases of derived specifications:</p>
+<ol>
+<li>When a new new minor version of the spec is revised.</li>
+<li>When inherited as the base of the spec.</li>
+<li>When imported as a mixin into the spec.</li>
+</ol>
 <p>The following compatibility rules exist:</p>
 <ol>
 <li>Type compatibility is controlled based on function parameters and result
@@ -937,6 +949,7 @@ derived interface through its parent or grandparent interfaces.</p>
 <li><code>fields</code> can defined only additional optional fields;</li>
 <li>the <code>min</code>, <code>max</code>, <code>minlen</code> and <code>maxlen</code> attribute range can only expand;</li>
 <li>the <code>regex</code> can become only more permissive;</li>
+<li>all <code>samples</code> of the base spec must pass <code>regex</code> of the derived spec;</li>
 <li>the <code>items</code> can only expand;</li>
 <li>the changes must not alter the call semantics;</li>
 <li>Invoker may skip sending <code>default</code> values in parameters or send explicit
@@ -955,6 +968,7 @@ derived interface through its parent or grandparent interfaces.</p>
 <li>the <code>min</code>, <code>max</code>, <code>minlen</code> and <code>maxlen</code> attribute range can only narrow
   down;</li>
 <li>the <code>regex</code> attribute can only become more restrictive;</li>
+<li>all <code>samples</code> of the derive spec must pass <code>regex</code> of the base spec;</li>
 <li>the <code>items</code> attribute can only shrink;</li>
 <li>the changes must not alter result semantics;
 . Invoker must expect unknown result variables to appear.</li>

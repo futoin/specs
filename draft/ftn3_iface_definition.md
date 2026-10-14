@@ -21,6 +21,7 @@ Authors: Andrey Galkin
       and "results" definitions.
     * NEW: explicit listing of Avro and Protobuf message encoding.
     * NEW: "minlen"/"maxlen" for "map" of key-value type.
+    * NEW: "samples" constraint for "string" type.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -347,6 +348,8 @@ various *optional* constraints:
     * `max` - Maximum allowed value number (inclusive).
 * `string`:
     * `regex` - ECMAScript regular expression.
+    * `samples` - Array of samples to validate backward compatibility of `regex`
+      in derived specs (revised, inherited or imported).
     * `minlen` - Minimum string length integer (inclusive).
     * `maxlen` - Maximum string length integer (inclusive).
 * `array`:
@@ -745,6 +748,9 @@ Using [JSON-SCHEMA][]:
                                 "regex" : {
                                     "type": "string"
                                 },
+                                "samples" : {
+                                    "type": "array"
+                                },
                                 "elemtype" : {
                                     "type": ["string", "array"]
                                 },
@@ -1003,7 +1009,14 @@ require only a few extra functions or parameters.
 An interface can inherit from another interface. It must be possible to call any
 derived interface through its parent or grandparent interfaces.
 
+
 ## 2.3.1. Derived and Base interface compatibility rules
+
+There are three cases of derived specifications:
+
+1. When a new new minor version of the spec is revised.
+2. When inherited as the base of the spec.
+3. When imported as a mixin into the spec.
 
 The following compatibility rules exist:
 
@@ -1016,6 +1029,7 @@ The following compatibility rules exist:
     - `fields` can defined only additional optional fields;
     - the `min`, `max`, `minlen` and `maxlen` attribute range can only expand;
     - the `regex` can become only more permissive;
+    - all `samples` of the base spec must pass `regex` of the derived spec;
     - the `items` can only expand;
     - the changes must not alter the call semantics;
     - Invoker may skip sending `default` values in parameters or send explicit
@@ -1032,6 +1046,7 @@ The following compatibility rules exist:
     - the `min`, `max`, `minlen` and `maxlen` attribute range can only narrow
       down;
     - the `regex` attribute can only become more restrictive;
+    - all `samples` of the derive spec must pass `regex` of the base spec;
     - the `items` attribute can only shrink;
     - the changes must not alter result semantics;
     . Invoker must expect unknown result variables to appear.

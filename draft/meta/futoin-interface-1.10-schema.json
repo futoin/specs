@@ -56,6 +56,9 @@
             "regex": {
               "type": "string"
             },
+            "samples": {
+              "type": "array"
+            },
             "elemtype": {
               "type": [
                 "string",
