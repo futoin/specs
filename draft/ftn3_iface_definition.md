@@ -19,6 +19,7 @@ Authors: Andrey Galkin
     * NEW: type variations support in detailed "fields", "elemtype", "params",
       and "results" definitions.
     * NEW: explicit listing of Avro and Protobuf message encoding.
+    * NEW: "minlen"/"maxlen" for "map" of key-value type.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -352,11 +353,15 @@ various *optional* constraints:
     * `maxlen` - Maximum array length integer (inclusive).
     * `elemtype` - Required element type.
 * `map`:
-    * `fields` - A map of field names to:
-        * `type` - Required field type
-        * `optional` - Optional boolean. `true` if the field can be omitted.
-        * `desc` - Optional string description of the field.
-    * `elemtype` - Required element type, if no "fields" map is provided.
+    * For schema structure:
+        * `fields` - A map of field names to:
+            * `type` - Required field type
+            * `optional` - Optional boolean. `true` if the field can be omitted.
+            * `desc` - Optional string description of the field.
+    * For key-value mapping:
+        * `elemtype` - Required element type, if no "fields" map is provided.
+        * `minlen` - Minimum array length integer (inclusive).
+        * `maxlen` - Maximum array length integer (inclusive).
 * `enum`:
     * `items` - List of allowed integer or string values.
 * `set`:

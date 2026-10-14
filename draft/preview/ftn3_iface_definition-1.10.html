@@ -31,6 +31,7 @@ Authors: Andrey Galkin
 <li>NEW: type variations support in detailed "fields", "elemtype", "params",
   and "results" definitions.</li>
 <li>NEW: explicit listing of Avro and Protobuf message encoding.</li>
+<li>NEW: "minlen"/"maxlen" for "map" of key-value type.</li>
 </ul>
 </li>
 <li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
@@ -360,13 +361,21 @@ various <em>optional</em> constraints:</p>
 </ul>
 </li>
 <li><code>map</code>:<ul>
+<li>For schema structure:<ul>
 <li><code>fields</code> - A map of field names to:<ul>
 <li><code>type</code> - Required field type</li>
 <li><code>optional</code> - Optional boolean. <code>true</code> if the field can be omitted.</li>
 <li><code>desc</code> - Optional string description of the field.</li>
 </ul>
 </li>
+</ul>
+</li>
+<li>For key-value mapping:<ul>
 <li><code>elemtype</code> - Required element type, if no "fields" map is provided.</li>
+<li><code>minlen</code> - Minimum array length integer (inclusive).</li>
+<li><code>maxlen</code> - Maximum array length integer (inclusive).</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><code>enum</code>:<ul>
@@ -945,6 +954,7 @@ derived interface through its parent or grandparent interfaces.</p>
 <li>The <code>rawresult</code> flag must not change.</li>
 <li>The <code>maxreqsize</code> must not decrease.</li>
 <li>The <code>maxrspsize</code> must not increase.</li>
+<li>The <code>seclvl</code> must not change.</li>
 </ul>
 </li>
 <li>The <code>requires</code> constraints cannot be more restrictive for inheritance, and
