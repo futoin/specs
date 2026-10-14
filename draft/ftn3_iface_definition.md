@@ -15,6 +15,7 @@ Authors: Andrey Galkin
       backward compatibility.
     * CHANGED: reworked message encoding to support non-prefixed messages.
     * FIXED: formality, "minlen"/"maxlen" to require integer type.
+    * FIXED: formality, explicitly stated Common Sense constraints.
     * NEW: extended "obf" field use cases and predefined field names.
     * NEW: type variations support in detailed "fields", "elemtype", "params",
       and "results" definitions.
@@ -373,6 +374,18 @@ various *optional* constraints:
 *NOTE: An omitted optional field of a custom map type must be set to `null` on
 incoming messages (requests for the Executor and responses for the Invoker).
 Optional fields must also be permitted to be sent explicitly as `null`.*
+
+Common Sense constraints:
+
+- `min` must not be greater than `max`.
+- `minlen` must not be greater than `maxlen`.
+- Neither `minlen`, nor `maxlen`, can be less than 0.
+- `enum` and `set` require mandatory `items` attribute.
+- There is no viable option to ensure `regex` compatibility except for its
+  presence and opportunistic sample checks.
+- The optional type constraints cannot be applied on top of a type variation,
+  but they can be applied to the individual types inside such variation.
+
 
 ### 1.8.2. "null" parameter value
 
