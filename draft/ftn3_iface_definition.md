@@ -26,6 +26,7 @@ Authors: Andrey Galkin
     * NEW: "minlen"/"maxlen" for "map" of key-value type.
     * NEW: "samples" constraint for "string" type.
     * NEW: "events" semantic alias for functions.
+    * NEW: automatic "data" type as Base64 for text-friendly encoding.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -455,6 +456,19 @@ requirement. An alternative interface or function can be provided to support
 text-only protocols.
 
 *Since: v1.9*
+
+If "data" field is used in the interface with a text-friendly encoding, the data
+field must be automatically encoded in [Base64][] as a string. The receiving
+peer must either expect that or use full-featured FutoIn runtime, which would do
+decoding from the string to binary according to the interface spec
+automatically. It it strongly advised to use URL-friendly Base64 alphabet, but
+compliant implementation must be able to decode any Base64 variant with padding
+and without that.
+
+Due to the above, "BinaryData" interface constraints is not a requirement for
+"data" type anymore.
+
+*Since: v1.10*
 
 ## 1.9. Errors and exceptions
 
@@ -1274,6 +1288,7 @@ exactly the same way as functions.
 [json-schema]: http://tools.ietf.org/html/draft-fge-json-schema-validation-00 "JSON-SCHEMA"
 [java-name]: https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html "JAVA-NAME"
 [media-types]: https://www.iana.org/assignments/media-types "IANA Media Types"
+[Base64]: https://www.rfc-editor.org/info/rfc4648/ "The Base16, Base32, and Base64 Data Encodings"
 
 
 =END OF SPEC=

@@ -38,6 +38,7 @@ Authors: Andrey Galkin
 <li>NEW: "minlen"/"maxlen" for "map" of key-value type.</li>
 <li>NEW: "samples" constraint for "string" type.</li>
 <li>NEW: "events" semantic alias for functions.</li>
+<li>NEW: automatic "data" type as Base64 for text-friendly encoding.</li>
 </ul>
 </li>
 <li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
@@ -453,6 +454,16 @@ in-process calls and binary-friendly codecs.</p>
 requirement. An alternative interface or function can be provided to support
 text-only protocols.</p>
 <p><em>Since: v1.9</em></p>
+<p>If "data" field is used in the interface with a text-friendly encoding, the data
+field must be automatically encoded in <a href="https://www.rfc-editor.org/info/rfc4648/" title="The Base16, Base32, and Base64 Data Encodings">Base64</a> as a string. The receiving
+peer must either expect that or use full-featured FutoIn runtime, which would do
+decoding from the string to binary according to the interface spec
+automatically. It it strongly advised to use URL-friendly Base64 alphabet, but
+compliant implementation must be able to decode any Base64 variant with padding
+and without that.</p>
+<p>Due to the above, "BinaryData" interface constraints is not a requirement for
+"data" type anymore.</p>
+<p><em>Since: v1.10</em></p>
 <h2>1.9. Errors and exceptions</h2>
 <p>Any function call can produce expected or unexpected errors. This concept is
 analogous to checked and unchecked exceptions in Java.</p>
