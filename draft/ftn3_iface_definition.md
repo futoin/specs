@@ -14,9 +14,11 @@ Authors: Andrey Galkin
     * CHANGED: formality, rephrased and precised rules of inheritance and
       backward compatibility.
     * CHANGED: reworked message encoding to support non-prefixed messages.
-    * CHANGED: relaxed `rid` format and requirements.
+    * CHANGED: relaxed "rid" format and requirements.
     * FIXED: formality, "minlen"/"maxlen" to require integer type.
     * FIXED: formality, explicitly stated Common Sense constraints.
+    * FIXED: formality, extended naming convention and added special
+      alternative EVENTS_TYPE_NAMES.
     * NEW: extended "obf" field use cases and predefined field names.
     * NEW: type variations support in detailed "fields", "elemtype", "params",
       and "result" definitions.
@@ -186,12 +188,12 @@ Using [JSON-SCHEMA][]:
         {
             "title" : "FutoIn request schema",
             "type" : "object",
-            "required" : [ "f", "p" ],
+            "required" : [ "f" ],
             "additionalProperties" : false,
             "properties" : {
                 "f" : {
                     "type" : "string",
-                    "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)*:[0-9]+\\.[0-9]+:[a-z][a-zA-Z0-9]*$",
+                    "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)*:[0-9]+\\.[0-9]+:(([a-z][a-zA-Z0-9]*)|([A-Z]([A-Z0-9_]*[A-Z0-9])?))$",
                     "description" : "Unique interface identifier, version and function identifier"
                 },
                 "p" : {
@@ -1027,6 +1029,13 @@ Using [JSON-SCHEMA][]:
 
 ## 2.2. Naming convention
 
+All identifiers consist of alphanumeric ASCII sequence with the first symbol
+being a letter. Additional symbol and letter case is defined by the identifier
+type below. Such additional symbols can appear only in the middle of the
+identifier. Separate identifier formats have been introduced on purpose to
+distinguish type of identifiers and prevent name clashing. All identifiers are
+case-sensitive.
+
 ### 2.2.1. Interface identifier
 
 An interface identifier (name) is assumed to be unique and consists of several
@@ -1039,7 +1048,7 @@ The first token of the identifier must reference a related domain name or be
 sufficiently unique to prevent name collisions (e.g., trademarks or registered
 namespaces). [Java package naming convention][JAVA-NAME] is highly suggested as
 the guideline.
-    
+
     Example: "com.example.interface", "org.example.namespace.interface"
 
 **Note: The "futoin." interface prefix is reserved exclusively for official
@@ -1047,16 +1056,27 @@ FutoIn project specifications.**
 
 ### 2.2.2. Function identifier
 
-Function names follow camelCase formatting. Example: "someFunc", "anotherFunc"
+Function names follow camel case (`camelCase`) formatting with alphanumeric
+ASCII characters.
+
+    Example: "someFunc", "anotherFunc2"
 
 **Note: The "futoin" function prefix is reserved for internal system functions.**
 
 
 ### 2.2.3. Parameter/Result identifier
 
-Parameter and result variable names follow snake_case formatting
-(`small_caps_with_underscore`).
-Example: "some_param", "some_result_value"
+Parameter and result variable names follow snake case formatting
+(`small_caps_with_underscore`) with alphanumeric ASCII characters.
+
+    Example: "some_param", "some_result_value2"
+
+### 2.2.4. Event identifier
+
+In addition to regular camel case functions names, events can be named as
+upper-case snake case with alphanumeric ASCII characters.
+
+    Example: "SOME_EVENT", "OTHER_EVENT_2"
 
 
 
@@ -1236,9 +1256,9 @@ be assigned longer default timeout thresholds.
 
 Events are seen as special case of functions with optional parameters that
 return no result. Therefore, those cannot have non-applicable attributes like
-"result", "rawupload", "rawresult", and "maxrspsize". Otherwise, there is no
-principle difference. Events and functions share the same naming space, and
-follow the same inheritance rules.
+"result", "rawupload", "rawresult", "maxrspsize", and "throws". Otherwise, there
+is no principle difference. Events and functions share the same naming space,
+and follow the same inheritance rules.
 
 Events are designed for storage, and allow special `rid` field. Unlike the
 request IDs, the events IDs should be globally unique for storage purposes.

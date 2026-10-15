@@ -26,9 +26,11 @@ Authors: Andrey Galkin
 <li>CHANGED: formality, rephrased and precised rules of inheritance and
   backward compatibility.</li>
 <li>CHANGED: reworked message encoding to support non-prefixed messages.</li>
-<li>CHANGED: relaxed <code>rid</code> format and requirements.</li>
+<li>CHANGED: relaxed "rid" format and requirements.</li>
 <li>FIXED: formality, "minlen"/"maxlen" to require integer type.</li>
 <li>FIXED: formality, explicitly stated Common Sense constraints.</li>
+<li>FIXED: formality, extended naming convention and added special
+  alternative EVENTS_TYPE_NAMES.</li>
 <li>NEW: extended "obf" field use cases and predefined field names.</li>
 <li>NEW: type variations support in detailed "fields", "elemtype", "params",
   and "result" definitions.</li>
@@ -196,12 +198,12 @@ always operate in message multiplexing mode.</p>
 <pre><code>    {
         "title" : "FutoIn request schema",
         "type" : "object",
-        "required" : [ "f", "p" ],
+        "required" : [ "f" ],
         "additionalProperties" : false,
         "properties" : {
             "f" : {
                 "type" : "string",
-                "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)*:[0-9]+\\.[0-9]+:[a-z][a-zA-Z0-9]*$",
+                "pattern" : "^([a-z][a-z0-9]*)(\\.[a-z][a-z0-9]*)*:[0-9]+\\.[0-9]+:(([a-z][a-zA-Z0-9]*)|([A-Z]([A-Z0-9_]*[A-Z0-9])?))$",
                 "description" : "Unique interface identifier, version and function identifier"
             },
             "p" : {
@@ -964,6 +966,12 @@ interface specifications below.</p>
     }
 </code></pre>
 <h2>2.2. Naming convention</h2>
+<p>All identifiers consist of alphanumeric ASCII sequence with the first symbol
+being a letter. Additional symbol and letter case is defined by the identifier
+type below. Such additional symbols can appear only in the middle of the
+identifier. Separate identifier formats have been introduced on purpose to
+distinguish type of identifiers and prevent name clashing. All identifiers are
+case-sensitive.</p>
 <h3>2.2.1. Interface identifier</h3>
 <p>An interface identifier (name) is assumed to be unique and consists of several
 string tokens joined by dot (<code>.</code>) separators. Each token must be a lowercase
@@ -979,12 +987,21 @@ the guideline.</p>
 <p><strong>Note: The "futoin." interface prefix is reserved exclusively for official
 FutoIn project specifications.</strong></p>
 <h3>2.2.2. Function identifier</h3>
-<p>Function names follow camelCase formatting. Example: "someFunc", "anotherFunc"</p>
+<p>Function names follow camel case (<code>camelCase</code>) formatting with alphanumeric
+ASCII characters.</p>
+<pre><code>Example: "someFunc", "anotherFunc2"
+</code></pre>
 <p><strong>Note: The "futoin" function prefix is reserved for internal system functions.</strong></p>
 <h3>2.2.3. Parameter/Result identifier</h3>
-<p>Parameter and result variable names follow snake_case formatting
-(<code>small_caps_with_underscore</code>).
-Example: "some_param", "some_result_value"</p>
+<p>Parameter and result variable names follow snake case formatting
+(<code>small_caps_with_underscore</code>) with alphanumeric ASCII characters.</p>
+<pre><code>Example: "some_param", "some_result_value2"
+</code></pre>
+<h3>2.2.4. Event identifier</h3>
+<p>In addition to regular camel case functions names, events can be named as
+upper-case snake case with alphanumeric ASCII characters.</p>
+<pre><code>Example: "SOME_EVENT", "OTHER_EVENT_2"
+</code></pre>
 <h2>2.3. Interface inheritance</h2>
 <p>Domain-specific interfaces often share a large set of common functionality and
 require only a few extra functions or parameters.</p>
@@ -1136,9 +1153,9 @@ be assigned longer default timeout thresholds.</p>
 <h2>2.9. Interface events</h2>
 <p>Events are seen as special case of functions with optional parameters that
 return no result. Therefore, those cannot have non-applicable attributes like
-"result", "rawupload", "rawresult", and "maxrspsize". Otherwise, there is no
-principle difference. Events and functions share the same naming space, and
-follow the same inheritance rules.</p>
+"result", "rawupload", "rawresult", "maxrspsize", and "throws". Otherwise, there
+is no principle difference. Events and functions share the same naming space,
+and follow the same inheritance rules.</p>
 <p>Events are designed for storage, and allow special <code>rid</code> field. Unlike the
 request IDs, the events IDs should be globally unique for storage purposes.</p>
 <p>Events should be stored without the <code>forcersp</code> field, <code>sec</code> and <code>obf</code> fields can
