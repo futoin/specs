@@ -119,6 +119,77 @@
       },
       "additionalProperties": false
     },
+    "events": {
+      "type": "object",
+      "description": "Event as no-response member function declaration",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z][a-zA-Z0-9]*$": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "params": {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^[a-z][a-z0-9_]*$": {
+                  "type": [
+                    "object",
+                    "string",
+                    "array"
+                  ],
+                  "uniqueItems": true,
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": [
+                        "string",
+                        "array"
+                      ],
+                      "pattern": "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                    },
+                    "default": {
+                      "type": [
+                        "boolean",
+                        "integer",
+                        "number",
+                        "string",
+                        "object",
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "desc": {
+                      "type": "string",
+                      "description": "Parameter description"
+                    }
+                  }
+                }
+              },
+              "description": "List of allowed parameter key-value pairs"
+            },
+            "heavy": {
+              "type": "boolean",
+              "description": "Mark request as \"heavy\" in terms processing"
+            },
+            "maxreqsize": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*(B|K|M)$",
+              "description": "Specify max request size"
+            },
+            "seclvl": {
+              "type": "string",
+              "description": "Minimum user authentication security level"
+            },
+            "desc": {
+              "type": "string",
+              "description": "Interface Function description"
+            }
+          },
+          "description": "Interface Function declaration"
+        }
+      }
+    },
     "funcs": {
       "type": "object",
       "description": "Member function declaration",

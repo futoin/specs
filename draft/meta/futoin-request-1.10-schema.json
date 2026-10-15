@@ -22,7 +22,7 @@
     },
     "rid": {
       "type": "string",
-      "pattern": "^(C|S)[a-zA-Z0-9_\\-]*[0-9]+$",
+      "pattern": "^(C|S|E)[a-zA-Z0-9_\\-]+$",
       "description": "Optional request ID for multiplexing"
     },
     "forcersp": {

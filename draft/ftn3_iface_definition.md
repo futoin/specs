@@ -14,14 +14,16 @@ Authors: Andrey Galkin
     * CHANGED: formality, rephrased and precised rules of inheritance and
       backward compatibility.
     * CHANGED: reworked message encoding to support non-prefixed messages.
+    * CHANGED: relaxed `rid` format and requirements.
     * FIXED: formality, "minlen"/"maxlen" to require integer type.
     * FIXED: formality, explicitly stated Common Sense constraints.
     * NEW: extended "obf" field use cases and predefined field names.
     * NEW: type variations support in detailed "fields", "elemtype", "params",
-      and "results" definitions.
+      and "result" definitions.
     * NEW: explicit listing of Avro and Protobuf message encoding.
     * NEW: "minlen"/"maxlen" for "map" of key-value type.
     * NEW: "samples" constraint for "string" type.
+    * NEW: "events" semantic alias for functions.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -134,8 +136,8 @@ name, version, and interface function encoded within it.
 ## 1.3. Client-server/service multiplexing mode
 
 The Invoker is responsible for enabling request message (and consequently
-response message) multiplexing by adding a special *request ID* field. The
-Executor is responsible for echoing the exact same field back in the related
+response message) multiplexing by adding a special *request ID* field: `rid`.
+The Executor is responsible for echoing the exact same field back in the related
 response message.
 
 Please note that *Invoker* and *Client*, as well as *Executor* and *Server*, are
@@ -146,6 +148,7 @@ replies to it.
 
 Client-side request IDs must be prefixed with "C".
 Server-side request IDs must be prefixed with "S".
+Events, also client-side requests, musst be prefixed with "E".
 
 The rest of the request ID should be an integer value starting at 1 and
 incrementing with every subsequent request sent. However, implementations should
@@ -201,7 +204,7 @@ Using [JSON-SCHEMA][]:
                 },
                 "rid" : {
                     "type" : "string",
-                    "pattern" : "^(C|S)[a-zA-Z0-9_\\-]*[0-9]+$",
+                    "pattern" : "^(C|S|E)[a-zA-Z0-9_\\-]+$",
                     "description" : "Optional request ID for multiplexing"
                 },
                 "forcersp" : {
@@ -798,6 +801,62 @@ Using [JSON-SCHEMA][]:
                     },
                     "additionalProperties" : false
                 },
+                "events" : {
+                    "type" : "object",
+                    "description" : "Event as no-response member function declaration",
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                        "^[a-z][a-zA-Z0-9]*$" : {
+                            "type" : "object",
+                            "additionalProperties" : false,
+                            "properties" : {
+                                "params" : {
+                                    "type" : "object",
+                                    "additionalProperties" : false,
+                                    "patternProperties" : {
+                                        "^[a-z][a-z0-9_]*$" : {
+                                            "type" : ["object", "string", "array"],
+                                            "uniqueItems": true,
+                                            "additionalProperties" : false,
+                                            "properties" : {
+                                                "type" :  {
+                                                    "type" : ["string", "array"],
+                                                    "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
+                                                },
+                                                "default" : {
+                                                    "type" : [ "boolean", "integer", "number", "string", "object", "array", "null" ]
+                                                },
+                                                "desc" : {
+                                                    "type" : "string",
+                                                    "description" : "Parameter description"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "description" : "List of allowed parameter key-value pairs"
+                                },
+                                "heavy" : {
+                                    "type" : "boolean",
+                                    "description" : "Mark request as \"heavy\" in terms processing"
+                                },
+                                "maxreqsize" :  {
+                                    "type" : "string",
+                                    "pattern" : "^[1-9][0-9]*(B|K|M)$",
+                                    "description" : "Specify max request size"
+                                },
+                                "seclvl" : {
+                                    "type" : "string",
+                                    "description" : "Minimum user authentication security level"
+                                },
+                                "desc" : {
+                                    "type" : "string",
+                                    "description" : "Interface Function description"
+                                }
+                            },
+                            "description" : "Interface Function declaration"
+                        }
+                    }
+                },
                 "funcs" : {
                     "type" : "object",
                     "description" : "Member function declaration",
@@ -1172,6 +1231,23 @@ Functions that require significant system resources can be designated as
 "heavy". Executors may use this metadata to constrain concurrent heavy
 invocations to protect system stability and performance. Heavy requests may also
 be assigned longer default timeout thresholds.
+
+## 2.9. Interface events
+
+Events are seen as special case of functions with optional parameters that
+return no result. Therefore, those cannot have non-applicable attributes like
+"result", "rawupload", "rawresult", and "maxrspsize". Otherwise, there is no
+principle difference. Events and functions share the same naming space, and
+follow the same inheritance rules.
+
+Events are designed for storage, and allow special `rid` field. Unlike the
+request IDs, the events IDs should be globally unique for storage purposes.
+
+Events should be stored without the `forcersp` field, `sec` and `obf` fields can
+be stored at implementation discretion based on particular use cases.
+
+Otherwise, "events" is just a semantic alias for clarity, events must be handled
+exactly the same way as functions.
 
 
 [json]: http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "JSON"
