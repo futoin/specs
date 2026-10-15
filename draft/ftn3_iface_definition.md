@@ -27,6 +27,7 @@ Authors: Andrey Galkin
     * NEW: "samples" constraint for "string" type.
     * NEW: "events" semantic alias for functions.
     * NEW: automatic "data" type as Base64 for text-friendly encoding.
+    * NEW: integer and numeric storage classes, new fixed-point "decimal" type.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -319,23 +320,29 @@ Using [JSON-SCHEMA][]:
 Standard FutoIn interface types:
 
 * `boolean` - `true` or `false`
-* `integer` - Signed integer with 32-bit precision
-* `number` - Floating-point value with 32-bit precision
-* `string` - String of unlimited length
+* `integer` - Signed integer with the default 32-bit precision.
+    - See custom type constraints for other integer classes.
+* `number` - Floating-point value with the default 32-bit precision.
+    - See custom type constraints for other floating-point classes.
+* `decimal` - a decimal number with fixed number of digits and fixed decimal
+  point position, precision and scale correspondingly.
+    - See custom type constraints for mandatory configuration classes.
+    - Implementation may impose restrictions on maximal supported ranges.
+* `string` - String of unlimited length.
 * `map` - Key-value pairs (effectively a JSON object). No ordering is guaranteed.
-    * `key` - String
-    * `value` - Any type defined in this section
-* `array` - Ordered list of values
-    * `value` - Any type defined in this section
-* `enum` - Value from a predefined set
-    * `value` - Integer or string
-* `set` - List of unique values
-    * `value` - Integer or string
-* `data` - Binary data
-    * `value` - Sequence of bytes
-* `any` - Field type is not validated
+    * `key` - String.
+    * `value` - Any type defined in this section.
+* `array` - Ordered list of values.
+    * `value` - Any type defined in this section.
+* `enum` - Value from a predefined set.
+    * `value` - Integer or string.
+* `set` - List of unique values.
+    * `value` - Integer or string.
+* `data` - Binary data.
+    * `value` - Sequence of bytes.
+* `any` - Field type is not validated.
 * *CustomType* - Any custom type defined, inherited, or imported within the same
-    interface
+    interface.
 
 *Note: **null** can be used only as a placeholder in "default" values.*
 
@@ -343,24 +350,58 @@ Standard FutoIn interface types:
 
 Each interface can define its own types in the optional "types" field.
 
-Custom types are inherited and imported. Re-defining an existing type in such
-cases constitutes an error.
+Custom types are inherited and imported. Redefining an existing type in such
+cases is an error.
 
 Each custom type must be based on one of the standard types, but can define
 various *optional* constraints:
 
-* `integer` and `number`:
-    * `min` - Minimum allowed value number (inclusive).
-    * `max` - Maximum allowed value number (inclusive).
+* `integer`:
+    * `min` - Minimum allowed value, integer (inclusive).
+    * `max` - Maximum allowed value, integer (inclusive).
+    * `class` - defines strict integer class and adjusts default `min` and
+      `max` constraints therefore.
+        * `int8` - 8-bit signed integer;
+        * `uint8` - 8-bit unsigned integer;
+        * `int16` - 16-bit signed integer;
+        * `uint16` - 16-bit unsigned integer;
+        * `int32` - 32-bit signed integer - **the default**;
+        * `uint32`- 32-bit unsigned integer;
+        * `int64` - 64-bit signed integer;
+        * `uint64`- 64-bit unsigned integer;
+        * *reserved*: `int128` - 128-bit signed integer;
+        * *reserved*: `uint128`- 128-bit unsigned integer;
+        * *reserved*: `int256` - 256-bit signed integer;
+        * *reserved*: `uint256`- 256-bit unsigned integer;
+* `number`:
+    * `min` - Minimum allowed value, floating-point number (inclusive).
+    * `max` - Maximum allowed value, floating-point number (inclusive).
+    * `class` - defines strict integer class and adjusts default `min` and
+      `max` constraints therefore.
+        * *reserved*: `float16` - 16-bit IEEE 754 binary floating-point number;
+        * `float32` - 32-bit IEEE 754 binary floating-point number -
+          **the default**;
+        * `float64` - 64-bit IEEE 754 binary floating-point number;
+        * *reserved*: `float128` - 128-bit IEEE 754 binary floating-point number;
+        * *reserved*: `float256` - 256-bit IEEE 754 binary floating-point number;
+        * The *reserved* types are not supported by the current specification.
+* `decimal`:
+    * `min` - Minimum allowed value, number or decimal-as-string (inclusive).
+    * `max` - Maximum allowed value, number or decimal-as-string (inclusive).
+    * `class` - define decimal number constraints, string:
+        * `p.s`, where `p` is total precision in decimal digits as positive
+          integer, and `s` is scale (digits after point) as non-negative
+          integer.
+
 * `string`:
     * `regex` - ECMAScript regular expression.
     * `samples` - Array of samples to validate backward compatibility of `regex`
       in derived specs (revised, inherited or imported).
-    * `minlen` - Minimum string length integer (inclusive).
-    * `maxlen` - Maximum string length integer (inclusive).
+    * `minlen` - Minimum string length, integer (inclusive).
+    * `maxlen` - Maximum string length, integer (inclusive).
 * `array`:
-    * `minlen` - Minimum array length integer (inclusive).
-    * `maxlen` - Maximum array length integer (inclusive).
+    * `minlen` - Minimum array length, integer (inclusive).
+    * `maxlen` - Maximum array length, integer (inclusive).
     * `elemtype` - Required element type.
 * `map`:
     * For schema structure:
@@ -387,6 +428,7 @@ Optional fields must also be permitted to be sent explicitly as `null`.*
 Common Sense constraints:
 
 - `min` must not be greater than `max`.
+- `min` and `max` ranges must be sound with storage `class` constraint.
 - `minlen` must not be greater than `maxlen`.
 - Neither `minlen`, nor `maxlen`, can be less than 0.
 - `enum` and `set` require mandatory `items` attribute.
@@ -750,13 +792,16 @@ Using [JSON-SCHEMA][]:
                             "properties" : {
                                 "type" :  {
                                     "type" : "string",
-                                    "pattern" : "^any|boolean|integer|number|string|map|array|enum|set|data|[A-Z][a-zA-Z0-9]+$"
+                                    "pattern" : "^any|boolean|integer|number|decimal|string|map|array|enum|set|data|[A-Z][a-zA-Z0-9]+$"
                                 },
                                 "min" : {
                                     "type": "number"
                                 },
                                 "max" : {
                                     "type": "number"
+                                },
+                                "class" : {
+                                    "type": "string"
                                 },
                                 "minlen" : {
                                     "type": "integer"
@@ -1121,6 +1166,7 @@ The following compatibility rules exist:
       type variants;
     - `fields` can defined only additional optional fields;
     - the `min`, `max`, `minlen` and `maxlen` attribute range can only expand;
+    - the storage `class` constraint cannot change;
     - the `regex` can become only more permissive;
     - all `samples` of the base spec must pass `regex` of the derived spec;
     - the `items` can only expand;
@@ -1138,6 +1184,7 @@ The following compatibility rules exist:
     - `fields` can defined additional mandatory or optional fields;
     - the `min`, `max`, `minlen` and `maxlen` attribute range can only narrow
       down;
+    - the storage `class` constraint cannot change;
     - the `regex` attribute can only become more restrictive;
     - all `samples` of the derive spec must pass `regex` of the base spec;
     - the `items` attribute can only shrink;

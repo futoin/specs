@@ -39,6 +39,7 @@ Authors: Andrey Galkin
 <li>NEW: "samples" constraint for "string" type.</li>
 <li>NEW: "events" semantic alias for functions.</li>
 <li>NEW: automatic "data" type as Base64 for text-friendly encoding.</li>
+<li>NEW: integer and numeric storage classes, new fixed-point "decimal" type.</li>
 </ul>
 </li>
 <li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
@@ -315,58 +316,117 @@ always operate in message multiplexing mode.</p>
 <p>Standard FutoIn interface types:</p>
 <ul>
 <li><code>boolean</code> - <code>true</code> or <code>false</code></li>
-<li><code>integer</code> - Signed integer with 32-bit precision</li>
-<li><code>number</code> - Floating-point value with 32-bit precision</li>
-<li><code>string</code> - String of unlimited length</li>
+<li><code>integer</code> - Signed integer with the default 32-bit precision.<ul>
+<li>See custom type constraints for other integer classes.</li>
+</ul>
+</li>
+<li><code>number</code> - Floating-point value with the default 32-bit precision.<ul>
+<li>See custom type constraints for other floating-point classes.</li>
+</ul>
+</li>
+<li><code>decimal</code> - a decimal number with fixed number of digits and fixed decimal
+  point position, precision and scale correspondingly.<ul>
+<li>See custom type constraints for mandatory configuration classes.</li>
+<li>Implementation may impose restrictions on maximal supported ranges.</li>
+</ul>
+</li>
+<li><code>string</code> - String of unlimited length.</li>
 <li><code>map</code> - Key-value pairs (effectively a JSON object). No ordering is guaranteed.<ul>
-<li><code>key</code> - String</li>
-<li><code>value</code> - Any type defined in this section</li>
+<li><code>key</code> - String.</li>
+<li><code>value</code> - Any type defined in this section.</li>
 </ul>
 </li>
-<li><code>array</code> - Ordered list of values<ul>
-<li><code>value</code> - Any type defined in this section</li>
+<li><code>array</code> - Ordered list of values.<ul>
+<li><code>value</code> - Any type defined in this section.</li>
 </ul>
 </li>
-<li><code>enum</code> - Value from a predefined set<ul>
-<li><code>value</code> - Integer or string</li>
+<li><code>enum</code> - Value from a predefined set.<ul>
+<li><code>value</code> - Integer or string.</li>
 </ul>
 </li>
-<li><code>set</code> - List of unique values<ul>
-<li><code>value</code> - Integer or string</li>
+<li><code>set</code> - List of unique values.<ul>
+<li><code>value</code> - Integer or string.</li>
 </ul>
 </li>
-<li><code>data</code> - Binary data<ul>
-<li><code>value</code> - Sequence of bytes</li>
+<li><code>data</code> - Binary data.<ul>
+<li><code>value</code> - Sequence of bytes.</li>
 </ul>
 </li>
-<li><code>any</code> - Field type is not validated</li>
+<li><code>any</code> - Field type is not validated.</li>
 <li><em>CustomType</em> - Any custom type defined, inherited, or imported within the same
-    interface</li>
+    interface.</li>
 </ul>
 <p><em>Note: </em><em>null</em><em> can be used only as a placeholder in "default" values.</em></p>
 <h3>1.8.1. Custom types</h3>
 <p>Each interface can define its own types in the optional "types" field.</p>
-<p>Custom types are inherited and imported. Re-defining an existing type in such
-cases constitutes an error.</p>
+<p>Custom types are inherited and imported. Redefining an existing type in such
+cases is an error.</p>
 <p>Each custom type must be based on one of the standard types, but can define
 various <em>optional</em> constraints:</p>
 <ul>
-<li><code>integer</code> and <code>number</code>:<ul>
-<li><code>min</code> - Minimum allowed value number (inclusive).</li>
-<li><code>max</code> - Maximum allowed value number (inclusive).</li>
+<li><code>integer</code>:<ul>
+<li><code>min</code> - Minimum allowed value, integer (inclusive).</li>
+<li><code>max</code> - Maximum allowed value, integer (inclusive).</li>
+<li><code>class</code> - defines strict integer class and adjusts default <code>min</code> and
+  <code>max</code> constraints therefore.<ul>
+<li><code>int8</code> - 8-bit signed integer;</li>
+<li><code>uint8</code> - 8-bit unsigned integer;</li>
+<li><code>int16</code> - 16-bit signed integer;</li>
+<li><code>uint16</code> - 16-bit unsigned integer;</li>
+<li><code>int32</code> - 32-bit signed integer - <strong>the default</strong>;</li>
+<li><code>uint32</code>- 32-bit unsigned integer;</li>
+<li><code>int64</code> - 64-bit signed integer;</li>
+<li><code>uint64</code>- 64-bit unsigned integer;</li>
+<li><em>reserved</em>: <code>int128</code> - 128-bit signed integer;</li>
+<li><em>reserved</em>: <code>uint128</code>- 128-bit unsigned integer;</li>
+<li><em>reserved</em>: <code>int256</code> - 256-bit signed integer;</li>
+<li><em>reserved</em>: <code>uint256</code>- 256-bit unsigned integer;</li>
 </ul>
 </li>
-<li><code>string</code>:<ul>
+</ul>
+</li>
+<li><code>number</code>:<ul>
+<li><code>min</code> - Minimum allowed value, floating-point number (inclusive).</li>
+<li><code>max</code> - Maximum allowed value, floating-point number (inclusive).</li>
+<li><code>class</code> - defines strict integer class and adjusts default <code>min</code> and
+  <code>max</code> constraints therefore.<ul>
+<li><em>reserved</em>: <code>float16</code> - 16-bit IEEE 754 binary floating-point number;</li>
+<li><code>float32</code> - 32-bit IEEE 754 binary floating-point number -
+  <strong>the default</strong>;</li>
+<li><code>float64</code> - 64-bit IEEE 754 binary floating-point number;</li>
+<li><em>reserved</em>: <code>float128</code> - 128-bit IEEE 754 binary floating-point number;</li>
+<li><em>reserved</em>: <code>float256</code> - 256-bit IEEE 754 binary floating-point number;</li>
+<li>The <em>reserved</em> types are not supported by the current specification.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>decimal</code>:</p>
+<ul>
+<li><code>min</code> - Minimum allowed value, number or decimal-as-string (inclusive).</li>
+<li><code>max</code> - Maximum allowed value, number or decimal-as-string (inclusive).</li>
+<li><code>class</code> - define decimal number constraints, string:<ul>
+<li><code>p.s</code>, where <code>p</code> is total precision in decimal digits as positive
+  integer, and <code>s</code> is scale (digits after point) as non-negative
+  integer.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>string</code>:</p>
+<ul>
 <li><code>regex</code> - ECMAScript regular expression.</li>
 <li><code>samples</code> - Array of samples to validate backward compatibility of <code>regex</code>
   in derived specs (revised, inherited or imported).</li>
-<li><code>minlen</code> - Minimum string length integer (inclusive).</li>
-<li><code>maxlen</code> - Maximum string length integer (inclusive).</li>
+<li><code>minlen</code> - Minimum string length, integer (inclusive).</li>
+<li><code>maxlen</code> - Maximum string length, integer (inclusive).</li>
 </ul>
 </li>
 <li><code>array</code>:<ul>
-<li><code>minlen</code> - Minimum array length integer (inclusive).</li>
-<li><code>maxlen</code> - Maximum array length integer (inclusive).</li>
+<li><code>minlen</code> - Minimum array length, integer (inclusive).</li>
+<li><code>maxlen</code> - Maximum array length, integer (inclusive).</li>
 <li><code>elemtype</code> - Required element type.</li>
 </ul>
 </li>
@@ -408,6 +468,7 @@ Optional fields must also be permitted to be sent explicitly as <code>null</code
 <p>Common Sense constraints:</p>
 <ul>
 <li><code>min</code> must not be greater than <code>max</code>.</li>
+<li><code>min</code> and <code>max</code> ranges must be sound with storage <code>class</code> constraint.</li>
 <li><code>minlen</code> must not be greater than <code>maxlen</code>.</li>
 <li>Neither <code>minlen</code>, nor <code>maxlen</code>, can be less than 0.</li>
 <li><code>enum</code> and <code>set</code> require mandatory <code>items</code> attribute.</li>
@@ -690,13 +751,16 @@ interface specifications below.</p>
                         "properties" : {
                             "type" :  {
                                 "type" : "string",
-                                "pattern" : "^any|boolean|integer|number|string|map|array|enum|set|data|[A-Z][a-zA-Z0-9]+$"
+                                "pattern" : "^any|boolean|integer|number|decimal|string|map|array|enum|set|data|[A-Z][a-zA-Z0-9]+$"
                             },
                             "min" : {
                                 "type": "number"
                             },
                             "max" : {
                                 "type": "number"
+                            },
+                            "class" : {
+                                "type": "string"
                             },
                             "minlen" : {
                                 "type": "integer"
@@ -1035,6 +1099,7 @@ derived interface through its parent or grandparent interfaces.</p>
   type variants;</li>
 <li><code>fields</code> can defined only additional optional fields;</li>
 <li>the <code>min</code>, <code>max</code>, <code>minlen</code> and <code>maxlen</code> attribute range can only expand;</li>
+<li>the storage <code>class</code> constraint cannot change;</li>
 <li>the <code>regex</code> can become only more permissive;</li>
 <li>all <code>samples</code> of the base spec must pass <code>regex</code> of the derived spec;</li>
 <li>the <code>items</code> can only expand;</li>
@@ -1054,6 +1119,7 @@ derived interface through its parent or grandparent interfaces.</p>
 <li><code>fields</code> can defined additional mandatory or optional fields;</li>
 <li>the <code>min</code>, <code>max</code>, <code>minlen</code> and <code>maxlen</code> attribute range can only narrow
   down;</li>
+<li>the storage <code>class</code> constraint cannot change;</li>
 <li>the <code>regex</code> attribute can only become more restrictive;</li>
 <li>all <code>samples</code> of the derive spec must pass <code>regex</code> of the base spec;</li>
 <li>the <code>items</code> attribute can only shrink;</li>
