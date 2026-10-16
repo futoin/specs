@@ -39,7 +39,7 @@
           "properties": {
             "type": {
               "type": "string",
-              "pattern": "^any|boolean|integer|number|decimal|string|map|array|enum|set|data|[A-Z][a-zA-Z0-9]+$"
+              "pattern": "^any|boolean|integer|number|string|map|array|enum|set|data|decimal|datetime|[A-Z][a-zA-Z0-9]+$"
             },
             "min": {
               "type": "number"

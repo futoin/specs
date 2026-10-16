@@ -28,6 +28,7 @@ Authors: Andrey Galkin
     * NEW: "events" semantic alias for functions.
     * NEW: automatic "data" type as Base64 for text-friendly encoding.
     * NEW: integer and numeric storage classes, new fixed-point "decimal" type.
+    * NEW: "datetime" type with a collection "class" constraints.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -317,7 +318,10 @@ Using [JSON-SCHEMA][]:
 
 ## 1.8. Parameter and result types
 
-Standard FutoIn interface types:
+Standard FutoIn interface types are semantic types first of all. Those define
+requirements for value types and their ranges. Specific on-wire format can be
+different with fallback to one or another string representation as the absolute
+minimum.
 
 * `boolean` - `true` or `false`
 * `integer` - Signed integer with the default 32-bit precision.
@@ -328,6 +332,8 @@ Standard FutoIn interface types:
   point position, precision and scale correspondingly.
     - See custom type constraints for mandatory configuration classes.
     - Implementation may impose restrictions on maximal supported ranges.
+* `datetime` - a collection of different date, time, timestamp and duration
+  classes. The the mandatory custom type constraints.
 * `string` - String of unlimited length.
 * `map` - Key-value pairs (effectively a JSON object). No ordering is guaranteed.
     * `key` - String.
@@ -392,7 +398,17 @@ various *optional* constraints:
         * `p.s`, where `p` is total precision in decimal digits as positive
           integer, and `s` is scale (digits after point) as non-negative
           integer.
-
+* `datetime`:
+    * `min` - Minimum allowed value, value-as-string (inclusive).
+    * `max` - Maximum allowed value, value-as-string (inclusive).
+    * `class` - define class of data and time-related storage, string:
+        * `date` - timezone-agnostic [RFC 3339][RFC3339] date in "YYYY-MM-DD" format;
+        * `time` - timezone-agnostic RFC 3339 time in "HH:mm:ss" format;
+        * `timestamp` - UTC time as in RFC 3339 "YYYY-MM-DDTHH:mm:ssZ" format;
+        * `duration` - RFC 3339 duration format with leading "P";
+        * `period` - RFC 3339 time period format variants with "/" separator;
+        * NOTE: `date`, `time` and `timestamp` must always use the full format,
+          all classes must never use fractional part and always "Z" UTC zone.
 * `string`:
     * `regex` - ECMAScript regular expression.
     * `samples` - Array of samples to validate backward compatibility of `regex`
@@ -436,6 +452,10 @@ Common Sense constraints:
   presence and opportunistic sample checks.
 - The optional type constraints cannot be applied on top of a type variation,
   but they can be applied to the individual types inside such variation.
+- `datetime` type must hold valid date and/or time value.
+- `min` and `max` for `datetime` must sound with its `class` in general.
+    - In case of `period`, the constraints must be of `timestamp` class.
+    - There obvious limits on the date and time values that can be represented.
 
 
 ### 1.8.2. "null" parameter value
@@ -792,7 +812,7 @@ Using [JSON-SCHEMA][]:
                             "properties" : {
                                 "type" :  {
                                     "type" : "string",
-                                    "pattern" : "^any|boolean|integer|number|decimal|string|map|array|enum|set|data|[A-Z][a-zA-Z0-9]+$"
+                                    "pattern" : "^any|boolean|integer|number|string|map|array|enum|set|data|decimal|datetime|[A-Z][a-zA-Z0-9]+$"
                                 },
                                 "min" : {
                                     "type": "number"
@@ -1336,6 +1356,7 @@ exactly the same way as functions.
 [java-name]: https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html "JAVA-NAME"
 [media-types]: https://www.iana.org/assignments/media-types "IANA Media Types"
 [Base64]: https://www.rfc-editor.org/info/rfc4648/ "The Base16, Base32, and Base64 Data Encodings"
+[RFC3339]: https://www.rfc-editor.org/info/rfc3339/ "RFC 3339: Date and Time on the Internet: Timestamps"
 
 
 =END OF SPEC=

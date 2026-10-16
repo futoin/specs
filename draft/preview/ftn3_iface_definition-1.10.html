@@ -40,6 +40,7 @@ Authors: Andrey Galkin
 <li>NEW: "events" semantic alias for functions.</li>
 <li>NEW: automatic "data" type as Base64 for text-friendly encoding.</li>
 <li>NEW: integer and numeric storage classes, new fixed-point "decimal" type.</li>
+<li>NEW: "datetime" type with a collection "class" constraints.</li>
 </ul>
 </li>
 <li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
@@ -313,7 +314,10 @@ always operate in message multiplexing mode.</p>
     }
 </code></pre>
 <h2>1.8. Parameter and result types</h2>
-<p>Standard FutoIn interface types:</p>
+<p>Standard FutoIn interface types are semantic types first of all. Those define
+requirements for value types and their ranges. Specific on-wire format can be
+different with fallback to one or another string representation as the absolute
+minimum.</p>
 <ul>
 <li><code>boolean</code> - <code>true</code> or <code>false</code></li>
 <li><code>integer</code> - Signed integer with the default 32-bit precision.<ul>
@@ -330,6 +334,8 @@ always operate in message multiplexing mode.</p>
 <li>Implementation may impose restrictions on maximal supported ranges.</li>
 </ul>
 </li>
+<li><code>datetime</code> - a collection of different date, time, timestamp and duration
+  classes. The the mandatory custom type constraints.</li>
 <li><code>string</code> - String of unlimited length.</li>
 <li><code>map</code> - Key-value pairs (effectively a JSON object). No ordering is guaranteed.<ul>
 <li><code>key</code> - String.</li>
@@ -401,9 +407,7 @@ various <em>optional</em> constraints:</p>
 </li>
 </ul>
 </li>
-<li>
-<p><code>decimal</code>:</p>
-<ul>
+<li><code>decimal</code>:<ul>
 <li><code>min</code> - Minimum allowed value, number or decimal-as-string (inclusive).</li>
 <li><code>max</code> - Maximum allowed value, number or decimal-as-string (inclusive).</li>
 <li><code>class</code> - define decimal number constraints, string:<ul>
@@ -414,9 +418,22 @@ various <em>optional</em> constraints:</p>
 </li>
 </ul>
 </li>
-<li>
-<p><code>string</code>:</p>
-<ul>
+<li><code>datetime</code>:<ul>
+<li><code>min</code> - Minimum allowed value, value-as-string (inclusive).</li>
+<li><code>max</code> - Maximum allowed value, value-as-string (inclusive).</li>
+<li><code>class</code> - define class of data and time-related storage, string:<ul>
+<li><code>date</code> - timezone-agnostic <a href="https://www.rfc-editor.org/info/rfc3339/" title="RFC 3339: Date and Time on the Internet: Timestamps">RFC 3339</a> date in "YYYY-MM-DD" format;</li>
+<li><code>time</code> - timezone-agnostic RFC 3339 time in "HH:mm:ss" format;</li>
+<li><code>timestamp</code> - UTC time as in RFC 3339 "YYYY-MM-DDTHH:mm:ssZ" format;</li>
+<li><code>duration</code> - RFC 3339 duration format with leading "P";</li>
+<li><code>period</code> - RFC 3339 time period format variants with "/" separator;</li>
+<li>NOTE: <code>date</code>, <code>time</code> and <code>timestamp</code> must always use the full format,
+  all classes must never use fractional part and always "Z" UTC zone.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>string</code>:<ul>
 <li><code>regex</code> - ECMAScript regular expression.</li>
 <li><code>samples</code> - Array of samples to validate backward compatibility of <code>regex</code>
   in derived specs (revised, inherited or imported).</li>
@@ -476,6 +493,12 @@ Optional fields must also be permitted to be sent explicitly as <code>null</code
   presence and opportunistic sample checks.</li>
 <li>The optional type constraints cannot be applied on top of a type variation,
   but they can be applied to the individual types inside such variation.</li>
+<li><code>datetime</code> type must hold valid date and/or time value.</li>
+<li><code>min</code> and <code>max</code> for <code>datetime</code> must sound with its <code>class</code> in general.<ul>
+<li>In case of <code>period</code>, the constraints must be of <code>timestamp</code> class.</li>
+<li>There obvious limits on the date and time values that can be represented.</li>
+</ul>
+</li>
 </ul>
 <h3>1.8.2. "null" parameter value</h3>
 <p>As a special case, any parameter can be marked with a default value of <code>"null"</code>.
@@ -751,7 +774,7 @@ interface specifications below.</p>
                         "properties" : {
                             "type" :  {
                                 "type" : "string",
-                                "pattern" : "^any|boolean|integer|number|decimal|string|map|array|enum|set|data|[A-Z][a-zA-Z0-9]+$"
+                                "pattern" : "^any|boolean|integer|number|string|map|array|enum|set|data|decimal|datetime|[A-Z][a-zA-Z0-9]+$"
                             },
                             "min" : {
                                 "type": "number"
