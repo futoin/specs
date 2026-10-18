@@ -41,6 +41,8 @@ Authors: Andrey Galkin
 <li>NEW: automatic "data" type as Base64 for text-friendly encoding.</li>
 <li>NEW: integer and numeric storage classes, new fixed-point "decimal" type.</li>
 <li>NEW: "datetime" type with a collection "class" constraints.</li>
+<li>NEW: "string", "bitset" and integer-based "class" constraints for "enum"
+  and "set" types.</li>
 </ul>
 </li>
 <li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
@@ -373,8 +375,8 @@ various <em>optional</em> constraints:</p>
 <li><code>integer</code>:<ul>
 <li><code>min</code> - Minimum allowed value, integer (inclusive).</li>
 <li><code>max</code> - Maximum allowed value, integer (inclusive).</li>
-<li><code>class</code> - defines strict integer class and adjusts default <code>min</code> and
-  <code>max</code> constraints therefore.<ul>
+<li><code>class</code> - Defines strict integer class and adjusts default <code>min</code> and
+  <code>max</code> constraints therefore:<ul>
 <li><code>int8</code> - 8-bit signed integer;</li>
 <li><code>uint8</code> - 8-bit unsigned integer;</li>
 <li><code>int16</code> - 16-bit signed integer;</li>
@@ -387,6 +389,8 @@ various <em>optional</em> constraints:</p>
 <li><em>reserved</em>: <code>uint128</code>- 128-bit unsigned integer;</li>
 <li><em>reserved</em>: <code>int256</code> - 256-bit signed integer;</li>
 <li><em>reserved</em>: <code>uint256</code>- 256-bit unsigned integer;</li>
+<li>The <em>reserved</em> classes are not required by the current specification,
+  but those can be implemented as an optional feature.</li>
 </ul>
 </li>
 </ul>
@@ -394,15 +398,17 @@ various <em>optional</em> constraints:</p>
 <li><code>number</code>:<ul>
 <li><code>min</code> - Minimum allowed value, floating-point number (inclusive).</li>
 <li><code>max</code> - Maximum allowed value, floating-point number (inclusive).</li>
-<li><code>class</code> - defines strict integer class and adjusts default <code>min</code> and
-  <code>max</code> constraints therefore.<ul>
+<li><code>class</code> - Defines strict integer class and adjusts default <code>min</code> and
+  <code>max</code> constraints therefore:<ul>
 <li><em>reserved</em>: <code>float16</code> - 16-bit IEEE 754 binary floating-point number;</li>
 <li><code>float32</code> - 32-bit IEEE 754 binary floating-point number -
   <strong>the default</strong>;</li>
 <li><code>float64</code> - 64-bit IEEE 754 binary floating-point number;</li>
 <li><em>reserved</em>: <code>float128</code> - 128-bit IEEE 754 binary floating-point number;</li>
 <li><em>reserved</em>: <code>float256</code> - 256-bit IEEE 754 binary floating-point number;</li>
-<li>The <em>reserved</em> types are not supported by the current specification.</li>
+<li><em>reserved</em>: <code>bfloat16</code> - alternative 16-bit floating-point number;</li>
+<li>The <em>reserved</em> classes are not required by the current specification,
+  but those can be implemented as an optional feature.</li>
 </ul>
 </li>
 </ul>
@@ -410,7 +416,7 @@ various <em>optional</em> constraints:</p>
 <li><code>decimal</code>:<ul>
 <li><code>min</code> - Minimum allowed value, number or decimal-as-string (inclusive).</li>
 <li><code>max</code> - Maximum allowed value, number or decimal-as-string (inclusive).</li>
-<li><code>class</code> - define decimal number constraints, string:<ul>
+<li><code>class</code> - Defines decimal number constraints, string:<ul>
 <li><code>p.s</code>, where <code>p</code> is total precision in decimal digits as positive
   integer, and <code>s</code> is scale (digits after point) as non-negative
   integer.</li>
@@ -421,7 +427,7 @@ various <em>optional</em> constraints:</p>
 <li><code>datetime</code>:<ul>
 <li><code>min</code> - Minimum allowed value, value-as-string (inclusive).</li>
 <li><code>max</code> - Maximum allowed value, value-as-string (inclusive).</li>
-<li><code>class</code> - define class of data and time-related storage, string:<ul>
+<li><code>class</code> - Define class of data and time-related storage, string:<ul>
 <li><code>date</code> - timezone-agnostic <a href="https://www.rfc-editor.org/info/rfc3339/" title="RFC 3339: Date and Time on the Internet: Timestamps">RFC 3339</a> date in "YYYY-MM-DD" format;</li>
 <li><code>time</code> - timezone-agnostic RFC 3339 time in "HH:mm:ss" format;</li>
 <li><code>timestamp</code> - UTC time as in RFC 3339 "YYYY-MM-DDTHH:mm:ssZ" format;</li>
@@ -457,8 +463,11 @@ various <em>optional</em> constraints:</p>
 </li>
 </ul>
 </li>
-<li>For key-value mapping:<ul>
-<li><code>elemtype</code> - Required element type, if no "fields" map is provided.</li>
+<li>For key-value mapping (the default):<ul>
+<li><code>elemtype</code> - Optional mapping value type constraint, default to
+  an unconstrained <code>any</code> (implicit).</li>
+<li><code>keytype</code> - Optional mapping key type constraint, default to
+  an unconstrained <code>string</code> (implicit).</li>
 <li><code>minlen</code> - Minimum array length integer (inclusive).</li>
 <li><code>maxlen</code> - Maximum array length integer (inclusive).</li>
 </ul>
@@ -467,13 +476,32 @@ various <em>optional</em> constraints:</p>
 </li>
 <li><code>enum</code>:<ul>
 <li><code>items</code> - List of allowed integer or string values.</li>
+<li><code>class</code> - defines storage constraint for some binary encodings.<ul>
+<li><code>string</code> - the default pass by value, the most compatible;</li>
+<li>one of <code>integer</code> values for <code>class</code> - pass by <code>items</code> position.</li>
 </ul>
 </li>
-<li><code>set</code>:<ul>
+</ul>
+</li>
+<li>
+<p><code>set</code>:</p>
+<ul>
 <li><code>items</code> - Complete set of allowed integer or string values.</li>
+<li><code>class</code> - defines storage constraint for some <strong>binary</strong> encodings.<ul>
+<li><code>string</code> - the default pass by value, the most compatible;</li>
+<li><em>reserved:</em> one of <code>integer</code> values for <code>class</code> to pass set value by
+  <code>items</code> position as array of integers of specific storage size.</li>
+<li><em>reserved:</em> <code>bitset</code> - use <code>items</code> position for bit positions in a
+  bitset of array of <code>uint8</code> storage requirement;</li>
+<li>The <em>reserved</em> classes are not required by the current specification,
+  but those can be implemented as an optional feature.</li>
 </ul>
 </li>
-<li><code>data</code>:<ul>
+</ul>
+</li>
+<li>
+<p><code>data</code>:</p>
+<ul>
 <li><code>minlen</code> - Minimum byte length integer (inclusive).</li>
 <li><code>maxlen</code> - Maximum byte length integer (inclusive).</li>
 </ul>

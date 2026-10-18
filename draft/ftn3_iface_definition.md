@@ -29,6 +29,8 @@ Authors: Andrey Galkin
     * NEW: automatic "data" type as Base64 for text-friendly encoding.
     * NEW: integer and numeric storage classes, new fixed-point "decimal" type.
     * NEW: "datetime" type with a collection "class" constraints.
+    * NEW: "string", "bitset" and integer-based "class" constraints for "enum"
+      and "set" types.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -365,8 +367,8 @@ various *optional* constraints:
 * `integer`:
     * `min` - Minimum allowed value, integer (inclusive).
     * `max` - Maximum allowed value, integer (inclusive).
-    * `class` - defines strict integer class and adjusts default `min` and
-      `max` constraints therefore.
+    * `class` - Defines strict integer class and adjusts default `min` and
+      `max` constraints therefore:
         * `int8` - 8-bit signed integer;
         * `uint8` - 8-bit unsigned integer;
         * `int16` - 16-bit signed integer;
@@ -379,29 +381,33 @@ various *optional* constraints:
         * *reserved*: `uint128`- 128-bit unsigned integer;
         * *reserved*: `int256` - 256-bit signed integer;
         * *reserved*: `uint256`- 256-bit unsigned integer;
+        * The *reserved* classes are not required by the current specification,
+          but those can be implemented as an optional feature.
 * `number`:
     * `min` - Minimum allowed value, floating-point number (inclusive).
     * `max` - Maximum allowed value, floating-point number (inclusive).
-    * `class` - defines strict integer class and adjusts default `min` and
-      `max` constraints therefore.
+    * `class` - Defines strict integer class and adjusts default `min` and
+      `max` constraints therefore:
         * *reserved*: `float16` - 16-bit IEEE 754 binary floating-point number;
         * `float32` - 32-bit IEEE 754 binary floating-point number -
           **the default**;
         * `float64` - 64-bit IEEE 754 binary floating-point number;
         * *reserved*: `float128` - 128-bit IEEE 754 binary floating-point number;
         * *reserved*: `float256` - 256-bit IEEE 754 binary floating-point number;
-        * The *reserved* types are not supported by the current specification.
+        * *reserved*: `bfloat16` - alternative 16-bit floating-point number;
+        * The *reserved* classes are not required by the current specification,
+          but those can be implemented as an optional feature.
 * `decimal`:
     * `min` - Minimum allowed value, number or decimal-as-string (inclusive).
     * `max` - Maximum allowed value, number or decimal-as-string (inclusive).
-    * `class` - define decimal number constraints, string:
+    * `class` - Defines decimal number constraints, string:
         * `p.s`, where `p` is total precision in decimal digits as positive
           integer, and `s` is scale (digits after point) as non-negative
           integer.
 * `datetime`:
     * `min` - Minimum allowed value, value-as-string (inclusive).
     * `max` - Maximum allowed value, value-as-string (inclusive).
-    * `class` - define class of data and time-related storage, string:
+    * `class` - Define class of data and time-related storage, string:
         * `date` - timezone-agnostic [RFC 3339][RFC3339] date in "YYYY-MM-DD" format;
         * `time` - timezone-agnostic RFC 3339 time in "HH:mm:ss" format;
         * `timestamp` - UTC time as in RFC 3339 "YYYY-MM-DDTHH:mm:ssZ" format;
@@ -425,14 +431,29 @@ various *optional* constraints:
             * `type` - Required field type
             * `optional` - Optional boolean. `true` if the field can be omitted.
             * `desc` - Optional string description of the field.
-    * For key-value mapping:
-        * `elemtype` - Required element type, if no "fields" map is provided.
+    * For key-value mapping (the default):
+        * `elemtype` - Optional mapping value type constraint, default to
+          an unconstrained `any` (implicit).
+        * `keytype` - Optional mapping key type constraint, default to
+          an unconstrained `string` (implicit).
         * `minlen` - Minimum array length integer (inclusive).
         * `maxlen` - Maximum array length integer (inclusive).
 * `enum`:
     * `items` - List of allowed integer or string values.
+    * `class` - defines storage constraint for some binary encodings.
+        * `string` - the default pass by value, the most compatible;
+        * one of `integer` values for `class` - pass by `items` position.
 * `set`:
     * `items` - Complete set of allowed integer or string values.
+    * `class` - defines storage constraint for some **binary** encodings.
+        * `string` - the default pass by value, the most compatible;
+        * *reserved:* one of `integer` values for `class` to pass set value by
+          `items` position as array of integers of specific storage size.
+        * *reserved:* `bitset` - use `items` position for bit positions in a
+          bitset of array of `uint8` storage requirement;
+        * The *reserved* classes are not required by the current specification,
+          but those can be implemented as an optional feature.
+
 * `data`:
     * `minlen` - Minimum byte length integer (inclusive).
     * `maxlen` - Maximum byte length integer (inclusive).
