@@ -68,6 +68,12 @@
                 "array"
               ]
             },
+            "keytype": {
+              "type": [
+                "string",
+                "array"
+              ]
+            },
             "fields": {
               "type": "object",
               "additionalProperties": false,

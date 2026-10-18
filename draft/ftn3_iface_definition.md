@@ -31,6 +31,7 @@ Authors: Andrey Galkin
     * NEW: "datetime" type with a collection "class" constraints.
     * NEW: "string", "bitset" and integer-based "class" constraints for "enum"
       and "set" types.
+    * NEW: "keytype" optional constraint for "map" type.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -434,8 +435,8 @@ various *optional* constraints:
     * For key-value mapping (the default):
         * `elemtype` - Optional mapping value type constraint, default to
           an unconstrained `any` (implicit).
-        * `keytype` - Optional mapping key type constraint, default to
-          an unconstrained `string` (implicit).
+        * `keytype` - Optional mapping key type with constraint for `string`,
+          the default to is unconstrained `string` (implicit).
         * `minlen` - Minimum array length integer (inclusive).
         * `maxlen` - Maximum array length integer (inclusive).
 * `enum`:
@@ -857,6 +858,9 @@ Using [JSON-SCHEMA][]:
                                     "type": "array"
                                 },
                                 "elemtype" : {
+                                    "type": ["string", "array"]
+                                },
+                                "keytype" : {
                                     "type": ["string", "array"]
                                 },
                                 "fields" : {

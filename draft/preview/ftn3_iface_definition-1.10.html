@@ -43,6 +43,7 @@ Authors: Andrey Galkin
 <li>NEW: "datetime" type with a collection "class" constraints.</li>
 <li>NEW: "string", "bitset" and integer-based "class" constraints for "enum"
   and "set" types.</li>
+<li>NEW: "keytype" optional constraint for "map" type.</li>
 </ul>
 </li>
 <li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
@@ -466,8 +467,8 @@ various <em>optional</em> constraints:</p>
 <li>For key-value mapping (the default):<ul>
 <li><code>elemtype</code> - Optional mapping value type constraint, default to
   an unconstrained <code>any</code> (implicit).</li>
-<li><code>keytype</code> - Optional mapping key type constraint, default to
-  an unconstrained <code>string</code> (implicit).</li>
+<li><code>keytype</code> - Optional mapping key type with constraint for <code>string</code>,
+  the default to is unconstrained <code>string</code> (implicit).</li>
 <li><code>minlen</code> - Minimum array length integer (inclusive).</li>
 <li><code>maxlen</code> - Maximum array length integer (inclusive).</li>
 </ul>
@@ -826,6 +827,9 @@ interface specifications below.</p>
                                 "type": "array"
                             },
                             "elemtype" : {
+                                "type": ["string", "array"]
+                            },
+                            "keytype" : {
                                 "type": ["string", "array"]
                             },
                             "fields" : {
