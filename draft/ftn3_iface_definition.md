@@ -413,7 +413,9 @@ various *optional* constraints:
         * `time` - timezone-agnostic RFC 3339 time in "HH:mm:ss" format;
         * `timestamp` - UTC time as in RFC 3339 "YYYY-MM-DDTHH:mm:ssZ" format;
         * `duration` - RFC 3339 duration format with leading "P";
-        * `period` - RFC 3339 time period format variants with "/" separator;
+        * `period` - RFC 3339 time period format variants with "/" separator,
+          only start and end timestamp is allowed due to known ambiguity of
+          duration on large values;
         * NOTE: `date`, `time` and `timestamp` must always use the full format,
           all classes must never use fractional part and always "Z" UTC zone.
 * `string`:
@@ -912,7 +914,7 @@ Using [JSON-SCHEMA][]:
                     "description" : "Event as no-response member function declaration",
                     "additionalProperties" : false,
                     "patternProperties" : {
-                        "^[a-z][a-zA-Z0-9]*$" : {
+                        "^(([a-z][a-zA-Z0-9]*)|([A-Z]([A-Z0-9_]*[A-Z0-9])?))$" : {
                             "type" : "object",
                             "additionalProperties" : false,
                             "properties" : {
@@ -968,7 +970,7 @@ Using [JSON-SCHEMA][]:
                     "description" : "Member function declaration",
                     "additionalProperties" : false,
                     "patternProperties" : {
-                        "^[a-z][a-zA-Z0-9]*$" : {
+                        "^[a-z]([a-z0-9_]*[a-z0-9])?$" : {
                             "type" : "object",
                             "additionalProperties" : false,
                             "properties" : {

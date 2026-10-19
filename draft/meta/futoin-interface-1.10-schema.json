@@ -133,7 +133,7 @@
       "description": "Event as no-response member function declaration",
       "additionalProperties": false,
       "patternProperties": {
-        "^[a-z][a-zA-Z0-9]*$": {
+        "^(([a-z][a-zA-Z0-9]*)|([A-Z]([A-Z0-9_]*[A-Z0-9])?))$": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -204,7 +204,7 @@
       "description": "Member function declaration",
       "additionalProperties": false,
       "patternProperties": {
-        "^[a-z][a-zA-Z0-9]*$": {
+        "^[a-z]([a-z0-9_]*[a-z0-9])?$": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
