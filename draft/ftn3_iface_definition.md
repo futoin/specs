@@ -437,8 +437,8 @@ various *optional* constraints:
     * For key-value mapping (the default):
         * `elemtype` - Optional mapping value type constraint, default to
           an unconstrained `any` (implicit).
-        * `keytype` - Optional mapping key type with constraint for `string`,
-          the default to is unconstrained `string` (implicit).
+        * `keytype` - Optional mapping key type with constraint for `string` or
+          `enum`, the default to is unconstrained `string` (implicit).
         * `minlen` - Minimum array length integer (inclusive).
         * `maxlen` - Maximum array length integer (inclusive).
 * `enum`:
