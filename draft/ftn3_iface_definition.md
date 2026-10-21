@@ -32,6 +32,7 @@ Authors: Andrey Galkin
     * NEW: "value", "string", "bitset" and integer-based "class" constraints
       for "enum" and "set" types.
     * NEW: "keytype" optional constraint for "map" type.
+    * NEW: support for precompiled specs and YAML in source definitions.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -836,6 +837,10 @@ Using [JSON-SCHEMA][]:
                             "minItems": 1,
                             "additionalProperties" : false,
                             "properties" : {
+                                "itemOrder" : {
+                                    "type": "number",
+                                    "desc": "This field must be set only for compiled specs"
+                                },
                                 "type" :  {
                                     "type" : "string",
                                     "pattern" : "^any|boolean|integer|number|string|map|array|enum|set|data|decimal|datetime|[A-Z][a-zA-Z0-9]+$"
@@ -1085,6 +1090,10 @@ Using [JSON-SCHEMA][]:
                     },
                     "uniqueItems": true,
                     "additionalItems": false
+                },
+                "sig": {
+                    "type": "string",
+                    "desc": "Only for compiled strings, a special implementation-defined signature"
                 }
             }
         }
@@ -1378,6 +1387,35 @@ be stored at implementation discretion based on particular use cases.
 
 Otherwise, "events" is just a semantic alias for clarity, events must be handled
 exactly the same way as functions.
+
+
+## 2.10. Precompiled interface specifications
+
+The complete interface validation and backwards compatibility checking logic is
+relatively complex and heavy in terms of code size. It is not suitable for all
+applications. Implementation of such logic in all technologies also raises
+concerns of excessive duplicate efforts and discrepancies between
+implementations.
+
+There is a non-mandatory option to support pre-validation and signing of iface
+definition in JSON format. Such specs should use the special `sig` field, which
+must be implementation-defined and not be set manually by interface designer.
+The signature can be either a sort of checksum or a cryptographic signature
+encoded in implementation-defined way.
+
+Some technologies cannot maintain JSON field order when parsing. The special
+`itemOrder` field must be set only in compiled specs to designate the order,
+starting from zero.
+
+## 2.11. YAML support and context information
+
+By design of the interface repositories, the specs are written in Markdown
+markup and the source of truth interface definitions are defined in such files
+as embedded JSON code objects. Alternative options are supported.
+
+Another markup approach can be used the implementation. The original interface
+spec can be coded in YAML, but it must be converted into strict JSON for
+distribution. YAML must never be supported on the wire.
 
 
 [json]: http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "JSON"
