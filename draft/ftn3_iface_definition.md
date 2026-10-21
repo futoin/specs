@@ -29,8 +29,8 @@ Authors: Andrey Galkin
     * NEW: automatic "data" type as Base64 for text-friendly encoding.
     * NEW: integer and numeric storage classes, new fixed-point "decimal" type.
     * NEW: "datetime" type with a collection "class" constraints.
-    * NEW: "string", "bitset" and integer-based "class" constraints for "enum"
-      and "set" types.
+    * NEW: "value", "string", "bitset" and integer-based "class" constraints
+      for "enum" and "set" types.
     * NEW: "keytype" optional constraint for "map" type.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
@@ -444,12 +444,14 @@ various *optional* constraints:
 * `enum`:
     * `items` - List of allowed integer or string values.
     * `class` - defines storage constraint for some binary encodings.
-        * `string` - the default pass by value, the most compatible;
+        * `value` - the historical default pass by value;
+        * `string` - pass by value as strings, the most compatible;
         * one of `integer` values for `class` - pass by `items` position.
 * `set`:
     * `items` - Complete set of allowed integer or string values.
     * `class` - defines storage constraint for some **binary** encodings.
-        * `string` - the default pass by value, the most compatible;
+        * `value` - the historical default pass by value;
+        * `string` - pass by value as strings, the most compatible;
         * *reserved:* one of `integer` values for `class` to pass set value by
           `items` position as array of integers of specific storage size.
         * *reserved:* `bitset` - use `items` position for bit positions in a

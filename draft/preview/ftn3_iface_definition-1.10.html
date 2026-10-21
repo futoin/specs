@@ -41,8 +41,8 @@ Authors: Andrey Galkin
 <li>NEW: automatic "data" type as Base64 for text-friendly encoding.</li>
 <li>NEW: integer and numeric storage classes, new fixed-point "decimal" type.</li>
 <li>NEW: "datetime" type with a collection "class" constraints.</li>
-<li>NEW: "string", "bitset" and integer-based "class" constraints for "enum"
-  and "set" types.</li>
+<li>NEW: "value", "string", "bitset" and integer-based "class" constraints
+  for "enum" and "set" types.</li>
 <li>NEW: "keytype" optional constraint for "map" type.</li>
 </ul>
 </li>
@@ -480,7 +480,8 @@ various <em>optional</em> constraints:</p>
 <li><code>enum</code>:<ul>
 <li><code>items</code> - List of allowed integer or string values.</li>
 <li><code>class</code> - defines storage constraint for some binary encodings.<ul>
-<li><code>string</code> - the default pass by value, the most compatible;</li>
+<li><code>value</code> - the historical default pass by value;</li>
+<li><code>string</code> - pass by value as strings, the most compatible;</li>
 <li>one of <code>integer</code> values for <code>class</code> - pass by <code>items</code> position.</li>
 </ul>
 </li>
@@ -491,7 +492,8 @@ various <em>optional</em> constraints:</p>
 <ul>
 <li><code>items</code> - Complete set of allowed integer or string values.</li>
 <li><code>class</code> - defines storage constraint for some <strong>binary</strong> encodings.<ul>
-<li><code>string</code> - the default pass by value, the most compatible;</li>
+<li><code>value</code> - the historical default pass by value;</li>
+<li><code>string</code> - pass by value as strings, the most compatible;</li>
 <li><em>reserved:</em> one of <code>integer</code> values for <code>class</code> to pass set value by
   <code>items</code> position as array of integers of specific storage size.</li>
 <li><em>reserved:</em> <code>bitset</code> - use <code>items</code> position for bit positions in a
