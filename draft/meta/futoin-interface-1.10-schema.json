@@ -141,6 +141,10 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
+            "itemOrder": {
+              "type": "number",
+              "desc": "This field must be set only for compiled specs"
+            },
             "params": {
               "type": "object",
               "additionalProperties": false,
@@ -154,6 +158,10 @@
                   "uniqueItems": true,
                   "additionalProperties": false,
                   "properties": {
+                    "itemOrder": {
+                      "type": "number",
+                      "desc": "This field must be set only for compiled specs"
+                    },
                     "type": {
                       "type": [
                         "string",
@@ -212,6 +220,10 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
+            "itemOrder": {
+              "type": "number",
+              "desc": "This field must be set only for compiled specs"
+            },
             "params": {
               "type": "object",
               "additionalProperties": false,
@@ -225,6 +237,10 @@
                   "uniqueItems": true,
                   "additionalProperties": false,
                   "properties": {
+                    "itemOrder": {
+                      "type": "number",
+                      "desc": "This field must be set only for compiled specs"
+                    },
                     "type": {
                       "type": [
                         "string",
@@ -268,6 +284,10 @@
                   "uniqueItems": true,
                   "additionalProperties": false,
                   "properties": {
+                    "itemOrder": {
+                      "type": "number",
+                      "desc": "This field must be set only for compiled specs"
+                    },
                     "type": {
                       "type": [
                         "string",

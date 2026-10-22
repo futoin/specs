@@ -925,6 +925,10 @@ Using [JSON-SCHEMA][]:
                             "type" : "object",
                             "additionalProperties" : false,
                             "properties" : {
+                                "itemOrder" : {
+                                    "type": "number",
+                                    "desc": "This field must be set only for compiled specs"
+                                },
                                 "params" : {
                                     "type" : "object",
                                     "additionalProperties" : false,
@@ -934,6 +938,10 @@ Using [JSON-SCHEMA][]:
                                             "uniqueItems": true,
                                             "additionalProperties" : false,
                                             "properties" : {
+                                                "itemOrder" : {
+                                                    "type": "number",
+                                                    "desc": "This field must be set only for compiled specs"
+                                                },
                                                 "type" :  {
                                                     "type" : ["string", "array"],
                                                     "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
@@ -981,6 +989,10 @@ Using [JSON-SCHEMA][]:
                             "type" : "object",
                             "additionalProperties" : false,
                             "properties" : {
+                                "itemOrder" : {
+                                    "type": "number",
+                                    "desc": "This field must be set only for compiled specs"
+                                },
                                 "params" : {
                                     "type" : "object",
                                     "additionalProperties" : false,
@@ -990,6 +1002,10 @@ Using [JSON-SCHEMA][]:
                                             "uniqueItems": true,
                                             "additionalProperties" : false,
                                             "properties" : {
+                                                "itemOrder" : {
+                                                    "type": "number",
+                                                    "desc": "This field must be set only for compiled specs"
+                                                },
                                                 "type" :  {
                                                     "type" : ["string", "array"],
                                                     "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
@@ -1015,6 +1031,10 @@ Using [JSON-SCHEMA][]:
                                             "uniqueItems": true,
                                             "additionalProperties" : false,
                                             "properties" : {
+                                                "itemOrder" : {
+                                                    "type": "number",
+                                                    "desc": "This field must be set only for compiled specs"
+                                                },
                                                 "type" :  {
                                                     "type" : ["string", "array"],
                                                     "pattern" : "^any|boolean|integer|number|string|map|array|[A-Z][a-zA-Z0-9]+$"
