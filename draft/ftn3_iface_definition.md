@@ -33,6 +33,7 @@ Authors: Andrey Galkin
       for "enum" and "set" types.
     * NEW: "keytype" optional constraint for "map" type.
     * NEW: support for precompiled specs and YAML in source definitions.
+    * NEW: documented original Markdown requirements for spec repositories.
 * v1.9.2 - 2019-05-27 - Andrey Galkin
     * FIXED: minor typo/spelling fixes
 * v1.9.1 - 2018-04-17 - Andrey Galkin
@@ -1354,6 +1355,42 @@ Automatic retrieval processes must check **final/meta/** first before searching
 development and after final publication. However, draft specifications remain
 subject to change without version updates; applications should cache draft specs
 using short Time-To-Live (TTL) durations or disable caching entirely.
+
+### 2.5.1. Markdown extensions
+
+The start of the specifications must contain header of the following format.
+Only the `Version` tag is meaningful for automatic processing. The placeholders
+must be replaced like in the current specification.
+
+
+    <pre>
+    {title}
+    Version: {version}
+    Date: {date}
+    Copyright: {copyright}
+    Authors: {authors}
+    </pre>
+    <empty line>
+
+The end of each spec must be clearly marked with `=END OF SPEC=` line.
+
+FutoIn interface specs can be marked for automatic extraction with the following
+tags with `{ver}` placeholder being automatically replaced with the major and
+the minor parts from the `Version` in the header.
+
+    <empty line>
+    `Iface{`
+    <empty line>
+    {
+        "iface": "com.example.iface",
+        "version": "{ver}",
+        "inherit": "com.example.parent:{ver}",
+        "imports": [ "com.example.import:{ver}" ],
+        ...
+    }
+    <empty line>
+    `}Iface`
+    <empty line>
 
 ## 2.6. Iface definition spec version
 

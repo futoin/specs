@@ -45,6 +45,7 @@ Authors: Andrey Galkin
   for "enum" and "set" types.</li>
 <li>NEW: "keytype" optional constraint for "map" type.</li>
 <li>NEW: support for precompiled specs and YAML in source definitions.</li>
+<li>NEW: documented original Markdown requirements for spec repositories.</li>
 </ul>
 </li>
 <li>v1.9.2 - 2019-05-27 - Andrey Galkin<ul>
@@ -1290,6 +1291,37 @@ containing two identically structured directory trees: "<strong>draft</strong>" 
 development and after final publication. However, draft specifications remain
 subject to change without version updates; applications should cache draft specs
 using short Time-To-Live (TTL) durations or disable caching entirely.</p>
+<h3>2.5.1. Markdown extensions</h3>
+<p>The start of the specifications must contain header of the following format.
+Only the <code>Version</code> tag is meaningful for automatic processing. The placeholders
+must be replaced like in the current specification.</p>
+<pre><code>&lt;pre&gt;
+{title}
+Version: {version}
+Date: {date}
+Copyright: {copyright}
+Authors: {authors}
+&lt;/pre&gt;
+&lt;empty line&gt;
+</code></pre>
+<p>The end of each spec must be clearly marked with <code>=END OF SPEC=</code> line.</p>
+<p>FutoIn interface specs can be marked for automatic extraction with the following
+tags with <code>{ver}</code> placeholder being automatically replaced with the major and
+the minor parts from the <code>Version</code> in the header.</p>
+<pre><code>&lt;empty line&gt;
+`Iface{`
+&lt;empty line&gt;
+{
+    "iface": "com.example.iface",
+    "version": "{ver}",
+    "inherit": "com.example.parent:{ver}",
+    "imports": [ "com.example.import:{ver}" ],
+    ...
+}
+&lt;empty line&gt;
+`}Iface`
+&lt;empty line&gt;
+</code></pre>
 <h2>2.6. Iface definition spec version</h2>
 <p>Every interface definition must specify an <code>ftn3rev</code> field formatted as
 <code>MAJOR.MINOR</code>. If this field is omitted, FTN3 revision 1.0 is assumed.</p>
